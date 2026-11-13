@@ -55,6 +55,10 @@
       mejoras: {},
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
+      // Pausa al cierre del día: mientras no sea null el reloj está parado y
+      // guarda el ticket por enseñar (los días que cubre y sus sumas).
+      cierrePendiente: null,
+      ajustes: { pararAlCierre: true },
       ultimaMarca: ahoraMs || 0
     };
   }
@@ -225,6 +229,37 @@
     resumen.cierres.push(cerrada);
   }
 
+  // --------------------------------------------------- Pausa al cierre
+
+  const CAMPOS_CAJA = ['carreras', 'ingresos', 'combustible', 'conductores', 'fijos'];
+
+  /* Suma varias cajas cerradas en un solo ticket { desdeDia, hastaDia, ... }. */
+  function sumarCierres(cajas) {
+    const ticket = { desdeDia: cajas[0].dia, hastaDia: cajas[cajas.length - 1].dia };
+    CAMPOS_CAJA.forEach(function (campo) {
+      ticket[campo] = cajas.reduce(function (s, caja) { return s + (caja[campo] || 0); }, 0);
+    });
+    return ticket;
+  }
+
+  function enPausa(estado) {
+    return !!estado.cierrePendiente;
+  }
+
+  /* El jugador arranca el día siguiente desde el ticket. */
+  function arrancarDia(estado) {
+    if (!estado.cierrePendiente) return fallo('El día ya está en marcha.');
+    estado.cierrePendiente = null;
+    return exito();
+  }
+
+  /* Ajustes de la partida. Por ahora solo pararAlCierre (sí/no). */
+  function cambiarAjuste(estado, nombre, valor) {
+    if (nombre !== 'pararAlCierre') return fallo('Ese ajuste no existe.');
+    estado.ajustes[nombre] = valor === true || valor === 'true';
+    return exito();
+  }
+
   // ------------------------------------------------------------ Turnos
 
   const TURNOS = ['dia', 'noche'];
@@ -352,6 +387,7 @@
     const rnd = rng || Math.random;
     const c = cfg();
     if (estado.jugador.automatico) return fallo('Tu taxi ya trabaja solo.');
+    if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
     const turno = turnoDelJugador(estado);
     const zona = c.zonas[turno.zona];
@@ -515,10 +551,16 @@
    * tiempo: la usan el bucle del juego y el progreso sin conexión.
    * Trocea el avance en horas enteras para que la tarifa y la demanda sean
    * constantes en cada trozo. Devuelve un resumen de lo ocurrido.
+   *
+   * Pausa: con un cierre pendiente no pasa nada. Al cerrar la caja, si el
+   * ajuste pararAlCierre está activo, deja el cierre pendiente y se para (el
+   * resto del tiempo se descarta). opciones.sinPausa cierra los días sin
+   * pararse: lo usa el progreso sin conexión.
    */
-  function avanzar(estado, segundos) {
+  function avanzar(estado, segundos, opciones) {
     const resumen = resumenVacio();
-    if (!(segundos > 0)) return resumen;
+    if (enPausa(estado) || !(segundos > 0)) return resumen;
+    const pararse = estado.ajustes.pararAlCierre && !(opciones && opciones.sinPausa);
     let restante = segundos * MIN_DIA / segundosPorDia(estado);
     resumen.minutos = restante;
 
@@ -535,21 +577,51 @@
       restante -= paso;
 
       if (carrera && estado.reloj.minutos >= carrera.fin) terminarCarrera(estado, resumen);
-      if (llega && limite % MIN_DIA === cfg().reloj.minutoCierreCaja) cerrarCaja(estado, resumen);
+      if (llega && limite % MIN_DIA === cfg().reloj.minutoCierreCaja) {
+        cerrarCaja(estado, resumen);
+        if (pararse) {
+          estado.cierrePendiente = sumarCierres([estado.caja.ayer]);
+          break;
+        }
+      }
     }
     return resumen;
   }
 
+  /* Segundos reales que faltan para el último cierre de caja que cabe en `segundos`, o 0. */
+  function segundosHastaUltimoCierre(estado, segundos) {
+    const minutosPorSegundo = MIN_DIA / segundosPorDia(estado);
+    const disponibles = segundos * minutosPorSegundo;
+    const minutoDelDia = estado.reloj.minutos % MIN_DIA;
+    let primero = (cfg().reloj.minutoCierreCaja - minutoDelDia + MIN_DIA) % MIN_DIA;
+    if (primero === 0) primero = MIN_DIA;
+    if (disponibles < primero) return 0;
+    const dias = Math.floor((disponibles - primero) / MIN_DIA);
+    return (primero + dias * MIN_DIA) / minutosPorSegundo;
+  }
+
   /*
    * Progreso mientras el juego estaba cerrado. Usa la misma avanzar().
-   * Mientras conduces a mano el taxi se queda parado contigo: el reloj no
-   * avanza. Devuelve el resumen, o null si no ha pasado nada.
+   * Mientras conduces a mano el taxi se queda parado contigo, y si cerraste
+   * con el ticket en pantalla el día sigue parado: el reloj no avanza.
+   * Con pararAlCierre, los días que terminan fuera se cierran solos; el reloj
+   * se queda en el último cierre (lo que sobra se descarta) y queda un único
+   * cierre pendiente con la suma de esos días.
+   * Devuelve el resumen, o null si no ha pasado nada.
    */
   function progresoSinConexion(estado, segundosFuera) {
     const c = cfg().sinConexion;
-    if (!estado.jugador.automatico || !(segundosFuera >= c.minimoSegundos)) return null;
-    const segundos = Math.min(segundosFuera, c.maximoHoras * 3600);
-    const resumen = avanzar(estado, segundos);
+    if (!estado.jugador.automatico || enPausa(estado) || !(segundosFuera >= c.minimoSegundos)) return null;
+    let segundos = Math.min(segundosFuera, c.maximoHoras * 3600);
+    if (estado.ajustes.pararAlCierre) {
+      const hastaCierre = segundosHastaUltimoCierre(estado, segundos);
+      // Una millonésima de más asegura cruzar el cierre pese al redondeo.
+      if (hastaCierre > 0) segundos = hastaCierre + 1e-6;
+    }
+    const resumen = avanzar(estado, segundos, { sinPausa: true });
+    if (estado.ajustes.pararAlCierre && resumen.cierres.length > 0) {
+      estado.cierrePendiente = sumarCierres(resumen.cierres);
+    }
     resumen.segundosFuera = segundosFuera;
     resumen.segundosSimulados = segundos;
     return resumen;
@@ -585,6 +657,10 @@
     despedirConductor,
     buscarCliente,
     importeEnCurso,
+    enPausa,
+    arrancarDia,
+    cambiarAjuste,
+    sumarCierres,
     avanzar,
     progresoSinConexion
   };

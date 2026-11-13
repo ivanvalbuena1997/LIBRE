@@ -23,6 +23,11 @@
       estado.mejoras = estado.mejoras || {};
       estado.conductoresContratados = estado.conductoresContratados || 0;
       estado.jugador.automatico = !!estado.jugador.automatico;
+    },
+    // Versión 3: pausa al cierre del día y ajustes de la partida.
+    2: function (estado) {
+      estado.cierrePendiente = null;
+      estado.ajustes = { pararAlCierre: true };
     }
   };
 

@@ -168,28 +168,96 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
   cerca(largo.fijos, normal.fijos);
 });
 
+function conConductor() {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 5000;
+  sim.contratarConductor(e, 1, 'noche');
+  return e;
+}
+const DIA = function () { return config.reloj.segundosPorDia; };
+
 prueba('sin conexión solo avanza con el taxi automatizado y con tope', function () {
   const e = sim.crearEstadoInicial(0);
   assert.strictEqual(sim.progresoSinConexion(e, 3600), null, 'a mano el taxi espera');
-  e.dinero = 5000;
-  sim.contratarConductor(e, 1, 'noche');
-  const r = sim.progresoSinConexion(e, 100 * 3600);
+  const f = conConductor();
+  f.ajustes.pararAlCierre = false;
+  const r = sim.progresoSinConexion(f, 100 * 3600);
   assert.strictEqual(r.segundosSimulados, config.sinConexion.maximoHoras * 3600);
   assert.ok(r.carreras > 0);
 });
 
-prueba('sin conexión da lo mismo que jugando', function () {
-  function partida() {
-    const e = sim.crearEstadoInicial(0);
-    e.dinero = 5000;
-    sim.contratarConductor(e, 1, 'noche');
-    return e;
-  }
-  const fuera = partida();
-  sim.progresoSinConexion(fuera, 590);   // no justo en un cierre de caja
-  const jugando = partida();
-  for (let i = 0; i < 5900; i++) sim.avanzar(jugando, 0.1);
+prueba('sin conexión da lo mismo que jugando (sin pausa al cierre)', function () {
+  const fuera = conConductor();
+  const jugando = conConductor();
+  fuera.ajustes.pararAlCierre = jugando.ajustes.pararAlCierre = false;
+  sim.progresoSinConexion(fuera, 5.9 * DIA());   // no justo en un cierre de caja
+  for (let i = 0; i < 59 * DIA(); i++) sim.avanzar(jugando, 0.1);
   cerca(fuera.dinero, jugando.dinero, 0.01);
+});
+
+prueba('al cerrar el día el reloj se para hasta arrancar el siguiente', function () {
+  const e = conConductor();
+  sim.avanzar(e, DIA() * 1.5);                   // cruza un cierre
+  assert.ok(sim.enPausa(e));
+  const parado = { minutos: e.reloj.minutos, dinero: e.dinero };
+  cerca(parado.minutos % sim.MIN_DIA, config.reloj.minutoCierreCaja);
+  sim.avanzar(e, DIA() * 3);                     // en pausa no pasa nada
+  assert.strictEqual(e.reloj.minutos, parado.minutos);
+  assert.strictEqual(e.dinero, parado.dinero);
+  assert.ok(sim.arrancarDia(e).ok);
+  sim.avanzar(e, 1);
+  assert.ok(e.reloj.minutos > parado.minutos);
+});
+
+prueba('en pausa no se busca cliente pero se puede comprar', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 100000;
+  sim.avanzar(e, DIA());
+  assert.ok(sim.enPausa(e));
+  assert.ok(!sim.buscarCliente(e).ok);
+  assert.ok(sim.comprarLicencia(e).ok);
+  assert.ok(sim.comprarMejora(e, 'jornada1').ok);
+});
+
+prueba('sin el ajuste de pausa el día siguiente empieza solo', function () {
+  const e = conConductor();
+  sim.cambiarAjuste(e, 'pararAlCierre', 'false');
+  const r = sim.avanzar(e, DIA() * 2.5);
+  assert.strictEqual(r.cierres.length, 2);
+  assert.ok(!sim.enPausa(e));
+});
+
+prueba('sin conexión varios días: un solo ticket con la suma, parado en el último cierre', function () {
+  const e = conConductor();
+  const r = sim.progresoSinConexion(e, DIA() * 4.5);
+  assert.strictEqual(r.cierres.length, 4);
+  assert.ok(sim.enPausa(e));
+  const t = e.cierrePendiente;
+  assert.strictEqual(t.hastaDia - t.desdeDia, 3);
+  cerca(t.ingresos, r.cierres.reduce(function (s, c) { return s + c.ingresos; }, 0));
+  cerca(e.reloj.minutos % sim.MIN_DIA, config.reloj.minutoCierreCaja, 1e-3);
+  // Si se vuelve a cerrar el juego con el ticket en pantalla, el tiempo no corre.
+  assert.strictEqual(sim.progresoSinConexion(e, DIA() * 3), null);
+});
+
+prueba('sin conexión sin llegar al cierre: avanza normal y sin ticket', function () {
+  const e = conConductor();
+  const r = sim.progresoSinConexion(e, DIA() * 0.5);
+  assert.strictEqual(r.cierres.length, 0);
+  assert.ok(!sim.enPausa(e));
+  assert.ok(r.carreras > 0);
+});
+
+prueba('las partidas de la versión 2 cargan y quedan sin pausa', function () {
+  require('../js/guardado.js');
+  const viejo = sim.crearEstadoInicial(0);
+  delete viejo.cierrePendiente;
+  delete viejo.ajustes;
+  viejo.version = 2;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  assert.strictEqual(migrado.version, config.versionGuardado);
+  assert.strictEqual(migrado.cierrePendiente, null);
+  assert.strictEqual(migrado.ajustes.pararAlCierre, true);
 });
 
 console.log(pasadas + ' pruebas correctas');

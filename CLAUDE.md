@@ -57,6 +57,10 @@ día de libranza, gerentes, otras ciudades, prestigio).
 
 - Reloj: `estado.reloj.minutos` cuenta minutos de juego desde el inicio. La
   caja se cierra a las 7:00 y entonces se cobran los costes fijos diarios.
+- Pausa al cierre (ajuste `estado.ajustes.pararAlCierre`, activado por
+  defecto): al cerrar la caja, `estado.cierrePendiente` guarda el ticket (días
+  que cubre y sus sumas) y mientras no sea `null` `avanzar()` no hace nada.
+  Solo `arrancarDia()` lo quita. En pausa no se busca cliente; comprar sí.
 - Las mejoras "Jornada larga" alargan el día en segundos reales; los coches
   trabajan al mismo ritmo real (`factorJornada`), así que caben más carreras
   contra el mismo coste fijo diario.
@@ -67,9 +71,9 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - Carreras a mano: solo hasta contratar al primer conductor
   (`jugador.automatico`). Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
-- Avisos puntuales (cierre de caja, "Mientras estabas fuera") van en la
-  ventana superpuesta de `interfaz.js` (`abrirVentana`), nunca como tarjeta
-  fija. La caja de hoy es un `<details>` de una línea.
+- El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
+  desaparece al arrancar el día (no tapa la página: en pausa se compra). La
+  caja de hoy es un `<details>` de una línea.
 - Pantalla principal en móvil, de arriba abajo: escena, taxímetro, objetivo
   y zonas. Debe caber sin scroll en 375×600 px; cualquier texto nuevo ahí, a
   una línea. Las tarjetas de zona sirven para elegir zona mientras conduces a
@@ -78,7 +82,10 @@ día de libranza, gerentes, otras ciudades, prestigio).
   scroll. A mano es el botón de buscar cliente; automatizado, suma la
   recaudación de hoy de la flota.
 - Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
-  fuera, con tope en la config. Mientras conduces a mano el reloj no avanza.
+  fuera, con tope en la config. Mientras conduces a mano, o si se cerró con
+  el ticket en pantalla, el reloj no avanza. Con pausa al cierre, resuelve los
+  días seguidos (`sinPausa`), se queda en el último cierre y deja un único
+  ticket con la suma de esos días.
 
 ## Valores PROVISIONALES (falta el dato real)
 

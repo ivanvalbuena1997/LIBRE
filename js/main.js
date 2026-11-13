@@ -68,8 +68,10 @@
     const ahora = Date.now();
     const segundos = (ahora - anterior) / 1000;
     anterior = ahora;
-    sim.avanzar(estado, segundos);
+    const resumen = sim.avanzar(estado, segundos);
     estado.ultimaMarca = ahora;
+    // Al pararse el día se guarda al momento: si recargas, sigue en pausa.
+    if (estado.cierrePendiente && resumen.cierres.length > 0) guardar();
     segundosSinGuardar += segundos;
     if (segundosSinGuardar >= SEGUNDOS_ENTRE_GUARDADOS) {
       segundosSinGuardar = 0;
@@ -85,7 +87,7 @@
   window.addEventListener('pagehide', guardar);
 
   if (resumenFuera) {
-    ui.mostrarResumenFuera(resumenFuera);
+    ui.mostrarResumenFuera(resumenFuera, estado);
     guardar();
   }
   ui.dibujar(estado);

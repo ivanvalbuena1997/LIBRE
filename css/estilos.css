@@ -29,7 +29,6 @@
 
   --sombra: rgba(0, 0, 0, 0.08);
   --sombra-fuerte: rgba(0, 0, 0, 0.25);
-  --velo: rgba(20, 20, 20, 0.45);
 
   /* Escena: cielo por momento del día (hex: escena.js los mezcla). */
   --cielo-noche-alto: #0b1330;
@@ -529,35 +528,22 @@ textarea {
 .caja-plegable[open] summary { border-bottom: 1px solid var(--borde); }
 .caja-plegable .filas { padding: 8px 14px 12px; }
 
-/* Ventana sobre la pantalla (cierre de caja, mientras estabas fuera) */
-.ventana-fondo {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
+/* Ticket de cierre de caja (debajo del taxímetro) */
+#sec-ticket .ticket { margin-bottom: 12px; }
+#sec-ticket h2 { font-size: 1rem; }
+
+/* Ajustes de la partida */
+.ajuste {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: var(--velo);
-  animation: aparecer-fondo 0.2s ease-out;
+  gap: 10px;
+  min-height: 44px;
+  margin-bottom: 8px;
 }
-.ventana {
-  width: 100%;
-  max-width: 360px;
-  background: var(--tarjeta);
-  border-radius: var(--radio);
-  border-top: 6px solid var(--verde-libre);
-  padding: 16px;
-  box-shadow: 0 10px 30px var(--sombra-fuerte);
-  animation: aparecer-ventana 0.25s ease-out;
-}
-.ventana.malo { border-top-color: var(--rojo-taxi); }
-.ventana h2 { margin: 0 0 8px; font-size: 1.1rem; }
-.ventana .filas { margin-bottom: 14px; }
-.ventana .filas div { transition: opacity 0.2s; }
-.ventana .filas .pendiente { opacity: 0.3; }
-@keyframes aparecer-fondo { from { opacity: 0; } }
-@keyframes aparecer-ventana { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
+.ajuste input { width: 22px; height: 22px; accent-color: var(--verde-libre); }
+
+/* Zonas que no responden mientras el día está cerrado */
+button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 
 /* Zonas: tarjetas con icono y medidor */
 #sec-zonas { padding: 8px; }

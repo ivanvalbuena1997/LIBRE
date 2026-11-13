@@ -136,8 +136,9 @@
         conPasajero ? carrera.tarifa : info.tarifa, !conPasajero);
 
       const boton = document.querySelector('.taximetro-boton');
-      boton.disabled = !!carrera;
-      $('tx-pie').textContent = carrera ? '' : 'Toca para buscar cliente';
+      const pausa = Libre.sim.enPausa(estado);
+      boton.disabled = !!carrera || pausa;
+      $('tx-pie').textContent = pausa ? 'Día cerrado' : carrera ? '' : 'Toca para buscar cliente';
 
       const barra = $('carrera-barra');
       const texto = $('carrera-estado');
@@ -195,6 +196,9 @@
       } else {
         ocupado = Libre.sim.importeEnCurso(estado) !== null;
         moviendo = ocupado;
+      }
+      if (Libre.sim.enPausa(estado)) {
+        moviendo = false;
       }
       Libre.escena.actualizar($('sec-escena').firstChild, {
         hora: info.minutoDelDia / 60,
@@ -286,81 +290,61 @@
     }
   };
 
-  function textoDuracion(segundos) {
-    const h = Math.floor(segundos / 3600);
-    const m = Math.floor((segundos % 3600) / 60);
-    if (h > 0) return h + ' h ' + m + ' min';
-    if (m > 0) return m + ' min';
-    return Math.round(segundos) + ' s';
-  }
-
-  // ---------------------------------------------------------- Ventana
+  // ---------------------------------------------------------- Ticket
   /*
-   * Ventana sobre la pantalla para el cierre de caja y para "Mientras estabas
-   * fuera". Las cifras se suman una a una; con movimiento reducido salen ya
-   * puestas. Al cerrarla desaparece del todo: no ocupa sitio en la página.
-   * filas: [{ texto, valor, tipo: 'entero'|'euros', signo, total, clase }]
+   * Ticket de cierre de caja, dentro de la página justo debajo del taxímetro
+   * (no tapa nada: en pausa se puede seguir comprando).
+   *   - Con pausa al cierre: lo marca estado.cierrePendiente y su botón arranca
+   *     el día siguiente (acción de la simulación).
+   *   - Sin pausa: aviso de la interfaz (ticketAviso) que se quita con "Vale".
    */
-  const MS_POR_FILA = 320;
-  let ventana = null;
+  let ticketAviso = null;
 
-  function textoFila(f, valor) {
-    return f.tipo === 'entero' ? String(Math.floor(valor)) : (f.signo || '') + euros(valor);
+  function ticketEnPantalla(estado) {
+    if (estado.cierrePendiente) return { datos: estado.cierrePendiente, pausa: true };
+    if (ticketAviso) return { datos: ticketAviso, pausa: false };
+    return null;
   }
 
-  function cerrarVentana() {
-    if (!ventana) return;
-    ventana.temporizadores.forEach(clearInterval);
-    ventana.fondo.remove();
-    document.removeEventListener('keydown', ventana.teclado);
-    ventana = null;
+  function filasTicket(t) {
+    const neto = t.ingresos - t.combustible - t.conductores - t.fijos;
+    return [
+      { texto: 'Carreras', valor: String(Math.floor(t.carreras)) },
+      { texto: 'Recaudación', valor: euros(t.ingresos) },
+      { texto: 'Combustible', valor: '−' + euros(t.combustible) },
+      { texto: 'Conductores', valor: '−' + euros(t.conductores) },
+      { texto: 'Costes fijos', valor: '−' + euros(t.fijos) },
+      { texto: 'Neto', valor: euros(neto), total: true, negativo: neto < 0 }
+    ];
   }
 
-  function abrirVentana(titulo, intro, filas, malo) {
-    cerrarVentana();
-    const reducido = movimientoReducido.matches;
-    const fondo = document.createElement('div');
-    fondo.className = 'ventana-fondo';
-    fondo.innerHTML = '<div class="ventana' + (malo ? ' malo' : '') + '" role="dialog" aria-modal="true" aria-labelledby="ventana-titulo">' +
-      '<h2 id="ventana-titulo">' + esc(titulo) + '</h2>' +
-      (intro ? '<p class="ayuda">' + intro + '</p>' : '') +
-      '<dl class="filas">' + filas.map(function (f, i) {
-        return '<div class="' + (f.total ? 'total' : '') + (reducido ? '' : ' pendiente') + '" data-fila="' + i + '">' +
-          '<dt>' + esc(f.texto) + '</dt><dd class="' + (f.clase || '') + '">' + textoFila(f, reducido ? f.valor : 0) + '</dd></div>';
-      }).join('') + '</dl>' +
-      '<button type="button" class="boton-principal" data-cerrar-ventana>Vale</button></div>';
-    document.body.appendChild(fondo);
-
-    ventana = {
-      fondo,
-      temporizadores: [],
-      teclado: function (ev) { if (ev.key === 'Escape') cerrarVentana(); }
-    };
-    document.addEventListener('keydown', ventana.teclado);
-    fondo.addEventListener('click', function (ev) {
-      // Se cierra con el botón o tocando fuera de la ventana.
-      if (ev.target === fondo || ev.target.closest('[data-cerrar-ventana]')) cerrarVentana();
-    });
-    fondo.querySelector('[data-cerrar-ventana]').focus({ preventScroll: true });
-    if (reducido) return;
-
-    // Las filas se suman de una en una (setInterval: sigue en segundo plano).
-    filas.forEach(function (f, i) {
-      const fila = fondo.querySelector('[data-fila="' + i + '"]');
-      const dd = fila.querySelector('dd');
-      const inicio = Date.now() + i * MS_POR_FILA;
-      const t = setInterval(function () {
-        const p = (Date.now() - inicio) / MS_POR_FILA;
-        if (p < 0) return;
-        fila.classList.remove('pendiente');
-        dd.textContent = textoFila(f, f.valor * Math.min(1, 1 - Math.pow(1 - Math.min(1, p), 3)));
-        if (p >= 1) clearInterval(t);
-      }, 30);
-      ventana.temporizadores.push(t);
-    });
+  function tituloTicket(t) {
+    return t.desdeDia === t.hastaDia
+      ? 'Cierre de caja · día ' + (t.desdeDia + 1)
+      : 'Cierre de caja · días ' + (t.desdeDia + 1) + ' a ' + (t.hastaDia + 1);
   }
 
-  /* Cierre de caja: ventana cada vez que termina un día (no al cargar). */
+  const seccionTicket = {
+    id: 'sec-ticket',
+    firma: function (estado) {
+      const t = ticketEnPantalla(estado);
+      return t ? [t.pausa, t.datos.desdeDia, t.datos.hastaDia].join('|') : 'nada';
+    },
+    html: function (estado) {
+      const t = ticketEnPantalla(estado);
+      if (!t) return '';
+      return '<div class="ticket"><h2>' + esc(tituloTicket(t.datos)) + '</h2>' +
+        '<dl class="filas">' + filasTicket(t.datos).map(function (f) {
+          return '<div class="' + (f.total ? 'total' : '') + '"><dt>' + esc(f.texto) + '</dt>' +
+            '<dd class="' + (f.negativo ? 'negativo-texto' : '') + '">' + f.valor + '</dd></div>';
+        }).join('') + '</dl></div>' +
+        (t.pausa
+          ? boton('Arrancar día siguiente', 'arrancarDia', [], 'boton-principal')
+          : '<button type="button" class="boton-principal" data-cerrar-ticket>Vale</button>');
+    }
+  };
+
+  /* Sin pausa al cierre, cada día cerrado se enseña como aviso. */
   let ultimoCierreVisto = null;
   function vigilarCierres(estado) {
     const ayer = estado.caja.ayer;
@@ -368,31 +352,19 @@
     if (ultimoCierreVisto === null) { ultimoCierreVisto = ayer ? ayer.dia : -1; return; }
     if (!ayer || ayer.dia === ultimoCierreVisto) return;
     ultimoCierreVisto = ayer.dia;
-    const neto = Libre.sim.netoCaja(ayer);
-    abrirVentana('Cierre de caja · día ' + (ayer.dia + 1), '', [
-      { texto: 'Carreras', valor: ayer.carreras, tipo: 'entero' },
-      { texto: 'Recaudación', valor: ayer.ingresos },
-      { texto: 'Combustible', valor: ayer.combustible, signo: '−' },
-      { texto: 'Conductores', valor: ayer.conductores, signo: '−' },
-      { texto: 'Costes fijos', valor: ayer.fijos, signo: '−' },
-      { texto: 'Neto', valor: neto, total: true, clase: neto < 0 ? 'negativo-texto' : 'positivo' }
-    ], neto < 0);
+    if (!estado.cierrePendiente) ticketAviso = Libre.sim.sumarCierres([ayer]);
   }
 
-  /* Resumen de lo ocurrido mientras el juego estaba cerrado. */
-  function mostrarResumenFuera(r) {
-    const gastos = r.combustible + r.conductores + r.fijos;
-    const neto = r.ingresos - gastos;
-    const intro = 'Has estado fuera ' + textoDuracion(r.segundosFuera) + ': ' +
-      r.cierres.length + (r.cierres.length === 1 ? ' día cerrado.' : ' días cerrados.') +
-      (r.segundosSimulados < r.segundosFuera
-        ? ' Solo cuentan las primeras ' + textoDuracion(r.segundosSimulados) + '.' : '');
-    abrirVentana('Mientras estabas fuera', esc(intro), [
-      { texto: 'Carreras', valor: r.carreras, tipo: 'entero' },
-      { texto: 'Recaudación', valor: r.ingresos },
-      { texto: 'Gastos', valor: gastos, signo: '−' },
-      { texto: 'Neto', valor: neto, total: true, clase: neto < 0 ? 'negativo-texto' : 'positivo' }
-    ], neto < 0);
+  /*
+   * Al volver tras tener el juego cerrado. Si se cerraron días, el ticket ya
+   * está en el estado (o, sin pausa, se enseña como aviso); si no, un mensaje.
+   */
+  function mostrarResumenFuera(r, estado) {
+    if (r.cierres.length > 0) {
+      if (!estado.cierrePendiente) ticketAviso = Libre.sim.sumarCierres(r.cierres);
+    } else if (r.carreras >= 1) {
+      mostrarMensaje('Mientras estabas fuera: ' + euros(r.ingresos) + ' en ' + Math.floor(r.carreras) + ' carreras.');
+    }
   }
 
   /* Caja de hoy: una línea que se despliega con el desglose. */
@@ -514,6 +486,8 @@
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
       const grupos = Libre.sim.cochesPorZona(estado, info);
       const umbral = Libre.config.economia.demandaMinimaManual;
+      const pausa = Libre.sim.enPausa(estado);
+      document.querySelectorAll('button.zona-tarjeta').forEach(function (b) { b.disabled = pausa; });
       Libre.sim.zonasDisponibles(estado).forEach(function (id) {
         const coches = grupos[id] ? grupos[id].length : 0;
         const r = Libre.sim.rendimientoZona(estado, id, coches, info);
@@ -610,9 +584,11 @@
 
   const seccionPartida = {
     id: 'sec-partida',
-    firma: function () { return 'fija'; },
-    html: function () {
+    firma: function (estado) { return 'ajustes:' + estado.ajustes.pararAlCierre; },
+    html: function (estado) {
       return '<h2>Partida</h2>' +
+        '<label class="ajuste"><input type="checkbox" data-cambio="cambiarAjuste" data-args="pararAlCierre"' +
+        (estado.ajustes.pararAlCierre ? ' checked' : '') + '> Parar al cierre del día</label>' +
         '<p class="ayuda">Se guarda sola en este navegador. Para pasarla a otro dispositivo, exporta el texto y pégalo allí en Importar.</p>' +
         '<textarea id="partida-texto" spellcheck="false" placeholder="Texto de la partida"></textarea>' +
         '<div class="acciones">' +
@@ -623,7 +599,7 @@
     }
   };
 
-  const secciones = [seccionEscena, seccionTaximetro, seccionObjetivo, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
+  const secciones = [seccionEscena, seccionTaximetro, seccionTicket, seccionObjetivo, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -781,7 +757,7 @@
   /* Olvida lo dibujado: hace falta tras importar o borrar la partida. */
   function reiniciar() {
     ultimoCierreVisto = null;
-    cerrarVentana();
+    ticketAviso = null;
     objetivoId = null;
     flotantes.base = null;
     flotantes.pendiente = 0;
@@ -797,6 +773,11 @@
     }).join('');
 
     main.addEventListener('click', function (ev) {
+      if (ev.target.closest('[data-cerrar-ticket]')) {
+        ticketAviso = null;
+        opciones.redibujar();
+        return;
+      }
       const botonPartida = ev.target.closest('[data-partida]');
       if (botonPartida) {
         accionPartida(opciones.partida, botonPartida.dataset.partida);
@@ -823,7 +804,8 @@
     main.addEventListener('change', function (ev) {
       const el = ev.target.closest('[data-cambio]');
       if (!el) return;
-      ejecutar(el.dataset.cambio, el.dataset.args.split('|').concat([el.value]));
+      const valor = el.type === 'checkbox' ? String(el.checked) : el.value;
+      ejecutar(el.dataset.cambio, el.dataset.args.split('|').concat([valor]));
     });
   }
 
