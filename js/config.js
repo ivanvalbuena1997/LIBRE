@@ -55,7 +55,11 @@
       dineroInicial: 50,          // Equilibrio: caja con la que empiezas.
       // Equilibrio: por debajo de estos viajes por hora la zona se considera
       // vacía y no se puede buscar cliente a mano.
-      demandaMinimaManual: 0.5
+      demandaMinimaManual: 0.5,
+      // Equilibrio: cada jornada, la demanda de cada zona se mueve al azar
+      // hasta este porcentaje arriba o abajo (0,2 = ±20 %). El azar sale del
+      // número de día, así que jugando y sin conexión da lo mismo.
+      variacionDiariaDemanda: 0.2
     },
 
     conduccion: {
@@ -143,9 +147,11 @@
         textoEspera: 'Buscando cliente por el centro',
         busquedaMin: 6,           // Equilibrio
         colaMin: 0,
-        variacion: 0.3,
-        viajes: [
-          { proporcion: 1, km: 3.2, minParado: 6, minutos: 15 } // Equilibrio
+        variacion: 0.4,
+        viajes: [                 // Equilibrio
+          { proporcion: 0.45, km: 1.8, minParado: 4, minutos: 9 },  // corta: dos calles
+          { proporcion: 0.40, km: 3.5, minParado: 7, minutos: 16 }, // media
+          { proporcion: 0.15, km: 7, minParado: 9, minutos: 26 }    // larga: a otro barrio
         ],
         demanda: {                // Equilibrio
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
@@ -161,10 +167,12 @@
         textoEspera: 'Esperando a la salida de los locales',
         busquedaMin: 2,           // Equilibrio: hay gente esperando a la salida
         colaMin: 0,
-        variacion: 0.35,
+        variacion: 0.4,
         viajes: [
           // Equilibrio: carreras más largas (de vuelta a casa) que en el centro.
-          { proporcion: 1, km: 8, minParado: 3, minutos: 20 }
+          { proporcion: 0.30, km: 4, minParado: 2, minutos: 11 },     // a otra zona de copas
+          { proporcion: 0.45, km: 8, minParado: 3, minutos: 20 },     // a casa
+          { proporcion: 0.25, km: 13.5, minParado: 4.5, minutos: 30 } // a las afueras
         ],
         demanda: {                // Equilibrio
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
@@ -184,11 +192,12 @@
         requiere: 'aeropuerto',
         busquedaMin: 0,
         colaMin: 35,              // Equilibrio
-        variacion: 0.2,
+        variacion: 0.25,
         viajes: [                 // Equilibrio (proporciones y km)
           { proporcion: 0.60, tarifaFija: 't4', km: 15, minParado: 0, minutos: 25 }, // al interior de la M-30
           { proporcion: 0.15, tarifaFija: 't3', km: 7, minParado: 0, minutos: 12 },  // fuera de la M-30, < 9 km
-          { proporcion: 0.25, km: 22, minParado: 5, minutos: 28 }                    // resto, con taxímetro
+          { proporcion: 0.15, km: 18, minParado: 5, minutos: 24 },                   // con taxímetro, cerca
+          { proporcion: 0.10, km: 32, minParado: 7, minutos: 38 }                    // con taxímetro, lejos
         ],
         demanda: {                // Equilibrio
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
@@ -204,9 +213,11 @@
         requiere: 'estaciones',
         busquedaMin: 2,
         colaMin: 6,               // Equilibrio
-        variacion: 0.3,
-        viajes: [
-          { proporcion: 1, km: 6, minParado: 7, minutos: 18 } // Equilibrio
+        variacion: 0.4,
+        viajes: [                 // Equilibrio
+          { proporcion: 0.35, km: 3, minParado: 5, minutos: 11 },   // al hotel de al lado
+          { proporcion: 0.45, km: 6, minParado: 7, minutos: 18 },   // a casa
+          { proporcion: 0.20, km: 11, minParado: 10, minutos: 29 }  // al otro extremo
         ],
         demanda: {                // Equilibrio: picos de llegada de trenes
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23

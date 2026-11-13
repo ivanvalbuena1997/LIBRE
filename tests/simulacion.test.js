@@ -333,4 +333,35 @@ prueba('a mano solo se trabaja en la franja de tu turno', function () {
   assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok);
 });
 
+prueba('cada jornada la demanda de una zona cambia, siempre igual para el mismo día', function () {
+  const e = sim.crearEstadoInicial(0);
+  const v = config.economia.variacionDiariaDemanda;
+  const factores = [];
+  for (let d = 0; d < 30; d++) {
+    const f = sim.factorDeJornada(sim.infoReloj(d * sim.MIN_DIA + 12 * 60), 'centro');
+    assert.ok(f >= 1 - v && f <= 1 + v);
+    factores.push(f);
+  }
+  assert.ok(new Set(factores.map(function (f) { return f.toFixed(3); })).size > 10, 'los días varían');
+  // La madrugada pertenece a la jornada anterior.
+  cerca(sim.factorDeJornada(sim.infoReloj(sim.MIN_DIA + 3 * 60), 'ocio'),
+        sim.factorDeJornada(sim.infoReloj(22 * 60), 'ocio'));
+  // Mismo día, mismo resultado.
+  cerca(sim.demandaZona(e, 'centro', sim.infoReloj(5 * sim.MIN_DIA + 600)),
+        sim.demandaZona(e, 'centro', sim.infoReloj(5 * sim.MIN_DIA + 600)));
+});
+
+prueba('las carreras a mano salen de varios tipos y longitudes', function () {
+  const kms = [];
+  for (let i = 0; i < 40; i++) {
+    const e = sim.crearEstadoInicial(0);
+    let semilla = 12345 + i * 7919;
+    const rng = function () { semilla = (semilla * 16807) % 2147483647; return semilla / 2147483647; };
+    rng(); rng();   // calentar el generador
+    sim.buscarCliente(e, rng);
+    kms.push(e.jugador.carrera.km);
+  }
+  assert.ok(Math.max.apply(null, kms) > 3 * Math.min.apply(null, kms), 'hay cortas y largas');
+});
+
 console.log(pasadas + ' pruebas correctas');

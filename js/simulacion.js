@@ -206,11 +206,32 @@
     return medio;
   }
 
+  /*
+   * Número entre 0 y 1 que depende solo de la jornada y la zona: «azar» que
+   * siempre da lo mismo para el mismo día, así el progreso sin conexión
+   * coincide con jugar.
+   */
+  function azarDeJornada(jornada, zonaId) {
+    let h = 2166136261 ^ jornada;
+    for (let i = 0; i < zonaId.length; i++) h = Math.imul(h ^ zonaId.charCodeAt(i), 16777619);
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+
+  /* Cuánto se anima hoy una zona: entre 1 − v y 1 + v (v en la config). */
+  function factorDeJornada(info, zonaId) {
+    const jornada = info.minutoDelDia < cfg().reloj.minutoCierreCaja ? info.dia - 1 : info.dia;
+    const v = cfg().economia.variacionDiariaDemanda;
+    return 1 + (azarDeJornada(jornada, zonaId) * 2 - 1) * v;
+  }
+
   function demandaZona(estado, zonaId, info) {
     const zona = cfg().zonas[zonaId];
     const tabla = info.finDeSemana ? zona.demanda.finDeSemana : zona.demanda.laborable;
     const factorDia = zona.factorPorDia ? zona.factorPorDia[info.diaSemana] : 1;
-    return tabla[info.hora] * factorDia * modificadores(estado, zonaId).demanda;
+    return tabla[info.hora] * factorDia * factorDeJornada(info, zonaId) * modificadores(estado, zonaId).demanda;
   }
 
   /* Minutos que tarda un coche en completar una carrera: buscar + cola + viaje. */
@@ -722,6 +743,7 @@
     costePorKm,
     costesFijosDiarios,
     demandaZona,
+    factorDeJornada,
     turnoDeHora,
     turnoDelJugador,
     jugadorEnTurno,

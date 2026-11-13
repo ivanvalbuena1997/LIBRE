@@ -67,6 +67,10 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - Las mejoras "Jornada larga" alargan el día en segundos reales; los coches
   trabajan al mismo ritmo real (`factorJornada`), así que caben más carreras
   contra el mismo coste fijo diario.
+- Cada zona tiene varios tipos de carrera (cortas, medias, largas) y su
+  demanda cambia cada jornada con `factorDeJornada()`: un «azar» que sale del
+  número de jornada, así que el mismo día da siempre lo mismo (jugando y sin
+  conexión). Prohibido `Math.random` en lo que afecta a la flota.
 - Coches automáticos: valores medios, sin azar. Por zona y hora,
   `viajes = min(demanda, coches × 60 / minutos por carrera)`. Los coches que
   sobran dan vueltas en vacío (o esperan en la cola sin gastar si la zona
