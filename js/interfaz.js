@@ -29,8 +29,22 @@
   }
   function $(id) { return document.getElementById(id); }
 
+  /*
+   * Jornada: el día del juego tal como lo vive el taxista, de 7:00 a 7:00
+   * (cuando se cierra la caja). La madrugada cuenta como la noche del día
+   * anterior: "Lunes 03:00" son las 3 de la madrugada del martes. Solo cambia
+   * lo que se enseña; las tarifas y la demanda siguen el calendario.
+   */
+  function jornadaDe(minutos) {
+    const c = Libre.config;
+    const dia = Math.floor((minutos - c.reloj.minutoCierreCaja) / Libre.sim.MIN_DIA);
+    const enJornada = minutos - c.reloj.minutoCierreCaja - dia * Libre.sim.MIN_DIA;
+    return { dia, nombreDia: c.reloj.diasSemana[((dia % 7) + 7) % 7], avance: enJornada / Libre.sim.MIN_DIA };
+  }
+
   function textoHora(info) {
-    return info.nombreDia + ' ' + dos(info.hora) + ':' + dos(info.minuto);
+    return jornadaDe(info.dia * Libre.sim.MIN_DIA + info.minutoDelDia).nombreDia + ' ' +
+      dos(info.hora) + ':' + dos(info.minuto);
   }
 
   function chipTarifa(tarifaId) {
@@ -463,7 +477,7 @@
   // Próxima hora con clientes en una zona, como texto ("Abre a las 21:00").
   let cacheApertura = {};
   function textoApertura(estado, zonaId) {
-    const ahora = Libre.sim.infoReloj(estado.reloj.minutos);
+    const ahora = jornadaDe(estado.reloj.minutos);
     const horaActual = Math.floor(estado.reloj.minutos / 60);
     const clave = horaActual + '|' + JSON.stringify(estado.mejoras);
     if (cacheApertura.clave !== clave) cacheApertura = { clave };
@@ -474,10 +488,11 @@
       const info = Libre.sim.infoReloj((horaActual + h) * 60);
       if (Libre.sim.demandaZona(estado, zonaId, info) >= umbral) {
         const a = 'a las ' + dos(info.hora) + ':00';
-        const dias = info.dia - ahora.dia;
+        const jornada = jornadaDe((horaActual + h) * 60);
+        const dias = jornada.dia - ahora.dia;
         texto = dias === 0 ? 'Abre ' + a
           : dias === 1 ? 'Abre mañana ' + a
-          : 'Abre el ' + info.nombreDia.toLowerCase() + ' ' + a;
+          : 'Abre el ' + jornada.nombreDia.toLowerCase() + ' ' + a;
         break;
       }
     }
@@ -846,8 +861,10 @@
   function dibujar(estado) {
     const info = Libre.sim.infoReloj(estado.reloj.minutos);
     fijarDinero(estado.dinero);
-    $('reloj').innerHTML = 'Día ' + (info.dia + 1) + ' · ' + textoHora(info) + ' ' + chipTarifa(info.tarifa);
-    $('barra-dia').style.width = (info.minutoDelDia / Libre.sim.MIN_DIA * 100).toFixed(2) + '%';
+    // Día y barra siguen la jornada (de 7:00 a 7:00): cambian cuando sale el ticket.
+    const jornada = jornadaDe(estado.reloj.minutos);
+    $('reloj').innerHTML = 'Día ' + (jornada.dia + 1) + ' · ' + textoHora(info) + ' ' + chipTarifa(info.tarifa);
+    $('barra-dia').style.width = (jornada.avance * 100).toFixed(2) + '%';
 
     secciones.forEach(function (s) {
       const el = $(s.id);

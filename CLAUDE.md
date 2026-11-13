@@ -57,6 +57,9 @@ día de libranza, gerentes, otras ciudades, prestigio).
 
 - Reloj: `estado.reloj.minutos` cuenta minutos de juego desde el inicio. La
   caja se cierra a las 7:00 y entonces se cobran los costes fijos diarios.
+  La interfaz enseña el día por jornada (de 7:00 a 7:00, `jornadaDe()`): la
+  cabecera cambia de día a las 7:00, cuando sale el ticket, y la madrugada
+  cuenta como la noche del día anterior. Tarifas y demanda siguen el calendario.
 - Pausa al cierre (ajuste `estado.ajustes.pararAlCierre`, activado por
   defecto): al cerrar la caja, `estado.cierrePendiente` guarda el ticket (días
   que cubre y sus sumas) y mientras no sea `null` `avanzar()` no hace nada.
