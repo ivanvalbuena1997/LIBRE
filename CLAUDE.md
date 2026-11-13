@@ -15,9 +15,10 @@ día de libranza, gerentes, otras ciudades, prestigio).
   - `Libre.config` → `js/config.js`
   - `Libre.sim` → `js/simulacion.js`
   - `Libre.guardado` → `js/guardado.js`
+  - `Libre.escena` → `js/escena.js` (tira SVG decorativa; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
-  guardado, interfaz, main.
+  guardado, escena, interfaz, main.
 
 ## Reglas de arquitectura
 

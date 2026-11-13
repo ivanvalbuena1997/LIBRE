@@ -29,6 +29,30 @@
 
   --sombra: rgba(0, 0, 0, 0.08);
 
+  /* Escena: cielo por momento del día (hex: escena.js los mezcla). */
+  --cielo-noche-alto: #0b1330;
+  --cielo-noche-bajo: #27305e;
+  --cielo-alba-alto: #6f7fb8;
+  --cielo-alba-bajo: #f6b07a;
+  --cielo-dia-alto: #6fb8ea;
+  --cielo-dia-bajo: #cfe9f8;
+  --cielo-ocaso-alto: #5a4f93;
+  --cielo-ocaso-bajo: #f08a5d;
+  --edificio-lejos: #b9c3cc;
+  --edificio-cerca: #8794a1;
+  --edificio-lejos-noche: #1e2440;
+  --edificio-cerca-noche: #12162b;
+  --ventana-apagada: #dfe5ea;
+  --ventana-noche: #10142a;
+  --ventana-encendida: #ffd36b;
+  --asfalto: #3b3d40;
+  --carril: #e8e8e2;
+  --luna: #f3f0dc;
+  --taxi-contorno: #2a2a2a;
+  --taxi-cristal: #9fb7c9;
+  --neumatico: #1c1c1c;
+  --llanta: #b5b5b0;
+
   /* Taxímetro: carcasa negra y cifras de LED rojo, como los de verdad. */
   --tx-carcasa: #1b1b1b;
   --tx-display: #0c0d0c;
@@ -349,6 +373,54 @@ textarea {
   color: var(--tx-texto);
   min-height: 1.2em;
 }
+
+/* Escena encima del taxímetro */
+#sec-escena {
+  padding: 0;
+  height: 56px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.escena { display: block; width: 100%; height: 56px; }
+.escena .edificio-lejos { fill: var(--edificio-lejos); }
+.escena .edificio-cerca { fill: var(--edificio-cerca); }
+.escena .ventana { fill: var(--ventana-apagada); }
+.escena .asfalto { fill: var(--asfalto); }
+.escena .carril { fill: var(--carril); }
+.escena .estrella, .escena .luna { fill: var(--luna); opacity: 0; transition: opacity 1s; }
+.escena.noche .estrella, .escena.noche .luna { opacity: 1; }
+.escena.noche .edificio-lejos { fill: var(--edificio-lejos-noche); }
+.escena.noche .edificio-cerca { fill: var(--edificio-cerca-noche); }
+.escena.noche .ventana { fill: var(--ventana-noche); }
+.escena.noche .ventana.encendible { fill: var(--ventana-encendida); }
+
+.escena .taxi-chapa, .escena .taxi-luminoso {
+  fill: var(--blanco);
+  stroke: var(--taxi-contorno);
+  stroke-width: 0.8;
+}
+.escena .taxi-cristal { fill: var(--taxi-cristal); }
+.escena .taxi-franja { fill: var(--rojo-taxi); }
+.escena .taxi-faro { fill: var(--ventana-encendida); }
+.escena .neumatico { fill: var(--neumatico); }
+.escena .llanta { fill: var(--llanta); }
+.escena .radio { stroke: var(--neumatico); stroke-width: 0.8; }
+.escena .piloto-taxi { fill: var(--verde-libre); opacity: 0; }
+.escena.piloto-on .piloto-taxi { opacity: 1; filter: drop-shadow(0 0 2px var(--verde-libre)); }
+
+/* Movimiento: la calle se desplaza y las ruedas giran mientras hay carrera. */
+.escena .capa { animation: desplazar linear infinite; animation-play-state: paused; }
+.escena .capa-lejos { animation-duration: 40s; }
+.escena .capa-cerca { animation-duration: 16s; }
+.escena .capa-carril { animation-duration: 3s; }
+.escena .radios { animation: girar 0.5s linear infinite; animation-play-state: paused; }
+.escena .taxi-cuerpo { animation: botar 0.6s ease-in-out infinite; animation-play-state: paused; }
+.escena.moviendo .capa,
+.escena.moviendo .radios,
+.escena.moviendo .taxi-cuerpo { animation-play-state: running; }
+@keyframes desplazar { to { transform: translateX(-560px); } }
+@keyframes girar { to { transform: rotate(360deg); } }
+@keyframes botar { 50% { transform: translateY(-0.6px); } }
 
 /* Objetivo: barra hacia la siguiente compra */
 #sec-objetivo {

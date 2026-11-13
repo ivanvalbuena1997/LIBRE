@@ -191,6 +191,37 @@
   /* Aviso de cierre de caja: aparece al terminar cada día hasta que lo cierras. */
   let avisoCerradoDia = -1;
   /*
+   * Escena: tira decorativa encima del taxímetro (js/escena.js).
+   * A mano, el taxi se mueve solo con pasajero; automatizado, mientras algún
+   * coche de la flota tenga viajes a esa hora.
+   */
+  const seccionEscena = {
+    id: 'sec-escena',
+    firma: function () { return 'fija'; },
+    html: function () { return Libre.escena.html(); },
+    actualizar: function (estado) {
+      const info = Libre.sim.infoReloj(estado.reloj.minutos);
+      let moviendo;
+      let ocupado;
+      if (estado.jugador.automatico) {
+        const grupos = Libre.sim.cochesPorZona(estado, info);
+        moviendo = Object.keys(grupos).some(function (zonaId) {
+          return Libre.sim.rendimientoZona(estado, zonaId, grupos[zonaId].length, info).viajesHora > 0;
+        });
+        ocupado = false;
+      } else {
+        ocupado = Libre.sim.importeEnCurso(estado) !== null;
+        moviendo = ocupado;
+      }
+      Libre.escena.actualizar($('sec-escena').firstChild, {
+        hora: info.minutoDelDia / 60,
+        moviendo,
+        pilotoVisible: !ocupado
+      });
+    }
+  };
+
+  /*
    * Objetivo: la compra más barata que aún no puedes pagar. Se queda fija
    * hasta que la compras (o deja de existir); así, cuando llega el dinero,
    * la barra se pone verde en vez de saltar a otra compra.
@@ -470,7 +501,7 @@
     }
   };
 
-  const secciones = [seccionTaximetro, seccionObjetivo, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
+  const secciones = [seccionEscena, seccionTaximetro, seccionObjetivo, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
