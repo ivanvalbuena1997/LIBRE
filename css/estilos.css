@@ -481,6 +481,44 @@ textarea {
 .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .acciones button { flex: 1 1 auto; }
 
+/* Importe que flota al cobrar una carrera */
+.flotante {
+  position: fixed;
+  z-index: 30;
+  transform: translateX(-100%);
+  pointer-events: none;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--verde-texto);
+  background: var(--blanco);
+  border: 1px solid var(--verde-libre);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  animation: flotar 1.4s ease-out forwards;
+}
+@keyframes flotar {
+  from { opacity: 1; transform: translate(-100%, 0); }
+  to   { opacity: 0; transform: translate(-100%, -80px); }
+}
+
+/* Destello al comprar algo */
+.destello { animation: destello 0.8s ease-out; }
+@keyframes destello {
+  from { background-color: var(--verde-claro); box-shadow: 0 0 0 3px var(--verde-libre); }
+  to   { box-shadow: 0 0 0 3px transparent; }
+}
+
+/* Sin animaciones si el sistema lo pide. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .flotante { display: none; }
+}
+
 .mensaje {
   position: fixed;
   left: 50%;

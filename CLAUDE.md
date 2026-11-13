@@ -46,6 +46,11 @@ día de libranza, gerentes, otras ciudades, prestigio).
   del taxi de Madrid: blanco base, rojo de la franja, verde de "libre" para lo
   positivo). Ningún color escrito a mano fuera de ese bloque. Sin modo oscuro.
 - Dinero con `Libre.ui.euros()` (formato es-ES).
+- Animaciones: todas desactivadas con `prefers-reduced-motion` (CSS y JS).
+  Los importes flotantes salen de comparar `estado.totales` entre fotogramas,
+  con tope de 4 a la vez y uno cada 300 ms; lo que no cabe se suma al
+  siguiente. Nada de animación puede depender solo de `requestAnimationFrame`
+  (se pausa en segundo plano): el bucle del juego también la hace avanzar.
 
 ## Modelo de juego (resumen)
 

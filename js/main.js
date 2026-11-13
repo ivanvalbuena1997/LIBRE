@@ -27,6 +27,7 @@
     if (resultado && resultado.mensaje) ui.mostrarMensaje(resultado.mensaje);
     if (resultado && resultado.ok) guardar();
     ui.dibujar(estado);
+    return resultado;
   }
 
   /* Acciones de la partida que no son del juego: exportar, importar, borrar. */

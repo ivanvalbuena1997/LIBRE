@@ -333,7 +333,7 @@
         estado.licencias.map(function (lic) {
           const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'sin coche';
           const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
-          return '<div class="licencia"><div class="licencia-titulo"><span>Licencia ' + lic.id + '</span>' +
+          return '<div class="licencia" data-licencia="' + lic.id + '"><div class="licencia-titulo"><span>Licencia ' + lic.id + '</span>' +
             '<span class="ayuda">' + esc(modelo) + '</span></div>' +
             (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio,
               'comprarVehiculo', [lic.id])) +
@@ -366,7 +366,7 @@
         if (tenida) pie = '';
         else if (bloqueada) pie = '<p>Antes necesitas «' + esc(nombreDe(m.requiere)) + '».</p>';
         else pie = botonCompra('Comprar', m.precio, 'comprarMejora', [m.id]);
-        return '<div class="mejora' + (tenida ? ' comprada' : '') + '">' +
+        return '<div class="mejora' + (tenida ? ' comprada' : '') + '" data-mejora="' + m.id + '">' +
           '<div class="mejora-titulo">' + esc(m.nombre) + '</div>' +
           '<p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
       }).join('');
@@ -391,6 +391,135 @@
   const secciones = [seccionTaximetro, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
+
+  // ---------------------------------------------------------- Efectos
+  /*
+   * Respuesta visual: importes flotantes al cobrar, contador de dinero que
+   * rueda y destello al comprar. Con prefers-reduced-motion no se anima nada.
+   */
+  const movimientoReducido = raiz.matchMedia
+    ? raiz.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false };
+
+  // Importes flotantes. Para no frenar el juego con muchos taxis cobrando a la
+  // vez, como mucho MAX_FLOTANTES en pantalla y uno nuevo cada
+  // MS_ENTRE_FLOTANTES; lo que no cabe se suma al siguiente.
+  const MAX_FLOTANTES = 4;
+  const MS_ENTRE_FLOTANTES = 300;
+  const flotantes = { vivos: 0, pendiente: 0, ultimo: 0, base: null, lanzados: 0 };
+
+  function vigilarCobros(estado) {
+    const t = estado.totales;
+    if (!flotantes.base) {
+      flotantes.base = { carreras: t.carreras, ingresos: t.ingresos };
+      return;
+    }
+    const completas = Math.floor(t.carreras) - Math.floor(flotantes.base.carreras);
+    const ingresado = t.ingresos - flotantes.base.ingresos;
+    // Se espera a que se complete al menos una carrera para enseñar su importe.
+    if (completas > 0 && ingresado > 0) {
+      flotantes.base = { carreras: t.carreras, ingresos: t.ingresos };
+      if (!movimientoReducido.matches) flotantes.pendiente += ingresado;
+    }
+    const ahora = Date.now();
+    if (flotantes.pendiente >= 0.005 && flotantes.vivos < MAX_FLOTANTES &&
+        ahora - flotantes.ultimo >= MS_ENTRE_FLOTANTES) {
+      lanzarFlotante(flotantes.pendiente);
+      flotantes.pendiente = 0;
+      flotantes.ultimo = ahora;
+    }
+  }
+
+  function lanzarFlotante(importe) {
+    const ancla = document.querySelector('#sec-taximetro .display') || $('dinero');
+    const caja = ancla.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = 'flotante';
+    el.textContent = '+' + euros(importe);
+    // Dos columnas alternas para que no se pisen.
+    el.style.left = (caja.right - 8 - (flotantes.lanzados++ % 2) * 88) + 'px';
+    el.style.top = (caja.top + 6) + 'px';
+    document.body.appendChild(el);
+    flotantes.vivos++;
+    let quitado = false;
+    const quitar = function () {
+      if (quitado) return;
+      quitado = true;
+      el.remove();
+      flotantes.vivos--;
+    };
+    el.addEventListener('animationend', quitar);
+    setTimeout(quitar, 2000);   // por si la animación no llega a terminar
+  }
+
+  // Contador de dinero que rueda hasta el valor nuevo.
+  const MS_CONTADOR = 400;
+  const contador = { mostrado: null, desde: 0, hasta: 0, inicio: 0, animando: false };
+
+  function pintarDinero(valor) {
+    const el = $('dinero');
+    el.textContent = euros(valor);
+    el.classList.toggle('negativo', valor < 0);
+  }
+
+  /* Coloca el contador donde toca en el instante t (ms de performance.now). */
+  function avanzarContador(t) {
+    const p = Math.min(1, (t - contador.inicio) / MS_CONTADOR);
+    contador.mostrado = p >= 1
+      ? contador.hasta
+      : contador.desde + (contador.hasta - contador.desde) * (1 - Math.pow(1 - p, 3));
+    pintarDinero(contador.mostrado);
+  }
+
+  // requestAnimationFrame da la suavidad; si el navegador lo pausa (pestaña
+  // en segundo plano), el bucle del juego sigue moviendo el contador.
+  function pasoContador(t) {
+    contador.animando = false;
+    avanzarContador(t);
+    if (contador.mostrado !== contador.hasta) {
+      contador.animando = true;
+      requestAnimationFrame(pasoContador);
+    }
+  }
+
+  function fijarDinero(valor) {
+    if (contador.mostrado === null || movimientoReducido.matches || !raiz.requestAnimationFrame) {
+      contador.mostrado = contador.hasta = valor;
+      pintarDinero(valor);
+      return;
+    }
+    const ahora = performance.now();
+    if (valor !== contador.hasta) {
+      contador.desde = contador.mostrado;
+      contador.hasta = valor;
+      contador.inicio = ahora;
+    }
+    avanzarContador(ahora);
+    if (contador.mostrado !== contador.hasta && !contador.animando) {
+      contador.animando = true;
+      requestAnimationFrame(pasoContador);
+    }
+  }
+
+  // Destello breve en lo que se acaba de comprar.
+  function destellar(el) {
+    if (!el) return;
+    el.classList.remove('destello');
+    void el.offsetWidth;   // reinicia la animación si ya estaba puesta
+    el.classList.add('destello');
+    setTimeout(function () { el.classList.remove('destello'); }, 900);
+  }
+
+  function destelloTrasCompra(accion, args) {
+    if (accion === 'comprarLicencia') {
+      const todas = document.querySelectorAll('[data-licencia]');
+      destellar(todas[todas.length - 1]);
+    } else if (accion === 'comprarVehiculo') {
+      destellar(document.querySelector('[data-licencia="' + args[0] + '"]'));
+    } else if (accion === 'comprarMejora') {
+      destellar(document.querySelector('[data-mejora="' + args[0] + '"]'));
+    }
+  }
 
   let ejecutar = null;
 
@@ -418,6 +547,9 @@
   function reiniciar() {
     avisoCerradoDia = -1;
     resumenFuera = null;
+    flotantes.base = null;
+    flotantes.pendiente = 0;
+    contador.mostrado = null;
     secciones.forEach(function (s) { s.ultimaFirma = null; });
   }
 
@@ -448,7 +580,9 @@
       }
       const el = ev.target.closest('button[data-accion]');
       if (!el || el.disabled) return;
-      ejecutar(el.dataset.accion, el.dataset.args ? el.dataset.args.split('|') : []);
+      const args = el.dataset.args ? el.dataset.args.split('|') : [];
+      const resultado = ejecutar(el.dataset.accion, args);
+      if (resultado && resultado.ok) destelloTrasCompra(el.dataset.accion, args);
     });
 
     main.addEventListener('change', function (ev) {
@@ -460,9 +594,7 @@
 
   function dibujar(estado) {
     const info = Libre.sim.infoReloj(estado.reloj.minutos);
-    const dinero = $('dinero');
-    dinero.textContent = euros(estado.dinero);
-    dinero.classList.toggle('negativo', estado.dinero < 0);
+    fijarDinero(estado.dinero);
     $('reloj').innerHTML = 'Día ' + (info.dia + 1) + ' · ' + textoHora(info) + ' ' + chipTarifa(info.tarifa);
     $('barra-dia').style.width = (info.minutoDelDia / Libre.sim.MIN_DIA * 100).toFixed(2) + '%';
 
@@ -484,6 +616,8 @@
     secciones.forEach(function (s) {
       if (s.actualizar && !$(s.id).classList.contains('oculto')) s.actualizar(estado);
     });
+
+    vigilarCobros(estado);
   }
 
   let temporizadorMensaje = null;
