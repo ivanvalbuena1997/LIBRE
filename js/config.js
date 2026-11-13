@@ -21,7 +21,7 @@
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
-      segundosPorDia: 120,
+      segundosPorDia: 100,
       // La partida empieza el lunes a las 7:00 (minutos desde medianoche).
       minutoInicial: 7 * 60,
       // La caja se cierra cada día a esta hora: la jornada va de 7:00 a 7:00.
@@ -88,12 +88,12 @@
     // Costes fijos: se cobran una vez al día, al cerrar la caja.
     costesFijos: {
       autonomoDiario: 10,          // PROVISIONAL: cuota de autónomo repartida por día.
-      seguroDiarioPorVehiculo: 4,  // PROVISIONAL: seguro del taxi repartido por día.
+      seguroDiarioPorVehiculo: 6,  // PROVISIONAL: seguro del taxi repartido por día.
       emisoraDiariaPorVehiculo: 3  // PROVISIONAL: cuota de la emisora, solo si tienes la mejora.
     },
 
     licencias: {
-      precioBase: 1500,            // PROVISIONAL: precio de la segunda licencia.
+      precioBase: 15000,            // PROVISIONAL: precio de la segunda licencia.
       factorSubida: 1.22,          // Equilibrio: cada licencia cuesta un 22 % más que la anterior.
       maximo: 15812                // Dato real: licencias en el área de Madrid.
     },
@@ -104,8 +104,8 @@
       modelos: {
         turismo: {
           nombre: 'Turismo',
-          precio: 1000,              // PROVISIONAL: precio del coche.
-          consumoLitros100Km: 7      // PROVISIONAL: consumo medio en ciudad.
+          precio: 10000,              // PROVISIONAL: precio del coche.
+          consumoLitros100Km: 6      // PROVISIONAL: consumo medio en ciudad.
         }
       }
     },
