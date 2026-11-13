@@ -46,6 +46,11 @@
       t4: { nombre: 'Tarifa 4', fija: 33.00 }
     },
 
+    sinConexion: {
+      maximoHoras: 8,              // Equilibrio: horas reales que se recuperan como mucho.
+      minimoSegundos: 10           // Por debajo de esto no se muestra el resumen.
+    },
+
     economia: {
       dineroInicial: 50,          // Equilibrio: caja con la que empiezas.
       // Equilibrio: por debajo de estos viajes por hora la zona se considera

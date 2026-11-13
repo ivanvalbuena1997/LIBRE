@@ -44,10 +44,37 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - Interfaz pensada primero para móvil: una columna, botones de 44 px mínimo.
 - Dinero con `Libre.ui.euros()` (formato es-ES).
 
+## Modelo de juego (resumen)
+
+- Reloj: `estado.reloj.minutos` cuenta minutos de juego desde el inicio. La
+  caja se cierra a las 7:00 y entonces se cobran los costes fijos diarios.
+- Las mejoras "Jornada larga" alargan el día en segundos reales; los coches
+  trabajan al mismo ritmo real (`factorJornada`), así que caben más carreras
+  contra el mismo coste fijo diario.
+- Coches automáticos: valores medios, sin azar. Por zona y hora,
+  `viajes = min(demanda, coches × 60 / minutos por carrera)`. Los coches que
+  sobran dan vueltas en vacío (o esperan en la cola sin gastar si la zona
+  tiene cola).
+- Carreras a mano: solo hasta contratar al primer conductor
+  (`jugador.automatico`). Usan azar para variar km y tipo de viaje.
+- Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
+  fuera, con tope en la config. Mientras conduces a mano el reloj no avanza.
+
+## Valores PROVISIONALES (falta el dato real)
+
+En `js/config.js`, marcados con `PROVISIONAL`:
+
+- Precio del litro de combustible y consumo del turismo.
+- Cuota de autónomo, seguro y cuota de la emisora (por día).
+- Porcentaje del conductor (pendiente del valor habitual del sector).
+- Precio de la licencia y del coche.
+
 ## Pruebas
 
-- `node tests/simulacion.test.js` prueba la lógica sin navegador.
-- Probar en el navegador abriendo `index.html`.
+- `node tests/simulacion.test.js` prueba la lógica sin navegador. Debe pasar
+  antes de cada commit.
+- Probar en el navegador abriendo `index.html`, o con un servidor local
+  cualquiera sobre la carpeta (mismo resultado).
 
 ## Forma de trabajar
 

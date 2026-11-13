@@ -154,4 +154,28 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
   cerca(largo.fijos, normal.fijos);
 });
 
+prueba('sin conexión solo avanza con el taxi automatizado y con tope', function () {
+  const e = sim.crearEstadoInicial(0);
+  assert.strictEqual(sim.progresoSinConexion(e, 3600), null, 'a mano el taxi espera');
+  e.dinero = 5000;
+  sim.contratarConductor(e, 1, 'noche');
+  const r = sim.progresoSinConexion(e, 100 * 3600);
+  assert.strictEqual(r.segundosSimulados, config.sinConexion.maximoHoras * 3600);
+  assert.ok(r.carreras > 0);
+});
+
+prueba('sin conexión da lo mismo que jugando', function () {
+  function partida() {
+    const e = sim.crearEstadoInicial(0);
+    e.dinero = 5000;
+    sim.contratarConductor(e, 1, 'noche');
+    return e;
+  }
+  const fuera = partida();
+  sim.progresoSinConexion(fuera, 590);   // no justo en un cierre de caja
+  const jugando = partida();
+  for (let i = 0; i < 5900; i++) sim.avanzar(jugando, 0.1);
+  cerca(fuera.dinero, jugando.dinero, 0.01);
+});
+
 console.log(pasadas + ' pruebas correctas');

@@ -150,6 +150,38 @@
     }
   };
 
+  /* Resumen de lo ocurrido mientras el juego estaba cerrado. */
+  let resumenFuera = null;
+  function textoDuracion(segundos) {
+    const h = Math.floor(segundos / 3600);
+    const m = Math.floor((segundos % 3600) / 60);
+    if (h > 0) return h + ' h ' + m + ' min';
+    if (m > 0) return m + ' min';
+    return Math.round(segundos) + ' s';
+  }
+  const seccionFuera = {
+    id: 'sec-fuera',
+    firma: function () { return resumenFuera ? 'si' : 'no'; },
+    html: function () {
+      const r = resumenFuera;
+      if (!r) return '';
+      const gastos = r.combustible + r.conductores + r.fijos;
+      const neto = r.ingresos - gastos;
+      const recortado = r.segundosSimulados < r.segundosFuera
+        ? '<p class="ayuda">Solo cuentan las primeras ' + textoDuracion(r.segundosSimulados) + '.</p>' : '';
+      return '<div class="aviso-cabecera"><h2>Mientras estabas fuera</h2>' +
+        '<button type="button" data-cerrar-fuera>Vale</button></div>' +
+        '<p class="ayuda">Has estado fuera ' + textoDuracion(r.segundosFuera) + ': ' +
+        r.cierres.length + (r.cierres.length === 1 ? ' día cerrado' : ' días cerrados') + '.</p>' + recortado +
+        '<dl class="filas">' +
+        '<div><dt>Carreras</dt><dd>' + Math.floor(r.carreras) + '</dd></div>' +
+        '<div><dt>Recaudación</dt><dd>' + euros(r.ingresos) + '</dd></div>' +
+        '<div><dt>Gastos</dt><dd>−' + euros(gastos) + '</dd></div>' +
+        '<div class="total"><dt>Neto</dt><dd class="' + (neto < 0 ? 'negativo-texto' : 'positivo') + '">' + euros(neto) + '</dd></div>' +
+        '</dl>';
+    }
+  };
+
   const seccionCaja = {
     id: 'sec-caja',
     firma: function () { return 'fija'; },
@@ -299,7 +331,7 @@
     }
   };
 
-  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
+  const secciones = [seccionFuera, seccionAviso, seccionTaxi, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -328,6 +360,7 @@
   /* Olvida lo dibujado: hace falta tras importar o borrar la partida. */
   function reiniciar() {
     avisoCerradoDia = -1;
+    resumenFuera = null;
     secciones.forEach(function (s) { s.ultimaFirma = null; });
   }
 
@@ -335,13 +368,19 @@
     ejecutar = opciones.ejecutar;
     const main = $('juego');
     main.innerHTML = secciones.map(function (s) {
-      return '<section class="tarjeta' + (s === seccionAviso ? ' aviso' : '') + '" id="' + s.id + '"></section>';
+      const aviso = s === seccionAviso || s === seccionFuera;
+      return '<section class="tarjeta' + (aviso ? ' aviso' : '') + '" id="' + s.id + '"></section>';
     }).join('');
 
     main.addEventListener('click', function (ev) {
       const botonPartida = ev.target.closest('[data-partida]');
       if (botonPartida) {
         accionPartida(opciones.partida, botonPartida.dataset.partida);
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-fuera]')) {
+        resumenFuera = null;
+        opciones.redibujar();
         return;
       }
       const cerrar = ev.target.closest('[data-cerrar-aviso]');
@@ -399,5 +438,7 @@
     temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);
   }
 
-  Libre.ui = { iniciar, reiniciar, dibujar, mostrarMensaje, euros, numero, esc };
+  function mostrarResumenFuera(resumen) { resumenFuera = resumen; }
+
+  Libre.ui = { iniciar, reiniciar, mostrarResumenFuera, dibujar, mostrarMensaje, euros, numero, esc };
 })(globalThis);

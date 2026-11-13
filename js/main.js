@@ -13,6 +13,7 @@
   const SEGUNDOS_ENTRE_GUARDADOS = 5;
 
   let estado = guardado.cargar() || sim.crearEstadoInicial(Date.now());
+  const resumenFuera = sim.progresoSinConexion(estado, (Date.now() - estado.ultimaMarca) / 1000);
   let anterior = Date.now();
 
   function guardar() {
@@ -82,6 +83,10 @@
   });
   window.addEventListener('pagehide', guardar);
 
+  if (resumenFuera) {
+    ui.mostrarResumenFuera(resumenFuera);
+    guardar();
+  }
   ui.dibujar(estado);
   setInterval(tic, 100);
 })();

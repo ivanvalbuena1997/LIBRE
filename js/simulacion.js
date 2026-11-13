@@ -525,6 +525,21 @@
     return resumen;
   }
 
+  /*
+   * Progreso mientras el juego estaba cerrado. Usa la misma avanzar().
+   * Mientras conduces a mano el taxi se queda parado contigo: el reloj no
+   * avanza. Devuelve el resumen, o null si no ha pasado nada.
+   */
+  function progresoSinConexion(estado, segundosFuera) {
+    const c = cfg().sinConexion;
+    if (!estado.jugador.automatico || !(segundosFuera >= c.minimoSegundos)) return null;
+    const segundos = Math.min(segundosFuera, c.maximoHoras * 3600);
+    const resumen = avanzar(estado, segundos);
+    resumen.segundosFuera = segundosFuera;
+    resumen.segundosSimulados = segundos;
+    return resumen;
+  }
+
   Libre.sim = {
     MIN_DIA,
     crearEstadoInicial,
@@ -554,6 +569,7 @@
     contratarConductor,
     despedirConductor,
     buscarCliente,
-    avanzar
+    avanzar,
+    progresoSinConexion
   };
 })(globalThis);
