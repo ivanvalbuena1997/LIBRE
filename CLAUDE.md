@@ -67,6 +67,9 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - Carreras a mano: solo hasta contratar al primer conductor
   (`jugador.automatico`). Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
+- Avisos puntuales (cierre de caja, "Mientras estabas fuera") van en la
+  ventana superpuesta de `interfaz.js` (`abrirVentana`), nunca como tarjeta
+  fija. La caja de hoy es un `<details>` de una línea.
 - El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
   scroll. A mano es el botón de buscar cliente; automatizado, suma la
   recaudación de hoy de la flota.

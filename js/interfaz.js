@@ -188,8 +188,6 @@
       '</dl>';
   }
 
-  /* Aviso de cierre de caja: aparece al terminar cada día hasta que lo cierras. */
-  let avisoCerradoDia = -1;
   /*
    * Escena: tira decorativa encima del taxímetro (js/escena.js).
    * A mano, el taxi se mueve solo con pasajero; automatizado, mientras algún
@@ -303,25 +301,6 @@
     }
   };
 
-  const seccionAviso = {
-    id: 'sec-aviso',
-    firma: function (estado) {
-      const ayer = estado.caja.ayer;
-      return ayer && ayer.dia !== avisoCerradoDia ? 'dia' + ayer.dia : 'nada';
-    },
-    html: function (estado) {
-      const ayer = estado.caja.ayer;
-      if (!ayer || ayer.dia === avisoCerradoDia) return '';
-      const neto = Libre.sim.netoCaja(ayer);
-      $('sec-aviso').classList.toggle('malo', neto < 0);
-      return '<div class="aviso-cabecera"><h2>Cierre de caja · día ' + (ayer.dia + 1) + '</h2>' +
-        '<button type="button" data-cerrar-aviso="' + ayer.dia + '">Vale</button></div>' +
-        filasCaja(ayer, 'ayer', false);
-    }
-  };
-
-  /* Resumen de lo ocurrido mientras el juego estaba cerrado. */
-  let resumenFuera = null;
   function textoDuracion(segundos) {
     const h = Math.floor(segundos / 3600);
     const m = Math.floor((segundos % 3600) / 60);
@@ -329,44 +308,128 @@
     if (m > 0) return m + ' min';
     return Math.round(segundos) + ' s';
   }
-  const seccionFuera = {
-    id: 'sec-fuera',
-    firma: function () { return resumenFuera ? 'si' : 'no'; },
-    html: function () {
-      const r = resumenFuera;
-      if (!r) return '';
-      const gastos = r.combustible + r.conductores + r.fijos;
-      const neto = r.ingresos - gastos;
-      const recortado = r.segundosSimulados < r.segundosFuera
-        ? '<p class="ayuda">Solo cuentan las primeras ' + textoDuracion(r.segundosSimulados) + '.</p>' : '';
-      return '<div class="aviso-cabecera"><h2>Mientras estabas fuera</h2>' +
-        '<button type="button" data-cerrar-fuera>Vale</button></div>' +
-        '<p class="ayuda">Has estado fuera ' + textoDuracion(r.segundosFuera) + ': ' +
-        r.cierres.length + (r.cierres.length === 1 ? ' día cerrado' : ' días cerrados') + '.</p>' + recortado +
-        '<dl class="filas">' +
-        '<div><dt>Carreras</dt><dd>' + Math.floor(r.carreras) + '</dd></div>' +
-        '<div><dt>Recaudación</dt><dd>' + euros(r.ingresos) + '</dd></div>' +
-        '<div><dt>Gastos</dt><dd>−' + euros(gastos) + '</dd></div>' +
-        '<div class="total"><dt>Neto</dt><dd class="' + (neto < 0 ? 'negativo-texto' : 'positivo') + '">' + euros(neto) + '</dd></div>' +
-        '</dl>';
-    }
-  };
 
+  // ---------------------------------------------------------- Ventana
+  /*
+   * Ventana sobre la pantalla para el cierre de caja y para "Mientras estabas
+   * fuera". Las cifras se suman una a una; con movimiento reducido salen ya
+   * puestas. Al cerrarla desaparece del todo: no ocupa sitio en la página.
+   * filas: [{ texto, valor, tipo: 'entero'|'euros', signo, total, clase }]
+   */
+  const MS_POR_FILA = 320;
+  let ventana = null;
+
+  function textoFila(f, valor) {
+    return f.tipo === 'entero' ? String(Math.floor(valor)) : (f.signo || '') + euros(valor);
+  }
+
+  function cerrarVentana() {
+    if (!ventana) return;
+    ventana.temporizadores.forEach(clearInterval);
+    ventana.fondo.remove();
+    document.removeEventListener('keydown', ventana.teclado);
+    ventana = null;
+  }
+
+  function abrirVentana(titulo, intro, filas, malo) {
+    cerrarVentana();
+    const reducido = movimientoReducido.matches;
+    const fondo = document.createElement('div');
+    fondo.className = 'ventana-fondo';
+    fondo.innerHTML = '<div class="ventana' + (malo ? ' malo' : '') + '" role="dialog" aria-modal="true" aria-labelledby="ventana-titulo">' +
+      '<h2 id="ventana-titulo">' + esc(titulo) + '</h2>' +
+      (intro ? '<p class="ayuda">' + intro + '</p>' : '') +
+      '<dl class="filas">' + filas.map(function (f, i) {
+        return '<div class="' + (f.total ? 'total' : '') + (reducido ? '' : ' pendiente') + '" data-fila="' + i + '">' +
+          '<dt>' + esc(f.texto) + '</dt><dd class="' + (f.clase || '') + '">' + textoFila(f, reducido ? f.valor : 0) + '</dd></div>';
+      }).join('') + '</dl>' +
+      '<button type="button" class="boton-principal" data-cerrar-ventana>Vale</button></div>';
+    document.body.appendChild(fondo);
+
+    ventana = {
+      fondo,
+      temporizadores: [],
+      teclado: function (ev) { if (ev.key === 'Escape') cerrarVentana(); }
+    };
+    document.addEventListener('keydown', ventana.teclado);
+    fondo.addEventListener('click', function (ev) {
+      // Se cierra con el botón o tocando fuera de la ventana.
+      if (ev.target === fondo || ev.target.closest('[data-cerrar-ventana]')) cerrarVentana();
+    });
+    fondo.querySelector('[data-cerrar-ventana]').focus({ preventScroll: true });
+    if (reducido) return;
+
+    // Las filas se suman de una en una (setInterval: sigue en segundo plano).
+    filas.forEach(function (f, i) {
+      const fila = fondo.querySelector('[data-fila="' + i + '"]');
+      const dd = fila.querySelector('dd');
+      const inicio = Date.now() + i * MS_POR_FILA;
+      const t = setInterval(function () {
+        const p = (Date.now() - inicio) / MS_POR_FILA;
+        if (p < 0) return;
+        fila.classList.remove('pendiente');
+        dd.textContent = textoFila(f, f.valor * Math.min(1, 1 - Math.pow(1 - Math.min(1, p), 3)));
+        if (p >= 1) clearInterval(t);
+      }, 30);
+      ventana.temporizadores.push(t);
+    });
+  }
+
+  /* Cierre de caja: ventana cada vez que termina un día (no al cargar). */
+  let ultimoCierreVisto = null;
+  function vigilarCierres(estado) {
+    const ayer = estado.caja.ayer;
+    // En el primer fotograma solo se anota lo que ya había: no se enseña al cargar.
+    if (ultimoCierreVisto === null) { ultimoCierreVisto = ayer ? ayer.dia : -1; return; }
+    if (!ayer || ayer.dia === ultimoCierreVisto) return;
+    ultimoCierreVisto = ayer.dia;
+    const neto = Libre.sim.netoCaja(ayer);
+    abrirVentana('Cierre de caja · día ' + (ayer.dia + 1), '', [
+      { texto: 'Carreras', valor: ayer.carreras, tipo: 'entero' },
+      { texto: 'Recaudación', valor: ayer.ingresos },
+      { texto: 'Combustible', valor: ayer.combustible, signo: '−' },
+      { texto: 'Conductores', valor: ayer.conductores, signo: '−' },
+      { texto: 'Costes fijos', valor: ayer.fijos, signo: '−' },
+      { texto: 'Neto', valor: neto, total: true, clase: neto < 0 ? 'negativo-texto' : 'positivo' }
+    ], neto < 0);
+  }
+
+  /* Resumen de lo ocurrido mientras el juego estaba cerrado. */
+  function mostrarResumenFuera(r) {
+    const gastos = r.combustible + r.conductores + r.fijos;
+    const neto = r.ingresos - gastos;
+    const intro = 'Has estado fuera ' + textoDuracion(r.segundosFuera) + ': ' +
+      r.cierres.length + (r.cierres.length === 1 ? ' día cerrado.' : ' días cerrados.') +
+      (r.segundosSimulados < r.segundosFuera
+        ? ' Solo cuentan las primeras ' + textoDuracion(r.segundosSimulados) + '.' : '');
+    abrirVentana('Mientras estabas fuera', esc(intro), [
+      { texto: 'Carreras', valor: r.carreras, tipo: 'entero' },
+      { texto: 'Recaudación', valor: r.ingresos },
+      { texto: 'Gastos', valor: gastos, signo: '−' },
+      { texto: 'Neto', valor: neto, total: true, clase: neto < 0 ? 'negativo-texto' : 'positivo' }
+    ], neto < 0);
+  }
+
+  /* Caja de hoy: una línea que se despliega con el desglose. */
   const seccionCaja = {
     id: 'sec-caja',
     firma: function () { return 'fija'; },
     html: function () {
-      return '<h2>Caja de hoy</h2>' + filasCaja(null, 'hoy', true);
+      return '<details class="caja-plegable"><summary id="caja-resumen"></summary>' +
+        filasCaja(null, 'hoy', true) + '</details>';
     },
     actualizar: function (estado) {
       const hoy = estado.caja.hoy;
       const fijos = Libre.sim.costesFijosDiarios(estado);
-      $('hoy-carreras').textContent = Math.floor(hoy.carreras);
+      const neto = Libre.sim.netoCaja(hoy) - fijos;
+      const carreras = Math.floor(hoy.carreras);
+      $('caja-resumen').innerHTML = 'Hoy: ' + carreras + (carreras === 1 ? ' carrera' : ' carreras') +
+        ' · neto <strong class="' + (neto < 0 ? 'negativo-texto' : 'positivo') + '">' + euros(neto) + '</strong>';
+      $('hoy-carreras').textContent = carreras;
       ['ingresos', 'combustible', 'conductores'].forEach(function (campo) {
         $('hoy-' + campo).textContent = (campo === 'ingresos' ? '' : '−') + euros(hoy[campo]);
       });
       $('hoy-fijos').textContent = '−' + euros(fijos);
-      const neto = Libre.sim.netoCaja(hoy) - fijos;
       const el = $('hoy-neto');
       el.textContent = euros(neto);
       el.className = neto < 0 ? 'negativo-texto' : 'positivo';
@@ -501,7 +564,7 @@
     }
   };
 
-  const secciones = [seccionEscena, seccionTaximetro, seccionObjetivo, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
+  const secciones = [seccionEscena, seccionTaximetro, seccionObjetivo, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -658,8 +721,8 @@
 
   /* Olvida lo dibujado: hace falta tras importar o borrar la partida. */
   function reiniciar() {
-    avisoCerradoDia = -1;
-    resumenFuera = null;
+    ultimoCierreVisto = null;
+    cerrarVentana();
     objetivoId = null;
     flotantes.base = null;
     flotantes.pendiente = 0;
@@ -671,8 +734,7 @@
     ejecutar = opciones.ejecutar;
     const main = $('juego');
     main.innerHTML = secciones.map(function (s) {
-      const aviso = s === seccionAviso || s === seccionFuera;
-      return '<section class="tarjeta' + (aviso ? ' aviso' : '') + '" id="' + s.id + '"></section>';
+      return '<section class="tarjeta" id="' + s.id + '"></section>';
     }).join('');
 
     main.addEventListener('click', function (ev) {
@@ -690,17 +752,6 @@
           destino.scrollIntoView({ block: 'center' });
           destellar(destino.closest('.licencia, .mejora') || destino);
         }
-        return;
-      }
-      if (ev.target.closest('[data-cerrar-fuera]')) {
-        resumenFuera = null;
-        opciones.redibujar();
-        return;
-      }
-      const cerrar = ev.target.closest('[data-cerrar-aviso]');
-      if (cerrar) {
-        avisoCerradoDia = Number(cerrar.dataset.cerrarAviso);
-        opciones.redibujar();
         return;
       }
       const el = ev.target.closest('button[data-accion]');
@@ -743,6 +794,7 @@
     });
 
     vigilarCobros(estado);
+    vigilarCierres(estado);
   }
 
   let temporizadorMensaje = null;
@@ -753,8 +805,6 @@
     clearTimeout(temporizadorMensaje);
     temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);
   }
-
-  function mostrarResumenFuera(resumen) { resumenFuera = resumen; }
 
   Libre.ui = { iniciar, reiniciar, mostrarResumenFuera, dibujar, mostrarMensaje, euros, numero, esc };
 })(globalThis);

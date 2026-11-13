@@ -28,6 +28,8 @@
   --tarifa-fija: #8a5a12;
 
   --sombra: rgba(0, 0, 0, 0.08);
+  --sombra-fuerte: rgba(0, 0, 0, 0.25);
+  --velo: rgba(20, 20, 20, 0.45);
 
   /* Escena: cielo por momento del día (hex: escena.js los mezcla). */
   --cielo-noche-alto: #0b1330;
@@ -384,15 +386,15 @@ textarea {
 .escena { display: block; width: 100%; height: 56px; }
 .escena .edificio-lejos { fill: var(--edificio-lejos); }
 .escena .edificio-cerca { fill: var(--edificio-cerca); }
-.escena .ventana { fill: var(--ventana-apagada); }
+.escena .ventanal { fill: var(--ventana-apagada); }
 .escena .asfalto { fill: var(--asfalto); }
 .escena .carril { fill: var(--carril); }
 .escena .estrella, .escena .luna { fill: var(--luna); opacity: 0; transition: opacity 1s; }
 .escena.noche .estrella, .escena.noche .luna { opacity: 1; }
 .escena.noche .edificio-lejos { fill: var(--edificio-lejos-noche); }
 .escena.noche .edificio-cerca { fill: var(--edificio-cerca-noche); }
-.escena.noche .ventana { fill: var(--ventana-noche); }
-.escena.noche .ventana.encendible { fill: var(--ventana-encendida); }
+.escena.noche .ventanal { fill: var(--ventana-noche); }
+.escena.noche .ventanal.encendible { fill: var(--ventana-encendida); }
 
 .escena .taxi-chapa, .escena .taxi-luminoso {
   fill: var(--blanco);
@@ -534,22 +536,46 @@ textarea {
 .positivo { color: var(--verde-texto); }
 .negativo-texto { color: var(--rojo-taxi); }
 
-/* Aviso de cierre de caja */
-.aviso {
-  background: var(--verde-claro);
-  border-color: var(--verde-libre);
+/* Caja de hoy plegada en una línea */
+#sec-caja { padding: 0; }
+.caja-plegable summary {
+  padding: 12px 14px;
+  min-height: 44px;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
 }
-.aviso.malo {
-  background: var(--rojo-claro);
-  border-color: var(--rojo-taxi);
-}
-.aviso-cabecera {
+.caja-plegable[open] summary { border-bottom: 1px solid var(--borde); }
+.caja-plegable .filas { padding: 8px 14px 12px; }
+
+/* Ventana sobre la pantalla (cierre de caja, mientras estabas fuera) */
+.ventana-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  padding: 16px;
+  background: var(--velo);
+  animation: aparecer-fondo 0.2s ease-out;
 }
-.aviso-cabecera button { min-height: 36px; padding: 4px 10px; }
+.ventana {
+  width: 100%;
+  max-width: 360px;
+  background: var(--tarjeta);
+  border-radius: var(--radio);
+  border-top: 6px solid var(--verde-libre);
+  padding: 16px;
+  box-shadow: 0 10px 30px var(--sombra-fuerte);
+  animation: aparecer-ventana 0.25s ease-out;
+}
+.ventana.malo { border-top-color: var(--rojo-taxi); }
+.ventana h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.ventana .filas { margin-bottom: 14px; }
+.ventana .filas div { transition: opacity 0.2s; }
+.ventana .filas .pendiente { opacity: 0.3; }
+@keyframes aparecer-fondo { from { opacity: 0; } }
+@keyframes aparecer-ventana { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
 
 /* Lista de zonas */
 .zona-fila {

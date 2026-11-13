@@ -40,7 +40,7 @@
       if (ventanas) {
         for (let vy = y + 4; vy < SUELO - 5; vy += 6) {
           for (let vx = x + 3; vx < x + w - 4; vx += 6) {
-            svg += '<rect class="ventana' + (r() < 0.5 ? ' encendible' : '') +
+            svg += '<rect class="ventanal' + (r() < 0.5 ? ' encendible' : '') +
               '" x="' + vx + '" y="' + vy + '" width="2.5" height="3"/>';
           }
         }
