@@ -17,7 +17,13 @@
 
   // migraciones[n] recibe un estado de la versión n y lo deja en la n + 1.
   const migraciones = {
-    // 1: function (estado) { estado.algoNuevo = 0; },
+    // Versión 2: mejoras. También completa campos que faltaban en partidas
+    // de la versión 1 guardadas a medio desarrollo.
+    1: function (estado) {
+      estado.mejoras = estado.mejoras || {};
+      estado.conductoresContratados = estado.conductoresContratados || 0;
+      estado.jugador.automatico = !!estado.jugador.automatico;
+    }
   };
 
   function migrar(estado) {

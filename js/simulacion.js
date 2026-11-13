@@ -52,6 +52,7 @@
       // tu turno también trabaja solo y se acaban las carreras a mano.
       jugador: { automatico: false, carrera: null, ultimaCarrera: null },
       conductoresContratados: 0,
+      mejoras: {},
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
       ultimaMarca: ahoraMs || 0
@@ -88,7 +89,7 @@
   }
 
   function segundosPorDia(estado) {
-    return cfg().reloj.segundosPorDia;
+    return cfg().reloj.segundosPorDia + modificadores(estado).segundosDia;
   }
 
   /*
@@ -100,6 +101,54 @@
     return segundosPorDia(estado) / cfg().reloj.segundosPorDia;
   }
 
+  // ----------------------------------------------------------------- Mejoras
+
+  /*
+   * Suma los efectos de las mejoras compradas. Con zonaId incluye también
+   * las mejoras que solo valen en esa zona.
+   */
+  function modificadores(estado, zonaId) {
+    const m = { segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, cuotaEmisora: false };
+    cfg().mejoras.forEach(function (mejora) {
+      if (!estado.mejoras[mejora.id]) return;
+      const e = mejora.efecto;
+      if (e.soloZona && e.soloZona !== zonaId) return;
+      if (e.segundosDia) m.segundosDia += e.segundosDia;
+      if (e.consumo) m.consumo *= e.consumo;
+      if (e.busqueda) m.busqueda *= e.busqueda;
+      if (e.cola) m.cola *= e.cola;
+      if (e.demanda) m.demanda *= e.demanda;
+      if (e.cuotaEmisora) m.cuotaEmisora = true;
+    });
+    return m;
+  }
+
+  function buscarMejora(id) {
+    return cfg().mejoras.find(function (m) { return m.id === id; }) || null;
+  }
+
+  function comprarMejora(estado, id) {
+    const mejora = buscarMejora(id);
+    if (!mejora) return fallo('Esa mejora no existe.');
+    if (estado.mejoras[id]) return fallo('Ya la tienes.');
+    if (mejora.requiere && !estado.mejoras[mejora.requiere]) {
+      return fallo('Antes necesitas: ' + buscarMejora(mejora.requiere).nombre + '.');
+    }
+    if (estado.dinero < mejora.precio) return fallo('No te llega el dinero.');
+    estado.dinero -= mejora.precio;
+    estado.mejoras[id] = true;
+    return exito(mejora.nombre + ': hecho.');
+  }
+
+  function zonaDesbloqueada(estado, zonaId) {
+    const zona = cfg().zonas[zonaId];
+    return !!zona && (!zona.requiere || !!estado.mejoras[zona.requiere]);
+  }
+
+  function zonasDisponibles(estado) {
+    return Object.keys(cfg().zonas).filter(function (id) { return zonaDesbloqueada(estado, id); });
+  }
+
   // ---------------------------------------------------------------- Taxímetro
 
   /* Fórmula real: inicio de servicio + km × precio/km + tiempo parado × precio/hora. */
@@ -108,12 +157,18 @@
     return t.inicio + km * t.porKm + (minParado / 60) * t.porHora;
   }
 
+  /* Precio de un viaje: tarifa fija si la tiene; si no, taxímetro. */
+  function importeViaje(viaje, tarifaId, km, minParado) {
+    if (viaje.tarifaFija) return cfg().tarifas[viaje.tarifaFija].fija;
+    return precioTaximetro(tarifaId, km, minParado);
+  }
+
   /* Viaje medio de una zona con la tarifa dada: importe, km y minutos esperados. */
   function viajeMedio(zonaId, tarifaId) {
     const zona = cfg().zonas[zonaId];
     const medio = { importe: 0, km: 0, minutos: 0 };
     zona.viajes.forEach(function (v) {
-      medio.importe += v.proporcion * precioTaximetro(tarifaId, v.km, v.minParado);
+      medio.importe += v.proporcion * importeViaje(v, tarifaId, v.km, v.minParado);
       medio.km += v.proporcion * v.km;
       medio.minutos += v.proporcion * v.minutos;
     });
@@ -124,13 +179,14 @@
     const zona = cfg().zonas[zonaId];
     const tabla = info.finDeSemana ? zona.demanda.finDeSemana : zona.demanda.laborable;
     const factorDia = zona.factorPorDia ? zona.factorPorDia[info.diaSemana] : 1;
-    return tabla[info.hora] * factorDia;
+    return tabla[info.hora] * factorDia * modificadores(estado, zonaId).demanda;
   }
 
   /* Minutos que tarda un coche en completar una carrera: buscar + cola + viaje. */
   function minutosPorCarrera(estado, zonaId, tarifaId) {
     const zona = cfg().zonas[zonaId];
-    return zona.busquedaMin + zona.colaMin + viajeMedio(zonaId, tarifaId).minutos;
+    const m = modificadores(estado, zonaId);
+    return zona.busquedaMin * m.busqueda + zona.colaMin * m.cola + viajeMedio(zonaId, tarifaId).minutos;
   }
 
   // ------------------------------------------------------------ Costes
@@ -139,7 +195,7 @@
   function costePorKm(estado, modeloId) {
     const c = cfg();
     const modelo = c.vehiculos.modelos[modeloId || c.vehiculos.modeloInicial];
-    return modelo.consumoLitros100Km / 100 * c.combustible.precioLitro;
+    return modelo.consumoLitros100Km / 100 * c.combustible.precioLitro * modificadores(estado).consumo;
   }
 
   function vehiculosEnServicio(estado) {
@@ -149,7 +205,9 @@
   /* Costes fijos que se cobrarán en el próximo cierre de caja. */
   function costesFijosDiarios(estado) {
     const f = cfg().costesFijos;
-    return f.autonomoDiario + vehiculosEnServicio(estado) * f.seguroDiarioPorVehiculo;
+    const porVehiculo = f.seguroDiarioPorVehiculo +
+      (modificadores(estado).cuotaEmisora ? f.emisoraDiariaPorVehiculo : 0);
+    return f.autonomoDiario + vehiculosEnServicio(estado) * porVehiculo;
   }
 
   function gastar(estado, resumen, concepto, importe) {
@@ -270,7 +328,7 @@
   function elegirZona(estado, licenciaId, turno, zonaId) {
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic || !lic.turnos[turno]) return fallo('Ese turno no existe.');
-    if (!cfg().zonas[zonaId]) return fallo('Esa zona no existe.');
+    if (!zonaDesbloqueada(estado, zonaId)) return fallo('Esa zona aún no está disponible.');
     lic.turnos[turno].zona = zonaId;
     return exito();
   }
@@ -308,7 +366,7 @@
     const km = viaje.km * azar;
     const minParado = viaje.minParado * azar;
     const minutosViaje = viaje.minutos * azar;
-    const importe = precioTaximetro(info.tarifa, km, minParado);
+    const importe = importeViaje(viaje, info.tarifa, km, minParado);
 
     // Con mucha demanda esperas lo normal; con poca, hasta que aparece alguien.
     const medio = viajeMedio(turno.zona, info.tarifa);
@@ -316,14 +374,15 @@
     const espera = ciclo - medio.minutos;
 
     // Buscando cliente se gasta combustible; en la cola de una parada, no.
-    const kmVacio = Math.max(0, espera - zona.colaMin) / 60 * c.conduccion.velocidadVacioKmH;
+    const cola = zona.colaMin * modificadores(estado, turno.zona).cola;
+    const kmVacio = Math.max(0, espera - cola) / 60 * c.conduccion.velocidadVacioKmH;
     const lic = buscarLicencia(estado, ubicacionJugador(estado).licenciaId);
 
     const f = factorJornada(estado);
     const ahora = estado.reloj.minutos;
     estado.jugador.carrera = {
       zona: turno.zona,
-      tarifa: info.tarifa,
+      tarifa: viaje.tarifaFija || info.tarifa,
       inicio: ahora,
       finEspera: ahora + espera / f,
       fin: ahora + (espera + minutosViaje) / f,
@@ -389,7 +448,7 @@
     const ocupacion = capacidad > 0 ? viajesHora / capacidad : 0;
     const medio = viajeMedio(zonaId, info.tarifa);
     const vel = c.conduccion.velocidadVacioKmH;
-    const kmBusqueda = zona.busquedaMin / 60 * vel;
+    const kmBusqueda = zona.busquedaMin * modificadores(estado, zonaId).busqueda / 60 * vel;
     const kmOciosos = zona.colaMin > 0 ? 0 : coches * (1 - ocupacion) * vel;
     return {
       demanda,
@@ -472,6 +531,10 @@
     infoReloj,
     segundosPorDia,
     factorJornada,
+    modificadores,
+    comprarMejora,
+    zonaDesbloqueada,
+    zonasDisponibles,
     precioTaximetro,
     viajeMedio,
     netoCaja,

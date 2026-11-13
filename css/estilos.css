@@ -101,6 +101,7 @@ body {
 }
 .chip-t1 { background: #2b4f7a; color: #fff; }
 .chip-t2 { background: #6a3d8f; color: #fff; }
+.chip-t3, .chip-t4 { background: #8a5a12; color: #fff; }
 .chip-gris { background: var(--borde); color: var(--texto); }
 
 .barra-dia {

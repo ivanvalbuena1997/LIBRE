@@ -121,4 +121,37 @@ prueba('la licencia sube de precio y necesita coche y conductores', function () 
   assert.strictEqual(e.licencias.length, 2);
 });
 
+prueba('el aeropuerto está cerrado hasta comprar su mejora y cobra tarifa fija', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 100000;
+  assert.ok(!sim.elegirZona(e, 1, 'dia', 'aeropuerto').ok);
+  assert.ok(sim.comprarMejora(e, 'aeropuerto').ok);
+  assert.ok(sim.elegirZona(e, 1, 'dia', 'aeropuerto').ok);
+  e.reloj.minutos = 10 * 60;                  // lunes 10:00
+  assert.ok(sim.buscarCliente(e, azarFijo(0.1)).ok);   // 0,1 → primer tipo de viaje: tarifa 4
+  assert.strictEqual(e.jugador.carrera.tarifa, 't4');
+  cerca(e.jugador.carrera.importe, config.tarifas.t4.fija);
+});
+
+prueba('las mejoras de jornada alargan el día y requieren la anterior', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 100000;
+  assert.ok(!sim.comprarMejora(e, 'jornada2').ok);
+  assert.ok(sim.comprarMejora(e, 'jornada1').ok);
+  assert.strictEqual(sim.segundosPorDia(e), config.reloj.segundosPorDia + 10);
+});
+
+prueba('un día más largo da más carreras con el mismo coste fijo', function () {
+  function unDia(conMejora) {
+    const e = sim.crearEstadoInicial(0);
+    e.dinero = 100000;
+    sim.contratarConductor(e, 1, 'noche');
+    if (conMejora) sim.comprarMejora(e, 'jornada1');
+    return sim.avanzar(e, sim.segundosPorDia(e));
+  }
+  const normal = unDia(false), largo = unDia(true);
+  assert.ok(largo.carreras > normal.carreras);
+  cerca(largo.fijos, normal.fijos);
+});
+
 console.log(pasadas + ' pruebas correctas');

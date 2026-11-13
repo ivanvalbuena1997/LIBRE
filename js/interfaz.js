@@ -52,7 +52,7 @@
   function selectorZona(estado, licenciaId, turno, zonaActual) {
     const c = Libre.config;
     return '<select data-cambio="elegirZona" data-args="' + licenciaId + '|' + turno + '" aria-label="Zona">' +
-      Object.keys(c.zonas).map(function (id) {
+      Libre.sim.zonasDisponibles(estado).map(function (id) {
         return '<option value="' + id + '"' + (id === zonaActual ? ' selected' : '') + '>' + esc(c.zonas[id].nombre) + '</option>';
       }).join('') + '</select>';
   }
@@ -69,13 +69,13 @@
     firma: function (estado) {
       if (estado.jugador.automatico) return 'automatico';
       const t = Libre.sim.turnoDelJugador(estado);
-      return [t.zona, estado.jugador.carrera ? 1 : 0].join();
+      return [t.zona, estado.jugador.carrera ? 1 : 0, Libre.sim.zonasDisponibles(estado)].join();
     },
     html: function (estado) {
       if (estado.jugador.automatico) return '';
       const c = Libre.config;
       const u = Libre.sim.ubicacionJugador(estado);
-      const zonas = Object.keys(c.zonas).map(function (id) {
+      const zonas = Libre.sim.zonasDisponibles(estado).map(function (id) {
         return '<button type="button" data-accion="elegirZona" data-args="' + u.licenciaId + '|' + u.turno + '|' + id +
           '" class="' + (id === u.datos.zona ? 'activa' : '') + '">' +
           esc(c.zonas[id].nombre) + '<small data-demanda="' + id + '"></small></button>';
@@ -173,21 +173,26 @@
 
   const seccionZonas = {
     id: 'sec-zonas',
-    firma: function () { return Object.keys(Libre.config.zonas).join(); },
-    html: function () {
+    firma: function (estado) { return Libre.sim.zonasDisponibles(estado).join(); },
+    html: function (estado) {
       const c = Libre.config;
       return '<h2>Zonas</h2>' + Object.keys(c.zonas).map(function (id) {
+        const zona = c.zonas[id];
+        const abierta = Libre.sim.zonaDesbloqueada(estado, id);
+        const mejora = zona.requiere && c.mejoras.find(function (m) { return m.id === zona.requiere; });
         return '<div class="zona-fila">' +
-          '<div class="nombre">' + esc(c.zonas[id].nombre) + '</div>' +
-          '<div class="datos">' + esc(c.zonas[id].descripcion) + '</div>' +
-          '<div class="datos" id="zona-' + id + '"></div>' +
+          '<div class="nombre">' + esc(zona.nombre) + (abierta ? '' : ' <span class="chip chip-gris">Cerrada</span>') + '</div>' +
+          '<div class="datos">' + esc(zona.descripcion) + '</div>' +
+          (abierta
+            ? '<div class="datos" id="zona-' + id + '"></div><div class="medidor"><div id="medidor-' + id + '"></div></div>'
+            : '<div class="datos">Se abre con la mejora «' + esc(mejora ? mejora.nombre : zona.requiere) + '».</div>') +
           '</div>';
       }).join('');
     },
     actualizar: function (estado) {
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
       const grupos = Libre.sim.cochesPorZona(estado, info);
-      Object.keys(Libre.config.zonas).forEach(function (id) {
+      Libre.sim.zonasDisponibles(estado).forEach(function (id) {
         const coches = grupos[id] ? grupos[id].length : 0;
         const r = Libre.sim.rendimientoZona(estado, id, coches, info);
         let texto = 'Ahora: ' + numero(r.demanda) + ' viajes/h · carrera media ' + euros(r.importe);
@@ -196,6 +201,8 @@
             Math.round(r.ocupacion * 100) + ' %';
         }
         $('zona-' + id).textContent = texto;
+        // Medidor: parte de la demanda de la zona que cubren tus coches ahora.
+        $('medidor-' + id).style.width = (r.demanda > 0 ? Math.min(1, r.capacidad / r.demanda) * 100 : 0).toFixed(0) + '%';
       });
     }
   };
@@ -224,7 +231,7 @@
   const seccionFlota = {
     id: 'sec-flota',
     firma: function (estado) {
-      return JSON.stringify([estado.licencias, estado.jugador.automatico, !!estado.jugador.carrera]);
+      return JSON.stringify([estado.licencias, estado.jugador.automatico, !!estado.jugador.carrera, estado.mejoras]);
     },
     html: function (estado) {
       const c = Libre.config;
@@ -254,6 +261,29 @@
     }
   };
 
+  const seccionMejoras = {
+    id: 'sec-mejoras',
+    firma: function (estado) { return JSON.stringify(estado.mejoras); },
+    html: function (estado) {
+      const c = Libre.config;
+      const nombreDe = function (id) {
+        const m = c.mejoras.find(function (x) { return x.id === id; });
+        return m ? m.nombre : id;
+      };
+      return '<h2>Mejoras</h2>' + c.mejoras.map(function (m) {
+        const tenida = !!estado.mejoras[m.id];
+        const bloqueada = m.requiere && !estado.mejoras[m.requiere];
+        let pie;
+        if (tenida) pie = '';
+        else if (bloqueada) pie = '<p>Antes necesitas «' + esc(nombreDe(m.requiere)) + '».</p>';
+        else pie = botonCompra('Comprar', m.precio, 'comprarMejora', [m.id]);
+        return '<div class="mejora' + (tenida ? ' comprada' : '') + '">' +
+          '<div class="mejora-titulo">' + esc(m.nombre) + '</div>' +
+          '<p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
+      }).join('');
+    }
+  };
+
   const seccionPartida = {
     id: 'sec-partida',
     firma: function () { return 'fija'; },
@@ -269,7 +299,7 @@
     }
   };
 
-  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionFlota, seccionZonas, seccionPartida];
+  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
