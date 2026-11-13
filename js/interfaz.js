@@ -139,6 +139,8 @@
       const pausa = Libre.sim.enPausa(estado);
       boton.disabled = !!carrera || pausa;
       $('tx-pie').textContent = pausa ? 'Día cerrado' : carrera ? '' : 'Toca para buscar cliente';
+      // Latido suave mientras el taxi espera a que lo toques.
+      $('tx-pie').classList.toggle('latido', !pausa && !carrera);
 
       const barra = $('carrera-barra');
       const texto = $('carrera-estado');
@@ -403,9 +405,12 @@
       const hoy = estado.caja.hoy;
       const fijos = Libre.sim.costesFijosDiarios(estado);
       const neto = Libre.sim.netoCaja(hoy) - fijos;
+      // Lo ganado hasta ahora (sin los fijos, que se cobran al cierre).
+      const ganado = Libre.sim.netoCaja(hoy);
       const carreras = Math.floor(hoy.carreras);
       $('caja-resumen').innerHTML = 'Hoy: ' + carreras + (carreras === 1 ? ' carrera' : ' carreras') +
-        ' · neto <strong class="' + (neto < 0 ? 'negativo-texto' : 'positivo') + '">' + euros(neto) + '</strong>';
+        ' · <strong class="' + (ganado < 0 ? 'negativo-texto' : '') + '">' + euros(ganado) + '</strong>' +
+        ' <span class="caja-fijos">· fijos al cierre −' + euros(fijos) + '</span>';
       $('hoy-carreras').textContent = carreras;
       ['ingresos', 'combustible', 'conductores'].forEach(function (campo) {
         $('hoy-' + campo).textContent = (campo === 'ingresos' ? '' : '−') + euros(hoy[campo]);

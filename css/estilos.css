@@ -371,6 +371,8 @@ textarea {
 .display-valor { position: relative; }
 .display-euro { font-size: 1.1rem; font-weight: 700; padding-bottom: 4px; }
 
+.taximetro-pie.latido { animation: latido 1.8s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: 0.45; } }
 .taximetro-pie {
   display: block;
   text-align: center;
@@ -471,7 +473,7 @@ textarea {
   display: block;
   height: 100%;
   width: 0;
-  background: var(--suave);
+  background: var(--verde-libre);
   transition: width 0.3s ease-out;
 }
 .objetivo.listo {
@@ -531,6 +533,7 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 .caja-plegable[open] summary { border-bottom: 1px solid var(--borde); }
+.caja-fijos { color: var(--suave); font-size: 0.85em; white-space: nowrap; }
 .caja-plegable .filas { padding: 8px 14px 12px; }
 
 /* Ticket de cierre de caja: papel térmico que sale de debajo del taxímetro */
@@ -691,6 +694,16 @@ button.zona-tarjeta { cursor: pointer; }
 .zona-tarjeta.vacia, .zona-tarjeta.cerrada { opacity: 0.5; }
 .zona-tarjeta.vacia .zona-medidor > span { background: var(--suave); }
 .zona-tarjeta.cerrada { grid-template-rows: auto auto; }
+/* El motivo del cierre se lee entero, en dos líneas si hace falta:
+   icono y nombre arriba, motivo a todo el ancho debajo. */
+.zona-tarjeta.cerrada .zona-icono { grid-row: 1; }
+.zona-tarjeta.cerrada .zona-dato {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
 
 /* Flota */
 .licencia {
