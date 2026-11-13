@@ -97,7 +97,7 @@
     },
 
     licencias: {
-      precioBase: 10000,           // Iván (valor de juego): precio de la segunda licencia.
+      precioBase: 3000,            // Iván (valor de juego): precio de la segunda licencia.
       factorSubida: 1.15,          // Equilibrio: cada licencia cuesta un 15 % más que la anterior.
       maximo: 15812,               // Dato real: licencias en el área de Madrid.
       // Dato real (Iván): la letra de la licencia indica el día de libranza y

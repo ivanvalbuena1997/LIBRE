@@ -113,7 +113,7 @@ día de libranza, gerentes, otras ciudades, prestigio).
 
 Ahora mismo ninguno: Iván confirmó el 13 de noviembre de 2026 combustible,
 consumo, cuota de autónomo (535 €/mes), seguro, emisora y porcentaje del
-conductor (marcados «Dato de Iván»). Licencia y coche son valores de juego
+conductor (marcados «Dato de Iván»). Licencia (3.000 €) y coche (2.000 €) son valores de juego
 fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
 `PROVISIONAL` y se apunta aquí.
 
