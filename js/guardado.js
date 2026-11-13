@@ -37,6 +37,18 @@
       [estado.caja.hoy, estado.caja.ayer, estado.cierrePendiente].forEach(function (caja) {
         if (caja && caja.km === undefined) caja.km = 0;
       });
+    },
+    // Versión 5: tu turno siempre es a clic (desaparece jugador.automatico) y
+    // se recuerda tu zona por si dejas de conducir.
+    4: function (estado) {
+      delete estado.jugador.automatico;
+      let zona = null;
+      estado.licencias.forEach(function (l) {
+        ['dia', 'noche'].forEach(function (t) {
+          if (l.turnos[t] && l.turnos[t].quien === 'jugador') zona = l.turnos[t].zona;
+        });
+      });
+      estado.jugador.zona = zona || Libre.config.zonaInicial;
     }
   };
 

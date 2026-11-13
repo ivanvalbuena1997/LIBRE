@@ -71,9 +71,13 @@ día de libranza, gerentes, otras ciudades, prestigio).
   `viajes = min(demanda, coches × 60 / minutos por carrera)`. Los coches que
   sobran dan vueltas en vacío (o esperan en la cola sin gastar si la zona
   tiene cola).
-- Carreras a mano: solo hasta contratar al primer conductor
-  (`jugador.automatico`) y solo dentro de la franja de tu turno
-  (`jugadorEnTurno()`). Usan azar para variar km y tipo de viaje.
+- Tu turno siempre es a clic, también con conductores contratados: solo
+  producen solos los turnos de conductores. Solo se trabaja dentro de la
+  franja de tu turno (`jugadorEnTurno()`). Dejar el volante y quedarte solo
+  como gestor (`dejarDeConducir()`) requiere la mejora «Oficina de gestión»;
+  `conducir()` te devuelve a un turno libre. Esto cambia lo que dice
+  DISENO.md («al contratar al primer conductor empieza la automatización»):
+  ahora la automatización es la de los conductores, no la tuya (Iván). Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
   desaparece al arrancar el día (no tapa la página: en pausa se compra).
@@ -95,11 +99,11 @@ día de libranza, gerentes, otras ciudades, prestigio).
   alto. Las tarjetas de zona sirven para elegir zona mientras conduces a
   mano.
 - El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
-  scroll. A mano es el botón de buscar cliente; automatizado, suma la
-  recaudación de hoy de la flota.
+  scroll. Mientras conduces es el botón de buscar cliente; si no conduces,
+  queda apagado («Fuera de servicio»): nada de contadores corriendo solos.
 - Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
-  fuera, con tope en la config. Mientras conduces a mano, o si se cerró con
-  el ticket en pantalla, el reloj no avanza. Con pausa al cierre, resuelve los
+  fuera, con tope en la config. Sin conductores contratados, o si se cerró
+  con el ticket en pantalla, el reloj no avanza. Tu turno no produce fuera. Con pausa al cierre, resuelve los
   días seguidos (`sinPausa`), se queda en el último cierre y deja un único
   ticket con la suma de esos días.
 

@@ -100,17 +100,39 @@ prueba('la caja se cierra a las 7:00 y cobra los costes fijos', function () {
   assert.strictEqual(e.caja.hoy.dia, 1);
 });
 
-prueba('el primer conductor automatiza el taxi', function () {
+prueba('el conductor trabaja solo y tu turno sigue siendo a clic', function () {
   const e = sim.crearEstadoInicial(0);
   e.dinero = 5000;
   assert.ok(!sim.contratarConductor(e, 1, 'dia').ok, 'el turno de día es tuyo');
   assert.ok(sim.contratarConductor(e, 1, 'noche').ok);
-  assert.strictEqual(e.jugador.automatico, true);
-  assert.ok(!sim.buscarCliente(e).ok, 'ya no hay carreras a mano');
-  const antes = e.totales.carreras;
-  const r = sim.avanzar(e, config.reloj.segundosPorDia);   // un día completo
-  assert.ok(e.totales.carreras > antes, 'el taxi trabaja solo');
-  assert.ok(r.conductores > 0, 'el conductor cobra su parte');
+  assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok, 'tú sigues conduciendo a clic');
+  e.jugador.carrera = null;
+  // Si no haces clic, tu turno de día no produce nada: solo cobra el de noche.
+  e.reloj.minutos = 8 * 60;
+  const deDia = sim.avanzar(e, config.reloj.segundosPorDia / 24 * 2);   // 8:00 a 10:00
+  assert.strictEqual(deDia.carreras, 0, 'sin tus clics tu turno no factura');
+  e.reloj.minutos = 20 * 60;
+  const deNoche = sim.avanzar(e, config.reloj.segundosPorDia / 24 * 2);
+  assert.ok(deNoche.carreras > 0, 'el conductor de noche trabaja solo');
+  assert.ok(deNoche.conductores > 0, 'y cobra su parte');
+});
+
+prueba('con la oficina puedes dejar de conducir y volver a un turno libre', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 5000;
+  sim.elegirZona(e, 1, 'dia', 'ocio');
+  assert.ok(!sim.dejarDeConducir(e).ok, 'sin la oficina no se deja el volante');
+  e.dinero = 100000;
+  assert.ok(sim.comprarMejora(e, 'oficina').ok);
+  assert.ok(sim.dejarDeConducir(e).ok);
+  assert.ok(!sim.conduce(e));
+  assert.ok(!sim.buscarCliente(e).ok, 'sin turno no hay carreras a mano');
+  assert.ok(sim.contratarConductor(e, 1, 'dia').ok, 'tu turno queda libre para un conductor');
+  assert.ok(!sim.conducir(e, 1, 'dia').ok, 'ese turno ya está cubierto');
+  assert.ok(sim.conducir(e, 1, 'noche').ok);
+  assert.strictEqual(sim.turnoDelJugador(e).zona, 'ocio', 'vuelves a tu zona');
+  assert.ok(!sim.dejarDeConducir(Object.assign(e, { jugador: Object.assign(e.jugador, { carrera: {} }) })).ok,
+    'no se deja el turno a mitad de carrera');
 });
 
 prueba('los coches que sobran en una zona no facturan más', function () {
@@ -242,7 +264,8 @@ prueba('sin conexión varios días: un solo ticket con la suma, parado en el úl
 
 prueba('sin conexión sin llegar al cierre: avanza normal y sin ticket', function () {
   const e = conConductor();
-  const r = sim.progresoSinConexion(e, DIA() * 0.5);
+  e.reloj.minutos = 19 * 60;                     // turno de noche: el del conductor
+  const r = sim.progresoSinConexion(e, DIA() * 0.4);   // de 19:00 a 4:36, antes del cierre
   assert.strictEqual(r.cierres.length, 0);
   assert.ok(!sim.enPausa(e));
   assert.ok(r.carreras > 0);
@@ -277,6 +300,17 @@ prueba('la caja cuenta los kilómetros y el ticket los suma', function () {
   sim.avanzar(e, DIA() * 1.2);
   assert.ok(e.caja.ayer.km > 0);
   cerca(e.cierrePendiente.km, e.caja.ayer.km);
+});
+
+prueba('las partidas de la versión 4 pierden «automatico» y recuerdan tu zona', function () {
+  const viejo = sim.crearEstadoInicial(0);
+  delete viejo.jugador.zona;
+  viejo.jugador.automatico = true;
+  viejo.licencias[0].turnos.dia.zona = 'ocio';
+  viejo.version = 4;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  assert.strictEqual(migrado.jugador.automatico, undefined);
+  assert.strictEqual(migrado.jugador.zona, 'ocio');
 });
 
 prueba('las partidas de la versión 3 reciben número de licencia y km', function () {

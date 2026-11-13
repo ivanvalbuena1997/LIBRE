@@ -49,9 +49,9 @@
           }
         }
       ],
-      // automatico pasa a true al contratar al primer conductor: desde entonces
-      // tu turno también trabaja solo y se acaban las carreras a mano.
-      jugador: { automatico: false, carrera: null, ultimaCarrera: null },
+      // Tu turno siempre es a clic. zona recuerda dónde trabajabas para cuando
+      // vuelvas a conducir tras dejarlo.
+      jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial },
       conductoresContratados: 0,
       mejoras: {},
       caja: { hoy: cajaVacia(0), ayer: null },
@@ -137,7 +137,7 @@
    * las mejoras que solo valen en esa zona.
    */
   function modificadores(estado, zonaId) {
-    const m = { segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, cuotaEmisora: false };
+    const m = { segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, cuotaEmisora: false, dejarVolante: false };
     cfg().mejoras.forEach(function (mejora) {
       if (!estado.mejoras[mejora.id]) return;
       const e = mejora.efecto;
@@ -148,6 +148,7 @@
       if (e.cola) m.cola *= e.cola;
       if (e.demanda) m.demanda *= e.demanda;
       if (e.cuotaEmisora) m.cuotaEmisora = true;
+      if (e.dejarVolante) m.dejarVolante = true;
     });
     return m;
   }
@@ -306,12 +307,25 @@
   }
 
   function turnoDelJugador(estado) {
-    return ubicacionJugador(estado).datos;
+    const u = ubicacionJugador(estado);
+    return u ? u.datos : null;
+  }
+
+  /* ¿Conduce el jugador? Si no tiene turno, solo trabajan sus conductores. */
+  function conduce(estado) {
+    return !!ubicacionJugador(estado);
+  }
+
+  function hayConductores(estado) {
+    return estado.licencias.some(function (lic) {
+      return TURNOS.some(function (t) { return lic.turnos[t] && lic.turnos[t].quien === 'conductor'; });
+    });
   }
 
   /* ¿Es ahora la franja horaria del turno del jugador? Solo se trabaja en ella. */
   function jugadorEnTurno(estado) {
-    return turnoDeHora(infoReloj(estado.reloj.minutos).hora) === ubicacionJugador(estado).turno;
+    const u = ubicacionJugador(estado);
+    return !!u && turnoDeHora(infoReloj(estado.reloj.minutos).hora) === u.turno;
   }
 
   // ------------------------------------------------- Licencias y coches
@@ -349,6 +363,8 @@
   /* Pasa al jugador al otro turno de su licencia, si está libre. */
   function cambiarTurnoJugador(estado) {
     const u = ubicacionJugador(estado);
+    if (!u) return fallo('Ahora no conduces.');
+    if (estado.jugador.carrera) return fallo('Termina antes la carrera en curso.');
     const lic = buscarLicencia(estado, u.licenciaId);
     const otro = u.turno === 'dia' ? 'noche' : 'dia';
     if (lic.turnos[otro]) return fallo('El otro turno ya está ocupado.');
@@ -364,22 +380,44 @@
     if (!lic || TURNOS.indexOf(turno) === -1) return fallo('Ese turno no existe.');
     if (!lic.vehiculo) return fallo('Esa licencia aún no tiene coche.');
     if (lic.turnos[turno]) return fallo('Ese turno ya está cubierto.');
-    if (!estado.jugador.automatico && estado.jugador.carrera) return fallo('Termina antes la carrera en curso.');
     const precio = c.conductores.costeContratacion;
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
 
     const otro = lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
     const nombre = c.conductores.nombres[estado.conductoresContratados % c.conductores.nombres.length];
+    const primero = !hayConductores(estado);
     estado.dinero -= precio;
     estado.conductoresContratados++;
     lic.turnos[turno] = { quien: 'conductor', nombre, zona: otro ? otro.zona : c.zonaInicial };
 
-    if (!estado.jugador.automatico) {
-      estado.jugador.automatico = true;
+    if (primero) {
       return exito(nombre + ' se encarga del turno de ' + c.turnos[turno].nombre.toLowerCase() +
-        '. Desde ahora tu taxi trabaja solo, también en tu turno.');
+        ': ahora tu taxi también trabaja cuando tú no conduces.');
     }
     return exito(nombre + ' empieza en el turno de ' + c.turnos[turno].nombre.toLowerCase() + '.');
+  }
+
+  /* Dejas tu turno: queda libre para un conductor. Tu flota sigue trabajando. */
+  function dejarDeConducir(estado) {
+    const u = ubicacionJugador(estado);
+    if (!u) return fallo('Ahora no conduces.');
+    if (!modificadores(estado).dejarVolante) return fallo('Para dejar el volante necesitas la mejora «Oficina de gestión».');
+    if (estado.jugador.carrera) return fallo('Termina antes la carrera en curso.');
+    estado.jugador.zona = u.datos.zona;
+    buscarLicencia(estado, u.licenciaId).turnos[u.turno] = null;
+    return exito('Dejas de conducir. Ese turno queda libre para un conductor.');
+  }
+
+  /* Vuelves a conducir en un turno libre de una licencia con coche. */
+  function conducir(estado, licenciaId, turno) {
+    if (conduce(estado)) return fallo('Ya conduces en otro turno.');
+    const lic = buscarLicencia(estado, licenciaId);
+    if (!lic || TURNOS.indexOf(turno) === -1) return fallo('Ese turno no existe.');
+    if (!lic.vehiculo) return fallo('Esa licencia aún no tiene coche.');
+    if (lic.turnos[turno]) return fallo('Ese turno ya está cubierto.');
+    const zona = zonaDesbloqueada(estado, estado.jugador.zona) ? estado.jugador.zona : cfg().zonaInicial;
+    lic.turnos[turno] = { quien: 'jugador', nombre: 'Tú', zona };
+    return exito('Vuelves a conducir en el turno de ' + cfg().turnos[turno].nombre.toLowerCase() + '.');
   }
 
   function despedirConductor(estado, licenciaId, turno) {
@@ -417,7 +455,7 @@
   function buscarCliente(estado, rng) {
     const rnd = rng || Math.random;
     const c = cfg();
-    if (estado.jugador.automatico) return fallo('Tu taxi ya trabaja solo.');
+    if (!conduce(estado)) return fallo('Ahora no conduces. Elige un turno libre en Flota.');
     if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
     if (!jugadorEnTurno(estado)) {
@@ -515,7 +553,7 @@
     estado.licencias.forEach(function (lic) {
       const t = lic.turnos[turnoActual];
       if (!lic.vehiculo || !t) return;
-      if (t.quien === 'jugador' && !estado.jugador.automatico) return;
+      if (t.quien === 'jugador') return;   // tu turno siempre es a clic
       (grupos[t.zona] = grupos[t.zona] || []).push({ licencia: lic, turno: t });
     });
     return grupos;
@@ -650,7 +688,7 @@
    */
   function progresoSinConexion(estado, segundosFuera) {
     const c = cfg().sinConexion;
-    if (!estado.jugador.automatico || enPausa(estado) || !(segundosFuera >= c.minimoSegundos)) return null;
+    if (!hayConductores(estado) || enPausa(estado) || !(segundosFuera >= c.minimoSegundos)) return null;
     let segundos = Math.min(segundosFuera, c.maximoHoras * 3600);
     if (estado.ajustes.pararAlCierre) {
       const hastaCierre = segundosHastaUltimoCierre(estado, segundos);
@@ -685,6 +723,10 @@
     turnoDeHora,
     turnoDelJugador,
     jugadorEnTurno,
+    conduce,
+    hayConductores,
+    dejarDeConducir,
+    conducir,
     ubicacionJugador,
     cochesPorZona,
     rendimientoZona,

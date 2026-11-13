@@ -121,12 +121,13 @@
   const seccionTaximetro = {
     id: 'sec-taximetro',
     firma: function (estado) {
-      return estado.jugador.automatico ? 'automatico' : 'a-mano';
+      return Libre.sim.conduce(estado) ? 'a-mano' : 'flota';
     },
     html: function (estado) {
-      if (estado.jugador.automatico) {
-        return '<div class="taximetro">' + htmlDisplay() + '</div>' +
-          '<p class="estado-carrera">Tu flota trabaja sola: recaudación de hoy.</p>';
+      // Sin conducir, el taxímetro se apaga: la flota se ve en «Hoy» y en los importes.
+      if (!Libre.sim.conduce(estado)) {
+        return '<div class="taximetro apagado">' + htmlDisplay() + '</div>' +
+          '<p class="estado-carrera">Gestionas la flota. Para conducir, elige un turno en Flota.</p>';
       }
       return '<button type="button" class="taximetro taximetro-boton" data-accion="buscarCliente" ' +
         'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() +
@@ -137,8 +138,10 @@
       const c = Libre.config;
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
 
-      if (estado.jugador.automatico) {
-        pintarDisplay(estado.caja.hoy.ingresos, 'FLOTA · HOY', info.tarifa, false);
+      if (!Libre.sim.conduce(estado)) {
+        pintarDisplay(0, 'FUERA DE SERVICIO', info.tarifa, false);
+        $('tx-valor').textContent = '--,--';
+        $('tx-piloto').textContent = 'APAGADO';
         return;
       }
 
@@ -198,7 +201,7 @@
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
       let moviendo;
       let ocupado;
-      if (estado.jugador.automatico) {
+      if (!Libre.sim.conduce(estado)) {
         const grupos = Libre.sim.cochesPorZona(estado, info);
         moviendo = Object.keys(grupos).some(function (zonaId) {
           return Libre.sim.rendimientoZona(estado, zonaId, grupos[zonaId].length, info).viajesHora > 0;
@@ -243,7 +246,7 @@
         if (lic.turnos[turno]) return;
         lista.push({
           id: 'conductor-' + lic.id + '-' + turno,
-          nombre: estado.jugador.automatico
+          nombre: Libre.sim.hayConductores(estado)
             ? 'Conductor de ' + c.turnos[turno].nombre.toLowerCase() + ' (licencia ' + Libre.sim.textoLicencia(lic) + ')'
             : 'Tu primer conductor',
           precio: c.conductores.costeContratacion,
@@ -494,11 +497,11 @@
     id: 'sec-zonas',
     firma: function (estado) {
       const u = Libre.sim.ubicacionJugador(estado);
-      return [Libre.sim.zonasDisponibles(estado), estado.jugador.automatico, u ? u.datos.zona : ''].join('|');
+      return [Libre.sim.zonasDisponibles(estado), u ? u.licenciaId + u.turno + u.datos.zona : 'no-conduce'].join('|');
     },
     html: function (estado) {
       const c = Libre.config;
-      const aMano = !estado.jugador.automatico;
+      const aMano = Libre.sim.conduce(estado);
       const u = Libre.sim.ubicacionJugador(estado);
       return '<div class="zonas-rejilla" role="group" aria-label="Zonas">' + Object.keys(c.zonas).map(function (id) {
         const zona = c.zonas[id];
@@ -552,11 +555,14 @@
       cuerpo = '<span class="ayuda">Necesita coche</span>';
     } else if (!t) {
       cuerpo = boton('Contratar conductor · ' + euros(c.conductores.costeContratacion), 'contratarConductor',
-        [lic.id, turno], '', c.conductores.costeContratacion);
+        [lic.id, turno], '', c.conductores.costeContratacion) +
+        (Libre.sim.conduce(estado) ? '' : boton('Conducir yo', 'conducir', [lic.id, turno]));
     } else if (t.quien === 'jugador') {
       const otro = turno === 'dia' ? 'noche' : 'dia';
       cuerpo = '<span class="quien">Tú</span>' + selectorZona(estado, lic.id, turno, t.zona) +
-        (lic.turnos[otro] ? '' : boton('Pasar a ' + c.turnos[otro].nombre.toLowerCase(), 'cambiarTurnoJugador', []));
+        (lic.turnos[otro] ? '' : boton('Pasar a ' + c.turnos[otro].nombre.toLowerCase(), 'cambiarTurnoJugador', [])) +
+        // Dejar el volante es una mejora (Oficina de gestión).
+        (Libre.sim.modificadores(estado).dejarVolante ? boton('Dejar de conducir', 'dejarDeConducir', []) : '');
     } else {
       cuerpo = '<span class="quien">' + esc(t.nombre) + '</span>' + selectorZona(estado, lic.id, turno, t.zona) +
         boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro');
@@ -568,15 +574,14 @@
   const seccionFlota = {
     id: 'sec-flota',
     firma: function (estado) {
-      return JSON.stringify([estado.licencias, estado.jugador.automatico, !!estado.jugador.carrera, estado.mejoras]);
+      return JSON.stringify([estado.licencias, !!estado.jugador.carrera, estado.mejoras]);
     },
     html: function (estado) {
       const c = Libre.config;
-      const ayuda = estado.jugador.automatico
-        ? 'Cada coche puede trabajar dos turnos. Tus conductores se quedan el ' +
-          Math.round(c.conductores.porcentaje * 100) + ' % de lo que recaudan.'
-        : 'Contrata a tu primer conductor para el otro turno: desde ese momento el taxi trabaja solo, ' +
-          'también en tu turno, y se acaban las carreras a mano.';
+      const ayuda = Libre.sim.hayConductores(estado)
+        ? 'Cada coche puede trabajar dos turnos. Tus conductores trabajan solos y se quedan el ' +
+          Math.round(c.conductores.porcentaje * 100) + ' % de lo que recaudan. Tu turno, si conduces, es a clic.'
+        : 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.';
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' +
         estado.licencias.map(function (lic) {
           const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'sin coche';
@@ -590,11 +595,6 @@
         (estado.licencias.length < c.licencias.maximo
           ? botonCompra('Comprar licencia nueva', Libre.sim.precioLicencia(estado), 'comprarLicencia', [])
           : '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>');
-    },
-    actualizar: function (estado) {
-      if (!estado.jugador.automatico && estado.jugador.carrera) {
-        document.querySelectorAll('[data-accion="contratarConductor"]').forEach(function (b) { b.disabled = true; });
-      }
     }
   };
 

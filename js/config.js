@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 4,
+    versionGuardado: 5,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -224,6 +224,7 @@
      *             soloZona: el efecto solo cuenta en esa zona
      *             desbloqueaZona: abre una zona
      *             cuotaEmisora: activa el coste diario de la emisora
+     *             dejarVolante: permite dejar de conducir y solo gestionar
      * Precios y efectos: Equilibrio.
      */
     mejoras: [
@@ -281,6 +282,11 @@
         id: 'jornada3', nombre: 'Jornada larga III', precio: 25000, requiere: 'jornada2',
         descripcion: 'El día dura 15 segundos más.',
         efecto: { segundosDia: 15 }
+      },
+      {
+        id: 'oficina', nombre: 'Oficina de gestión', precio: 12000,
+        descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota. Tu turno queda libre para un conductor.',
+        efecto: { dejarVolante: true }
       }
     ]
   };
