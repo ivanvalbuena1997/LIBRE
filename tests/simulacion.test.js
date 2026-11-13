@@ -108,4 +108,17 @@ prueba('los coches que sobran en una zona no facturan más', function () {
   assert.ok(diez.kmHora > uno.kmHora, 'pero gastan más combustible');
 });
 
+prueba('la licencia sube de precio y necesita coche y conductores', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 100000;
+  const p1 = sim.precioLicencia(e);
+  assert.ok(sim.comprarLicencia(e).ok);
+  assert.ok(sim.precioLicencia(e) > p1);
+  assert.ok(!sim.contratarConductor(e, 2, 'dia').ok, 'sin coche no se contrata');
+  assert.ok(sim.comprarVehiculo(e, 2).ok);
+  assert.ok(sim.contratarConductor(e, 2, 'dia').ok);
+  assert.ok(sim.contratarConductor(e, 2, 'noche').ok);
+  assert.strictEqual(e.licencias.length, 2);
+});
+
 console.log(pasadas + ' pruebas correctas');

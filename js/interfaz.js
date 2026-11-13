@@ -205,7 +205,7 @@
     const t = lic.turnos[turno];
     let cuerpo;
     if (!lic.vehiculo) {
-      cuerpo = '<span class="ayuda">Sin coche</span>';
+      cuerpo = '<span class="ayuda">Necesita coche</span>';
     } else if (!t) {
       cuerpo = boton('Contratar conductor · ' + euros(c.conductores.costeContratacion), 'contratarConductor',
         [lic.id, turno], '', c.conductores.costeContratacion);
@@ -236,10 +236,16 @@
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' +
         estado.licencias.map(function (lic) {
           const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'sin coche';
+          const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
           return '<div class="licencia"><div class="licencia-titulo"><span>Licencia ' + lic.id + '</span>' +
             '<span class="ayuda">' + esc(modelo) + '</span></div>' +
+            (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio,
+              'comprarVehiculo', [lic.id])) +
             htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') + '</div>';
-        }).join('');
+        }).join('') +
+        (estado.licencias.length < c.licencias.maximo
+          ? botonCompra('Comprar licencia ' + (estado.licencias.length + 1), Libre.sim.precioLicencia(estado), 'comprarLicencia', [])
+          : '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>');
     },
     actualizar: function (estado) {
       if (!estado.jugador.automatico && estado.jugador.carrera) {

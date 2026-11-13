@@ -191,6 +191,37 @@
     return ubicacionJugador(estado).datos;
   }
 
+  // ------------------------------------------------- Licencias y coches
+
+  /* El precio de la licencia sube con cada compra. */
+  function precioLicencia(estado) {
+    const l = cfg().licencias;
+    return l.precioBase * Math.pow(l.factorSubida, estado.licencias.length - 1);
+  }
+
+  function comprarLicencia(estado) {
+    const c = cfg();
+    if (estado.licencias.length >= c.licencias.maximo) return fallo('No quedan licencias en Madrid.');
+    const precio = precioLicencia(estado);
+    if (estado.dinero < precio) return fallo('No te llega el dinero.');
+    estado.dinero -= precio;
+    const id = estado.licencias.reduce(function (m, l) { return Math.max(m, l.id); }, 0) + 1;
+    estado.licencias.push({ id, vehiculo: null, turnos: { dia: null, noche: null } });
+    return exito('Licencia ' + id + ' comprada. Ahora necesita un coche.');
+  }
+
+  function comprarVehiculo(estado, licenciaId) {
+    const c = cfg();
+    const lic = buscarLicencia(estado, licenciaId);
+    if (!lic) return fallo('Esa licencia no existe.');
+    if (lic.vehiculo) return fallo('Esa licencia ya tiene coche.');
+    const modelo = c.vehiculos.modelos[c.vehiculos.modeloInicial];
+    if (estado.dinero < modelo.precio) return fallo('No te llega el dinero.');
+    estado.dinero -= modelo.precio;
+    lic.vehiculo = c.vehiculos.modeloInicial;
+    return exito(modelo.nombre + ' listo en la licencia ' + lic.id + '. Contrata conductores para sus turnos.');
+  }
+
   /* Pasa al jugador al otro turno de su licencia, si está libre. */
   function cambiarTurnoJugador(estado) {
     const u = ubicacionJugador(estado);
@@ -453,6 +484,9 @@
     cochesPorZona,
     rendimientoZona,
     elegirZona,
+    precioLicencia,
+    comprarLicencia,
+    comprarVehiculo,
     cambiarTurnoJugador,
     contratarConductor,
     despedirConductor,

@@ -81,12 +81,19 @@
       seguroDiarioPorVehiculo: 4   // PROVISIONAL: seguro del taxi repartido por día.
     },
 
+    licencias: {
+      precioBase: 2500,            // PROVISIONAL: precio de la segunda licencia.
+      factorSubida: 1.18,          // Equilibrio: cada licencia cuesta un 18 % más que la anterior.
+      maximo: 15812                // Dato real: licencias en el área de Madrid.
+    },
+
     vehiculos: {
       modeloInicial: 'turismo',
       // Un solo modelo en la primera versión.
       modelos: {
         turismo: {
           nombre: 'Turismo',
+          precio: 1500,              // PROVISIONAL: precio del coche.
           consumoLitros100Km: 7      // PROVISIONAL: consumo medio en ciudad.
         }
       }
