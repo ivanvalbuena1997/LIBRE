@@ -48,7 +48,10 @@
           }
         }
       ],
-      jugador: { carrera: null, ultimaCarrera: null },
+      // automatico pasa a true al contratar al primer conductor: desde entonces
+      // tu turno también trabaja solo y se acaban las carreras a mano.
+      jugador: { automatico: false, carrera: null, ultimaCarrera: null },
+      conductoresContratados: 0,
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
       ultimaMarca: ahoraMs || 0
@@ -76,6 +79,12 @@
       finDeSemana,
       tarifa: esTarifa1 ? 't1' : 't2'
     };
+  }
+
+  /* Turno que está trabajando a una hora dada: 'dia' o 'noche'. */
+  function turnoDeHora(hora) {
+    const d = cfg().turnos.dia;
+    return hora >= d.horaInicio && hora < d.horaFin ? 'dia' : 'noche';
   }
 
   function segundosPorDia(estado) {
@@ -182,6 +191,50 @@
     return ubicacionJugador(estado).datos;
   }
 
+  /* Pasa al jugador al otro turno de su licencia, si está libre. */
+  function cambiarTurnoJugador(estado) {
+    const u = ubicacionJugador(estado);
+    const lic = buscarLicencia(estado, u.licenciaId);
+    const otro = u.turno === 'dia' ? 'noche' : 'dia';
+    if (lic.turnos[otro]) return fallo('El otro turno ya está ocupado.');
+    lic.turnos[otro] = u.datos;
+    lic.turnos[u.turno] = null;
+    return exito('Ahora conduces en el turno de ' + cfg().turnos[otro].nombre.toLowerCase() + '.');
+  }
+
+  /* Contrata un conductor para un turno libre de una licencia con coche. */
+  function contratarConductor(estado, licenciaId, turno) {
+    const c = cfg();
+    const lic = buscarLicencia(estado, licenciaId);
+    if (!lic || TURNOS.indexOf(turno) === -1) return fallo('Ese turno no existe.');
+    if (!lic.vehiculo) return fallo('Esa licencia aún no tiene coche.');
+    if (lic.turnos[turno]) return fallo('Ese turno ya está cubierto.');
+    if (!estado.jugador.automatico && estado.jugador.carrera) return fallo('Termina antes la carrera en curso.');
+    const precio = c.conductores.costeContratacion;
+    if (estado.dinero < precio) return fallo('No te llega el dinero.');
+
+    const otro = lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
+    const nombre = c.conductores.nombres[estado.conductoresContratados % c.conductores.nombres.length];
+    estado.dinero -= precio;
+    estado.conductoresContratados++;
+    lic.turnos[turno] = { quien: 'conductor', nombre, zona: otro ? otro.zona : c.zonaInicial };
+
+    if (!estado.jugador.automatico) {
+      estado.jugador.automatico = true;
+      return exito(nombre + ' se encarga del turno de ' + c.turnos[turno].nombre.toLowerCase() +
+        '. Desde ahora tu taxi trabaja solo, también en tu turno.');
+    }
+    return exito(nombre + ' empieza en el turno de ' + c.turnos[turno].nombre.toLowerCase() + '.');
+  }
+
+  function despedirConductor(estado, licenciaId, turno) {
+    const lic = buscarLicencia(estado, licenciaId);
+    const t = lic && lic.turnos[turno];
+    if (!t || t.quien !== 'conductor') return fallo('Ahí no hay ningún conductor.');
+    lic.turnos[turno] = null;
+    return exito(t.nombre + ' ya no trabaja para ti.');
+  }
+
   /* Cambia la zona de trabajo de un turno (tuyo o de un conductor). */
   function elegirZona(estado, licenciaId, turno, zonaId) {
     const lic = buscarLicencia(estado, licenciaId);
@@ -209,6 +262,7 @@
   function buscarCliente(estado, rng) {
     const rnd = rng || Math.random;
     const c = cfg();
+    if (estado.jugador.automatico) return fallo('Tu taxi ya trabaja solo.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
     const turno = turnoDelJugador(estado);
     const zona = c.zonas[turno.zona];
@@ -269,6 +323,78 @@
     resumen.carreras += carreras;
   }
 
+  // --------------------------------------------------- Flota automática
+
+  /*
+   * Coches trabajando ahora mismo, agrupados por zona:
+   * { zonaId: [ { licencia, turno } ] }. Tu propio turno solo cuenta cuando ya
+   * es automático.
+   */
+  function cochesPorZona(estado, info) {
+    const turnoActual = turnoDeHora(info.hora);
+    const grupos = {};
+    estado.licencias.forEach(function (lic) {
+      const t = lic.turnos[turnoActual];
+      if (!lic.vehiculo || !t) return;
+      if (t.quien === 'jugador' && !estado.jugador.automatico) return;
+      (grupos[t.zona] = grupos[t.zona] || []).push({ licencia: lic, turno: t });
+    });
+    return grupos;
+  }
+
+  /*
+   * Rendimiento por hora de juego de `coches` coches en una zona.
+   * Cada coche hace como mucho 60 / (buscar + cola + viaje) carreras por hora;
+   * la zona no da más carreras que su demanda. Los coches que sobran circulan
+   * vacíos gastando combustible (o esperan en la cola sin gastar).
+   */
+  function rendimientoZona(estado, zonaId, coches, info) {
+    const c = cfg();
+    const zona = c.zonas[zonaId];
+    const demanda = demandaZona(estado, zonaId, info);
+    const porCoche = 60 / minutosPorCarrera(estado, zonaId, info.tarifa);
+    const capacidad = coches * porCoche;
+    const viajesHora = Math.min(demanda, capacidad);
+    const ocupacion = capacidad > 0 ? viajesHora / capacidad : 0;
+    const medio = viajeMedio(zonaId, info.tarifa);
+    const vel = c.conduccion.velocidadVacioKmH;
+    const kmBusqueda = zona.busquedaMin / 60 * vel;
+    const kmOciosos = zona.colaMin > 0 ? 0 : coches * (1 - ocupacion) * vel;
+    return {
+      demanda,
+      capacidad,
+      viajesHora,
+      ocupacion,
+      importe: medio.importe,
+      kmHora: viajesHora * (medio.km + kmBusqueda) + kmOciosos
+    };
+  }
+
+  /* Ingresos y gastos de todos los coches automáticos durante `minutos`. */
+  function producirAutomatico(estado, minutos, info, resumen) {
+    const c = cfg();
+    const grupos = cochesPorZona(estado, info);
+    const horas = minutos / 60 * factorJornada(estado);
+    Object.keys(grupos).forEach(function (zonaId) {
+      const coches = grupos[zonaId];
+      const r = rendimientoZona(estado, zonaId, coches.length, info);
+      const viajes = r.viajesHora * horas;
+      const ingresos = viajes * r.importe;
+      if (viajes > 0) cobrar(estado, resumen, ingresos, viajes);
+
+      let costeKmMedio = 0;
+      let conConductor = 0;
+      coches.forEach(function (x) {
+        costeKmMedio += costePorKm(estado, x.licencia.vehiculo) / coches.length;
+        if (x.turno.quien === 'conductor') conConductor++;
+      });
+      gastar(estado, resumen, 'combustible', r.kmHora * horas * costeKmMedio);
+      if (conConductor > 0 && ingresos > 0) {
+        gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * c.conductores.porcentaje);
+      }
+    });
+  }
+
   // ---------------------------------------------------------------- Avanzar
 
   function resumenVacio() {
@@ -299,6 +425,7 @@
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
+      producirAutomatico(estado, paso, infoReloj(ahora), resumen);
       estado.reloj.minutos = llega ? limite : ahora + paso;
       restante -= paso;
 
@@ -320,9 +447,15 @@
     costePorKm,
     costesFijosDiarios,
     demandaZona,
+    turnoDeHora,
     turnoDelJugador,
     ubicacionJugador,
+    cochesPorZona,
+    rendimientoZona,
     elegirZona,
+    cambiarTurnoJugador,
+    contratarConductor,
+    despedirConductor,
     buscarCliente,
     avanzar
   };

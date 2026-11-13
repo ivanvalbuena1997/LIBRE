@@ -53,6 +53,24 @@
       velocidadVacioKmH: 18
     },
 
+    // Turnos de 12 horas. Equilibrio: no coinciden con el cambio de tarifa de las 21:00.
+    turnos: {
+      dia: { nombre: 'Día', horaInicio: 7, horaFin: 19 },
+      noche: { nombre: 'Noche', horaInicio: 19, horaFin: 7 }
+    },
+
+    conductores: {
+      // PROVISIONAL: parte de la recaudación que se queda el conductor.
+      // Iván pondrá el valor habitual del sector.
+      porcentaje: 0.40,
+      costeContratacion: 1200,     // Equilibrio: pago único al contratar.
+      nombres: [
+        'Ana', 'Luis', 'Carmen', 'Javier', 'Lucía', 'Manuel', 'Elena', 'Antonio',
+        'Marta', 'Francisco', 'Laura', 'David', 'Rosa', 'Pablo', 'Isabel', 'Sergio',
+        'Pilar', 'Raúl', 'Cristina', 'Jorge', 'Beatriz', 'Alberto', 'Nuria', 'Fernando'
+      ]
+    },
+
     combustible: {
       precioLitro: 1.55            // PROVISIONAL: precio medio del litro.
     },

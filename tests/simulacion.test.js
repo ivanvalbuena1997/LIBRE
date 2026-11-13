@@ -86,4 +86,26 @@ prueba('la caja se cierra a las 7:00 y cobra los costes fijos', function () {
   assert.strictEqual(e.caja.hoy.dia, 1);
 });
 
+prueba('el primer conductor automatiza el taxi', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 5000;
+  assert.ok(!sim.contratarConductor(e, 1, 'dia').ok, 'el turno de día es tuyo');
+  assert.ok(sim.contratarConductor(e, 1, 'noche').ok);
+  assert.strictEqual(e.jugador.automatico, true);
+  assert.ok(!sim.buscarCliente(e).ok, 'ya no hay carreras a mano');
+  const antes = e.totales.carreras;
+  const r = sim.avanzar(e, config.reloj.segundosPorDia);   // un día completo
+  assert.ok(e.totales.carreras > antes, 'el taxi trabaja solo');
+  assert.ok(r.conductores > 0, 'el conductor cobra su parte');
+});
+
+prueba('los coches que sobran en una zona no facturan más', function () {
+  const e = sim.crearEstadoInicial(0);
+  const info = sim.infoReloj(3 * 60);  // lunes 3:00, poca demanda
+  const uno = sim.rendimientoZona(e, 'centro', 1, info);
+  const diez = sim.rendimientoZona(e, 'centro', 10, info);
+  cerca(uno.viajesHora, diez.viajesHora);
+  assert.ok(diez.kmHora > uno.kmHora, 'pero gastan más combustible');
+});
+
 console.log(pasadas + ' pruebas correctas');

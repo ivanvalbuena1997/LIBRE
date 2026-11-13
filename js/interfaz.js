@@ -16,8 +16,8 @@
   'use strict';
   const Libre = raiz.Libre = raiz.Libre || {};
 
-  const formatoEuros = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
-  const formatoNumero = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 });
+  const formatoEuros = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', useGrouping: 'always' });
+  const formatoNumero = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1, useGrouping: 'always' });
 
   function euros(n) { return formatoEuros.format(n); }
   function numero(n) { return formatoNumero.format(n); }
@@ -37,9 +37,29 @@
     return '<span class="chip chip-' + tarifaId + '">' + esc(Libre.config.tarifas[tarifaId].nombre) + '</span>';
   }
 
-  function boton(texto, accion, args, clase) {
+  /* Botón de acción. Si lleva precio, se desactiva solo cuando no llega el dinero. */
+  function boton(texto, accion, args, clase, precio) {
     return '<button type="button" class="' + (clase || '') + '" data-accion="' + accion +
-      '" data-args="' + esc((args || []).join('|')) + '">' + texto + '</button>';
+      '" data-args="' + esc((args || []).join('|')) + '"' +
+      (precio !== undefined ? ' data-precio="' + precio + '"' : '') + '>' + texto + '</button>';
+  }
+
+  function botonCompra(texto, precio, accion, args) {
+    return boton('<span>' + texto + '</span><span class="precio">' + euros(precio) + '</span>',
+      accion, args, 'boton-compra', precio);
+  }
+
+  function selectorZona(estado, licenciaId, turno, zonaActual) {
+    const c = Libre.config;
+    return '<select data-cambio="elegirZona" data-args="' + licenciaId + '|' + turno + '" aria-label="Zona">' +
+      Object.keys(c.zonas).map(function (id) {
+        return '<option value="' + id + '"' + (id === zonaActual ? ' selected' : '') + '>' + esc(c.zonas[id].nombre) + '</option>';
+      }).join('') + '</select>';
+  }
+
+  function horario(turno) {
+    const t = Libre.config.turnos[turno];
+    return dos(t.horaInicio) + '–' + dos(t.horaFin) + ' h';
   }
 
   // ---------------------------------------------------------- Secciones
@@ -47,10 +67,12 @@
   const seccionTaxi = {
     id: 'sec-taxi',
     firma: function (estado) {
+      if (estado.jugador.automatico) return 'automatico';
       const t = Libre.sim.turnoDelJugador(estado);
       return [t.zona, estado.jugador.carrera ? 1 : 0].join();
     },
     html: function (estado) {
+      if (estado.jugador.automatico) return '';
       const c = Libre.config;
       const u = Libre.sim.ubicacionJugador(estado);
       const zonas = Object.keys(c.zonas).map(function (id) {
@@ -164,11 +186,65 @@
     },
     actualizar: function (estado) {
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
+      const grupos = Libre.sim.cochesPorZona(estado, info);
       Object.keys(Libre.config.zonas).forEach(function (id) {
-        const d = Libre.sim.demandaZona(estado, id, info);
-        const v = Libre.sim.viajeMedio(id, info.tarifa);
-        $('zona-' + id).textContent = 'Ahora: ' + numero(d) + ' viajes/h · carrera media ' + euros(v.importe);
+        const coches = grupos[id] ? grupos[id].length : 0;
+        const r = Libre.sim.rendimientoZona(estado, id, coches, info);
+        let texto = 'Ahora: ' + numero(r.demanda) + ' viajes/h · carrera media ' + euros(r.importe);
+        if (coches > 0) {
+          texto += ' · ' + coches + (coches === 1 ? ' coche' : ' coches') + ', ocupados al ' +
+            Math.round(r.ocupacion * 100) + ' %';
+        }
+        $('zona-' + id).textContent = texto;
       });
+    }
+  };
+
+  function htmlTurno(estado, lic, turno) {
+    const c = Libre.config;
+    const t = lic.turnos[turno];
+    let cuerpo;
+    if (!lic.vehiculo) {
+      cuerpo = '<span class="ayuda">Sin coche</span>';
+    } else if (!t) {
+      cuerpo = boton('Contratar conductor · ' + euros(c.conductores.costeContratacion), 'contratarConductor',
+        [lic.id, turno], '', c.conductores.costeContratacion);
+    } else if (t.quien === 'jugador') {
+      const otro = turno === 'dia' ? 'noche' : 'dia';
+      cuerpo = '<span class="quien">Tú</span>' + selectorZona(estado, lic.id, turno, t.zona) +
+        (lic.turnos[otro] ? '' : boton('Pasar a ' + c.turnos[otro].nombre.toLowerCase(), 'cambiarTurnoJugador', []));
+    } else {
+      cuerpo = '<span class="quien">' + esc(t.nombre) + '</span>' + selectorZona(estado, lic.id, turno, t.zona) +
+        boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro');
+    }
+    return '<div class="turno"><div class="turno-nombre">' + esc(c.turnos[turno].nombre) + '<br>' + horario(turno) + '</div>' +
+      '<div class="turno-cuerpo">' + cuerpo + '</div></div>';
+  }
+
+  const seccionFlota = {
+    id: 'sec-flota',
+    firma: function (estado) {
+      return JSON.stringify([estado.licencias, estado.jugador.automatico, !!estado.jugador.carrera]);
+    },
+    html: function (estado) {
+      const c = Libre.config;
+      const ayuda = estado.jugador.automatico
+        ? 'Cada coche puede trabajar dos turnos. Tus conductores se quedan el ' +
+          Math.round(c.conductores.porcentaje * 100) + ' % de lo que recaudan.'
+        : 'Contrata a tu primer conductor para el otro turno: desde ese momento el taxi trabaja solo, ' +
+          'también en tu turno, y se acaban las carreras a mano.';
+      return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' +
+        estado.licencias.map(function (lic) {
+          const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'sin coche';
+          return '<div class="licencia"><div class="licencia-titulo"><span>Licencia ' + lic.id + '</span>' +
+            '<span class="ayuda">' + esc(modelo) + '</span></div>' +
+            htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') + '</div>';
+        }).join('');
+    },
+    actualizar: function (estado) {
+      if (!estado.jugador.automatico && estado.jugador.carrera) {
+        document.querySelectorAll('[data-accion="contratarConductor"]').forEach(function (b) { b.disabled = true; });
+      }
     }
   };
 
@@ -187,7 +263,7 @@
     }
   };
 
-  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionZonas, seccionPartida];
+  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionFlota, seccionZonas, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -242,6 +318,12 @@
       if (!el || el.disabled) return;
       ejecutar(el.dataset.accion, el.dataset.args ? el.dataset.args.split('|') : []);
     });
+
+    main.addEventListener('change', function (ev) {
+      const el = ev.target.closest('[data-cambio]');
+      if (!el) return;
+      ejecutar(el.dataset.cambio, el.dataset.args.split('|').concat([el.value]));
+    });
   }
 
   function dibujar(estado) {
@@ -261,7 +343,14 @@
         el.classList.toggle('oculto', html === '');
         s.ultimaFirma = firma;
       }
-      if (s.actualizar && !el.classList.contains('oculto')) s.actualizar(estado);
+    });
+
+    document.querySelectorAll('[data-precio]').forEach(function (b) {
+      b.disabled = estado.dinero < Number(b.dataset.precio);
+    });
+
+    secciones.forEach(function (s) {
+      if (s.actualizar && !$(s.id).classList.contains('oculto')) s.actualizar(estado);
     });
   }
 
