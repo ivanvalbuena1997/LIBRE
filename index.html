@@ -26,6 +26,26 @@
     <p class="ayuda">Cargando…</p>
   </main>
 
+  <!-- Menú inferior: cada pestaña enseña una parte del juego. -->
+  <nav class="menu-inferior" aria-label="Secciones del juego">
+    <button type="button" data-vista="calle" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15l2-5.5A2 2 0 0 1 6.9 8h10.2a2 2 0 0 1 1.9 1.5L21 15v3h-2.5M5.5 18H3v-3h18M9 6h6"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/></svg>
+      <span>Calle</span><i class="marca-aviso" data-aviso="calle"></i>
+    </button>
+    <button type="button" data-vista="flota">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M16 16l2-2M18.5 18.5l1.5-1.5"/></svg>
+      <span>Flota</span><i class="marca-aviso" data-aviso="flota"></i>
+    </button>
+    <button type="button" data-vista="mejoras">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V5M6 11l6-6 6 6M5 20h14"/></svg>
+      <span>Mejoras</span><i class="marca-aviso" data-aviso="mejoras"></i>
+    </button>
+    <button type="button" data-vista="partida">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      <span>Partida</span>
+    </button>
+  </nav>
+
   <div class="mensaje oculto" id="mensaje" role="status"></div>
 
   <!-- Orden importante: configuración, lógica, guardado, interfaz y arranque. -->

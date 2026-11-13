@@ -85,9 +85,14 @@ día de libranza, gerentes, otras ciudades, prestigio).
   y se muestra como `15288-L` con `textoLicencia()`. La libranza aún no tiene
   efecto en el juego: está fuera de la primera versión. La
   caja de hoy es un `<details>` de una línea.
-- Pantalla principal en móvil, de arriba abajo: escena, taxímetro, objetivo
-  y zonas. Debe caber sin scroll en 375×600 px; cualquier texto nuevo ahí, a
-  una línea. Las tarjetas de zona sirven para elegir zona mientras conduces a
+- Menú inferior fijo con pestañas Calle, Flota, Mejoras y Partida
+  (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección). Una marca
+  roja avisa de compras posibles o de un ticket esperando. La pestaña elegida
+  se recuerda en `localStorage` (`libre-vista`), aparte de la partida.
+- Pestaña Calle en móvil, de arriba abajo: escena, taxímetro, objetivo y
+  zonas. Debe caber sin scroll en 375×600 px por encima del menú inferior;
+  va muy justo, así que cualquier texto nuevo ahí, a una línea y sin añadir
+  alto. Las tarjetas de zona sirven para elegir zona mientras conduces a
   mano.
 - El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
   scroll. A mano es el botón de buscar cliente; automatizado, suma la

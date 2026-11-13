@@ -15,7 +15,7 @@
   const Libre = raiz.Libre = raiz.Libre || {};
 
   const ANCHO = 560;       // un tramo de calle; se repite dos veces para el bucle
-  const ALTO = 56;
+  const ALTO = 56;          // la tira se ve más baja: el SVG recorta el cielo
   const SUELO = 46;        // donde empieza la calzada
 
   /* Azar con semilla: los edificios salen siempre iguales. */

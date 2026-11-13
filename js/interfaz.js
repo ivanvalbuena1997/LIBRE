@@ -130,9 +130,8 @@
       }
       return '<button type="button" class="taximetro taximetro-boton" data-accion="buscarCliente" ' +
         'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() +
-        '<span class="taximetro-pie" id="tx-pie"></span></button>' +
-        '<div class="progreso"><div id="carrera-barra"></div></div>' +
-        '<div class="estado-carrera" id="carrera-estado"></div>';
+        '<span class="progreso"><span id="carrera-barra"></span></span>' +
+        '<span class="taximetro-pie" id="tx-pie"></span></button>';
     },
     actualizar: function (estado) {
       const c = Libre.config;
@@ -146,7 +145,10 @@
       const carrera = estado.jugador.carrera;
       const enCurso = Libre.sim.importeEnCurso(estado);
       const conPasajero = enCurso !== null;
-      pintarDisplay(conPasajero ? enCurso : 0, conPasajero ? 'IMPORTE' : '',
+      // Libre: la etiqueta del display recuerda la última carrera.
+      const ultima = estado.jugador.ultimaCarrera;
+      pintarDisplay(conPasajero ? enCurso : 0,
+        conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : '',
         conPasajero ? carrera.tarifa : info.tarifa, !conPasajero);
 
       const boton = document.querySelector('.taximetro-boton');
@@ -155,28 +157,16 @@
       const miTurno = c.turnos[Libre.sim.ubicacionJugador(estado).turno];
       boton.disabled = !!carrera || pausa || !enTurno;
       $('tx-pie').textContent = pausa ? 'Día cerrado'
-        : carrera ? ''
+        : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
+        : carrera ? c.zonas[carrera.zona].textoEspera + '…'
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
         : 'Toca para buscar cliente';
       // Latido suave mientras el taxi espera a que lo toques.
       $('tx-pie').classList.toggle('latido', !pausa && !carrera && enTurno);
 
       const barra = $('carrera-barra');
-      const texto = $('carrera-estado');
-      if (carrera) {
-        const ahora = estado.reloj.minutos;
-        const p = Math.min(1, (ahora - carrera.inicio) / (carrera.fin - carrera.inicio));
-        barra.style.width = (p * 100).toFixed(1) + '%';
-        texto.innerHTML = conPasajero
-          ? 'Con pasajero · ' + numero(carrera.km) + ' km'
-          : esc(c.zonas[carrera.zona].textoEspera) + '…';
-      } else {
-        barra.style.width = '0';
-        const u = estado.jugador.ultimaCarrera;
-        texto.innerHTML = u
-          ? 'Última carrera: <strong>' + euros(u.importe) + '</strong> · ' + chipTarifa(u.tarifa) + ' · ' + numero(u.km) + ' km'
-          : 'Elige zona abajo y toca el taxímetro.';
-      }
+      const p = carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
+      barra.style.width = (p * 100).toFixed(1) + '%';
     }
   };
 
@@ -781,6 +771,54 @@
     }
   }
 
+  // ---------------------------------------------------------- Menú inferior
+  /*
+   * Pestañas: cada sección pertenece a una vista y solo se ve la activa.
+   * La pestaña elegida se recuerda en este navegador (comodidad, no partida).
+   */
+  const VISTA_DE = {
+    'sec-escena': 'calle', 'sec-taximetro': 'calle', 'sec-ticket': 'calle',
+    'sec-objetivo': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
+    'sec-flota': 'flota', 'sec-mejoras': 'mejoras', 'sec-partida': 'partida'
+  };
+  const CLAVE_VISTA = 'libre-vista';
+  let vistaActual = 'calle';
+  try {
+    const guardada = raiz.localStorage.getItem(CLAVE_VISTA);
+    if (guardada && Object.values(VISTA_DE).indexOf(guardada) !== -1) vistaActual = guardada;
+  } catch (e) { /* sin almacenamiento: se empieza en Calle */ }
+
+  function cambiarVista(vista) {
+    vistaActual = vista;
+    try { raiz.localStorage.setItem(CLAVE_VISTA, vista); } catch (e) { /* da igual */ }
+    aplicarVista();
+    raiz.scrollTo(0, 0);
+  }
+
+  function aplicarVista() {
+    secciones.forEach(function (s) {
+      $(s.id).classList.toggle('fuera-de-vista', VISTA_DE[s.id] !== vistaActual);
+    });
+    document.querySelectorAll('[data-vista]').forEach(function (b) {
+      if (b.dataset.vista === vistaActual) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+  }
+
+  /* Marcas en las pestañas: algo que puedes comprar, o un ticket esperando. */
+  function actualizarAvisos(estado) {
+    const hay = { calle: !!estado.cierrePendiente, flota: false, mejoras: false };
+    document.querySelectorAll('[data-precio]').forEach(function (b) {
+      if (b.disabled) return;
+      const vista = VISTA_DE[b.closest('section').id];
+      if (vista === 'flota' || vista === 'mejoras') hay[vista] = true;
+    });
+    Object.keys(hay).forEach(function (vista) {
+      const marca = document.querySelector('[data-aviso="' + vista + '"]');
+      if (marca) marca.classList.toggle('visible', hay[vista] && vista !== vistaActual);
+    });
+  }
+
   let ejecutar = null;
 
   function accionPartida(partida, cual) {
@@ -821,6 +859,12 @@
       return '<section class="tarjeta" id="' + s.id + '"></section>';
     }).join('');
 
+    document.querySelector('.menu-inferior').addEventListener('click', function (ev) {
+      const b = ev.target.closest('[data-vista]');
+      if (b) { cambiarVista(b.dataset.vista); opciones.redibujar(); }
+    });
+    aplicarVista();
+
     main.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-cerrar-ticket]')) {
         ticketAviso = null;
@@ -838,6 +882,9 @@
         // Lleva hasta la compra y la señala; no compra sola.
         const destino = document.querySelector(objetivo.dataset.objetivo);
         if (destino) {
+          // La compra puede estar en otra pestaña: se va a ella primero.
+          const vista = VISTA_DE[destino.closest('section').id];
+          if (vista !== vistaActual) cambiarVista(vista);
           destino.scrollIntoView({ block: 'center' });
           destellar(destino.closest('.licencia, .mejora') || destino);
         }
@@ -887,6 +934,7 @@
 
     vigilarCobros(estado);
     vigilarCierres(estado);
+    actualizarAvisos(estado);
   }
 
   let temporizadorMensaje = null;
