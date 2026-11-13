@@ -107,28 +107,18 @@
   const seccionTaximetro = {
     id: 'sec-taximetro',
     firma: function (estado) {
-      if (estado.jugador.automatico) return 'automatico';
-      const t = Libre.sim.turnoDelJugador(estado);
-      return [t.zona, Libre.sim.zonasDisponibles(estado)].join();
+      return estado.jugador.automatico ? 'automatico' : 'a-mano';
     },
     html: function (estado) {
       if (estado.jugador.automatico) {
         return '<div class="taximetro">' + htmlDisplay() + '</div>' +
-          '<p class="estado-carrera">Tu flota trabaja sola. El taxímetro suma lo que llevas recaudado hoy.</p>';
+          '<p class="estado-carrera">Tu flota trabaja sola: recaudación de hoy.</p>';
       }
-      const c = Libre.config;
-      const u = Libre.sim.ubicacionJugador(estado);
-      const zonas = Libre.sim.zonasDisponibles(estado).map(function (id) {
-        return '<button type="button" data-accion="elegirZona" data-args="' + u.licenciaId + '|' + u.turno + '|' + id +
-          '" class="' + (id === u.datos.zona ? 'activa' : '') + '">' +
-          esc(c.zonas[id].nombre) + '<small data-demanda="' + id + '"></small></button>';
-      }).join('');
       return '<button type="button" class="taximetro taximetro-boton" data-accion="buscarCliente" ' +
         'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() +
         '<span class="taximetro-pie" id="tx-pie"></span></button>' +
         '<div class="progreso"><div id="carrera-barra"></div></div>' +
-        '<div class="estado-carrera" id="carrera-estado"></div>' +
-        '<div class="zonas-selector">' + zonas + '</div>';
+        '<div class="estado-carrera" id="carrera-estado"></div>';
     },
     actualizar: function (estado) {
       const c = Libre.config;
@@ -138,11 +128,6 @@
         pintarDisplay(estado.caja.hoy.ingresos, 'FLOTA · HOY', info.tarifa, false);
         return;
       }
-
-      document.querySelectorAll('[data-demanda]').forEach(function (el) {
-        const d = Libre.sim.demandaZona(estado, el.dataset.demanda, info);
-        el.textContent = numero(d) + ' viajes/h';
-      });
 
       const carrera = estado.jugador.carrera;
       const enCurso = Libre.sim.importeEnCurso(estado);
@@ -168,7 +153,7 @@
         const u = estado.jugador.ultimaCarrera;
         texto.innerHTML = u
           ? 'Última carrera: <strong>' + euros(u.importe) + '</strong> · ' + chipTarifa(u.tarifa) + ' · ' + numero(u.km) + ' km'
-          : 'Elige zona y toca el taxímetro para salir a buscar cliente.';
+          : 'Elige zona abajo y toca el taxímetro.';
       }
     }
   };
@@ -436,38 +421,112 @@
     }
   };
 
+  /*
+   * Zonas: tarjetas con icono y medidor de demanda (viajes/h ahora respecto
+   * al máximo de la semana en esa zona). Sin demanda, atenuada y con la hora
+   * a la que abre. Mientras conduces a mano, tocar una tarjeta elige la zona.
+   */
+  const ICONOS_ZONA = {
+    centro: '<path d="M3 21V10l5-3v14M8 21V4h8v17M16 21v-8h5v8M2 21h20M11 8h2M11 12h2M11 16h2"/>',
+    ocio: '<path d="M18 2.5a4.5 4.5 0 1 0 3.5 7.3 3.8 3.8 0 0 1-3.5-7.3z"/>' +
+      '<path d="M3 10h8l-4 5zM7 15v5M4.5 20h5"/>',
+    aeropuerto: '<path class="relleno" d="M12 2.5l1.3 6.6 8.2 4v1.8l-8.2-2.3-.5 6.2 2.8 1.9v1.1L12 21l-3.6.8v-1.1l2.8-1.9-.5-6.2-8.2 2.3v-1.8l8.2-4z"/>',
+    estaciones: '<rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M8 16l-2 5M16 16l2 5M7 19h10"/>' +
+      '<circle class="relleno" cx="9" cy="13" r="1"/><circle class="relleno" cx="15" cy="13" r="1"/>'
+  };
+
+  function iconoZona(id) {
+    return '<svg class="zona-icono" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS_ZONA[id] || ICONOS_ZONA.centro) + '</svg>';
+  }
+
+  // Máximo de demanda de cada zona en la semana (depende de las mejoras).
+  let cacheMaximos = { clave: null, valores: {} };
+  function demandaMaxima(estado, zonaId) {
+    const clave = JSON.stringify(estado.mejoras);
+    if (cacheMaximos.clave !== clave) cacheMaximos = { clave, valores: {} };
+    if (cacheMaximos.valores[zonaId] === undefined) {
+      let max = 0;
+      for (let h = 0; h < 7 * 24; h++) {
+        max = Math.max(max, Libre.sim.demandaZona(estado, zonaId, Libre.sim.infoReloj(h * 60)));
+      }
+      cacheMaximos.valores[zonaId] = max;
+    }
+    return cacheMaximos.valores[zonaId];
+  }
+
+  // Próxima hora con clientes en una zona, como texto ("Abre a las 21:00").
+  let cacheApertura = {};
+  function textoApertura(estado, zonaId) {
+    const ahora = Libre.sim.infoReloj(estado.reloj.minutos);
+    const horaActual = Math.floor(estado.reloj.minutos / 60);
+    const clave = horaActual + '|' + JSON.stringify(estado.mejoras);
+    if (cacheApertura.clave !== clave) cacheApertura = { clave };
+    if (cacheApertura[zonaId] !== undefined) return cacheApertura[zonaId];
+    const umbral = Libre.config.economia.demandaMinimaManual;
+    let texto = 'Sin clientes esta semana';
+    for (let h = 1; h <= 7 * 24; h++) {
+      const info = Libre.sim.infoReloj((horaActual + h) * 60);
+      if (Libre.sim.demandaZona(estado, zonaId, info) >= umbral) {
+        const a = 'a las ' + dos(info.hora) + ':00';
+        const dias = info.dia - ahora.dia;
+        texto = dias === 0 ? 'Abre ' + a
+          : dias === 1 ? 'Abre mañana ' + a
+          : 'Abre el ' + info.nombreDia.toLowerCase() + ' ' + a;
+        break;
+      }
+    }
+    cacheApertura[zonaId] = texto;
+    return texto;
+  }
+
   const seccionZonas = {
     id: 'sec-zonas',
-    firma: function (estado) { return Libre.sim.zonasDisponibles(estado).join(); },
+    firma: function (estado) {
+      const u = Libre.sim.ubicacionJugador(estado);
+      return [Libre.sim.zonasDisponibles(estado), estado.jugador.automatico, u ? u.datos.zona : ''].join('|');
+    },
     html: function (estado) {
       const c = Libre.config;
-      return '<h2>Zonas</h2>' + Object.keys(c.zonas).map(function (id) {
+      const aMano = !estado.jugador.automatico;
+      const u = Libre.sim.ubicacionJugador(estado);
+      return '<div class="zonas-rejilla" role="group" aria-label="Zonas">' + Object.keys(c.zonas).map(function (id) {
         const zona = c.zonas[id];
         const abierta = Libre.sim.zonaDesbloqueada(estado, id);
-        const mejora = zona.requiere && c.mejoras.find(function (m) { return m.id === zona.requiere; });
-        return '<div class="zona-fila">' +
-          '<div class="nombre">' + esc(zona.nombre) + (abierta ? '' : ' <span class="chip chip-gris">Cerrada</span>') + '</div>' +
-          '<div class="datos">' + esc(zona.descripcion) + '</div>' +
-          (abierta
-            ? '<div class="datos" id="zona-' + id + '"></div><div class="medidor"><div id="medidor-' + id + '"></div></div>'
-            : '<div class="datos">Se abre con la mejora «' + esc(mejora ? mejora.nombre : zona.requiere) + '».</div>') +
-          '</div>';
-      }).join('');
+        const cuerpo = iconoZona(id) +
+          '<span class="zona-nombre">' + esc(zona.nombre) + '</span>' +
+          '<span class="zona-dato" id="zona-dato-' + id + '"></span>' +
+          '<span class="zona-medidor"><span id="zona-medidor-' + id + '"></span></span>';
+        if (!abierta) {
+          const mejora = c.mejoras.find(function (m) { return m.id === zona.requiere; });
+          return '<div class="zona-tarjeta cerrada" title="' + esc(zona.descripcion) + '">' + iconoZona(id) +
+            '<span class="zona-nombre">' + esc(zona.nombre) + '</span>' +
+            '<span class="zona-dato">Cerrada: ' + esc(mejora ? mejora.nombre : zona.requiere) + '</span></div>';
+        }
+        if (aMano) {
+          return '<button type="button" class="zona-tarjeta' + (id === u.datos.zona ? ' activa' : '') + '" id="zona-' + id + '" ' +
+            'data-accion="elegirZona" data-args="' + u.licenciaId + '|' + u.turno + '|' + id + '" title="' + esc(zona.descripcion) + '">' +
+            cuerpo + '</button>';
+        }
+        return '<div class="zona-tarjeta" id="zona-' + id + '" title="' + esc(zona.descripcion) + '">' + cuerpo + '</div>';
+      }).join('') + '</div>';
     },
     actualizar: function (estado) {
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
       const grupos = Libre.sim.cochesPorZona(estado, info);
+      const umbral = Libre.config.economia.demandaMinimaManual;
       Libre.sim.zonasDisponibles(estado).forEach(function (id) {
         const coches = grupos[id] ? grupos[id].length : 0;
         const r = Libre.sim.rendimientoZona(estado, id, coches, info);
-        let texto = 'Ahora: ' + numero(r.demanda) + ' viajes/h · carrera media ' + euros(r.importe);
-        if (coches > 0) {
-          texto += ' · ' + coches + (coches === 1 ? ' coche' : ' coches') + ', ocupados al ' +
-            Math.round(r.ocupacion * 100) + ' %';
-        }
-        $('zona-' + id).textContent = texto;
-        // Medidor: parte de la demanda de la zona que cubren tus coches ahora.
-        $('medidor-' + id).style.width = (r.demanda > 0 ? Math.min(1, r.capacidad / r.demanda) * 100 : 0).toFixed(0) + '%';
+        const vacia = r.demanda < umbral;
+        $('zona-' + id).classList.toggle('vacia', vacia);
+        // Texto corto para que quepa en media pantalla de móvil.
+        let texto;
+        if (vacia) texto = textoApertura(estado, id);
+        else if (coches > 0) texto = Math.round(r.demanda) + '/h · ' + coches + (coches === 1 ? ' coche' : ' coches');
+        else texto = Math.round(r.demanda) + ' viajes/h';
+        $('zona-dato-' + id).textContent = texto;
+        const max = demandaMaxima(estado, id);
+        $('zona-medidor-' + id).style.width = (max > 0 ? Math.min(1, r.demanda / max) * 100 : 0).toFixed(0) + '%';
       });
     }
   };
@@ -564,7 +623,7 @@
     }
   };
 
-  const secciones = [seccionEscena, seccionTaximetro, seccionObjetivo, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
+  const secciones = [seccionEscena, seccionTaximetro, seccionObjetivo, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 

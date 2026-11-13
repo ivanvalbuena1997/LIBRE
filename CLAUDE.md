@@ -70,6 +70,10 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - Avisos puntuales (cierre de caja, "Mientras estabas fuera") van en la
   ventana superpuesta de `interfaz.js` (`abrirVentana`), nunca como tarjeta
   fija. La caja de hoy es un `<details>` de una línea.
+- Pantalla principal en móvil, de arriba abajo: escena, taxímetro, objetivo
+  y zonas. Debe caber sin scroll en 375×600 px; cualquier texto nuevo ahí, a
+  una línea. Las tarjetas de zona sirven para elegir zona mientras conduces a
+  mano.
 - El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
   scroll. A mano es el botón de buscar cliente; automatizado, suma la
   recaudación de hoy de la flota.

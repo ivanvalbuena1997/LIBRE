@@ -179,7 +179,7 @@ main {
   border: 1px solid var(--borde);
   border-radius: var(--radio);
   padding: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tarjeta h2 {
@@ -478,33 +478,12 @@ textarea {
 .objetivo.listo #objetivo-falta { color: var(--verde-texto); font-weight: 700; }
 .objetivo.listo #objetivo-relleno { background: var(--verde-libre); }
 
-/* Selector de zona en forma de pastillas */
-.zonas-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-.zonas-selector button {
-  flex: 1 1 45%;
-  min-height: 52px;
-  padding: 6px 10px;
-  text-align: left;
-  line-height: 1.2;
-}
-.zonas-selector button small { display: block; color: var(--suave); font-size: 0.78rem; }
-.zonas-selector button.activa {
-  border-color: var(--verde-libre);
-  background: var(--verde-claro);
-  box-shadow: inset 0 0 0 1px var(--verde-libre);
-}
-
 .progreso {
   height: 10px;
   border-radius: 999px;
   background: var(--borde);
   overflow: hidden;
-  margin: 10px 0 6px;
+  margin: 8px 0 4px;
 }
 .progreso > div {
   height: 100%;
@@ -513,9 +492,12 @@ textarea {
 }
 
 .estado-carrera {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: var(--suave);
   min-height: 1.3em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Tablas de números */
@@ -577,22 +559,84 @@ textarea {
 @keyframes aparecer-fondo { from { opacity: 0; } }
 @keyframes aparecer-ventana { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
 
-/* Lista de zonas */
-.zona-fila {
-  border-top: 1px solid var(--borde);
-  padding: 8px 0;
+/* Zonas: tarjetas con icono y medidor */
+#sec-zonas { padding: 8px; }
+.zonas-rejilla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
-.zona-fila:first-of-type { border-top: 0; }
-.zona-fila .nombre { font-weight: 600; }
-.zona-fila .datos { color: var(--suave); font-size: 0.88rem; font-variant-numeric: tabular-nums; }
-.medidor {
-  height: 6px;
+.zona-tarjeta {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  grid-template-rows: auto auto auto;
+  column-gap: 8px;
+  row-gap: 1px;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  padding: 8px 10px;
+  text-align: left;
+  font: inherit;
+  color: var(--texto);
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+button.zona-tarjeta { cursor: pointer; }
+.zona-tarjeta.activa {
+  border-color: var(--verde-libre);
+  background: var(--verde-claro);
+  box-shadow: inset 0 0 0 1px var(--verde-libre);
+}
+.zona-icono {
+  grid-row: 1 / span 2;
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.zona-icono .relleno { fill: currentColor; stroke: none; }
+.zona-nombre {
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zona-dato {
+  font-size: 0.76rem;
+  color: var(--suave);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zona-medidor {
+  grid-column: 1 / -1;
+  display: block;
+  height: 5px;
+  margin-top: 5px;
   border-radius: 999px;
   background: var(--borde);
   overflow: hidden;
-  margin-top: 4px;
 }
-.medidor > div { height: 100%; background: var(--ambar); }
+.zona-medidor > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--verde-libre);
+  transition: width 0.4s ease-out;
+}
+/* Sin demanda a esta hora, o todavía sin comprar: atenuada. */
+.zona-tarjeta.vacia, .zona-tarjeta.cerrada { opacity: 0.5; }
+.zona-tarjeta.vacia .zona-medidor > span { background: var(--suave); }
+.zona-tarjeta.cerrada { grid-template-rows: auto auto; }
 
 /* Flota */
 .licencia {
