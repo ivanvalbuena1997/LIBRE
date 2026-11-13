@@ -35,6 +35,7 @@ Datos confirmados por Iván el 13 de noviembre de 2026:
 - Tarifa 3: 22 €. Tarifa 4: 33 €.
 - Licencias en el área de Madrid: 15.812.
 - Régimen de descanso: cada licencia tiene día de libranza obligatorio, fijado por resolución anual del Ayuntamiento.
+- Número de licencia: número y letra, por ejemplo 15288-L. La letra es el día de libranza y sale de la última cifra: lunes (L) si acaba en 7 u 8, martes (M) en 9 o 0, miércoles en 1 o 2, jueves (J) en 3 o 4 y viernes (V) en 5 o 6. En fin de semana libra según la paridad del día del mes: una licencia par trabaja el sábado 10 y libra el domingo 11; una impar, al revés. La letra del miércoles está por confirmar (el juego usa X).
 
 Sin dato real: precio de una licencia, del coche y costes mensuales de un autónomo. El juego usa valores provisionales elegidos por equilibrio, no cifras reales, hasta que haya una fuente.
 
@@ -44,7 +45,7 @@ El dinero sale de tres piezas que dependen entre sí: licencias con su vehículo
 
 **Licencias y vehículos.** Cada taxi necesita una licencia, que es la compra cara y limitada del juego. El vehículo va aparte: modelos con distinto consumo, averías y capacidad. Un coche sin conductor no produce nada.
 
-**Conductores y turnos.** El jugador conduce el primer taxi él mismo. Después contrata conductores para cubrir el turno de día y el de noche; un coche con dos turnos rinde casi el doble que con uno. Cada licencia tiene su día de libranza obligatorio.
+**Conductores y turnos.** El jugador conduce su taxi él mismo, siempre a clic y solo dentro de la franja de su turno (día o noche). Los conductores que contrata trabajan solos y cubren el resto de turnos; un coche con dos turnos rinde casi el doble que con uno. Con la mejora «Oficina de gestión» el jugador puede dejar el volante y dedicarse solo a gestionar la flota, y volver a conducir cuando quiera en un turno libre. Cada licencia tiene su día de libranza obligatorio.
 
 **Demanda por zonas.** Madrid se divide en zonas con un número máximo de viajes por hora que cambia según el momento del día. Si asignas más coches de los que una zona pide, circulan vacíos y solo gastan combustible. Zonas previstas:
 
@@ -58,7 +59,7 @@ El dinero sale de tres piezas que dependen entre sí: licencias con su vehículo
 
 **Costes.** Combustible por kilómetro, incluidos los kilómetros en vacío; mantenimiento y averías; porcentaje de los conductores; cuota de autónomo, seguro y emisora.
 
-**Mejoras.** Emisora o app para reducir el tiempo en vacío, coches híbridos y eléctricos para gastar menos, taller propio para reducir averías, y gerentes que reasignan coches entre zonas de forma automática.
+**Mejoras.** Emisora o app para reducir el tiempo en vacío, coches híbridos y eléctricos para gastar menos, taller propio para reducir averías, oficina de gestión para dejar de conducir, y gerentes que reasignan coches entre zonas de forma automática.
 
 ## Progresión
 
@@ -85,7 +86,7 @@ Incluye:
 - Compra de licencias y vehículos, con un solo modelo de coche al principio.
 - Contratación de conductores y asignación de turno y zona.
 - Ingresos calculados con la fórmula real del taxímetro, y costes de combustible y conductores.
-- Carreras a clic hasta contratar al primer conductor.
+- Carreras a clic en el turno del jugador; los conductores contratados trabajan solos.
 - Unas 10 mejoras, entre ellas las que alargan el día.
 - Guardado automático y progreso mientras el juego está cerrado.
 
@@ -108,9 +109,15 @@ Seis decisiones cerradas el 13 de noviembre de 2026.
 - **Reloj.** El día dura 2 minutos reales al principio y se alarga unos segundos con mejoras. Para que la mejora tenga sentido, los costes fijos (cuota de autónomo, seguro, emisora) se cobran una vez por día: cada segundo extra es facturación contra el mismo coste diario. Al cerrar el día se muestra la caja.
 - **Conductores.** Cobran un porcentaje de la recaudación. El porcentaje va en la configuración; Iván pone el valor habitual del sector.
 - **Licencias.** El precio sube con cada compra.
-- **Clic manual.** En la etapa 1 las carreras se hacen a clic. Al contratar al primer conductor empieza la automatización, y el jugador nota el salto.
+- **Clic manual.** Las carreras del jugador se hacen siempre a clic, también cuando ya tiene conductores. Al contratar al primer conductor empieza la automatización de los demás turnos, y el jugador nota el salto. Dejar de conducir es una mejora (oficina de gestión); sin conducir, el taxímetro se apaga. *(Cambiado el 13 de noviembre de 2026: antes el primer conductor automatizaba también el taxi del jugador.)*
 - **VTC.** Aparecen en la etapa 3 como rival que resta demanda en algunas zonas, antes de que el jugador pueda tener las suyas.
 - **Nombre.** El juego se llama Libre.
+
+Decisiones añadidas el 13 de noviembre de 2026, durante la construcción de la primera versión:
+
+- **Cierre del día.** La jornada va de 7:00 a 7:00 y el día del juego cambia a las 7:00. Al cerrar, el reloj se para y sale un ticket de taxímetro con el resumen; el día siguiente empieza cuando el jugador lo arranca. Se puede desactivar con el ajuste «Parar al cierre del día». Con el juego cerrado, los días se resuelven solos y al volver sale un único ticket con la suma.
+- **Ocio nocturno.** De noche rinde claramente más que el centro, sobre todo de jueves a sábado; el centro se vacía de madrugada.
+- **Número de licencia.** Cada licencia comprada recibe un número al azar con su letra. Por ahora solo se muestra: la libranza sigue fuera de la primera versión.
 
 ## Primer prompt para Claude Code
 
