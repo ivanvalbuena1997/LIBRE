@@ -356,7 +356,8 @@
       const t = ticketEnPantalla(estado);
       if (!t) return '';
       const u = Libre.sim.ubicacionJugador(estado);
-      const licencia = estado.licencias.find(function (l) { return l.id === u.licenciaId; }) || estado.licencias[0];
+      // Tu licencia si conduces; si solo gestionas (Oficina), la primera de la flota.
+      const licencia = (u && estado.licencias.find(function (l) { return l.id === u.licenciaId; })) || estado.licencias[0];
       const lineas = lineasTicket(t.datos);
       let i = 0;
       const linea = function (l) {
