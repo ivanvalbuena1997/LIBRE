@@ -42,6 +42,9 @@ día de libranza, gerentes, otras ciudades, prestigio).
 
 - Código, nombres, comentarios, interfaz y commits en español.
 - Interfaz pensada primero para móvil: una columna, botones de 44 px mínimo.
+- Colores solo como variables CSS en el `:root` de `css/estilos.css` (paleta
+  del taxi de Madrid: blanco base, rojo de la franja, verde de "libre" para lo
+  positivo). Ningún color escrito a mano fuera de ese bloque. Sin modo oscuro.
 - Dinero con `Libre.ui.euros()` (formato es-ES).
 
 ## Modelo de juego (resumen)
