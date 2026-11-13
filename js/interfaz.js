@@ -222,7 +222,7 @@
     estado.licencias.forEach(function (lic) {
       if (!lic.vehiculo) {
         lista.push({
-          id: 'coche-' + lic.id, nombre: 'Coche para la licencia ' + lic.id,
+          id: 'coche-' + lic.id, nombre: 'Coche para la licencia ' + Libre.sim.textoLicencia(lic),
           precio: c.vehiculos.modelos[c.vehiculos.modeloInicial].precio,
           selector: '[data-licencia="' + lic.id + '"]'
         });
@@ -233,7 +233,7 @@
         lista.push({
           id: 'conductor-' + lic.id + '-' + turno,
           nombre: estado.jugador.automatico
-            ? 'Conductor de ' + c.turnos[turno].nombre.toLowerCase() + ' (licencia ' + lic.id + ')'
+            ? 'Conductor de ' + c.turnos[turno].nombre.toLowerCase() + ' (licencia ' + Libre.sim.textoLicencia(lic) + ')'
             : 'Tu primer conductor',
           precio: c.conductores.costeContratacion,
           selector: '[data-accion="contratarConductor"][data-args="' + lic.id + '|' + turno + '"]'
@@ -246,7 +246,7 @@
     });
     if (estado.licencias.length < c.licencias.maximo) {
       lista.push({
-        id: 'licencia-' + (estado.licencias.length + 1), nombre: 'Licencia ' + (estado.licencias.length + 1),
+        id: 'licencia-' + (estado.licencias.length + 1), nombre: 'Nueva licencia',
         precio: Libre.sim.precioLicencia(estado), selector: '[data-accion="comprarLicencia"]'
       });
     }
@@ -306,24 +306,32 @@
     return null;
   }
 
-  function filasTicket(t) {
+  function lineasTicket(t) {
     const neto = t.ingresos - t.combustible - t.conductores - t.fijos;
     return [
       { texto: 'Carreras', valor: String(Math.floor(t.carreras)) },
+      { texto: 'Kilómetros', valor: numero(t.km || 0) + ' km' },
       { texto: 'Recaudación', valor: euros(t.ingresos) },
       { texto: 'Combustible', valor: '−' + euros(t.combustible) },
       { texto: 'Conductores', valor: '−' + euros(t.conductores) },
       { texto: 'Costes fijos', valor: '−' + euros(t.fijos) },
-      { texto: 'Neto', valor: euros(neto), total: true, negativo: neto < 0 }
+      { texto: 'Neto', valor: euros(neto), total: true }
     ];
   }
 
-  function tituloTicket(t) {
-    return t.desdeDia === t.hastaDia
-      ? 'Cierre de caja · día ' + (t.desdeDia + 1)
-      : 'Cierre de caja · días ' + (t.desdeDia + 1) + ' a ' + (t.hastaDia + 1);
+  /* "Martes · día 2" o, si junta varios días, "Lunes a jueves · días 1 a 4". */
+  function fechaTicket(t) {
+    const dias = Libre.config.reloj.diasSemana;
+    const desde = dias[t.desdeDia % 7];
+    if (t.desdeDia === t.hastaDia) return desde + ' · día ' + (t.desdeDia + 1);
+    return desde + ' a ' + dias[t.hastaDia % 7].toLowerCase() + ' · días ' + (t.desdeDia + 1) + ' a ' + (t.hastaDia + 1);
   }
 
+  /*
+   * Ticket de papel térmico. Sale de debajo del taxímetro como si se
+   * imprimiera y las líneas aparecen una a una (retardo con --i en CSS).
+   * Con movimiento reducido las animaciones se anulan y sale ya impreso.
+   */
   const seccionTicket = {
     id: 'sec-ticket',
     firma: function (estado) {
@@ -333,14 +341,30 @@
     html: function (estado) {
       const t = ticketEnPantalla(estado);
       if (!t) return '';
-      return '<div class="ticket"><h2>' + esc(tituloTicket(t.datos)) + '</h2>' +
-        '<dl class="filas">' + filasTicket(t.datos).map(function (f) {
-          return '<div class="' + (f.total ? 'total' : '') + '"><dt>' + esc(f.texto) + '</dt>' +
-            '<dd class="' + (f.negativo ? 'negativo-texto' : '') + '">' + f.valor + '</dd></div>';
-        }).join('') + '</dl></div>' +
+      const u = Libre.sim.ubicacionJugador(estado);
+      const licencia = estado.licencias.find(function (l) { return l.id === u.licenciaId; }) || estado.licencias[0];
+      const lineas = lineasTicket(t.datos);
+      let i = 0;
+      const linea = function (l) {
+        return '<div class="ticket-linea' + (l.total ? ' ticket-total' : '') + '" style="--i:' + (i++) + '">' +
+          '<span>' + esc(l.texto) + '</span><span>' + l.valor + '</span></div>';
+      };
+      return '<div class="ticket-ranura"><div class="ticket" role="group" aria-label="Ticket de cierre de caja">' +
+        '<div class="ticket-cabecera">' +
+        '<div class="ticket-linea ticket-nombre" style="--i:' + (i++) + '">Libre</div>' +
+        '<div class="ticket-linea" style="--i:' + (i++) + '">Taxi · licencia ' + esc(Libre.sim.textoLicencia(licencia)) + '</div>' +
+        '<div class="ticket-linea" style="--i:' + (i++) + '">' + esc(fechaTicket(t.datos)) + '</div>' +
+        '</div>' +
+        '<div class="ticket-separador"></div>' +
+        lineas.filter(function (l) { return !l.total; }).map(linea).join('') +
+        '<div class="ticket-separador doble"></div>' +
+        lineas.filter(function (l) { return l.total; }).map(linea).join('') +
+        '</div></div>' +
+        '<div class="ticket-pie" style="--i:' + (i++) + '">' +
         (t.pausa
           ? boton('Arrancar día siguiente', 'arrancarDia', [], 'boton-principal')
-          : '<button type="button" class="boton-principal" data-cerrar-ticket>Vale</button>');
+          : '<button type="button" class="boton-principal" data-cerrar-ticket>Vale</button>') +
+        '</div>';
     }
   };
 
@@ -542,14 +566,14 @@
         estado.licencias.map(function (lic) {
           const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'sin coche';
           const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
-          return '<div class="licencia" data-licencia="' + lic.id + '"><div class="licencia-titulo"><span>Licencia ' + lic.id + '</span>' +
+          return '<div class="licencia" data-licencia="' + lic.id + '"><div class="licencia-titulo"><span>Licencia ' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
             '<span class="ayuda">' + esc(modelo) + '</span></div>' +
             (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio,
               'comprarVehiculo', [lic.id])) +
             htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') + '</div>';
         }).join('') +
         (estado.licencias.length < c.licencias.maximo
-          ? botonCompra('Comprar licencia ' + (estado.licencias.length + 1), Libre.sim.precioLicencia(estado), 'comprarLicencia', [])
+          ? botonCompra('Comprar licencia nueva', Libre.sim.precioLicencia(estado), 'comprarLicencia', [])
           : '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>');
     },
     actualizar: function (estado) {

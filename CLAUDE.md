@@ -72,7 +72,14 @@ día de libranza, gerentes, otras ciudades, prestigio).
   (`jugador.automatico`). Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
-  desaparece al arrancar el día (no tapa la página: en pausa se compra). La
+  desaparece al arrancar el día (no tapa la página: en pausa se compra).
+  Aspecto de papel térmico; sus líneas son carreras, kilómetros, recaudación,
+  combustible, conductores, costes fijos y neto, en ese orden (Iván). No
+  añadir líneas de ticket inventadas.
+- Licencias: `numero` al azar entre 1 y el máximo de Madrid, sin repetir. La
+  letra (día de libranza) sale de la última cifra (`config.licencias.letraPorCifra`)
+  y se muestra como `15288-L` con `textoLicencia()`. La libranza aún no tiene
+  efecto en el juego: está fuera de la primera versión. La
   caja de hoy es un `<details>` de una línea.
 - Pantalla principal en móvil, de arriba abajo: escena, taxímetro, objetivo
   y zonas. Debe caber sin scroll en 375×600 px; cualquier texto nuevo ahí, a

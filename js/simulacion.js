@@ -24,7 +24,7 @@
   // ------------------------------------------------------------------ Estado
 
   function cajaVacia(dia) {
-    return { dia, carreras: 0, ingresos: 0, combustible: 0, conductores: 0, fijos: 0 };
+    return { dia, carreras: 0, km: 0, ingresos: 0, combustible: 0, conductores: 0, fijos: 0 };
   }
 
   /* Beneficio de una caja: ingresos menos todos los gastos. */
@@ -32,15 +32,16 @@
     return caja.ingresos - caja.combustible - caja.conductores - caja.fijos;
   }
 
-  function crearEstadoInicial(ahoraMs) {
+  function crearEstadoInicial(ahoraMs, rng) {
     const c = cfg();
-    return {
+    const estado = {
       version: c.versionGuardado,
       dinero: c.economia.dineroInicial,
       reloj: { minutos: c.reloj.minutoInicial },
       licencias: [
         {
           id: 1,
+          numero: 0,              // se sortea abajo
           vehiculo: c.vehiculos.modeloInicial,
           turnos: {
             dia: { quien: 'jugador', nombre: 'Tú', zona: c.zonaInicial },
@@ -61,6 +62,30 @@
       ajustes: { pararAlCierre: true },
       ultimaMarca: ahoraMs || 0
     };
+    estado.licencias[0].numero = sortearNumeroLicencia(estado, rng);
+    return estado;
+  }
+
+  // --------------------------------------------------- Número de licencia
+
+  /* Número al azar entre 1 y el total de licencias de Madrid, sin repetir en la partida. */
+  function sortearNumeroLicencia(estado, rng) {
+    const rnd = rng || Math.random;
+    const maximo = cfg().licencias.maximo;
+    const usados = {};
+    estado.licencias.forEach(function (l) { if (l.numero) usados[l.numero] = true; });
+    for (let intento = 0; intento < 1000; intento++) {
+      const n = 1 + Math.floor(rnd() * maximo);
+      if (!usados[n]) return n;
+    }
+    for (let n = 1; n <= maximo; n++) if (!usados[n]) return n;
+    return 0;
+  }
+
+  /* Texto de la licencia: número y letra de libranza, p. ej. "15288-L". */
+  function textoLicencia(licencia) {
+    const letra = cfg().licencias.letraPorCifra[licencia.numero % 10];
+    return licencia.numero + '-' + letra;
   }
 
   // ------------------------------------------------------------------- Reloj
@@ -231,7 +256,7 @@
 
   // --------------------------------------------------- Pausa al cierre
 
-  const CAMPOS_CAJA = ['carreras', 'ingresos', 'combustible', 'conductores', 'fijos'];
+  const CAMPOS_CAJA = ['carreras', 'km', 'ingresos', 'combustible', 'conductores', 'fijos'];
 
   /* Suma varias cajas cerradas en un solo ticket { desdeDia, hastaDia, ... }. */
   function sumarCierres(cajas) {
@@ -292,15 +317,16 @@
     return l.precioBase * Math.pow(l.factorSubida, estado.licencias.length - 1);
   }
 
-  function comprarLicencia(estado) {
+  function comprarLicencia(estado, rng) {
     const c = cfg();
     if (estado.licencias.length >= c.licencias.maximo) return fallo('No quedan licencias en Madrid.');
     const precio = precioLicencia(estado);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
     const id = estado.licencias.reduce(function (m, l) { return Math.max(m, l.id); }, 0) + 1;
-    estado.licencias.push({ id, vehiculo: null, turnos: { dia: null, noche: null } });
-    return exito('Licencia ' + id + ' comprada. Ahora necesita un coche.');
+    const licencia = { id, numero: sortearNumeroLicencia(estado, rng), vehiculo: null, turnos: { dia: null, noche: null } };
+    estado.licencias.push(licencia);
+    return exito('Licencia ' + textoLicencia(licencia) + ' comprada. Ahora necesita un coche.');
   }
 
   function comprarVehiculo(estado, licenciaId) {
@@ -312,7 +338,7 @@
     if (estado.dinero < modelo.precio) return fallo('No te llega el dinero.');
     estado.dinero -= modelo.precio;
     lic.vehiculo = c.vehiculos.modeloInicial;
-    return exito(modelo.nombre + ' listo en la licencia ' + lic.id + '. Contrata conductores para sus turnos.');
+    return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. Contrata conductores para sus turnos.');
   }
 
   /* Pasa al jugador al otro turno de su licencia, si está libre. */
@@ -424,6 +450,7 @@
       fin: ahora + (espera + minutosViaje) / f,
       importe,
       km,
+      kmVacio,
       combustible: (km + kmVacio) * costePorKm(estado, lic.vehiculo)
     };
     return exito();
@@ -452,6 +479,7 @@
     };
     cobrar(estado, resumen, carrera.importe, 1);
     gastar(estado, resumen, 'combustible', carrera.combustible);
+    estado.caja.hoy.km += carrera.km + (carrera.kmVacio || 0);
   }
 
   function cobrar(estado, resumen, importe, carreras) {
@@ -530,6 +558,7 @@
         if (x.turno.quien === 'conductor') conConductor++;
       });
       gastar(estado, resumen, 'combustible', r.kmHora * horas * costeKmMedio);
+      estado.caja.hoy.km += r.kmHora * horas;
       if (conConductor > 0 && ingresos > 0) {
         gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * c.conductores.porcentaje);
       }
@@ -650,6 +679,8 @@
     rendimientoZona,
     elegirZona,
     precioLicencia,
+    textoLicencia,
+    sortearNumeroLicencia,
     comprarLicencia,
     comprarVehiculo,
     cambiarTurnoJugador,

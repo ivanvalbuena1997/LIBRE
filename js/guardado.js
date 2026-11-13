@@ -28,6 +28,15 @@
     2: function (estado) {
       estado.cierrePendiente = null;
       estado.ajustes = { pararAlCierre: true };
+    },
+    // Versión 4: número de licencia (con su letra) y kilómetros en la caja.
+    3: function (estado) {
+      estado.licencias.forEach(function (l) {
+        if (!l.numero) l.numero = Libre.sim.sortearNumeroLicencia(estado);
+      });
+      [estado.caja.hoy, estado.caja.ayer, estado.cierrePendiente].forEach(function (caja) {
+        if (caja && caja.km === undefined) caja.km = 0;
+      });
     }
   };
 

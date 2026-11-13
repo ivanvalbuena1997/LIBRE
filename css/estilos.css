@@ -30,6 +30,11 @@
   --sombra: rgba(0, 0, 0, 0.08);
   --sombra-fuerte: rgba(0, 0, 0, 0.25);
 
+  /* Ticket de papel térmico */
+  --papel: #fbf8ef;
+  --tinta: #1a1a1a;
+  --ranura: #111111;
+
   /* Escena: cielo por momento del día (hex: escena.js los mezcla). */
   --cielo-noche-alto: #0b1330;
   --cielo-noche-bajo: #27305e;
@@ -528,9 +533,72 @@ textarea {
 .caja-plegable[open] summary { border-bottom: 1px solid var(--borde); }
 .caja-plegable .filas { padding: 8px 14px 12px; }
 
-/* Ticket de cierre de caja (debajo del taxímetro) */
-#sec-ticket .ticket { margin-bottom: 12px; }
-#sec-ticket h2 { font-size: 1rem; }
+/* Ticket de cierre de caja: papel térmico que sale de debajo del taxímetro */
+#sec-ticket {
+  padding: 0;
+  margin-top: -6px;
+  background: transparent;
+  border: 0;
+}
+.ticket-ranura {
+  position: relative;
+  overflow: hidden;           /* el papel aparece desde el borde de arriba */
+  margin: 0 18px;
+  padding-bottom: 10px;       /* sitio para el borde dentado */
+  border-top: 4px solid var(--ranura);
+  border-radius: 2px;
+}
+.ticket {
+  position: relative;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-transform: uppercase;
+  padding: 12px 14px 8px;
+  box-shadow: 0 2px 6px var(--sombra);
+  animation: imprimir 1.1s ease-out backwards;
+}
+/* Borde inferior dentado del papel cortado. */
+.ticket::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+  background:
+    linear-gradient(135deg, var(--papel) 50%, transparent 50%) 0 0 / 12px 8px repeat-x,
+    linear-gradient(225deg, var(--papel) 50%, transparent 50%) 0 0 / 12px 8px repeat-x;
+}
+.ticket-cabecera { text-align: center; }
+.ticket-nombre { font-weight: 800; font-size: 1.05rem; letter-spacing: 0.2em; }
+.ticket-separador {
+  border-top: 1px dashed var(--tinta);
+  margin: 6px 0;
+}
+.ticket-separador.doble {
+  border-top-style: double;
+  border-top-width: 3px;
+}
+.ticket-linea {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  animation: aparecer-linea 0.2s ease-out backwards;
+  animation-delay: calc(0.9s + var(--i) * 0.18s);
+}
+.ticket-cabecera .ticket-linea { justify-content: center; }
+.ticket-total { font-weight: 800; font-size: 1.15rem; }
+.ticket-pie {
+  margin: 10px 0 12px;
+  animation: aparecer-linea 0.3s ease-out backwards;
+  animation-delay: calc(0.9s + var(--i) * 0.18s);
+}
+@keyframes imprimir { from { transform: translateY(-100%); } }
+@keyframes aparecer-linea { from { opacity: 0; } }
 
 /* Ajustes de la partida */
 .ajuste {

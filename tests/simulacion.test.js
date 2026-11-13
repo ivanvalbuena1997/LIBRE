@@ -260,4 +260,33 @@ prueba('las partidas de la versión 2 cargan y quedan sin pausa', function () {
   assert.strictEqual(migrado.ajustes.pararAlCierre, true);
 });
 
+prueba('cada licencia tiene número único y su letra sale de la última cifra', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e7;
+  for (let i = 0; i < 20; i++) sim.comprarLicencia(e);
+  const numeros = e.licencias.map(function (l) { return l.numero; });
+  assert.strictEqual(new Set(numeros).size, numeros.length);
+  numeros.forEach(function (n) { assert.ok(n >= 1 && n <= config.licencias.maximo); });
+  assert.strictEqual(sim.textoLicencia({ numero: 15288 }), '15288-L');
+  assert.strictEqual(sim.textoLicencia({ numero: 4720 }), '4720-M');
+  assert.strictEqual(sim.textoLicencia({ numero: 31 }), '31-X');
+});
+
+prueba('la caja cuenta los kilómetros y el ticket los suma', function () {
+  const e = conConductor();
+  sim.avanzar(e, DIA() * 1.2);
+  assert.ok(e.caja.ayer.km > 0);
+  cerca(e.cierrePendiente.km, e.caja.ayer.km);
+});
+
+prueba('las partidas de la versión 3 reciben número de licencia y km', function () {
+  const viejo = sim.crearEstadoInicial(0);
+  delete viejo.licencias[0].numero;
+  delete viejo.caja.hoy.km;
+  viejo.version = 3;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  assert.ok(migrado.licencias[0].numero >= 1);
+  assert.strictEqual(migrado.caja.hoy.km, 0);
+});
+
 console.log(pasadas + ' pruebas correctas');

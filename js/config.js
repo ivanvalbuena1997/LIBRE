@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 3,
+    versionGuardado: 4,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -95,7 +95,12 @@
     licencias: {
       precioBase: 15000,            // PROVISIONAL: precio de la segunda licencia.
       factorSubida: 1.22,          // Equilibrio: cada licencia cuesta un 22 % más que la anterior.
-      maximo: 15812                // Dato real: licencias en el área de Madrid.
+      maximo: 15812,               // Dato real: licencias en el área de Madrid.
+      // Dato real (Iván): la letra de la licencia indica el día de libranza y
+      // sale de la última cifra del número. Ej.: 15288-L libra los lunes.
+      // Por ahora solo se muestra; la libranza no tiene efecto en el juego.
+      // La X del miércoles está por confirmar.
+      letraPorCifra: { 7: 'L', 8: 'L', 9: 'M', 0: 'M', 1: 'X', 2: 'X', 3: 'J', 4: 'J', 5: 'V', 6: 'V' }
     },
 
     vehiculos: {
