@@ -76,7 +76,7 @@
     conductores: {
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,
-      costeContratacion: 800,      // Equilibrio: pago único al contratar.
+      costeContratacion: 600,      // Equilibrio: pago único al contratar.
       nombres: [
         'Ana', 'Luis', 'Carmen', 'Javier', 'Lucía', 'Manuel', 'Elena', 'Antonio',
         'Marta', 'Francisco', 'Laura', 'David', 'Rosa', 'Pablo', 'Isabel', 'Sergio',
@@ -98,7 +98,7 @@
 
     licencias: {
       precioBase: 10000,           // Iván (valor de juego): precio de la segunda licencia.
-      factorSubida: 1.22,          // Equilibrio: cada licencia cuesta un 22 % más que la anterior.
+      factorSubida: 1.15,          // Equilibrio: cada licencia cuesta un 15 % más que la anterior.
       maximo: 15812,               // Dato real: licencias en el área de Madrid.
       // Dato real (Iván): la letra de la licencia indica el día de libranza y
       // sale de la última cifra del número. Ej.: 15288-L libra los lunes.
@@ -240,10 +240,21 @@
      * Precios y efectos: Equilibrio.
      */
     mejoras: [
+      // Ordenadas por precio: siempre hay una a tiro para que el ritmo no se pare.
+      {
+        id: 'callejero', nombre: 'Callejero al día', precio: 400,
+        descripcion: 'Te sabes todas las calles: un 10 % menos de tiempo buscando cliente.',
+        efecto: { busqueda: 0.9 }
+      },
       {
         id: 'conduccionEficiente', nombre: 'Curso de conducción eficiente', precio: 800,
         descripcion: 'Todos tus coches gastan un 10 % menos de combustible.',
         efecto: { consumo: 0.9 }
+      },
+      {
+        id: 'limpieza', nombre: 'Taxi impecable', precio: 1200,
+        descripcion: 'Coche limpio y agua para el cliente: un 5 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.05 }
       },
       {
         id: 'jornada1', nombre: 'Jornada larga I', precio: 1500,
@@ -256,6 +267,11 @@
         efecto: { desbloqueaZona: 'aeropuerto' }
       },
       {
+        id: 'neumaticos', nombre: 'Neumáticos de bajo consumo', precio: 2200,
+        descripcion: 'Todos tus coches gastan un 8 % menos de combustible.',
+        efecto: { consumo: 0.92 }
+      },
+      {
         id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', precio: 2500,
         descripcion: 'Abre la zona de estaciones, con picos al llegar los trenes.',
         efecto: { desbloqueaZona: 'estaciones' }
@@ -266,34 +282,9 @@
         efecto: { busqueda: 0.7, cuotaEmisora: true }
       },
       {
-        id: 'datafono', nombre: 'Pago con tarjeta', precio: 5000,
-        descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
-        efecto: { demanda: 1.1 }
-      },
-      {
-        id: 'jornada2', nombre: 'Jornada larga II', precio: 6000, requiere: 'jornada1',
-        descripcion: 'El día dura otros 10 segundos más.',
-        efecto: { segundosDia: 10 }
-      },
-      {
-        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', precio: 10000, requiere: 'aeropuerto',
-        descripcion: 'La cola del aeropuerto se reduce un 40 %.',
-        efecto: { cola: 0.6, soloZona: 'aeropuerto' }
-      },
-      {
-        id: 'app', nombre: 'App de pedidos', precio: 12000, requiere: 'emisora',
-        descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
-        efecto: { busqueda: 0.7 }
-      },
-      {
-        id: 'hibridos', nombre: 'Flota híbrida', precio: 15000,
-        descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
-        efecto: { consumo: 0.65 }
-      },
-      {
-        id: 'jornada3', nombre: 'Jornada larga III', precio: 25000, requiere: 'jornada2',
-        descripcion: 'El día dura 15 segundos más.',
-        efecto: { segundosDia: 15 }
+        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', precio: 3500,
+        descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 15 % más de demanda.',
+        efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
       },
       {
         id: 'seguroFlota', nombre: 'Póliza de flota', precio: 4000,
@@ -301,14 +292,54 @@
         efecto: { seguro: 0.8 }
       },
       {
+        id: 'jornada2', nombre: 'Jornada larga II', precio: 4500, requiere: 'jornada1',
+        descripcion: 'El día dura otros 10 segundos más.',
+        efecto: { segundosDia: 10 }
+      },
+      {
+        id: 'datafono', nombre: 'Pago con tarjeta', precio: 5000,
+        descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.1 }
+      },
+      {
+        id: 'clientesFijos', nombre: 'Clientes de siempre', precio: 7000, requiere: 'datafono',
+        descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.08 }
+      },
+      {
         id: 'seguridadVial', nombre: 'Curso de seguridad vial', precio: 9000, requiere: 'seguroFlota',
         descripcion: 'Menos partes de accidente: el seguro de cada coche baja otro 25 %.',
         efecto: { seguro: 0.75 }
       },
       {
+        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', precio: 10000, requiere: 'aeropuerto',
+        descripcion: 'La cola del aeropuerto se reduce un 40 %.',
+        efecto: { cola: 0.6, soloZona: 'aeropuerto' }
+      },
+      {
+        id: 'jornada3', nombre: 'Jornada larga III', precio: 11000, requiere: 'jornada2',
+        descripcion: 'El día dura otros 10 segundos más.',
+        efecto: { segundosDia: 10 }
+      },
+      {
+        id: 'app', nombre: 'App de pedidos', precio: 12000, requiere: 'emisora',
+        descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
+        efecto: { busqueda: 0.7 }
+      },
+      {
         id: 'oficina', nombre: 'Oficina de gestión', precio: 12000,
         descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota. Tu turno queda libre para un conductor.',
         efecto: { dejarVolante: true }
+      },
+      {
+        id: 'hibridos', nombre: 'Flota híbrida', precio: 15000,
+        descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
+        efecto: { consumo: 0.65 }
+      },
+      {
+        id: 'jornada4', nombre: 'Jornada larga IV', precio: 22000, requiere: 'jornada3',
+        descripcion: 'El día dura 15 segundos más.',
+        efecto: { segundosDia: 15 }
       }
     ]
   };
