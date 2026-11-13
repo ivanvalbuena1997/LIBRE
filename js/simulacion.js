@@ -309,6 +309,11 @@
     return ubicacionJugador(estado).datos;
   }
 
+  /* ¿Es ahora la franja horaria del turno del jugador? Solo se trabaja en ella. */
+  function jugadorEnTurno(estado) {
+    return turnoDeHora(infoReloj(estado.reloj.minutos).hora) === ubicacionJugador(estado).turno;
+  }
+
   // ------------------------------------------------- Licencias y coches
 
   /* El precio de la licencia sube con cada compra. */
@@ -415,6 +420,11 @@
     if (estado.jugador.automatico) return fallo('Tu taxi ya trabaja solo.');
     if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
+    if (!jugadorEnTurno(estado)) {
+      const t = c.turnos[ubicacionJugador(estado).turno];
+      return fallo('Fuera de tu turno: trabajas de ' + t.nombre.toLowerCase() + ', de ' +
+        t.horaInicio + ':00 a ' + t.horaFin + ':00.');
+    }
     const turno = turnoDelJugador(estado);
     const zona = c.zonas[turno.zona];
     const info = infoReloj(estado.reloj.minutos);
@@ -674,6 +684,7 @@
     demandaZona,
     turnoDeHora,
     turnoDelJugador,
+    jugadorEnTurno,
     ubicacionJugador,
     cochesPorZona,
     rendimientoZona,

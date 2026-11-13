@@ -289,4 +289,14 @@ prueba('las partidas de la versión 3 reciben número de licencia y km', functio
   assert.strictEqual(migrado.caja.hoy.km, 0);
 });
 
+prueba('a mano solo se trabaja en la franja de tu turno', function () {
+  const e = sim.crearEstadoInicial(0);          // lunes 7:00, turno de día
+  e.reloj.minutos = 20 * 60;                     // 20:00, fuera del turno de día
+  assert.ok(!sim.jugadorEnTurno(e));
+  assert.ok(!sim.buscarCliente(e, azarFijo(0.5)).ok);
+  assert.ok(sim.cambiarTurnoJugador(e).ok);      // pasa a noche
+  assert.ok(sim.jugadorEnTurno(e));
+  assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok);
+});
+
 console.log(pasadas + ' pruebas correctas');

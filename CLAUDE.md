@@ -69,7 +69,8 @@ día de libranza, gerentes, otras ciudades, prestigio).
   sobran dan vueltas en vacío (o esperan en la cola sin gastar si la zona
   tiene cola).
 - Carreras a mano: solo hasta contratar al primer conductor
-  (`jugador.automatico`). Usan azar para variar km y tipo de viaje.
+  (`jugador.automatico`) y solo dentro de la franja de tu turno
+  (`jugadorEnTurno()`). Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
   desaparece al arrancar el día (no tapa la página: en pausa se compra).

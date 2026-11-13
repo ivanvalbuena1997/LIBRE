@@ -137,10 +137,15 @@
 
       const boton = document.querySelector('.taximetro-boton');
       const pausa = Libre.sim.enPausa(estado);
-      boton.disabled = !!carrera || pausa;
-      $('tx-pie').textContent = pausa ? 'Día cerrado' : carrera ? '' : 'Toca para buscar cliente';
+      const enTurno = Libre.sim.jugadorEnTurno(estado);
+      const miTurno = c.turnos[Libre.sim.ubicacionJugador(estado).turno];
+      boton.disabled = !!carrera || pausa || !enTurno;
+      $('tx-pie').textContent = pausa ? 'Día cerrado'
+        : carrera ? ''
+        : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
+        : 'Toca para buscar cliente';
       // Latido suave mientras el taxi espera a que lo toques.
-      $('tx-pie').classList.toggle('latido', !pausa && !carrera);
+      $('tx-pie').classList.toggle('latido', !pausa && !carrera && enTurno);
 
       const barra = $('carrera-barra');
       const texto = $('carrera-estado');
