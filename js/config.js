@@ -37,6 +37,51 @@
       // Dato real (DISENO.md): inicio de servicio, precio por km y por hora de espera.
       t1: { nombre: 'Tarifa 1', inicio: 2.55, porKm: 1.40, porHora: 27.00 },
       t2: { nombre: 'Tarifa 2', inicio: 3.20, porKm: 1.60, porHora: 29.00 }
+    },
+
+    economia: {
+      dineroInicial: 50,          // Equilibrio: caja con la que empiezas.
+      // Equilibrio: por debajo de estos viajes por hora la zona se considera
+      // vacía y no se puede buscar cliente a mano.
+      demandaMinimaManual: 0.5
+    },
+
+    conduccion: {
+      // Equilibrio: velocidad media circulando en vacío buscando cliente.
+      velocidadVacioKmH: 18
+    },
+
+    // Zona en la que empieza el jugador.
+    zonaInicial: 'centro',
+
+    /*
+     * Zonas de Madrid.
+     *   busquedaMin  minutos de juego dando vueltas hasta encontrar cliente
+     *                cuando hay demanda de sobra (consume combustible).
+     *   colaMin      minutos de cola en una parada (no consume combustible).
+     *   viajes       tipos de carrera con su proporción; km y minutos parados
+     *                entran en el taxímetro, "minutos" es lo que dura el viaje.
+     *   variacion    cuánto varía al azar una carrera hecha a mano (0,3 = ±30 %).
+     *   demanda      viajes por hora que la zona ofrece a tu empresa, por hora
+     *                del día (0 a 23), en laborable y en fin de semana.
+     */
+    zonas: {
+      centro: {
+        nombre: 'Centro',
+        descripcion: 'Muchas carreras cortas, demanda constante.',
+        textoEspera: 'Buscando cliente por el centro',
+        busquedaMin: 6,           // Equilibrio
+        colaMin: 0,
+        variacion: 0.3,
+        viajes: [
+          { proporcion: 1, km: 3.2, minParado: 6, minutos: 15 } // Equilibrio
+        ],
+        demanda: {                // Equilibrio
+          //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
+          laborable:   [4,  3,  2,  2,  2,  4,  8, 16, 24, 26, 22, 20, 22, 24, 24, 20, 20, 22, 26, 26, 22, 16, 10,  6],
+          finDeSemana: [10, 9,  7,  5,  3,  3,  4,  8, 12, 16, 20, 22, 24, 24, 22, 20, 20, 22, 24, 22, 18, 14, 12, 12]
+        }
+      }
     }
   };
 })(globalThis);
