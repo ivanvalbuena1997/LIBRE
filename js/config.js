@@ -24,6 +24,8 @@
       segundosPorDia: 120,
       // La partida empieza el lunes a las 7:00 (minutos desde medianoche).
       minutoInicial: 7 * 60,
+      // La caja se cierra cada día a esta hora: la jornada va de 7:00 a 7:00.
+      minutoCierreCaja: 7 * 60,
       diasSemana: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
       // Índices de diasSemana que cuentan como fin de semana (tarifa 2 todo el día).
       diasFinDeSemana: [5, 6]
@@ -51,6 +53,27 @@
       velocidadVacioKmH: 18
     },
 
+    combustible: {
+      precioLitro: 1.55            // PROVISIONAL: precio medio del litro.
+    },
+
+    // Costes fijos: se cobran una vez al día, al cerrar la caja.
+    costesFijos: {
+      autonomoDiario: 10,          // PROVISIONAL: cuota de autónomo repartida por día.
+      seguroDiarioPorVehiculo: 4   // PROVISIONAL: seguro del taxi repartido por día.
+    },
+
+    vehiculos: {
+      modeloInicial: 'turismo',
+      // Un solo modelo en la primera versión.
+      modelos: {
+        turismo: {
+          nombre: 'Turismo',
+          consumoLitros100Km: 7      // PROVISIONAL: consumo medio en ciudad.
+        }
+      }
+    },
+
     // Zona en la que empieza el jugador.
     zonaInicial: 'centro',
 
@@ -64,6 +87,8 @@
      *   variacion    cuánto varía al azar una carrera hecha a mano (0,3 = ±30 %).
      *   demanda      viajes por hora que la zona ofrece a tu empresa, por hora
      *                del día (0 a 23), en laborable y en fin de semana.
+     *   factorPorDia multiplica la demanda según el día (lunes a domingo).
+     *                Opcional; si falta, vale 1 todos los días.
      */
     zonas: {
       centro: {
@@ -81,6 +106,27 @@
           laborable:   [4,  3,  2,  2,  2,  4,  8, 16, 24, 26, 22, 20, 22, 24, 24, 20, 20, 22, 26, 26, 22, 16, 10,  6],
           finDeSemana: [10, 9,  7,  5,  3,  3,  4,  8, 12, 16, 20, 22, 24, 24, 22, 20, 20, 22, 24, 22, 18, 14, 12, 12]
         }
+      },
+
+      ocio: {
+        nombre: 'Ocio nocturno',
+        descripcion: 'Solo de noche y sobre todo en fin de semana. Siempre en tarifa 2.',
+        textoEspera: 'Esperando a la salida de los locales',
+        busquedaMin: 4,           // Equilibrio
+        colaMin: 0,
+        variacion: 0.35,
+        viajes: [
+          { proporcion: 1, km: 5.5, minParado: 4, minutos: 16 } // Equilibrio
+        ],
+        demanda: {                // Equilibrio
+          //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
+          laborable:   [6,  4,  3,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  4,  6],
+          finDeSemana: [24, 26, 24, 18, 12, 6,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10, 16, 22]
+        },
+        // Equilibrio: el viernes noche se anima; la madrugada del sábado y del
+        // domingo usan la tabla de fin de semana.
+        //            L    M    X    J    V    S    D
+        factorPorDia: [0.5, 0.5, 0.6, 0.9, 1.6, 1.0, 0.7]
       }
     }
   };

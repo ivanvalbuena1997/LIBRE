@@ -24,7 +24,12 @@
   // ------------------------------------------------------------------ Estado
 
   function cajaVacia(dia) {
-    return { dia, ingresos: 0, carreras: 0 };
+    return { dia, carreras: 0, ingresos: 0, combustible: 0, conductores: 0, fijos: 0 };
+  }
+
+  /* Beneficio de una caja: ingresos menos todos los gastos. */
+  function netoCaja(caja) {
+    return caja.ingresos - caja.combustible - caja.conductores - caja.fijos;
   }
 
   function crearEstadoInicial(ahoraMs) {
@@ -36,6 +41,7 @@
       licencias: [
         {
           id: 1,
+          vehiculo: c.vehiculos.modeloInicial,
           turnos: {
             dia: { quien: 'jugador', nombre: 'Tú', zona: c.zonaInicial },
             noche: null
@@ -108,13 +114,48 @@
   function demandaZona(estado, zonaId, info) {
     const zona = cfg().zonas[zonaId];
     const tabla = info.finDeSemana ? zona.demanda.finDeSemana : zona.demanda.laborable;
-    return tabla[info.hora];
+    const factorDia = zona.factorPorDia ? zona.factorPorDia[info.diaSemana] : 1;
+    return tabla[info.hora] * factorDia;
   }
 
   /* Minutos que tarda un coche en completar una carrera: buscar + cola + viaje. */
   function minutosPorCarrera(estado, zonaId, tarifaId) {
     const zona = cfg().zonas[zonaId];
     return zona.busquedaMin + zona.colaMin + viajeMedio(zonaId, tarifaId).minutos;
+  }
+
+  // ------------------------------------------------------------ Costes
+
+  /* Euros de combustible por km recorrido con un modelo de coche. */
+  function costePorKm(estado, modeloId) {
+    const c = cfg();
+    const modelo = c.vehiculos.modelos[modeloId || c.vehiculos.modeloInicial];
+    return modelo.consumoLitros100Km / 100 * c.combustible.precioLitro;
+  }
+
+  function vehiculosEnServicio(estado) {
+    return estado.licencias.filter(function (l) { return !!l.vehiculo; }).length;
+  }
+
+  /* Costes fijos que se cobrarán en el próximo cierre de caja. */
+  function costesFijosDiarios(estado) {
+    const f = cfg().costesFijos;
+    return f.autonomoDiario + vehiculosEnServicio(estado) * f.seguroDiarioPorVehiculo;
+  }
+
+  function gastar(estado, resumen, concepto, importe) {
+    estado.dinero -= importe;
+    estado.caja.hoy[concepto] += importe;
+    resumen[concepto] += importe;
+  }
+
+  /* Cierra la caja del día: cobra los costes fijos y empieza un día nuevo. */
+  function cerrarCaja(estado, resumen) {
+    gastar(estado, resumen, 'fijos', costesFijosDiarios(estado));
+    const cerrada = estado.caja.hoy;
+    estado.caja.ayer = cerrada;
+    estado.caja.hoy = cajaVacia(cerrada.dia + 1);
+    resumen.cierres.push(cerrada);
   }
 
   // ------------------------------------------------------------ Turnos
@@ -189,6 +230,10 @@
     const ciclo = Math.max(minutosPorCarrera(estado, turno.zona, info.tarifa), 60 / demanda);
     const espera = ciclo - medio.minutos;
 
+    // Buscando cliente se gasta combustible; en la cola de una parada, no.
+    const kmVacio = Math.max(0, espera - zona.colaMin) / 60 * c.conduccion.velocidadVacioKmH;
+    const lic = buscarLicencia(estado, ubicacionJugador(estado).licenciaId);
+
     const f = factorJornada(estado);
     const ahora = estado.reloj.minutos;
     estado.jugador.carrera = {
@@ -198,7 +243,8 @@
       finEspera: ahora + espera / f,
       fin: ahora + (espera + minutosViaje) / f,
       importe,
-      km
+      km,
+      combustible: (km + kmVacio) * costePorKm(estado, lic.vehiculo)
     };
     return exito();
   }
@@ -210,6 +256,7 @@
       zona: carrera.zona, tarifa: carrera.tarifa, importe: carrera.importe, km: carrera.km
     };
     cobrar(estado, resumen, carrera.importe, 1);
+    gastar(estado, resumen, 'combustible', carrera.combustible);
   }
 
   function cobrar(estado, resumen, importe, carreras) {
@@ -225,7 +272,11 @@
   // ---------------------------------------------------------------- Avanzar
 
   function resumenVacio() {
-    return { minutos: 0, ingresos: 0, carreras: 0 };
+    return {
+      minutos: 0, carreras: 0, ingresos: 0,
+      combustible: 0, conductores: 0, fijos: 0,
+      cierres: []
+    };
   }
 
   /*
@@ -252,6 +303,7 @@
       restante -= paso;
 
       if (carrera && estado.reloj.minutos >= carrera.fin) terminarCarrera(estado, resumen);
+      if (llega && limite % MIN_DIA === cfg().reloj.minutoCierreCaja) cerrarCaja(estado, resumen);
     }
     return resumen;
   }
@@ -264,6 +316,9 @@
     factorJornada,
     precioTaximetro,
     viajeMedio,
+    netoCaja,
+    costePorKm,
+    costesFijosDiarios,
     demandaZona,
     turnoDelJugador,
     ubicacionJugador,

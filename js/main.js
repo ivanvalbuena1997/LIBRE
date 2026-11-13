@@ -18,7 +18,7 @@
     ui.dibujar(estado);
   }
 
-  ui.iniciar({ ejecutar });
+  ui.iniciar({ ejecutar, redibujar: function () { ui.dibujar(estado); } });
 
   let anterior = Date.now();
   function tic() {
