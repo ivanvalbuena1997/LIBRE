@@ -107,12 +107,11 @@ día de libranza, gerentes, otras ciudades, prestigio).
 
 ## Valores PROVISIONALES (falta el dato real)
 
-En `js/config.js`, marcados con `PROVISIONAL`:
-
-- Precio del litro de combustible y consumo del turismo.
-- Cuota de autónomo, seguro y cuota de la emisora (por día).
-- Porcentaje del conductor (pendiente del valor habitual del sector).
-- Precio de la licencia y del coche.
+Ahora mismo ninguno: Iván confirmó el 13 de noviembre de 2026 combustible,
+consumo, cuota de autónomo (535 €/mes), seguro, emisora y porcentaje del
+conductor (marcados «Dato de Iván»). Licencia y coche son valores de juego
+fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
+`PROVISIONAL` y se apunta aquí.
 
 ## Pruebas
 

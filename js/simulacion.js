@@ -137,7 +137,7 @@
    * las mejoras que solo valen en esa zona.
    */
   function modificadores(estado, zonaId) {
-    const m = { segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, cuotaEmisora: false, dejarVolante: false };
+    const m = { segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1, cuotaEmisora: false, dejarVolante: false };
     cfg().mejoras.forEach(function (mejora) {
       if (!estado.mejoras[mejora.id]) return;
       const e = mejora.efecto;
@@ -147,6 +147,7 @@
       if (e.busqueda) m.busqueda *= e.busqueda;
       if (e.cola) m.cola *= e.cola;
       if (e.demanda) m.demanda *= e.demanda;
+      if (e.seguro) m.seguro *= e.seguro;
       if (e.cuotaEmisora) m.cuotaEmisora = true;
       if (e.dejarVolante) m.dejarVolante = true;
     });
@@ -235,8 +236,9 @@
   /* Costes fijos que se cobrarán en el próximo cierre de caja. */
   function costesFijosDiarios(estado) {
     const f = cfg().costesFijos;
-    const porVehiculo = f.seguroDiarioPorVehiculo +
-      (modificadores(estado).cuotaEmisora ? f.emisoraDiariaPorVehiculo : 0);
+    const m = modificadores(estado);
+    const porVehiculo = f.seguroDiarioPorVehiculo * m.seguro +
+      (m.cuotaEmisora ? f.emisoraDiariaPorVehiculo : 0);
     return f.autonomoDiario + vehiculosEnServicio(estado) * porVehiculo;
   }
 

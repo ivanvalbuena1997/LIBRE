@@ -70,9 +70,8 @@
     },
 
     conductores: {
-      // PROVISIONAL: parte de la recaudación que se queda el conductor.
-      // Iván pondrá el valor habitual del sector.
-      porcentaje: 0.40,
+      // Dato de Iván: parte de la recaudación que se queda el conductor.
+      porcentaje: 0.50,
       costeContratacion: 800,      // Equilibrio: pago único al contratar.
       nombres: [
         'Ana', 'Luis', 'Carmen', 'Javier', 'Lucía', 'Manuel', 'Elena', 'Antonio',
@@ -82,18 +81,19 @@
     },
 
     combustible: {
-      precioLitro: 1.55            // PROVISIONAL: precio medio del litro.
+      precioLitro: 1.55            // Dato de Iván: precio medio del litro.
     },
 
     // Costes fijos: se cobran una vez al día, al cerrar la caja.
     costesFijos: {
-      autonomoDiario: 10,          // PROVISIONAL: cuota de autónomo repartida por día.
-      seguroDiarioPorVehiculo: 6,  // PROVISIONAL: seguro del taxi repartido por día.
-      emisoraDiariaPorVehiculo: 3  // PROVISIONAL: cuota de la emisora, solo si tienes la mejora.
+      // Dato de Iván: cuota máxima de autónomo en España, 535 € al mes.
+      autonomoDiario: 535 / 30,
+      seguroDiarioPorVehiculo: 10, // Dato de Iván: seguro del taxi por día.
+      emisoraDiariaPorVehiculo: 3  // Dato de Iván: cuota de la emisora, solo si tienes la mejora.
     },
 
     licencias: {
-      precioBase: 15000,            // PROVISIONAL: precio de la segunda licencia.
+      precioBase: 10000,           // Iván (valor de juego): precio de la segunda licencia.
       factorSubida: 1.22,          // Equilibrio: cada licencia cuesta un 22 % más que la anterior.
       maximo: 15812,               // Dato real: licencias en el área de Madrid.
       // Dato real (Iván): la letra de la licencia indica el día de libranza y
@@ -109,8 +109,8 @@
       modelos: {
         turismo: {
           nombre: 'Turismo',
-          precio: 10000,              // PROVISIONAL: precio del coche.
-          consumoLitros100Km: 6      // PROVISIONAL: consumo medio en ciudad.
+          precio: 2000,              // Iván (valor de juego): precio del coche.
+          consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
         }
       }
     },
@@ -225,6 +225,7 @@
      *             desbloqueaZona: abre una zona
      *             cuotaEmisora: activa el coste diario de la emisora
      *             dejarVolante: permite dejar de conducir y solo gestionar
+     *             seguro: multiplica el seguro diario de cada coche
      * Precios y efectos: Equilibrio.
      */
     mejoras: [
@@ -282,6 +283,16 @@
         id: 'jornada3', nombre: 'Jornada larga III', precio: 25000, requiere: 'jornada2',
         descripcion: 'El día dura 15 segundos más.',
         efecto: { segundosDia: 15 }
+      },
+      {
+        id: 'seguroFlota', nombre: 'Póliza de flota', precio: 4000,
+        descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
+        efecto: { seguro: 0.8 }
+      },
+      {
+        id: 'seguridadVial', nombre: 'Curso de seguridad vial', precio: 9000, requiere: 'seguroFlota',
+        descripcion: 'Menos partes de accidente: el seguro de cada coche baja otro 25 %.',
+        efecto: { seguro: 0.75 }
       },
       {
         id: 'oficina', nombre: 'Oficina de gestión', precio: 12000,
