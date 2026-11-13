@@ -75,9 +75,7 @@ día de libranza, gerentes, otras ciudades, prestigio).
   producen solos los turnos de conductores. Solo se trabaja dentro de la
   franja de tu turno (`jugadorEnTurno()`). Dejar el volante y quedarte solo
   como gestor (`dejarDeConducir()`) requiere la mejora «Oficina de gestión»;
-  `conducir()` te devuelve a un turno libre. Esto cambia lo que dice
-  DISENO.md («al contratar al primer conductor empieza la automatización»):
-  ahora la automatización es la de los conductores, no la tuya (Iván). Usan azar para variar km y tipo de viaje.
+  `conducir()` te devuelve a un turno libre. Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
   desaparece al arrancar el día (no tapa la página: en pausa se compra).
