@@ -64,15 +64,58 @@
 
   // ---------------------------------------------------------- Secciones
 
-  const seccionTaxi = {
-    id: 'sec-taxi',
+  /*
+   * Taxímetro: centro de la pantalla.
+   *   A mano: todo el taxímetro es el botón de buscar cliente. El piloto
+   *   "LIBRE" se apaga cuando sube el pasajero y el importe sube en vivo.
+   *   Automático: suma en vivo la recaudación de hoy de la flota.
+   */
+  const formatoDisplay = new Intl.NumberFormat('es-ES', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: 'always'
+  });
+
+  function htmlDisplay() {
+    return '<div class="taximetro-cuerpo">' +
+      '<div class="taximetro-izquierda">' +
+      '<span class="piloto" id="tx-piloto">LIBRE</span>' +
+      '<span class="tx-tarifa" id="tx-tarifa"></span>' +
+      '</div>' +
+      '<div class="display">' +
+      '<span class="display-etiqueta" id="tx-etiqueta"></span>' +
+      '<span class="display-cifras"><span class="display-fantasma" id="tx-fantasma" aria-hidden="true"></span>' +
+      '<span class="display-valor" id="tx-valor">0,00</span></span>' +
+      '<span class="display-euro">€</span>' +
+      '</div>' +
+      '</div>';
+  }
+
+  function pintarDisplay(valor, etiqueta, tarifaId, libre) {
+    const texto = formatoDisplay.format(valor);
+    $('tx-valor').textContent = texto;
+    $('tx-fantasma').textContent = texto.replace(/\d/g, '8');
+    // Con cifras largas (miles de euros) se encoge para que no se salga.
+    $('tx-valor').parentNode.style.setProperty('--escala', Math.min(1, 7 / texto.length).toFixed(3));
+    $('tx-etiqueta').textContent = etiqueta;
+    const t = Libre.config.tarifas[tarifaId];
+    $('tx-tarifa').innerHTML = '<small>TARIFA</small>' + esc(t.nombre.replace('Tarifa ', ''));
+    $('tx-tarifa').className = 'tx-tarifa tx-' + tarifaId;
+    const piloto = $('tx-piloto');
+    piloto.classList.toggle('encendido', libre);
+    piloto.textContent = libre ? 'LIBRE' : 'OCUPADO';
+  }
+
+  const seccionTaximetro = {
+    id: 'sec-taximetro',
     firma: function (estado) {
       if (estado.jugador.automatico) return 'automatico';
       const t = Libre.sim.turnoDelJugador(estado);
-      return [t.zona, estado.jugador.carrera ? 1 : 0, Libre.sim.zonasDisponibles(estado)].join();
+      return [t.zona, Libre.sim.zonasDisponibles(estado)].join();
     },
     html: function (estado) {
-      if (estado.jugador.automatico) return '';
+      if (estado.jugador.automatico) {
+        return '<div class="taximetro">' + htmlDisplay() + '</div>' +
+          '<p class="estado-carrera">Tu flota trabaja sola. El taxímetro suma lo que llevas recaudado hoy.</p>';
+      }
       const c = Libre.config;
       const u = Libre.sim.ubicacionJugador(estado);
       const zonas = Libre.sim.zonasDisponibles(estado).map(function (id) {
@@ -80,38 +123,52 @@
           '" class="' + (id === u.datos.zona ? 'activa' : '') + '">' +
           esc(c.zonas[id].nombre) + '<small data-demanda="' + id + '"></small></button>';
       }).join('');
-      return '<h2>Tu taxi</h2>' +
-        '<p class="ayuda">Conduces tú. Elige zona y sal a buscar cliente: cada carrera se cobra con el taxímetro.</p>' +
-        '<div class="zonas-selector">' + zonas + '</div>' +
-        boton('Buscar cliente', 'buscarCliente', [], 'boton-principal') +
+      return '<button type="button" class="taximetro taximetro-boton" data-accion="buscarCliente" ' +
+        'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() +
+        '<span class="taximetro-pie" id="tx-pie"></span></button>' +
         '<div class="progreso"><div id="carrera-barra"></div></div>' +
-        '<div class="estado-carrera" id="carrera-estado"></div>';
+        '<div class="estado-carrera" id="carrera-estado"></div>' +
+        '<div class="zonas-selector">' + zonas + '</div>';
     },
     actualizar: function (estado) {
       const c = Libre.config;
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
+
+      if (estado.jugador.automatico) {
+        pintarDisplay(estado.caja.hoy.ingresos, 'FLOTA · HOY', info.tarifa, false);
+        return;
+      }
+
       document.querySelectorAll('[data-demanda]').forEach(function (el) {
         const d = Libre.sim.demandaZona(estado, el.dataset.demanda, info);
         el.textContent = numero(d) + ' viajes/h';
       });
+
       const carrera = estado.jugador.carrera;
+      const enCurso = Libre.sim.importeEnCurso(estado);
+      const conPasajero = enCurso !== null;
+      pintarDisplay(conPasajero ? enCurso : 0, conPasajero ? 'IMPORTE' : '',
+        conPasajero ? carrera.tarifa : info.tarifa, !conPasajero);
+
+      const boton = document.querySelector('.taximetro-boton');
+      boton.disabled = !!carrera;
+      $('tx-pie').textContent = carrera ? '' : 'Toca para buscar cliente';
+
       const barra = $('carrera-barra');
       const texto = $('carrera-estado');
-      const botonBuscar = document.querySelector('[data-accion="buscarCliente"]');
-      if (botonBuscar) botonBuscar.disabled = !!carrera;
       if (carrera) {
         const ahora = estado.reloj.minutos;
         const p = Math.min(1, (ahora - carrera.inicio) / (carrera.fin - carrera.inicio));
         barra.style.width = (p * 100).toFixed(1) + '%';
-        texto.innerHTML = ahora < carrera.finEspera
-          ? esc(c.zonas[carrera.zona].textoEspera) + '…'
-          : 'Con pasajero · ' + chipTarifa(carrera.tarifa) + ' · ' + numero(carrera.km) + ' km';
+        texto.innerHTML = conPasajero
+          ? 'Con pasajero · ' + numero(carrera.km) + ' km'
+          : esc(c.zonas[carrera.zona].textoEspera) + '…';
       } else {
         barra.style.width = '0';
         const u = estado.jugador.ultimaCarrera;
         texto.innerHTML = u
           ? 'Última carrera: <strong>' + euros(u.importe) + '</strong> · ' + chipTarifa(u.tarifa) + ' · ' + numero(u.km) + ' km'
-          : 'Luz verde: libre.';
+          : 'Elige zona y toca el taxímetro para salir a buscar cliente.';
       }
     }
   };
@@ -331,7 +388,7 @@
     }
   };
 
-  const secciones = [seccionFuera, seccionAviso, seccionTaxi, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
+  const secciones = [seccionTaximetro, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 

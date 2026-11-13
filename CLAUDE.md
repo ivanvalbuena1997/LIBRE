@@ -60,6 +60,10 @@ día de libranza, gerentes, otras ciudades, prestigio).
   tiene cola).
 - Carreras a mano: solo hasta contratar al primer conductor
   (`jugador.automatico`). Usan azar para variar km y tipo de viaje.
+  `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
+- El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
+  scroll. A mano es el botón de buscar cliente; automatizado, suma la
+  recaudación de hoy de la flota.
 - Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
   fuera, con tope en la config. Mientras conduces a mano el reloj no avanza.
 

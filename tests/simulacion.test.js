@@ -70,6 +70,20 @@ prueba('una carrera a mano cobra al terminar', function () {
   assert.strictEqual(e.caja.hoy.carreras, 1);
 });
 
+prueba('el taxímetro sube en vivo del inicio de servicio al importe final', function () {
+  const e = sim.crearEstadoInicial(0);
+  sim.buscarCliente(e, azarFijo(0.5));
+  const carrera = e.jugador.carrera;
+  assert.strictEqual(sim.importeEnCurso(e), null, 'buscando cliente: libre');
+  e.reloj.minutos = carrera.finEspera;
+  cerca(sim.importeEnCurso(e), config.tarifas[carrera.tarifa].inicio);
+  e.reloj.minutos = (carrera.finEspera + carrera.fin) / 2;
+  const mitad = sim.importeEnCurso(e);
+  assert.ok(mitad > config.tarifas[carrera.tarifa].inicio && mitad < carrera.importe);
+  e.reloj.minutos = carrera.fin;
+  cerca(sim.importeEnCurso(e), carrera.importe);
+});
+
 prueba('sin clientes no se puede buscar', function () {
   const e = sim.crearEstadoInicial(0);
   sim.elegirZona(e, 1, 'dia', 'ocio');   // lunes 7:00: ocio vacío

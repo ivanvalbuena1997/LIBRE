@@ -393,6 +393,21 @@
     return exito();
   }
 
+  /*
+   * Solo lectura, para la interfaz: lo que marca ahora el taxímetro de tu
+   * carrera a mano. null mientras buscas cliente o sin carrera. Con pasajero,
+   * sube del inicio de servicio al importe final según avanza el viaje; con
+   * tarifa fija marca el precio fijo desde el principio.
+   */
+  function importeEnCurso(estado) {
+    const carrera = estado.jugador.carrera;
+    if (!carrera || estado.reloj.minutos < carrera.finEspera) return null;
+    const tarifa = cfg().tarifas[carrera.tarifa];
+    if (tarifa.fija !== undefined) return tarifa.fija;
+    const avance = Math.min(1, (estado.reloj.minutos - carrera.finEspera) / (carrera.fin - carrera.finEspera));
+    return tarifa.inicio + (carrera.importe - tarifa.inicio) * avance;
+  }
+
   function terminarCarrera(estado, resumen) {
     const carrera = estado.jugador.carrera;
     estado.jugador.carrera = null;
@@ -569,6 +584,7 @@
     contratarConductor,
     despedirConductor,
     buscarCliente,
+    importeEnCurso,
     avanzar,
     progresoSinConexion
   };

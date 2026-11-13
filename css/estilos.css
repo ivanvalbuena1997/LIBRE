@@ -28,6 +28,15 @@
   --tarifa-fija: #8a5a12;
 
   --sombra: rgba(0, 0, 0, 0.08);
+
+  /* Taxímetro: carcasa negra y cifras de LED rojo, como los de verdad. */
+  --tx-carcasa: #1b1b1b;
+  --tx-display: #0c0d0c;
+  --tx-cifras: #ff4a3d;
+  --tx-brillo: rgba(255, 74, 61, 0.55);
+  --tx-fantasma: rgba(255, 74, 61, 0.08);
+  --tx-apagado: #3a3a38;
+  --tx-texto: #c9c9c4;
   --radio: 12px;
 }
 
@@ -222,12 +231,131 @@ textarea {
   padding: 8px;
 }
 
+/* Taxímetro */
+#sec-taximetro {
+  padding: 10px;
+}
+.taximetro {
+  display: block;
+  width: 100%;
+  background: var(--tx-carcasa);
+  color: var(--tx-texto);
+  border: 0;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: left;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.4), 0 3px 10px var(--sombra);
+}
+.taximetro-boton { cursor: pointer; }
+.taximetro-boton:disabled { opacity: 1; cursor: default; }
+.taximetro-boton:not(:disabled):active { transform: translateY(1px); }
+.taximetro-boton:focus-visible { outline: 3px solid var(--verde-libre); outline-offset: 2px; }
+
+.taximetro-cuerpo {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.taximetro-izquierda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 84px;
+  flex: none;
+}
+.piloto {
+  display: block;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  padding: 6px 0;
+  border-radius: 6px;
+  background: var(--tx-apagado);
+  color: var(--tx-texto);
+}
+.piloto.encendido {
+  background: var(--verde-libre);
+  color: var(--blanco);
+  box-shadow: 0 0 12px var(--verde-libre), 0 0 2px var(--verde-libre) inset;
+}
+.tx-tarifa {
+  display: block;
+  text-align: center;
+  border-radius: 6px;
+  padding: 2px 0 4px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--blanco);
+  background: var(--tarifa-1);
+}
+.tx-tarifa small {
+  display: block;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.tx-t2 { background: var(--tarifa-2); }
+.tx-t3, .tx-t4 { background: var(--tarifa-fija); }
+
+.display {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: var(--tx-display);
+  border-radius: 8px;
+  padding: 18px 10px 8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 4px;
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", "Courier New", monospace;
+  color: var(--tx-cifras);
+}
+.display-etiqueta {
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--tx-texto);
+}
+.display-cifras {
+  position: relative;
+  font-size: calc(clamp(2.2rem, 11vw, 3.2rem) * var(--escala, 1));
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px var(--tx-brillo);
+  white-space: nowrap;
+}
+/* Segmentos apagados detrás de las cifras, como en un display de LED. */
+.display-fantasma {
+  position: absolute;
+  right: 0;
+  color: var(--tx-fantasma);
+  text-shadow: none;
+}
+.display-valor { position: relative; }
+.display-euro { font-size: 1.1rem; font-weight: 700; padding-bottom: 4px; }
+
+.taximetro-pie {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--tx-texto);
+  min-height: 1.2em;
+}
+
 /* Selector de zona en forma de pastillas */
 .zonas-selector {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-top: 10px;
 }
 .zonas-selector button {
   flex: 1 1 45%;
