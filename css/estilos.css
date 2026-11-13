@@ -350,6 +350,60 @@ textarea {
   min-height: 1.2em;
 }
 
+/* Objetivo: barra hacia la siguiente compra */
+#sec-objetivo {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.objetivo {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  padding: 8px 12px 10px;
+  text-align: left;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--tarjeta);
+  cursor: default;
+}
+.objetivo-texto {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+.objetivo-texto > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#objetivo-falta { color: var(--suave); white-space: nowrap; }
+.objetivo-barra {
+  display: block;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--borde);
+  overflow: hidden;
+}
+#objetivo-relleno {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--suave);
+  transition: width 0.3s ease-out;
+}
+.objetivo.listo {
+  cursor: pointer;
+  border-color: var(--verde-libre);
+  background: var(--verde-claro);
+}
+.objetivo.listo #objetivo-falta { color: var(--verde-texto); font-weight: 700; }
+.objetivo.listo #objetivo-relleno { background: var(--verde-libre); }
+
 /* Selector de zona en forma de pastillas */
 .zonas-selector {
   display: flex;

@@ -190,6 +190,88 @@
 
   /* Aviso de cierre de caja: aparece al terminar cada día hasta que lo cierras. */
   let avisoCerradoDia = -1;
+  /*
+   * Objetivo: la compra más barata que aún no puedes pagar. Se queda fija
+   * hasta que la compras (o deja de existir); así, cuando llega el dinero,
+   * la barra se pone verde en vez de saltar a otra compra.
+   */
+  let objetivoId = null;
+
+  /* Todo lo que se puede comprar ahora: { id, nombre, precio, selector }. */
+  function comprasPosibles(estado) {
+    const c = Libre.config;
+    const lista = [];
+    estado.licencias.forEach(function (lic) {
+      if (!lic.vehiculo) {
+        lista.push({
+          id: 'coche-' + lic.id, nombre: 'Coche para la licencia ' + lic.id,
+          precio: c.vehiculos.modelos[c.vehiculos.modeloInicial].precio,
+          selector: '[data-licencia="' + lic.id + '"]'
+        });
+        return;
+      }
+      ['dia', 'noche'].forEach(function (turno) {
+        if (lic.turnos[turno]) return;
+        lista.push({
+          id: 'conductor-' + lic.id + '-' + turno,
+          nombre: estado.jugador.automatico
+            ? 'Conductor de ' + c.turnos[turno].nombre.toLowerCase() + ' (licencia ' + lic.id + ')'
+            : 'Tu primer conductor',
+          precio: c.conductores.costeContratacion,
+          selector: '[data-accion="contratarConductor"][data-args="' + lic.id + '|' + turno + '"]'
+        });
+      });
+    });
+    c.mejoras.forEach(function (m) {
+      if (estado.mejoras[m.id] || (m.requiere && !estado.mejoras[m.requiere])) return;
+      lista.push({ id: 'mejora-' + m.id, nombre: m.nombre, precio: m.precio, selector: '[data-mejora="' + m.id + '"]' });
+    });
+    if (estado.licencias.length < c.licencias.maximo) {
+      lista.push({
+        id: 'licencia-' + (estado.licencias.length + 1), nombre: 'Licencia ' + (estado.licencias.length + 1),
+        precio: Libre.sim.precioLicencia(estado), selector: '[data-accion="comprarLicencia"]'
+      });
+    }
+    return lista;
+  }
+
+  function objetivoActual(estado) {
+    const lista = comprasPosibles(estado);
+    if (lista.length === 0) return null;
+    let objetivo = lista.find(function (x) { return x.id === objetivoId; });
+    if (!objetivo) {
+      // sort es estable: a igual precio gana el primero de la lista.
+      const porPrecio = lista.slice().sort(function (a, b) { return a.precio - b.precio; });
+      objetivo = porPrecio.find(function (x) { return x.precio > estado.dinero; }) || porPrecio[0];
+      objetivoId = objetivo.id;
+    }
+    return objetivo;
+  }
+
+  const seccionObjetivo = {
+    id: 'sec-objetivo',
+    firma: function (estado) {
+      const o = objetivoActual(estado);
+      return o ? o.id + (estado.dinero >= o.precio ? ':si' : ':no') : 'nada';
+    },
+    html: function (estado) {
+      const o = objetivoActual(estado);
+      if (!o) return '';
+      const listo = estado.dinero >= o.precio;
+      return '<button type="button" class="objetivo' + (listo ? ' listo' : '') + '" data-objetivo="' + esc(o.selector) + '">' +
+        '<span class="objetivo-texto"><span>Siguiente: <strong>' + esc(o.nombre) + '</strong></span>' +
+        '<span id="objetivo-falta"></span></span>' +
+        '<span class="objetivo-barra"><span id="objetivo-relleno"></span></span></button>';
+    },
+    actualizar: function (estado) {
+      const o = objetivoActual(estado);
+      if (!o || !$('objetivo-falta')) return;
+      const falta = o.precio - estado.dinero;
+      $('objetivo-falta').textContent = falta > 0 ? 'faltan ' + euros(falta) : '¡ya puedes!';
+      $('objetivo-relleno').style.width = (Math.max(0, Math.min(1, estado.dinero / o.precio)) * 100).toFixed(1) + '%';
+    }
+  };
+
   const seccionAviso = {
     id: 'sec-aviso',
     firma: function (estado) {
@@ -388,7 +470,7 @@
     }
   };
 
-  const secciones = [seccionTaximetro, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
+  const secciones = [seccionTaximetro, seccionObjetivo, seccionFuera, seccionAviso, seccionCaja, seccionFlota, seccionZonas, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -547,6 +629,7 @@
   function reiniciar() {
     avisoCerradoDia = -1;
     resumenFuera = null;
+    objetivoId = null;
     flotantes.base = null;
     flotantes.pendiente = 0;
     contador.mostrado = null;
@@ -565,6 +648,17 @@
       const botonPartida = ev.target.closest('[data-partida]');
       if (botonPartida) {
         accionPartida(opciones.partida, botonPartida.dataset.partida);
+        return;
+      }
+      const objetivo = ev.target.closest('[data-objetivo]');
+      if (objetivo) {
+        if (!objetivo.classList.contains('listo')) return;
+        // Lleva hasta la compra y la señala; no compra sola.
+        const destino = document.querySelector(objetivo.dataset.objetivo);
+        if (destino) {
+          destino.scrollIntoView({ block: 'center' });
+          destellar(destino.closest('.licencia, .mejora') || destino);
+        }
         return;
       }
       if (ev.target.closest('[data-cerrar-fuera]')) {
