@@ -1,0 +1,55 @@
+# Libre · convenciones del proyecto
+
+Juego incremental de gestión de taxis en Madrid. El diseño completo está en
+`DISENO.md`; la versión actual cubre solo la sección "Primera versión jugable"
+(etapas 1 y 2). No añadir nada de lo que esa sección deja fuera (VTC, averías,
+día de libranza, gerentes, otras ciudades, prestigio).
+
+## Técnica
+
+- HTML, CSS y JavaScript sin frameworks ni compilación. Se juega abriendo
+  `index.html` con doble clic y se publica tal cual en GitHub Pages.
+- **Sin módulos ES** (`import`/`export`): no funcionan desde `file://`. Cada
+  archivo es un script clásico envuelto en `(function (raiz) { ... })(globalThis)`
+  que cuelga lo suyo de un único global `Libre`:
+  - `Libre.config` → `js/config.js`
+  - `Libre.sim` → `js/simulacion.js`
+  - `Libre.guardado` → `js/guardado.js`
+  - `Libre.ui` → `js/interfaz.js`
+- El orden de los `<script>` en `index.html` importa: config, simulación,
+  guardado, interfaz, main.
+
+## Reglas de arquitectura
+
+1. **Todos los números del juego en `js/config.js`.** Ni la simulación ni la
+   interfaz contienen cifras de juego. Comentarios en la config:
+   - `Dato real`: sale de DISENO.md. No tocar sin fuente.
+   - `PROVISIONAL`: falta el dato real; valor inventado. Mantener la lista de
+     provisionales de este archivo al día.
+   - `Equilibrio`: valor de juego para ajustar jugando.
+2. **La simulación no toca el DOM.** `simulacion.js` solo lee y modifica el
+   objeto de estado. Funciona igual en el navegador y en Node.
+3. **Una sola función avanza el tiempo:** `Libre.sim.avanzar(estado, segundosReales)`.
+   El bucle del juego y el progreso sin conexión usan esa misma función.
+4. **Las acciones del jugador** (comprar, contratar, elegir zona…) son funciones
+   de `Libre.sim` que devuelven `{ ok, mensaje }`. La interfaz solo las llama y
+   muestra el mensaje.
+5. **El estado es JSON plano** (sin clases ni funciones) para poder guardarlo
+   tal cual. Si cambia su forma: subir `versionGuardado` en la config y añadir
+   una migración en `guardado.js`.
+
+## Estilo
+
+- Código, nombres, comentarios, interfaz y commits en español.
+- Interfaz pensada primero para móvil: una columna, botones de 44 px mínimo.
+- Dinero con `Libre.ui.euros()` (formato es-ES).
+
+## Pruebas
+
+- `node tests/simulacion.test.js` prueba la lógica sin navegador.
+- Probar en el navegador abriendo `index.html`.
+
+## Forma de trabajar
+
+- Pasos pequeños, probables en el navegador, con un commit al terminar cada uno.
+- Mantener este archivo al día cuando cambien las convenciones.

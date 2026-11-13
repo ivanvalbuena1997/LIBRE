@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1d1d1b">
+  <title>Libre</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="cabecera-fila">
+      <h1 class="marca"><span class="luz"></span>Libre</h1>
+      <div class="dinero" id="dinero">0,00 €</div>
+    </div>
+    <div class="cabecera-fila">
+      <div class="reloj" id="reloj">Lunes 07:00</div>
+    </div>
+    <div class="barra-dia"><div id="barra-dia"></div></div>
+  </header>
+
+  <main id="juego">
+    <p class="ayuda">Cargando…</p>
+  </main>
+
+  <div class="mensaje oculto" id="mensaje" role="status"></div>
+
+  <!-- Orden importante: configuración, lógica, guardado, interfaz y arranque. -->
+  <script src="js/config.js"></script>
+  <script src="js/simulacion.js"></script>
+  <script src="js/interfaz.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
