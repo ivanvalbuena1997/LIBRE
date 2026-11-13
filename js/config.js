@@ -149,8 +149,9 @@
         ],
         demanda: {                // Equilibrio
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
-          laborable:   [4,  3,  2,  2,  2,  4,  8, 16, 24, 26, 22, 20, 22, 24, 24, 20, 20, 22, 26, 26, 22, 16, 10,  6],
-          finDeSemana: [10, 9,  7,  5,  3,  3,  4,  8, 12, 16, 20, 22, 24, 24, 22, 20, 20, 22, 24, 22, 18, 14, 12, 12]
+          // De madrugada el centro se vacía: la noche es del ocio nocturno.
+          laborable:   [2, 1.5, 1.5, 1, 1.5, 3,  8, 16, 24, 26, 22, 20, 22, 24, 24, 20, 20, 22, 26, 26, 22, 14,  8,  4],
+          finDeSemana: [6,  5,  4,  3,  2,  2,  4,  8, 12, 16, 20, 22, 24, 24, 22, 20, 20, 22, 24, 22, 18, 12,  9,  7]
         }
       },
 
@@ -158,21 +159,22 @@
         nombre: 'Ocio nocturno',
         descripcion: 'Solo de noche y sobre todo en fin de semana. Siempre en tarifa 2.',
         textoEspera: 'Esperando a la salida de los locales',
-        busquedaMin: 4,           // Equilibrio
+        busquedaMin: 2,           // Equilibrio: hay gente esperando a la salida
         colaMin: 0,
         variacion: 0.35,
         viajes: [
-          { proporcion: 1, km: 5.5, minParado: 4, minutos: 16 } // Equilibrio
+          // Equilibrio: carreras más largas (de vuelta a casa) que en el centro.
+          { proporcion: 1, km: 8, minParado: 3, minutos: 20 }
         ],
         demanda: {                // Equilibrio
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23
-          laborable:   [6,  4,  3,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  4,  6],
-          finDeSemana: [24, 26, 24, 18, 12, 6,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10, 16, 22]
+          laborable:   [8,  6,  4,  2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  3,  5,  7],
+          finDeSemana: [26, 28, 26, 20, 14, 7,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 12, 18, 24]
         },
-        // Equilibrio: el viernes noche se anima; la madrugada del sábado y del
-        // domingo usan la tabla de fin de semana.
+        // Equilibrio: el jueves ya hay ambiente y el viernes noche es el pico;
+        // la madrugada del sábado y del domingo usan la tabla de fin de semana.
         //            L    M    X    J    V    S    D
-        factorPorDia: [0.5, 0.5, 0.6, 0.9, 1.6, 1.0, 0.7]
+        factorPorDia: [0.6, 0.6, 0.7, 1.2, 1.8, 1.2, 0.8]
       },
 
       aeropuerto: {
