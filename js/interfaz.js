@@ -172,11 +172,52 @@
     }
   };
 
-  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionZonas];
+  const seccionPartida = {
+    id: 'sec-partida',
+    firma: function () { return 'fija'; },
+    html: function () {
+      return '<h2>Partida</h2>' +
+        '<p class="ayuda">Se guarda sola en este navegador. Para pasarla a otro dispositivo, exporta el texto y pégalo allí en Importar.</p>' +
+        '<textarea id="partida-texto" spellcheck="false" placeholder="Texto de la partida"></textarea>' +
+        '<div class="acciones">' +
+        '<button type="button" data-partida="exportar">Exportar</button>' +
+        '<button type="button" data-partida="importar">Importar</button>' +
+        '<button type="button" data-partida="borrar" class="boton-peligro">Borrar partida</button>' +
+        '</div>';
+    }
+  };
+
+  const secciones = [seccionAviso, seccionTaxi, seccionCaja, seccionZonas, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
   let ejecutar = null;
+
+  function accionPartida(partida, cual) {
+    const caja = $('partida-texto');
+    if (cual === 'exportar') {
+      caja.value = partida.exportar();
+      caja.select();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(caja.value).then(
+          function () { mostrarMensaje('Partida copiada al portapapeles.'); },
+          function () { mostrarMensaje('Copia el texto de la caja.'); });
+      } else {
+        mostrarMensaje('Copia el texto de la caja.');
+      }
+    } else if (cual === 'importar') {
+      if (!caja.value.trim()) { mostrarMensaje('Pega primero el texto de una partida.'); return; }
+      if (confirm('¿Sustituir la partida actual por la importada?') && partida.importar(caja.value)) caja.value = '';
+    } else if (cual === 'borrar') {
+      if (confirm('¿Borrar la partida y empezar de cero? No se puede deshacer.')) partida.borrar();
+    }
+  }
+
+  /* Olvida lo dibujado: hace falta tras importar o borrar la partida. */
+  function reiniciar() {
+    avisoCerradoDia = -1;
+    secciones.forEach(function (s) { s.ultimaFirma = null; });
+  }
 
   function iniciar(opciones) {
     ejecutar = opciones.ejecutar;
@@ -186,6 +227,11 @@
     }).join('');
 
     main.addEventListener('click', function (ev) {
+      const botonPartida = ev.target.closest('[data-partida]');
+      if (botonPartida) {
+        accionPartida(opciones.partida, botonPartida.dataset.partida);
+        return;
+      }
       const cerrar = ev.target.closest('[data-cerrar-aviso]');
       if (cerrar) {
         avisoCerradoDia = Number(cerrar.dataset.cerrarAviso);
@@ -228,5 +274,5 @@
     temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);
   }
 
-  Libre.ui = { iniciar, dibujar, mostrarMensaje, euros, numero, esc };
+  Libre.ui = { iniciar, reiniciar, dibujar, mostrarMensaje, euros, numero, esc };
 })(globalThis);
