@@ -541,4 +541,33 @@ prueba('las partidas de la versión 7 pasan sus mejoras a nivel 1', function () 
   assert.ok(sim.zonaDesbloqueada(migrado, 'aeropuerto'));
 });
 
+prueba('cada conductor recibe un personaje distinto y se guarda con él', function () {
+  const e = flotaDe(6);                          // 11 conductores
+  const retratos = [];
+  e.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) {
+      const x = l.turnos[t];
+      if (x && x.quien === 'conductor') {
+        assert.ok(x.retrato >= 0 && x.retrato < config.conductores.personajes.length);
+        assert.strictEqual(x.nombre, config.conductores.personajes[x.retrato].nombre);
+        retratos.push(x.retrato);
+      }
+    });
+  });
+  assert.strictEqual(new Set(retratos).size, retratos.length, 'sin repetir mientras haya personajes libres');
+  const copia = globalThis.Libre.guardado.migrar(JSON.parse(JSON.stringify(e)));
+  assert.strictEqual(copia.licencias[1].turnos.dia.retrato, e.licencias[1].turnos.dia.retrato, 'no cambia al recargar');
+});
+
+prueba('los conductores de la versión 9 reciben retrato y conservan su nombre', function () {
+  const viejo = flotaDe(2);
+  viejo.licencias[1].turnos.dia.nombre = 'Pilar';
+  delete viejo.licencias[1].turnos.dia.retrato;
+  viejo.version = 9;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  const t = migrado.licencias[1].turnos.dia;
+  assert.strictEqual(t.nombre, 'Pilar');
+  assert.ok(t.retrato >= 0);
+});
+
 console.log(pasadas + ' pruebas correctas');

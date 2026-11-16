@@ -17,9 +17,10 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   - `Libre.sim` → `js/simulacion.js`
   - `Libre.guardado` → `js/guardado.js`
   - `Libre.escena` → `js/escena.js` (tira SVG decorativa; solo interfaz)
+  - `Libre.retratos` → `js/retratos.js` (retratos SVG de conductores; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
-  guardado, escena, interfaz, main.
+  guardado, escena, retratos, interfaz, main.
 
 ## Reglas de arquitectura
 

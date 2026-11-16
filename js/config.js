@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 9,
+    versionGuardado: 10,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -120,10 +120,32 @@
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,
       costeContratacion: 600,      // Equilibrio: pago único al contratar.
-      nombres: [
-        'Ana', 'Luis', 'Carmen', 'Javier', 'Lucía', 'Manuel', 'Elena', 'Antonio',
-        'Marta', 'Francisco', 'Laura', 'David', 'Rosa', 'Pablo', 'Isabel', 'Sergio',
-        'Pilar', 'Raúl', 'Cristina', 'Jorge', 'Beatriz', 'Alberto', 'Nuria', 'Fernando'
+      /*
+       * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).
+       * Rasgos del retrato (js/retratos.js):
+       *   piel 1–4 · cara redonda | alargada | cuadrada
+       *   pelo corto | largo | rizado | coleta | moño | calvo
+       *   colorPelo negro | castano | rubio | pelirrojo | gris | blanco
+       *   gafas null | redondas | cuadradas · barba null | bigote | barba | perilla
+       *   ropa 1–6 · edad joven | media | mayor (la mayor lleva arrugas)
+       */
+      personajes: [
+        { nombre: 'Ana', edad: 'joven', piel: 2, cara: 'redonda', pelo: 'largo', colorPelo: 'castano', gafas: null, barba: null, ropa: 1 },
+        { nombre: 'Luis', edad: 'media', piel: 1, cara: 'cuadrada', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: 'bigote', ropa: 2 },
+        { nombre: 'Carmen', edad: 'mayor', piel: 2, cara: 'alargada', pelo: 'moño', colorPelo: 'blanco', gafas: 'redondas', barba: null, ropa: 3 },
+        { nombre: 'Javier', edad: 'joven', piel: 3, cara: 'redonda', pelo: 'rizado', colorPelo: 'negro', gafas: null, barba: 'perilla', ropa: 4 },
+        { nombre: 'Lucía', edad: 'media', piel: 1, cara: 'alargada', pelo: 'coleta', colorPelo: 'rubio', gafas: 'cuadradas', barba: null, ropa: 5 },
+        { nombre: 'Manuel', edad: 'mayor', piel: 2, cara: 'cuadrada', pelo: 'calvo', colorPelo: 'gris', gafas: null, barba: 'barba', ropa: 6 },
+        { nombre: 'Elena', edad: 'joven', piel: 4, cara: 'redonda', pelo: 'rizado', colorPelo: 'negro', gafas: null, barba: null, ropa: 3 },
+        { nombre: 'Antonio', edad: 'mayor', piel: 1, cara: 'redonda', pelo: 'corto', colorPelo: 'blanco', gafas: 'cuadradas', barba: 'bigote', ropa: 1 },
+        { nombre: 'Marta', edad: 'media', piel: 3, cara: 'alargada', pelo: 'largo', colorPelo: 'pelirrojo', gafas: null, barba: null, ropa: 2 },
+        { nombre: 'Francisco', edad: 'media', piel: 2, cara: 'cuadrada', pelo: 'corto', colorPelo: 'castano', gafas: null, barba: 'barba', ropa: 4 },
+        { nombre: 'Laura', edad: 'joven', piel: 1, cara: 'redonda', pelo: 'coleta', colorPelo: 'castano', gafas: 'redondas', barba: null, ropa: 6 },
+        { nombre: 'David', edad: 'joven', piel: 2, cara: 'alargada', pelo: 'corto', colorPelo: 'rubio', gafas: null, barba: null, ropa: 5 },
+        { nombre: 'Rosa', edad: 'mayor', piel: 3, cara: 'redonda', pelo: 'moño', colorPelo: 'gris', gafas: null, barba: null, ropa: 6 },
+        { nombre: 'Pablo', edad: 'media', piel: 4, cara: 'cuadrada', pelo: 'calvo', colorPelo: 'negro', gafas: null, barba: 'barba', ropa: 1 },
+        { nombre: 'Isabel', edad: 'media', piel: 2, cara: 'redonda', pelo: 'largo', colorPelo: 'negro', gafas: 'cuadradas', barba: null, ropa: 2 },
+        { nombre: 'Sergio', edad: 'joven', piel: 3, cara: 'alargada', pelo: 'rizado', colorPelo: 'castano', gafas: null, barba: 'bigote', ropa: 3 }
       ]
     },
 

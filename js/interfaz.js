@@ -440,14 +440,15 @@
     eventos.forEach(function (ev) {
       if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
       if (ev.tipo === 'esterillas') return;
-      if (colaAvisos.length < 3) colaAvisos.push(ev.texto);
+      if (colaAvisos.length < 3) colaAvisos.push(ev);
     });
     soltarAviso();
   }
   function soltarAviso() {
     if (colaAvisos.length === 0 || Date.now() - ultimoAviso < MS_ENTRE_AVISOS) return;
     ultimoAviso = Date.now();
-    mostrarMensaje(colaAvisos.shift());
+    const ev = colaAvisos.shift();
+    mostrarMensaje(ev.texto, ev.retrato);
   }
 
   function mostrarResumenFuera(r, estado) {
@@ -618,7 +619,10 @@
         // Dejar el volante es una mejora (Oficina de gestión).
         (Libre.sim.modificadores(estado).dejarVolante ? boton('Dejar de conducir', 'dejarDeConducir', []) : '');
     } else {
-      cuerpo = '<span class="quien">' + esc(t.nombre) + '</span>' + selectorZona(estado, lic.id, turno, t.zona) +
+      const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+      const deBaja = t.baja && jornada < t.baja.hasta;
+      cuerpo = '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
+        '<span class="quien">' + esc(t.nombre) + '</span>' + selectorZona(estado, lic.id, turno, t.zona) +
         boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro') +
         estadoTurno(estado, lic, t);
     }
@@ -631,7 +635,10 @@
     const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
     let texto = '';
     if (lic.averia && jornada < lic.averia.hasta) texto = 'Coche en el taller hasta el día ' + (lic.averia.hasta + 1);
-    else if (t.baja && jornada < t.baja.hasta) texto = 'De baja hasta el día ' + (t.baja.hasta + 1);
+    else if (t.baja && jornada < t.baja.hasta) {
+      const faltan = t.baja.hasta - jornada;
+      texto = 'De baja: ' + (faltan === 1 ? 'falta 1 día' : 'faltan ' + faltan + ' días');
+    }
     else if (t.paradoHasta > estado.reloj.minutos) texto = 'Jornada terminada';
     return texto ? '<span class="turno-estado">' + texto + '</span>' : '';
   }
@@ -646,10 +653,10 @@
       return [l.id, l.numero, l.vehiculo, l.averia && jornada < l.averia.hasta ? l.averia.hasta : 0,
         ['dia', 'noche'].map(function (tn) {
           const t = l.turnos[tn];
-          return t ? [t.quien, t.nombre, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
+          return t ? [t.quien, t.nombre, t.retrato, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
             t.paradoHasta > estado.reloj.minutos] : null;
         })];
-    }), !!estado.jugador.carrera, estado.mejoras]);
+    }), !!estado.jugador.carrera, estado.mejoras, jornada]);
   }
 
   const seccionFlota = {
@@ -1135,9 +1142,16 @@
   }
 
   let temporizadorMensaje = null;
-  function mostrarMensaje(texto) {
+  /* Mensaje breve abajo. Con retrato, sale la cara del conductor al lado. */
+  function mostrarMensaje(texto, retrato) {
     const el = $('mensaje');
-    el.textContent = texto;
+    if (retrato !== undefined && retrato !== null) {
+      el.innerHTML = '<span class="retrato">' + Libre.retratos.svg(retrato) + '</span><span>' + esc(texto) + '</span>';
+      el.classList.add('con-retrato');
+    } else {
+      el.textContent = texto;
+      el.classList.remove('con-retrato');
+    }
     el.classList.remove('oculto');
     clearTimeout(temporizadorMensaje);
     temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);

@@ -531,17 +531,38 @@
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
 
     const otro = lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
-    const nombre = c.conductores.nombres[estado.conductoresContratados % c.conductores.nombres.length];
+    const retrato = sortearPersonaje(estado);
+    const nombre = c.conductores.personajes[retrato].nombre;
     const primero = !hayConductores(estado);
     estado.dinero -= precio;
     estado.conductoresContratados++;
-    lic.turnos[turno] = { quien: 'conductor', nombre, zona: otro ? otro.zona : c.zonaInicial };
+    lic.turnos[turno] = { quien: 'conductor', nombre, retrato, zona: otro ? otro.zona : c.zonaInicial };
 
     if (primero) {
       return exito(nombre + ' se encarga del turno de ' + c.turnos[turno].nombre.toLowerCase() +
         ': ahora tu taxi también trabaja cuando tú no conduces.');
     }
     return exito(nombre + ' empieza en el turno de ' + c.turnos[turno].nombre.toLowerCase() + '.');
+  }
+
+  /*
+   * Personaje (índice en config.conductores.personajes) para un conductor
+   * nuevo: al azar entre los que no trabajan ya para ti; si están todos, entre
+   * todos. Se guarda con el conductor, así no cambia al recargar.
+   */
+  function sortearPersonaje(estado) {
+    const total = cfg().conductores.personajes.length;
+    const usados = {};
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (t) {
+        const x = l.turnos[t];
+        if (x && x.quien === 'conductor' && x.retrato !== undefined) usados[x.retrato] = true;
+      });
+    });
+    const libres = [];
+    for (let i = 0; i < total; i++) if (!usados[i]) libres.push(i);
+    const lista = libres.length ? libres : Array.from({ length: total }, function (_, i) { return i; });
+    return lista[Math.floor(azar(estado) * lista.length)];
   }
 
   /* Dejas tu turno: queda libre para un conductor. Tu flota sigue trabajando. */
@@ -827,14 +848,16 @@
    * Apunta una incidencia en la caja de hoy y en la lista de avisos.
    * cuenta: 'extras' (dinero que entra), 'otros' (gasto) o null (solo aviso).
    */
-  function incidencia(estado, resumen, tipo, texto, importe, cuenta) {
+  function incidencia(estado, resumen, tipo, texto, importe, cuenta, turno) {
     const caja = estado.caja.hoy;
     const a = caja.incidencias[tipo] = caja.incidencias[tipo] || { veces: 0, importe: 0 };
     a.veces++;
     a.importe += importe;
     if (cuenta === 'extras') { estado.dinero += importe; caja.extras += importe; }
     if (cuenta === 'otros') { estado.dinero += importe; caja.otros -= importe; }
-    resumen.eventos.push({ tipo, texto, importe });
+    const ev = { tipo, texto, importe };
+    if (turno && turno.quien === 'conductor') { ev.conductor = turno.nombre; ev.retrato = turno.retrato; }
+    resumen.eventos.push(ev);
   }
 
   /* ¿Toca el evento? Si se forzó desde la consola, sí (y se consume después). */
@@ -863,7 +886,7 @@
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
-        Libre.ui_euros(carrera.importe) + ' perdidos.', -carrera.importe, null);
+        Libre.ui_euros(carrera.importe) + ' perdidos.', -carrera.importe, null, quien);
       return;
     }
     cobrar(estado, resumen, carrera.importe, 1);
@@ -872,7 +895,7 @@
     if (toca(estado, 'propina', ev.propina.probCarrera + m.propinaProb)) {
       consumirForzado(estado, 'propina');
       const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax) * m.propinaImporte;
-      incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras');
+      incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras', quien);
     }
 
     if (toca(estado, 'objeto', ev.objeto.probCarrera)) {
@@ -881,7 +904,7 @@
       incidencia(estado, resumen, 'objeto',
         (esConductor ? sujeto + ' devuelve ' : 'Devuelves ') + objeto.nombre +
         ' olvidado en el taxi: el cliente ' + (esConductor ? 'le' : 'te') + ' da ' +
-        Libre.ui_euros(objeto.recompensa) + ' de recompensa.', objeto.recompensa, 'extras');
+        Libre.ui_euros(objeto.recompensa) + ' de recompensa.', objeto.recompensa, 'extras', quien);
     }
 
     if (toca(estado, 'vomito', ev.vomito.probCarrera)) {
@@ -890,7 +913,7 @@
       pararHastaFinDeTurno(estado, quien);
       incidencia(estado, resumen, 'vomito',
         'Un cliente vomita en el taxi' + (esConductor ? ' de ' + sujeto : '') + ': limpieza de ' +
-        Libre.ui_euros(coste) + ' y ' + (esConductor ? 'termina' : 'terminas') + ' la jornada.', -coste, 'otros');
+        Libre.ui_euros(coste) + ' y ' + (esConductor ? 'termina' : 'terminas') + ' la jornada.', -coste, 'otros', quien);
     }
   }
 
@@ -952,7 +975,7 @@
         const jornadas = enteroEntre(estado, ev.baja.jornadasMin, ev.baja.jornadasMax);
         t.baja = { hasta: jornada + jornadas };
         incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +
-          (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null);
+          (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null, t);
         return;
       }
       if (azar(estado) < ev.pinchazo.probTurno) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
@@ -997,13 +1020,13 @@
       if (lic.ruedaRepuesto) {
         lic.ruedaRepuesto = false;
         incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
-          ': se cambia la rueda de repuesto y ' + (esConductor ? 'sigue' : 'sigues') + ' trabajando.', 0, null);
+          ': se cambia la rueda de repuesto y ' + (esConductor ? 'sigue' : 'sigues') + ' trabajando.', 0, null, turno);
         return;
       }
       pararHastaFinDeTurno(estado, turno);
       incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
         ': neumático de ' + Libre.ui_euros(ev.pinchazo.coste) + ' y ' + (esConductor ? 'no factura' : 'no facturas') +
-        ' más hoy.', -ev.pinchazo.coste, 'otros');
+        ' más hoy.', -ev.pinchazo.coste, 'otros', turno);
     } else if (p.tipo === 'averia') {
       if (!averiaPosible(estado, lic)) return;
       aplicarAveria(estado, resumen, lic);
@@ -1036,7 +1059,7 @@
       if (!puedeTrabajar(estado, lic, Object.assign({}, t, { paradoHasta: 0 }), ahora - 1)) return;
       const monedas = entre(estado, m.monedasMin, m.monedasMax);
       incidencia(estado, resumen, 'esterillas', t.nombre + ' encuentra ' + Libre.ui_euros(monedas) +
-        ' en las esterillas.', monedas, 'extras');
+        ' en las esterillas.', monedas, 'extras', t);
     });
   }
 
@@ -1102,7 +1125,7 @@
       objetivo.turno.baja = { hasta: jornadaDe(ahora) + jornadas };
       objetivo.turno.carrera = null;
       incidencia(estado, resumen, 'baja', objetivo.turno.nombre + ' está de baja por enfermedad: ' + jornadas +
-        (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null);
+        (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null, objetivo.turno);
     } else if (tipo === 'averia') {
       aplicarAveria(estado, resumen, objetivo.licencia);
     } else {

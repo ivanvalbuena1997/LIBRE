@@ -76,6 +76,20 @@
     // pidan otra antes.
     8: function (estado) {
       if (estado.licencias.some(function (l) { return l.ruedaRepuesto; })) estado.mejoras.rueda = 1;
+    },
+    // Versión 10: retratos. Los conductores ya contratados conservan su nombre
+    // y reciben retrato: el del personaje con su nombre si existe; si no, uno
+    // al azar.
+    9: function (estado) {
+      const personajes = Libre.config.conductores.personajes;
+      estado.licencias.forEach(function (l) {
+        ['dia', 'noche'].forEach(function (t) {
+          const x = l.turnos[t];
+          if (!x || x.quien !== 'conductor' || x.retrato !== undefined) return;
+          const mismo = personajes.findIndex(function (p) { return p.nombre === x.nombre; });
+          x.retrato = mismo !== -1 ? mismo : Math.floor(Math.random() * personajes.length);
+        });
+      });
     }
   };
 

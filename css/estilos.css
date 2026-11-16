@@ -31,6 +31,26 @@
   --alto-menu: 54px;
   --sombra-fuerte: rgba(0, 0, 0, 0.25);
 
+  /* Retratos de conductores */
+  --retrato-fondo: #e6edf2;
+  --piel-1: #f6d3b3;
+  --piel-2: #e2b28a;
+  --piel-3: #bd875a;
+  --piel-4: #85563a;
+  --pelo-negro: #2a2420;
+  --pelo-castano: #6b4226;
+  --pelo-rubio: #d8b35a;
+  --pelo-pelirrojo: #b4532a;
+  --pelo-gris: #9a9a95;
+  --pelo-blanco: #d6d2c8;
+  --ropa-1: #2b4f7a;
+  --ropa-2: #a8322c;
+  --ropa-3: #3f7d4f;
+  --ropa-4: #6a3d8f;
+  --ropa-5: #c27c0e;
+  --ropa-6: #4a4a48;
+  --rasgos: #2a2420;
+
   /* Ticket de papel térmico */
   --papel: #fbf8ef;
   --tinta: #1a1a1a;
@@ -800,6 +820,25 @@ button.zona-tarjeta { cursor: pointer; }
 .turno-cuerpo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .turno-cuerpo .quien { font-weight: 600; margin-right: 4px; }
 .turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
+
+/* Retratos */
+.retrato { display: inline-flex; width: 36px; height: 36px; flex: none; }
+.retrato-svg { width: 100%; height: 100%; border-radius: 50%; }
+.retrato.atenuado { opacity: 0.4; filter: grayscale(1); }
+.r-fondo { fill: var(--retrato-fondo); }
+.r-piel-1 { fill: var(--piel-1); } .r-piel-2 { fill: var(--piel-2); }
+.r-piel-3 { fill: var(--piel-3); } .r-piel-4 { fill: var(--piel-4); }
+.r-pelo-negro { fill: var(--pelo-negro); } .r-pelo-castano { fill: var(--pelo-castano); }
+.r-pelo-rubio { fill: var(--pelo-rubio); } .r-pelo-pelirrojo { fill: var(--pelo-pelirrojo); }
+.r-pelo-gris { fill: var(--pelo-gris); } .r-pelo-blanco { fill: var(--pelo-blanco); }
+.r-ropa-1 { fill: var(--ropa-1); } .r-ropa-2 { fill: var(--ropa-2); } .r-ropa-3 { fill: var(--ropa-3); }
+.r-ropa-4 { fill: var(--ropa-4); } .r-ropa-5 { fill: var(--ropa-5); } .r-ropa-6 { fill: var(--ropa-6); }
+.r-rasgos { fill: var(--rasgos); }
+.r-rasgos-linea, .r-arrugas { fill: none; stroke: var(--rasgos); stroke-width: 0.9; stroke-linecap: round; }
+.r-arrugas { stroke-width: 0.6; opacity: 0.6; }
+.r-gafas { fill: none; stroke: var(--rasgos); stroke-width: 0.9; }
+.mensaje.con-retrato { display: flex; align-items: center; gap: 10px; }
+.mensaje .retrato { width: 32px; height: 32px; }
 .turno-cuerpo button { min-height: 40px; padding: 6px 10px; }
 
 /* Mejoras: árbol con una rama por pestaña */
