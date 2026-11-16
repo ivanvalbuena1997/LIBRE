@@ -137,7 +137,7 @@
     conductores: {
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,
-      costeContratacion: 600,      // Equilibrio: pago único al contratar.
+      costeContratacion: 400,      // Equilibrio: pago único al contratar.
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).
        * Rasgos del retrato (js/retratos.js):
@@ -313,7 +313,8 @@
     /*
      * Mejoras. Cada una se compra una vez.
      *   rama      rama del árbol (ramasMejoras); el orden de la lista es el de la rama.
-     *   requiere  mejora anterior de su rama (basta su nivel 1).
+     *   requiere  mejora anterior de su rama (basta su nivel 1). Sin requiere, es
+     *             una de las que abren la rama (puede haber más de una).
      *   efecto    segundosDia: alarga el día (segundos reales)
      *             consumo / busqueda / cola / demanda: multiplicadores
      *             soloZona: el efecto solo cuenta en esa zona
@@ -348,6 +349,11 @@
     mejoras: [
       // ---- Rama: Clientes
       {
+        id: 'bolsas', nombre: 'Bolsas de papel', rama: 'clientes', precio: 800,
+        descripcion: 'Desbloquea las bolsas de papel en el inventario: con una bolsa a mano, el cliente mareado no vomita en el coche.',
+        efecto: { inventario: 'bolsas' }
+      },
+      {
         id: 'callejero', nombre: 'Callejero al día', rama: 'clientes', precio: 400,
         descripcion: 'Te sabes todas las calles: un 10 % menos de tiempo buscando cliente.',
         efecto: { busqueda: 0.9 }
@@ -379,12 +385,7 @@
         efecto: { sinImpagos: true }
       },
       {
-        id: 'bolsas', nombre: 'Bolsas de papel', rama: 'clientes', requiere: 'camara', precio: 800,
-        descripcion: 'Desbloquea las bolsas de papel en el inventario: con una bolsa a mano, el cliente mareado no vomita en el coche.',
-        efecto: { inventario: 'bolsas' }
-      },
-      {
-        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'bolsas', precio: 2000,
+        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'camara', precio: 2000,
         descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.08 }
       },
@@ -464,6 +465,11 @@
       },
       // ---- Rama: Conductores y jornada
       {
+        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', precio: 2500,
+        descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
+        efecto: { gestionZonas: true }
+      },
+      {
         id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',
         descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
         niveles: [
@@ -480,12 +486,7 @@
         efecto: { segundosDia: 10 }
       },
       {
-        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', requiere: 'jornada1', precio: 2500,
-        descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
-        efecto: { gestionZonas: true }
-      },
-      {
-        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'gestionZonas', precio: 700,
+        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'jornada1', precio: 700,
         descripcion: 'El día dura otros 10 segundos más.',
         efecto: { segundosDia: 10 }
       },

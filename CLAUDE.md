@@ -102,7 +102,9 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
 - Árbol de mejoras: cada mejora tiene `rama` (`config.ramasMejoras`) y
   `requiere` la anterior de su rama (basta su nivel 1); el orden de la lista
-  en la config es el de la rama. La interfaz no inventa requisitos: los lee.
+  en la config es el de la rama. Las que no tienen `requiere` abren la rama
+  (puede haber varias: Bolsas y Callejero; Curso de zonas y Esterillas), y la
+  línea solo une un nodo con el siguiente si este lo pide. La interfaz no inventa requisitos: los lee.
   En pantalla: una pestaña por rama y los nodos en vertical; al
   tocar uno se abre su ficha.
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no

@@ -834,7 +834,7 @@
     return '<div class="nodo-ficha"><p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
   }
 
-  function htmlNodo(estado, m) {
+  function htmlNodo(estado, m, sinEnlace) {
     const nivel = Libre.sim.nivelMejora(estado, m.id);
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
     const precio = siguiente ? siguiente.precio : null;
@@ -843,7 +843,7 @@
         m.niveles.map(function (n, k) { return '<i class="' + (k < nivel ? 'hecho' : '') + '"></i>'; }).join('') + '</span>'
       : '';
     const abierto = nodoAbierto === m.id;
-    return '<li class="nodo" data-mejora="' + m.id + '" data-nodo-estado>' +
+    return '<li class="nodo' + (sinEnlace ? ' sin-enlace' : '') + '" data-mejora="' + m.id + '" data-nodo-estado>' +
       '<button type="button" class="nodo-cabeza" data-nodo="' + m.id + '" aria-expanded="' + abierto + '"' +
       (precio !== null ? ' data-precio-nodo="' + precio + '"' : '') + '>' +
       '<span class="nodo-punto" aria-hidden="true"></span>' +
@@ -865,8 +865,12 @@
           '" data-rama="' + r.id + '" aria-pressed="' + (r.id === rama) + '">' + esc(r.nombre) +
           '<i class="marca-rama" data-marca-rama="' + r.id + '"></i></button>';
       }).join('');
-      const nodos = c.mejoras.filter(function (m) { return m.rama === rama; })
-        .map(function (m) { return htmlNodo(estado, m); }).join('');
+      // La línea une un nodo con el siguiente solo si el siguiente lo pide.
+      const deRama = c.mejoras.filter(function (m) { return m.rama === rama; });
+      const nodos = deRama.map(function (m, k) {
+        const enlazado = deRama[k + 1] && deRama[k + 1].requiere === m.id;
+        return htmlNodo(estado, m, !enlazado);
+      }).join('');
       return '<h2>Mejoras</h2><div class="ramas" role="tablist">' + pestanas + '</div>' +
         '<ol class="rama">' + nodos + '</ol>';
     },

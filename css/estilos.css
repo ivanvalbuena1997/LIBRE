@@ -972,7 +972,8 @@ button.zona-tarjeta { cursor: pointer; }
   width: 3px;
   background: var(--borde);
 }
-.nodo:last-child::before { display: none; }
+.nodo:last-child::before,
+.nodo.sin-enlace::before { display: none; }
 .nodo[data-nodo-estado="comprada"]::before { background: var(--verde-libre); }
 
 .nodo-cabeza {
