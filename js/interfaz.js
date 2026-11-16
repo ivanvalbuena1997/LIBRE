@@ -264,7 +264,7 @@
       lista.push({
         id: 'mejora-' + m.id + '-' + siguiente.nivel,
         nombre: m.nombre + (m.niveles ? ' ' + siguiente.nivel : ''),
-        precio: siguiente.precio, selector: '[data-mejora="' + m.id + '"]'
+        precio: siguiente.precio, selector: '[data-mejora="' + m.id + '"]', mejora: m.id
       });
     });
     if (estado.licencias.length < c.licencias.maximo) {
@@ -299,7 +299,8 @@
       const o = objetivoActual(estado);
       if (!o) return '';
       const listo = estado.dinero >= o.precio;
-      return '<button type="button" class="objetivo' + (listo ? ' listo' : '') + '" data-objetivo="' + esc(o.selector) + '">' +
+      return '<button type="button" class="objetivo' + (listo ? ' listo' : '') + '" data-objetivo="' + esc(o.selector) + '"' +
+        (o.mejora ? ' data-objetivo-mejora="' + o.mejora + '"' : '') + '>' +
         '<span class="objetivo-texto"><span>Siguiente: <strong>' + esc(o.nombre) + '</strong></span>' +
         '<span id="objetivo-falta"></span></span>' +
         '<span class="objetivo-barra"><span id="objetivo-relleno"></span></span></button>';
@@ -676,47 +677,121 @@
     }
   };
 
+  /*
+   * Árbol de mejoras. Una rama por pestaña; cada mejora es un nodo unido a la
+   * anterior de su rama (los requisitos están en la config). Al tocar un nodo
+   * se abre su ficha con qué hace, cuánto cuesta y el botón de comprar.
+   * Estados: comprada, disponible, sin dinero y bloqueada.
+   */
+  let ramaActual = null;
+  let nodoAbierto = null;
+  try { ramaActual = raiz.localStorage.getItem('libre-rama'); } catch (e) { /* sin almacenamiento */ }
+
+  function ramaValida() {
+    const ramas = Libre.config.ramasMejoras;
+    if (!ramas.some(function (r) { return r.id === ramaActual; })) ramaActual = ramas[0].id;
+    return ramaActual;
+  }
+
+  function elegirRama(id) {
+    ramaActual = id;
+    nodoAbierto = null;
+    try { raiz.localStorage.setItem('libre-rama', id); } catch (e) { /* da igual */ }
+  }
+
+  /* Estado de un nodo: 'comprada', 'bloqueada', 'disponible' o 'sinDinero'. */
+  function estadoNodo(estado, m) {
+    if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) return 'bloqueada';
+    if (m.porVehiculo) {
+      const precio = m.precio;
+      const falta = estado.licencias.some(function (l) { return l.vehiculo && !l.ruedaRepuesto; });
+      if (!falta) return 'comprada';
+      return estado.dinero >= precio ? 'disponible' : 'sinDinero';
+    }
+    const siguiente = Libre.sim.siguienteNivel(estado, m.id);
+    if (!siguiente) return 'comprada';
+    return estado.dinero >= siguiente.precio ? 'disponible' : 'sinDinero';
+  }
+
+  function nombreMejora(id) {
+    const m = Libre.config.mejoras.find(function (x) { return x.id === id; });
+    return m ? m.nombre : id;
+  }
+
+  /* ¿Hay alguna mejora (no por vehículo) que se pueda comprar ya? Para la marca del menú. */
+  function hayMejoraComprable(estado, rama) {
+    return Libre.config.mejoras.some(function (m) {
+      return !m.porVehiculo && (!rama || m.rama === rama) && estadoNodo(estado, m) === 'disponible';
+    });
+  }
+
+  function htmlFicha(estado, m) {
+    const siguiente = Libre.sim.siguienteNivel(estado, m.id);
+    let pie;
+    if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) {
+      pie = '<p class="nodo-requisito">Antes necesitas «' + esc(nombreMejora(m.requiere)) + '».</p>';
+    } else if (m.porVehiculo) {
+      const coches = estado.licencias.filter(function (l) { return l.vehiculo; });
+      const sin = coches.filter(function (l) { return !l.ruedaRepuesto; });
+      pie = '<p>Llevan rueda ' + (coches.length - sin.length) + ' de ' + coches.length + ' coches.</p>' +
+        sin.map(function (l) {
+          return botonCompra('Para el taxi ' + esc(Libre.sim.textoLicencia(l)), m.precio, 'comprarRueda', [l.id]);
+        }).join('');
+    } else if (!siguiente) {
+      pie = '<p class="nodo-completa">Comprada' + (m.niveles ? ' entera: los ' + m.niveles.length + ' niveles' : '') + '.</p>';
+    } else {
+      pie = (m.niveles ? '<p><strong>Nivel ' + siguiente.nivel + ':</strong> ' + esc(siguiente.descripcion) + '</p>' : '') +
+        botonCompra(m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar', siguiente.precio, 'comprarMejora', [m.id]);
+    }
+    return '<div class="nodo-ficha"><p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
+  }
+
+  function htmlNodo(estado, m) {
+    const nivel = Libre.sim.nivelMejora(estado, m.id);
+    const siguiente = Libre.sim.siguienteNivel(estado, m.id);
+    const precio = m.porVehiculo ? m.precio : siguiente ? siguiente.precio : null;
+    const niveles = m.niveles
+      ? '<span class="nodo-niveles" aria-label="Nivel ' + nivel + ' de ' + m.niveles.length + '">' +
+        m.niveles.map(function (n, k) { return '<i class="' + (k < nivel ? 'hecho' : '') + '"></i>'; }).join('') + '</span>'
+      : '';
+    const abierto = nodoAbierto === m.id;
+    return '<li class="nodo" data-mejora="' + m.id + '" data-nodo-estado>' +
+      '<button type="button" class="nodo-cabeza" data-nodo="' + m.id + '" aria-expanded="' + abierto + '"' +
+      (precio !== null ? ' data-precio-nodo="' + precio + '"' : '') + '>' +
+      '<span class="nodo-punto" aria-hidden="true"></span>' +
+      '<span class="nodo-texto"><span class="nodo-nombre">' + esc(m.nombre) + '</span>' + niveles + '</span>' +
+      '<span class="nodo-precio">' + (precio !== null ? euros(precio) : '') + '</span>' +
+      '</button>' + (abierto ? htmlFicha(estado, m) : '') + '</li>';
+  }
+
   const seccionMejoras = {
     id: 'sec-mejoras',
     firma: function (estado) {
-      // La rueda de repuesto depende de qué coches la llevan.
-      return JSON.stringify([estado.mejoras, estado.licencias.map(function (l) { return [l.id, l.vehiculo, !!l.ruedaRepuesto]; })]);
+      return JSON.stringify([ramaValida(), nodoAbierto, estado.mejoras,
+        estado.licencias.map(function (l) { return [l.id, l.vehiculo, !!l.ruedaRepuesto]; })]);
     },
     html: function (estado) {
       const c = Libre.config;
-      const nombreDe = function (id) {
-        const m = c.mejoras.find(function (x) { return x.id === id; });
-        return m ? m.nombre : id;
-      };
-      return '<h2>Mejoras</h2>' + c.mejoras.map(function (m) {
-        const nivel = Libre.sim.nivelMejora(estado, m.id);
-        const siguiente = Libre.sim.siguienteNivel(estado, m.id);
-        const bloqueada = m.requiere && !Libre.sim.nivelMejora(estado, m.requiere);
-        let titulo = esc(m.nombre);
-        if (m.niveles) titulo += ' <span class="chip chip-gris">Nivel ' + nivel + '/' + m.niveles.length + '</span>';
-        let pie;
-        let completa = false;
-        if (m.porVehiculo) {
-          // Rueda de repuesto: un botón por cada coche que no la lleve.
-          const coches = estado.licencias.filter(function (l) { return l.vehiculo; });
-          const sin = coches.filter(function (l) { return !l.ruedaRepuesto; });
-          pie = '<p>Llevan rueda ' + (coches.length - sin.length) + ' de ' + coches.length + ' coches.</p>' +
-            sin.map(function (l) {
-              return botonCompra('Para el taxi ' + esc(Libre.sim.textoLicencia(l)), m.precio, 'comprarRueda', [l.id]);
-            }).join('');
-        } else if (!siguiente) {
-          completa = true;
-          pie = '';
-        } else if (bloqueada) {
-          pie = '<p>Antes necesitas «' + esc(nombreDe(m.requiere)) + '».</p>';
-        } else {
-          pie = (m.niveles ? '<p>Nivel ' + siguiente.nivel + ': ' + esc(siguiente.descripcion) + '</p>' : '') +
-            botonCompra(m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar', siguiente.precio, 'comprarMejora', [m.id]);
-        }
-        return '<div class="mejora' + (completa ? ' comprada' : '') + '" data-mejora="' + m.id + '">' +
-          '<div class="mejora-titulo">' + titulo + '</div>' +
-          '<p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
+      const rama = ramaValida();
+      const pestanas = c.ramasMejoras.map(function (r) {
+        return '<button type="button" class="rama-pestana' + (r.id === rama ? ' activa' : '') +
+          '" data-rama="' + r.id + '" aria-pressed="' + (r.id === rama) + '">' + esc(r.nombre) +
+          '<i class="marca-rama" data-marca-rama="' + r.id + '"></i></button>';
       }).join('');
+      const nodos = c.mejoras.filter(function (m) { return m.rama === rama; })
+        .map(function (m) { return htmlNodo(estado, m); }).join('');
+      return '<h2>Mejoras</h2><div class="ramas" role="tablist">' + pestanas + '</div>' +
+        '<ol class="rama">' + nodos + '</ol>';
+    },
+    actualizar: function (estado) {
+      // El dinero cambia cada fotograma: el estado de cada nodo se pinta aquí.
+      Libre.config.mejoras.forEach(function (m) {
+        const nodo = document.querySelector('.nodo[data-mejora="' + m.id + '"]');
+        if (nodo) nodo.dataset.nodoEstado = estadoNodo(estado, m);
+      });
+      document.querySelectorAll('[data-marca-rama]').forEach(function (marca) {
+        marca.classList.toggle('visible', hayMejoraComprable(estado, marca.dataset.marcaRama));
+      });
     }
   };
 
@@ -909,11 +984,10 @@
 
   /* Marcas en las pestañas: algo que puedes comprar, o un ticket esperando. */
   function actualizarAvisos(estado) {
-    const hay = { calle: !!estado.cierrePendiente, flota: false, mejoras: false };
+    const hay = { calle: !!estado.cierrePendiente, flota: false, mejoras: hayMejoraComprable(estado) };
     document.querySelectorAll('[data-precio]').forEach(function (b) {
       if (b.disabled) return;
-      const vista = VISTA_DE[b.closest('section').id];
-      if (vista === 'flota' || vista === 'mejoras') hay[vista] = true;
+      if (VISTA_DE[b.closest('section').id] === 'flota') hay.flota = true;
     });
     Object.keys(hay).forEach(function (vista) {
       const marca = document.querySelector('[data-aviso="' + vista + '"]');
@@ -978,17 +1052,37 @@
         accionPartida(opciones.partida, botonPartida.dataset.partida);
         return;
       }
+      const pestanaRama = ev.target.closest('[data-rama]');
+      if (pestanaRama) {
+        elegirRama(pestanaRama.dataset.rama);
+        opciones.redibujar();
+        return;
+      }
+      const nodo = ev.target.closest('[data-nodo]');
+      if (nodo) {
+        nodoAbierto = nodoAbierto === nodo.dataset.nodo ? null : nodo.dataset.nodo;
+        opciones.redibujar();
+        return;
+      }
       const objetivo = ev.target.closest('[data-objetivo]');
       if (objetivo) {
         if (!objetivo.classList.contains('listo')) return;
         // Lleva hasta la compra y la señala; no compra sola.
+        if (objetivo.dataset.objetivoMejora) {
+          // En el árbol: abre su rama y su ficha.
+          const m = Libre.config.mejoras.find(function (x) { return x.id === objetivo.dataset.objetivoMejora; });
+          elegirRama(m.rama);
+          nodoAbierto = m.id;
+          cambiarVista('mejoras');
+          opciones.redibujar();
+        }
         const destino = document.querySelector(objetivo.dataset.objetivo);
         if (destino) {
           // La compra puede estar en otra pestaña: se va a ella primero.
           const vista = VISTA_DE[destino.closest('section').id];
           if (vista !== vistaActual) cambiarVista(vista);
           destino.scrollIntoView({ block: 'center' });
-          destellar(destino.closest('.licencia, .mejora') || destino);
+          destellar(destino.closest('.licencia, .nodo') || destino);
         }
         return;
       }

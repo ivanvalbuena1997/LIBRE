@@ -802,15 +802,139 @@ button.zona-tarjeta { cursor: pointer; }
 .turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
 .turno-cuerpo button { min-height: 40px; padding: 6px 10px; }
 
-/* Mejoras */
-.mejora {
-  border-top: 1px solid var(--borde);
-  padding: 10px 0;
+/* Mejoras: árbol con una rama por pestaña */
+.ramas {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin: 0 -4px 12px;
+  padding: 0 4px 4px;
+  scrollbar-width: none;
 }
-.mejora:first-of-type { border-top: 0; }
-.mejora-titulo { font-weight: 600; }
-.mejora p { margin: 2px 0 8px; color: var(--suave); font-size: 0.88rem; }
-.mejora.comprada .mejora-titulo::after { content: " ✓"; color: var(--verde-texto); }
+.rama-pestana {
+  position: relative;
+  flex: none;
+  min-height: 40px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+.rama-pestana.activa {
+  background: var(--texto);
+  border-color: var(--texto);
+  color: var(--blanco);
+  font-weight: 700;
+}
+.marca-rama {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--verde-libre);
+  display: none;
+}
+.marca-rama.visible { display: block; }
+
+/* Una rama: nodos en vertical unidos por una línea */
+.rama {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+.nodo { position: relative; padding-left: 34px; margin-bottom: 10px; }
+.nodo:last-child { margin-bottom: 0; }
+/* Línea que une el nodo con el siguiente */
+.nodo::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 30px;
+  bottom: -12px;
+  width: 3px;
+  background: var(--borde);
+}
+.nodo:last-child::before { display: none; }
+.nodo[data-nodo-estado="comprada"]::before { background: var(--verde-libre); }
+
+.nodo-cabeza {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 2px solid var(--borde);
+  background: var(--tarjeta);
+}
+.nodo-punto {
+  position: absolute;
+  left: 4px;
+  top: 12px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  border: 3px solid var(--borde);
+  background: var(--tarjeta);
+}
+.nodo-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.nodo-nombre { font-weight: 600; line-height: 1.2; }
+.nodo-precio { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.nodo-niveles { display: flex; gap: 4px; }
+.nodo-niveles i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 2px solid var(--borde);
+}
+.nodo-niveles i.hecho { background: var(--verde-libre); border-color: var(--verde-libre); }
+
+/* Estados */
+.nodo[data-nodo-estado="comprada"] .nodo-cabeza { border-color: var(--verde-libre); background: var(--verde-claro); }
+.nodo[data-nodo-estado="comprada"] .nodo-punto { background: var(--verde-libre); border-color: var(--verde-libre); }
+.nodo[data-nodo-estado="comprada"] .nodo-punto::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  color: var(--blanco);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 15px;
+  text-align: center;
+}
+.nodo[data-nodo-estado="comprada"] .nodo-precio { display: none; }
+.nodo[data-nodo-estado="disponible"] .nodo-cabeza { border-color: var(--verde-libre); }
+.nodo[data-nodo-estado="disponible"] .nodo-punto { border-color: var(--verde-libre); }
+.nodo[data-nodo-estado="disponible"] .nodo-precio { color: var(--verde-texto); }
+.nodo[data-nodo-estado="sinDinero"] .nodo-precio { color: var(--suave); }
+.nodo[data-nodo-estado="bloqueada"] .nodo-cabeza { border-style: dashed; color: var(--suave); }
+.nodo[data-nodo-estado="bloqueada"] .nodo-precio { color: var(--suave); font-weight: 400; }
+.nodo[data-nodo-estado="bloqueada"] .nodo-punto { border-style: dashed; }
+.nodo[data-nodo-estado="bloqueada"] .nodo-punto::after {
+  content: "🔒";
+  position: absolute;
+  inset: 0;
+  font-size: 0.6rem;
+  line-height: 15px;
+  text-align: center;
+}
+
+.nodo-ficha {
+  border: 2px solid var(--borde);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  padding: 8px 12px 12px;
+  margin-top: -4px;
+  font-size: 0.9rem;
+}
+.nodo-ficha p { margin: 4px 0 8px; color: var(--suave); }
+.nodo-ficha p strong { color: var(--texto); }
+.nodo-requisito { color: var(--rojo-taxi) !important; }
+.nodo-completa { color: var(--verde-texto) !important; font-weight: 600; }
 
 .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .acciones button { flex: 1 1 auto; }

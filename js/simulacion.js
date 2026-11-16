@@ -273,6 +273,8 @@
     if (estado.dinero < mejora.precio) return fallo('No te llega el dinero.');
     estado.dinero -= mejora.precio;
     lic.ruedaRepuesto = true;
+    // Haber comprado alguna vez una rueda abre la siguiente mejora de su rama.
+    estado.mejoras.rueda = 1;
     return exito('Rueda de repuesto para el taxi ' + textoLicencia(lic) + '.');
   }
 

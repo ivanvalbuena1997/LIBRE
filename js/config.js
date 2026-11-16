@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 8,
+    versionGuardado: 9,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -272,7 +272,8 @@
 
     /*
      * Mejoras. Cada una se compra una vez.
-     *   requiere  otra mejora que hay que tener antes (opcional).
+     *   rama      rama del árbol (ramasMejoras); el orden de la lista es el de la rama.
+     *   requiere  mejora anterior de su rama (basta su nivel 1).
      *   efecto    segundosDia: alarga el día (segundos reales)
      *             consumo / busqueda / cola / demanda: multiplicadores
      *             soloZona: el efecto solo cuenta en esa zona
@@ -290,111 +291,31 @@
      *   porVehiculo  se compra para cada coche y se gasta (rueda de repuesto).
      * Precios y efectos: Equilibrio.
      */
+    /*
+     * Ramas del árbol de mejoras, en el orden de las pestañas.
+     */
+    ramasMejoras: [
+      { id: 'clientes', nombre: 'Clientes' },
+      { id: 'ciudad', nombre: 'Ciudad y radio' },
+      { id: 'vehiculo', nombre: 'Vehículo' },
+      { id: 'taller', nombre: 'Taller y seguros' },
+      { id: 'jornada', nombre: 'Conductores y jornada' }
+    ],
+
     mejoras: [
-      // Ordenadas por precio: siempre hay una a tiro para que el ritmo no se pare.
+      // ---- Rama: Clientes
       {
-        id: 'callejero', nombre: 'Callejero al día', precio: 400,
+        id: 'callejero', nombre: 'Callejero al día', rama: 'clientes', precio: 400,
         descripcion: 'Te sabes todas las calles: un 10 % menos de tiempo buscando cliente.',
         efecto: { busqueda: 0.9 }
       },
       {
-        id: 'conduccionEficiente', nombre: 'Curso de conducción eficiente', precio: 800,
-        descripcion: 'Todos tus coches gastan un 10 % menos de combustible.',
-        efecto: { consumo: 0.9 }
-      },
-      {
-        id: 'limpieza', nombre: 'Taxi impecable', precio: 1200,
+        id: 'limpieza', nombre: 'Taxi impecable', rama: 'clientes', requiere: 'callejero', precio: 1200,
         descripcion: 'Coche limpio y agua para el cliente: un 5 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.05 }
       },
       {
-        id: 'jornada1', nombre: 'Jornada larga I', precio: 1500,
-        descripcion: 'El día dura 10 segundos más: más carreras con los mismos costes fijos diarios.',
-        efecto: { segundosDia: 10 }
-      },
-      {
-        id: 'aeropuerto', nombre: 'Acreditación de Barajas', precio: 2000,
-        descripcion: 'Abre la zona del aeropuerto, con tarifas fijas de 22 € y 33 €.',
-        efecto: { desbloqueaZona: 'aeropuerto' }
-      },
-      {
-        id: 'neumaticos', nombre: 'Neumáticos de bajo consumo', precio: 2200,
-        descripcion: 'Todos tus coches gastan un 8 % menos de combustible.',
-        efecto: { consumo: 0.92 }
-      },
-      {
-        id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', precio: 2500,
-        descripcion: 'Abre la zona de estaciones, con picos al llegar los trenes.',
-        efecto: { desbloqueaZona: 'estaciones' }
-      },
-      {
-        id: 'emisora', nombre: 'Emisora de radio-taxi', precio: 3000,
-        descripcion: 'Te pasan clientes por radio: un 30 % menos de tiempo buscando. Tiene cuota diaria por coche.',
-        efecto: { busqueda: 0.7, cuotaEmisora: true }
-      },
-      {
-        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', precio: 3500,
-        descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 15 % más de demanda.',
-        efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
-      },
-      {
-        id: 'seguroFlota', nombre: 'Póliza de flota', precio: 4000,
-        descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
-        efecto: { seguro: 0.8 }
-      },
-      {
-        id: 'jornada2', nombre: 'Jornada larga II', precio: 4500, requiere: 'jornada1',
-        descripcion: 'El día dura otros 10 segundos más.',
-        efecto: { segundosDia: 10 }
-      },
-      {
-        id: 'datafono', nombre: 'Pago con tarjeta', precio: 5000,
-        descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
-        efecto: { demanda: 1.1 }
-      },
-      {
-        id: 'clientesFijos', nombre: 'Clientes de siempre', precio: 7000, requiere: 'datafono',
-        descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
-        efecto: { demanda: 1.08 }
-      },
-      {
-        id: 'seguridadVial', nombre: 'Curso de seguridad vial', precio: 9000, requiere: 'seguroFlota',
-        descripcion: 'Menos partes de accidente: el seguro de cada coche baja otro 25 %.',
-        efecto: { seguro: 0.75 }
-      },
-      {
-        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', precio: 10000, requiere: 'aeropuerto',
-        descripcion: 'La cola del aeropuerto se reduce un 40 %.',
-        efecto: { cola: 0.6, soloZona: 'aeropuerto' }
-      },
-      {
-        id: 'jornada3', nombre: 'Jornada larga III', precio: 11000, requiere: 'jornada2',
-        descripcion: 'El día dura otros 10 segundos más.',
-        efecto: { segundosDia: 10 }
-      },
-      {
-        id: 'app', nombre: 'App de pedidos', precio: 12000, requiere: 'emisora',
-        descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
-        efecto: { busqueda: 0.7 }
-      },
-      {
-        id: 'esterillas', nombre: 'Sacudir esterillas',
-        descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
-        niveles: [
-          { precio: 500, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },
-          { precio: 1500, descripcion: 'De 1 a 3 € por turno.', efecto: { monedasMin: 1, monedasMax: 3 } },
-          { precio: 3500, descripcion: 'De 1,50 a 4,50 € por turno.', efecto: { monedasMin: 1.5, monedasMax: 4.5 } },
-          { precio: 7000, descripcion: 'De 2 a 6 € por turno.', efecto: { monedasMin: 2, monedasMax: 6 } },
-          { precio: 12000, descripcion: 'De 3 a 8 € por turno.', efecto: { monedasMin: 3, monedasMax: 8 } }
-        ]
-      },
-      {
-        id: 'rueda', nombre: 'Rueda de repuesto', precio: 80, porVehiculo: true,
-        descripcion: 'Para un coche y de un solo uso: si pincha, se cambia la rueda y se sigue trabajando sin coste.',
-        efecto: {}
-      },
-      {
-        id: 'propinas', nombre: 'Propinas',
+        id: 'propinas', nombre: 'Propinas', rama: 'clientes', requiere: 'limpieza',
         descripcion: 'Trato de primera: más clientes dejan propina y dejan más.',
         niveles: [
           { precio: 1500, descripcion: '+3 puntos de probabilidad y propinas un 15 % mayores.', efecto: { propinaProb: 0.03, propinaImporte: 1.15 } },
@@ -405,7 +326,75 @@
         ]
       },
       {
-        id: 'mecanico', nombre: 'Mecánico propio',
+        id: 'datafono', nombre: 'Pago con tarjeta', rama: 'clientes', requiere: 'propinas', precio: 5000,
+        descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.1 }
+      },
+      {
+        id: 'camara', nombre: 'Cámara de seguridad', rama: 'clientes', requiere: 'datafono', precio: 6000,
+        descripcion: 'Con la cámara a la vista, ningún cliente se va sin pagar.',
+        efecto: { sinImpagos: true }
+      },
+      {
+        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'camara', precio: 7000,
+        descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.08 }
+      },
+      // ---- Rama: Ciudad y radio
+      {
+        id: 'aeropuerto', nombre: 'Acreditación de Barajas', rama: 'ciudad', precio: 2000,
+        descripcion: 'Abre la zona del aeropuerto, con tarifas fijas de 22 € y 33 €.',
+        efecto: { desbloqueaZona: 'aeropuerto' }
+      },
+      {
+        id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', rama: 'ciudad', requiere: 'aeropuerto', precio: 2500,
+        descripcion: 'Abre la zona de estaciones, con picos al llegar los trenes.',
+        efecto: { desbloqueaZona: 'estaciones' }
+      },
+      {
+        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'estaciones', precio: 3000,
+        descripcion: 'Te pasan clientes por radio: un 30 % menos de tiempo buscando. Tiene cuota diaria por coche.',
+        efecto: { busqueda: 0.7, cuotaEmisora: true }
+      },
+      {
+        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'emisora', precio: 3500,
+        descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 15 % más de demanda.',
+        efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
+      },
+      {
+        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', rama: 'ciudad', requiere: 'paradaOcio', precio: 10000,
+        descripcion: 'La cola del aeropuerto se reduce un 40 %.',
+        efecto: { cola: 0.6, soloZona: 'aeropuerto' }
+      },
+      {
+        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 12000,
+        descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
+        efecto: { busqueda: 0.7 }
+      },
+      // ---- Rama: Vehículo
+      {
+        id: 'conduccionEficiente', nombre: 'Curso de conducción eficiente', rama: 'vehiculo', precio: 800,
+        descripcion: 'Todos tus coches gastan un 10 % menos de combustible.',
+        efecto: { consumo: 0.9 }
+      },
+      {
+        id: 'neumaticos', nombre: 'Neumáticos de bajo consumo', rama: 'vehiculo', requiere: 'conduccionEficiente', precio: 2200,
+        descripcion: 'Todos tus coches gastan un 8 % menos de combustible.',
+        efecto: { consumo: 0.92 }
+      },
+      {
+        id: 'hibridos', nombre: 'Flota híbrida', rama: 'vehiculo', requiere: 'neumaticos', precio: 15000,
+        descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
+        efecto: { consumo: 0.65 }
+      },
+      // ---- Rama: Taller y seguros
+      {
+        id: 'rueda', nombre: 'Rueda de repuesto', rama: 'taller', precio: 80, porVehiculo: true,
+        descripcion: 'Para un coche y de un solo uso: si pincha, se cambia la rueda y se sigue trabajando sin coste.',
+        efecto: {  }
+      },
+      {
+        id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller', requiere: 'rueda',
         descripcion: 'Un mecánico de confianza: las averías duran menos y cuestan menos.',
         niveles: [
           { precio: 3000, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },
@@ -416,22 +405,49 @@
         ]
       },
       {
-        id: 'camara', nombre: 'Cámara de seguridad', precio: 6000,
-        descripcion: 'Con la cámara a la vista, ningún cliente se va sin pagar.',
-        efecto: { sinImpagos: true }
+        id: 'seguroFlota', nombre: 'Póliza de flota', rama: 'taller', requiere: 'mecanico', precio: 4000,
+        descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
+        efecto: { seguro: 0.8 }
       },
       {
-        id: 'oficina', nombre: 'Oficina de gestión', precio: 12000,
+        id: 'seguridadVial', nombre: 'Curso de seguridad vial', rama: 'taller', requiere: 'seguroFlota', precio: 9000,
+        descripcion: 'Menos partes de accidente: el seguro de cada coche baja otro 25 %.',
+        efecto: { seguro: 0.75 }
+      },
+      // ---- Rama: Conductores y jornada
+      {
+        id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',
+        descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
+        niveles: [
+          { precio: 500, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },
+          { precio: 1500, descripcion: 'De 1 a 3 € por turno.', efecto: { monedasMin: 1, monedasMax: 3 } },
+          { precio: 3500, descripcion: 'De 1,50 a 4,50 € por turno.', efecto: { monedasMin: 1.5, monedasMax: 4.5 } },
+          { precio: 7000, descripcion: 'De 2 a 6 € por turno.', efecto: { monedasMin: 2, monedasMax: 6 } },
+          { precio: 12000, descripcion: 'De 3 a 8 € por turno.', efecto: { monedasMin: 3, monedasMax: 8 } }
+        ]
+      },
+      {
+        id: 'jornada1', nombre: 'Jornada larga I', rama: 'jornada', requiere: 'esterillas', precio: 1500,
+        descripcion: 'El día dura 10 segundos más: más carreras con los mismos costes fijos diarios.',
+        efecto: { segundosDia: 10 }
+      },
+      {
+        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'jornada1', precio: 4500,
+        descripcion: 'El día dura otros 10 segundos más.',
+        efecto: { segundosDia: 10 }
+      },
+      {
+        id: 'jornada3', nombre: 'Jornada larga III', rama: 'jornada', requiere: 'jornada2', precio: 11000,
+        descripcion: 'El día dura otros 10 segundos más.',
+        efecto: { segundosDia: 10 }
+      },
+      {
+        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornada3', precio: 12000,
         descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota. Tu turno queda libre para un conductor.',
         efecto: { dejarVolante: true }
       },
       {
-        id: 'hibridos', nombre: 'Flota híbrida', precio: 15000,
-        descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
-        efecto: { consumo: 0.65 }
-      },
-      {
-        id: 'jornada4', nombre: 'Jornada larga IV', precio: 22000, requiere: 'jornada3',
+        id: 'jornada4', nombre: 'Jornada larga IV', rama: 'jornada', requiere: 'oficina', precio: 22000,
         descripcion: 'El día dura 15 segundos más.',
         efecto: { segundosDia: 15 }
       }

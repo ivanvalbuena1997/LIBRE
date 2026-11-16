@@ -29,6 +29,14 @@ function cerca(a, b, margen) {
 function segundosDe(estado, minutos) {
   return minutos / sim.MIN_DIA * sim.segundosPorDia(estado);
 }
+/* Compra una mejora y, antes, las anteriores de su rama (árbol de mejoras). */
+function comprarConRequisitos(e, id) {
+  const m = config.mejoras.find(function (x) { return x.id === id; });
+  if (m.requiere && !sim.nivelMejora(e, m.requiere)) comprarConRequisitos(e, m.requiere);
+  if (m.porVehiculo) return sim.comprarRueda(e, e.licencias[0].id);
+  return sim.comprarMejora(e, id);
+}
+
 /* Generador de azar fijo para que las pruebas den siempre lo mismo. */
 function azarFijo(valor) { return function () { return valor; }; }
 
@@ -123,7 +131,7 @@ prueba('con la oficina puedes dejar de conducir y volver a un turno libre', func
   sim.elegirZona(e, 1, 'dia', 'ocio');
   assert.ok(!sim.dejarDeConducir(e).ok, 'sin la oficina no se deja el volante');
   e.dinero = 100000;
-  assert.ok(sim.comprarMejora(e, 'oficina').ok);
+  assert.ok(comprarConRequisitos(e, 'oficina').ok);
   assert.ok(sim.dejarDeConducir(e).ok);
   assert.ok(!sim.conduce(e));
   assert.ok(!sim.buscarCliente(e).ok, 'sin turno no hay carreras a mano');
@@ -161,7 +169,7 @@ prueba('el aeropuerto está cerrado hasta comprar su mejora y cobra tarifa fija'
   const e = sim.crearEstadoInicial(0);
   e.dinero = 100000;
   assert.ok(!sim.elegirZona(e, 1, 'dia', 'aeropuerto').ok);
-  assert.ok(sim.comprarMejora(e, 'aeropuerto').ok);
+  assert.ok(comprarConRequisitos(e, 'aeropuerto').ok);
   assert.ok(sim.elegirZona(e, 1, 'dia', 'aeropuerto').ok);
   e.reloj.minutos = 10 * 60;                  // lunes 10:00
   assert.ok(sim.buscarCliente(e, azarFijo(0.1)).ok);   // 0,1 → primer tipo de viaje: tarifa 4
@@ -172,8 +180,8 @@ prueba('el aeropuerto está cerrado hasta comprar su mejora y cobra tarifa fija'
 prueba('las mejoras de jornada alargan el día y requieren la anterior', function () {
   const e = sim.crearEstadoInicial(0);
   e.dinero = 100000;
-  assert.ok(!sim.comprarMejora(e, 'jornada2').ok);
-  assert.ok(sim.comprarMejora(e, 'jornada1').ok);
+  assert.ok(!sim.comprarMejora(e, 'jornada2').ok, 'sin la Jornada I no se puede');
+  assert.ok(comprarConRequisitos(e, 'jornada1').ok);
   assert.strictEqual(sim.segundosPorDia(e), config.reloj.segundosPorDia + 10);
 });
 
@@ -182,7 +190,7 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
     const e = sim.crearEstadoInicial(0);
     e.dinero = 100000;
     sim.contratarConductor(e, 1, 'noche');
-    if (conMejora) sim.comprarMejora(e, 'jornada1');
+    if (conMejora) comprarConRequisitos(e, 'jornada1');
     return sim.avanzar(e, sim.segundosPorDia(e), { agregado: true });   // cuenta media, sin azar
   }
   const normal = unDia(false), largo = unDia(true);
@@ -263,7 +271,7 @@ prueba('en pausa no se busca cliente pero se puede comprar', function () {
   assert.ok(sim.enPausa(e));
   assert.ok(!sim.buscarCliente(e).ok);
   assert.ok(sim.comprarLicencia(e).ok);
-  assert.ok(sim.comprarMejora(e, 'jornada1').ok);
+  assert.ok(comprarConRequisitos(e, 'jornada1').ok);
 });
 
 prueba('sin el ajuste de pausa el día siguiente empieza solo', function () {
@@ -458,10 +466,10 @@ prueba('las mejoras por niveles se compran de una en una hasta el máximo', func
   const e = sim.crearEstadoInicial(0);
   e.dinero = 1e6;
   for (let n = 1; n <= 5; n++) {
-    assert.ok(sim.comprarMejora(e, 'propinas').ok);
+    assert.ok(comprarConRequisitos(e, 'propinas').ok);
     assert.strictEqual(sim.nivelMejora(e, 'propinas'), n);
   }
-  assert.ok(!sim.comprarMejora(e, 'propinas').ok, 'no hay nivel 6');
+  assert.ok(!comprarConRequisitos(e, 'propinas').ok, 'no hay nivel 6');
   cerca(sim.modificadores(e).propinaProb, 0.15);
   cerca(sim.modificadores(e).propinaImporte, 1.8);
 });
@@ -469,7 +477,7 @@ prueba('las mejoras por niveles se compran de una en una hasta el máximo', func
 prueba('con cámara nadie se va sin pagar', function () {
   const e = flotaDe(1);
   e.reloj.minutos = 22 * 60;
-  sim.comprarMejora(e, 'camara');
+  comprarConRequisitos(e, 'camara');
   sim.forzarEvento(e, 'sinPagar');
   const antes = e.totales.carreras;
   for (let i = 0; i < 400 && e.totales.carreras === antes; i++) sim.avanzar(e, 0.1);
@@ -493,7 +501,7 @@ prueba('el mecánico propio acorta y abarata las averías', function () {
     const e = flotaDe(3);
     e.reloj.minutos = 22 * 60;
     e.azar = 12345;
-    for (let i = 0; i < nivelMecanico; i++) sim.comprarMejora(e, 'mecanico');
+    for (let i = 0; i < nivelMecanico; i++) comprarConRequisitos(e, 'mecanico');
     sim.forzarEvento(e, 'averia');
     const lic = e.licencias.find(function (l) { return l.averia; });
     return { dias: lic.averia.hasta - sim.jornadaDe(e.reloj.minutos), coste: e.caja.hoy.otros };
@@ -505,7 +513,7 @@ prueba('el mecánico propio acorta y abarata las averías', function () {
 
 prueba('sacudir esterillas da monedas a cada conductor al acabar su turno', function () {
   const e = flotaDe(2);
-  sim.comprarMejora(e, 'esterillas');
+  comprarConRequisitos(e, 'esterillas');
   e.reloj.minutos = 18 * 60 + 50;                 // justo antes de las 19:00
   sim.avanzar(e, DIA() / 24 / 3);                 // cruza el fin del turno de día
   const a = e.caja.hoy.incidencias.esterillas;

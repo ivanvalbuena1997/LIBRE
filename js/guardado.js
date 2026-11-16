@@ -70,6 +70,12 @@
       Object.keys(estado.mejoras).forEach(function (id) {
         if (estado.mejoras[id] === true) estado.mejoras[id] = 1;
       });
+    },
+    // Versión 9: árbol de mejoras. Una rueda ya comprada cuenta como mejora
+    // (abre el mecánico). Las mejoras compradas se respetan aunque ahora
+    // pidan otra antes.
+    8: function (estado) {
+      if (estado.licencias.some(function (l) { return l.ruedaRepuesto; })) estado.mejoras.rueda = 1;
     }
   };
 
