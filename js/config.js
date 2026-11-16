@@ -398,17 +398,17 @@
       },
       // ---- Rama: Ciudad y radio
       {
-        id: 'aeropuerto', nombre: 'Acreditación de Barajas', rama: 'ciudad', precio: 2000,
-        descripcion: 'Abre la zona del aeropuerto, con tarifas fijas de 22 € y 33 €.',
-        efecto: { desbloqueaZona: 'aeropuerto' }
-      },
-      {
-        id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', rama: 'ciudad', requiere: 'aeropuerto', precio: 2500,
+        id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', rama: 'ciudad', precio: 2500,
         descripcion: 'Abre la zona de estaciones, con picos al llegar los trenes.',
         efecto: { desbloqueaZona: 'estaciones' }
       },
       {
-        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'estaciones', precio: 1300,
+        id: 'aeropuerto', nombre: 'Acreditación de Barajas', rama: 'ciudad', requiere: 'estaciones', precio: 2000,
+        descripcion: 'Abre la zona del aeropuerto, con tarifas fijas de 22 € y 33 €.',
+        efecto: { desbloqueaZona: 'aeropuerto' }
+      },
+      {
+        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'aeropuerto', precio: 1300,
         descripcion: 'Te pasan clientes por radio: un 30 % menos de tiempo buscando. Tiene cuota diaria por coche.',
         efecto: { busqueda: 0.7, cuotaEmisora: true }
       },
@@ -418,9 +418,9 @@
         efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
       },
       {
-        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', rama: 'ciudad', requiere: 'paradaOcio', precio: 10000,
-        descripcion: 'La cola del aeropuerto se reduce un 40 %.',
-        efecto: { cola: 0.6, soloZona: 'aeropuerto' }
+        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', rama: 'ciudad', requiere: 'paradaOcio', precio: 3000,
+        descripcion: 'La cola del aeropuerto se reduce a la mitad: de 1–2 horas a 30–60 minutos.',
+        efecto: { cola: 0.5, soloZona: 'aeropuerto' }
       },
       {
         id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 4000,
