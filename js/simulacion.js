@@ -823,13 +823,29 @@
     return exito('Vuelves a conducir en el turno de ' + cfg().turnos[turno].nombre.toLowerCase() + '.');
   }
 
+  /* Finiquito por despedir a un conductor: base más un importe por nivel. */
+  function costeDespido(t) {
+    const f = cfg().conductores.finiquito;
+    return f.base + f.porNivel * nivelConductor(t);
+  }
+
+  /*
+   * Despedir cuesta el finiquito (sin dinero no se puede) y sale en el ticket
+   * como incidencia. Los objetos que llevaba vuelven al almacén.
+   */
   function despedirConductor(estado, licenciaId, turno) {
     const lic = buscarLicencia(estado, licenciaId);
     const t = lic && lic.turnos[turno];
     if (!t || t.quien !== 'conductor') return fallo('Ahí no hay ningún conductor.');
+    const coste = costeDespido(t);
+    if (estado.dinero < coste) return fallo('No te llega para el finiquito de ' + t.nombre + ': ' + Libre.ui_euros(coste) + '.');
+    estado.objetos = estado.objetos || {};
+    (t.objetos || []).forEach(function (id) { estado.objetos[id] = (estado.objetos[id] || 0) + 1; });
+    incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
     // Si estaba en una carrera, se pierde: se va con el cliente.
     lic.turnos[turno] = null;
-    return exito(t.nombre + ' ya no trabaja para ti.');
+    return exito(t.nombre + ' ya no trabaja para ti: finiquito de ' + Libre.ui_euros(coste) +
+      ((t.objetos || []).length ? '. Sus objetos vuelven al almacén.' : '.'));
   }
 
   /* Cambia la zona de trabajo de un turno (tuyo o de un conductor). */
@@ -1726,6 +1742,7 @@
     cambiarTurnoJugador,
     contratarConductor,
     despedirConductor,
+    costeDespido,
     buscarCliente,
     importeEnCurso,
     importeDeCarrera,

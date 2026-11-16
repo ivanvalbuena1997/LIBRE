@@ -842,7 +842,8 @@
         '<span class="rasgos">' + htmlRasgos(t.cualidad, t.defecto) + '</span>' +
         // La zona la eligen ellos (al azar, o la mejor con el Curso gestión de zonas).
         '<span class="turno-zona">Trabaja en ' + esc(Libre.config.zonas[t.zona] ? Libre.config.zonas[t.zona].nombre : t.zona) + '</span>' +
-        boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro') +
+        boton('Despedir · ' + euros(Libre.sim.costeDespido(t)), 'despedirConductor', [lic.id, turno], 'boton-peligro',
+          Libre.sim.costeDespido(t)) +
         htmlHuecos(estado, lic, turno, t) +
         estadoTurno(estado, lic, t);
     }
@@ -1349,6 +1350,15 @@
     secciones.forEach(function (s) { s.ultimaFirma = null; });
   }
 
+  /* Despedir siempre pide confirmación, con el nombre y el finiquito. */
+  function confirmarDespido(args) {
+    const t = estadoActual && estadoActual.licencias.find(function (l) { return String(l.id) === args[0]; });
+    const x = t && t.turnos[args[1]];
+    if (!x) return false;
+    return confirm('¿Despedir a ' + x.nombre + '? El finiquito cuesta ' + euros(Libre.sim.costeDespido(x)) +
+      ((x.objetos || []).length ? ' y sus objetos vuelven al almacén.' : '.'));
+  }
+
   function iniciar(opciones) {
     ejecutar = opciones.ejecutar;
     const main = $('juego');
@@ -1440,6 +1450,7 @@
       const el = ev.target.closest('button[data-accion]');
       if (!el || el.disabled) return;
       const args = el.dataset.args ? el.dataset.args.split('|') : [];
+      if (el.dataset.accion === 'despedirConductor' && !confirmarDespido(args)) return;
       const resultado = ejecutar(el.dataset.accion, args);
       if (resultado && resultado.ok && el.dataset.accion === 'contratarConductor') {
         eligiendoConductor = null;
@@ -1456,7 +1467,10 @@
     });
   }
 
+  let estadoActual = null;   // el último dibujado (para confirmar acciones)
+
   function dibujar(estado) {
+    estadoActual = estado;
     const info = Libre.sim.infoReloj(estado.reloj.minutos);
     fijarDinero(estado.dinero);
     // Día y barra siguen la jornada (de 7:00 a 7:00): cambian cuando sale el ticket.

@@ -105,6 +105,11 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   8). Quitar uno lo devuelve al almacén. Su efecto entra en
   `factoresConductor()` con los rasgos y el nivel, bajo los mismos topes.
   Ruedas y bolsas siguen siendo consumibles del inventario.
+- Despedir (`despedirConductor()`) cuesta el finiquito de
+  `costeDespido()`: base más un importe por nivel
+  (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
+  como incidencia «Finiquitos» y sus objetos vuelven al almacén. La
+  interfaz siempre pide confirmación.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

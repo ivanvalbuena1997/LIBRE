@@ -859,4 +859,25 @@ prueba('las partidas de la versión 13 tienen el almacén de objetos vacío', fu
   assert.deepStrictEqual(migrado.licencias[0].turnos.noche.objetos, []);
 });
 
+prueba('despedir cuesta un finiquito según el nivel y devuelve los objetos', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  const f = config.conductores.finiquito;
+  t.xp = config.conductores.niveles.experiencia[4];
+  t.objetos = ['gps', 'cojin'];
+  e.objetos = { gps: 1 };
+  const coste = f.base + 5 * f.porNivel;
+  assert.strictEqual(sim.costeDespido(t), coste);
+  e.dinero = coste - 1;
+  assert.ok(!sim.despedirConductor(e, 1, 'noche').ok, 'sin dinero no se despide');
+  assert.ok(e.licencias[0].turnos.noche, 'sigue trabajando');
+  e.dinero = coste + 10;
+  assert.ok(sim.despedirConductor(e, 1, 'noche').ok);
+  cerca(e.dinero, 10);
+  assert.strictEqual(e.licencias[0].turnos.noche, null);
+  assert.deepStrictEqual(e.objetos, { gps: 2, cojin: 1 });
+  assert.strictEqual(e.caja.hoy.incidencias.finiquito.veces, 1);
+  cerca(e.caja.hoy.otros, coste);
+});
+
 console.log(pasadas + ' pruebas correctas');

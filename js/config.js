@@ -96,7 +96,9 @@
       // Bolsa del inventario gastada en vez de un vómito (solo sale en el ticket).
       bolsa: { nombre: 'Bolsas usadas' },
       // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.
-      esterillas: { nombre: 'Monedas de las esterillas' }
+      esterillas: { nombre: 'Monedas de las esterillas' },
+      // Al despedir a un conductor (sale en el ticket con los gastos).
+      finiquito: { nombre: 'Finiquitos' }
     },
 
     /*
@@ -166,6 +168,9 @@
       porcentaje: 0.50,
       costeContratacion: 400,      // Equilibrio: pago único al contratar.
       candidatos: 3,               // Equilibrio: entre cuántos eliges al contratar.
+      // Equilibrio: despedir cuesta base + porNivel × nivel del conductor
+      // (160 € en el nivel 1, 700 € en el 10). Sin dinero no se puede.
+      finiquito: { base: 100, porNivel: 60 },
 
       /*
        * Rasgos (Equilibrio): cada conductor tiene una cualidad y un defecto,
