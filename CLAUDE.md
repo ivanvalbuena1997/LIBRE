@@ -158,6 +158,12 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   resume «N ocupados · N libres · N parados» y la hora de tu turno, y
   tocarlo abre el desglose de la caja de hoy. Los importes flotantes salen
   por taxi (diferencia de `facturadoJornada`) con el nombre del conductor.
+- «Tus taxis hoy» (`seccionTaxis`): una fila por taxi con retrato, nombre,
+  zona, estado (Ocupado, Libre o el motivo de la parada), barra
+  proporcional al que más lleva y lo facturado en la jornada. Las filas se
+  crean una vez y en cada fotograma solo se rellenan y recolocan (FLIP);
+  destellan al cobrar y llevan a su licencia en Flota. Más de 6 taxis:
+  «Ver los N restantes». Los datos salen de `taxisDeLaFlota()`.
 - Taxis parados: la simulación guarda `motivoParada` ('pinchazo',
   'vomito') junto a `paradoHasta`, solo para enseñarlo.
 - Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo

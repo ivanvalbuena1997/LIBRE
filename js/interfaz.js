@@ -328,6 +328,117 @@
   };
 
   /*
+   * Tus taxis hoy: una fila por taxi, de más a menos facturado en la jornada.
+   * Las filas se crean una vez (firma: qué taxis hay y si la lista está
+   * desplegada) y en cada fotograma solo se rellenan y se recolocan; cuando
+   * un taxi adelanta a otro se deslizan a su sitio (técnica FLIP: se mide,
+   * se mueve en el DOM y se anima desde la posición vieja). Al cobrar, la
+   * fila destella. Tocar una fila lleva a ese taxi en Flota.
+   */
+  const MAX_FILAS_TAXIS = 6;
+  let taxisDesplegados = false;
+
+  function htmlRetratoFila(t) {
+    if (t.retrato !== null && t.retrato !== undefined) {
+      return '<span class="retrato' + (t.icono === 'baja' ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>';
+    }
+    // Tú, o un turno sin conductor.
+    return '<span class="retrato retrato-texto' + (t.quien === 'Tú' ? ' tu' : '') + '">' + (t.quien === 'Tú' ? 'TÚ' : '') + '</span>';
+  }
+
+  const seccionTaxis = {
+    id: 'sec-taxis',
+    firma: function (estado) {
+      return estado.licencias.filter(function (l) { return l.vehiculo; }).map(function (l) { return l.id; }).join(',') +
+        '|' + taxisDesplegados;
+    },
+    html: function (estado) {
+      const ids = estado.licencias.filter(function (l) { return l.vehiculo; }).map(function (l) { return l.id; });
+      const filas = ids.map(function (id) {
+        return '<li class="taxi-fila" data-fila-taxi="' + id + '"><button type="button" data-ir-licencia="' + id + '">' +
+          '<span class="taxi-retrato"></span>' +
+          '<span class="taxi-quien"><strong></strong><small></small></span>' +
+          '<span class="taxi-situacion"></span>' +
+          '<span class="taxi-importe"></span>' +
+          '<span class="taxi-barra"><span></span></span>' +
+          '</button></li>';
+      }).join('');
+      const resto = ids.length - MAX_FILAS_TAXIS;
+      return '<div class="taxis-cabecera"><h2>Tus taxis hoy</h2>' +
+        '<button type="button" class="taxis-total" data-desglose aria-label="Ver el desglose de la caja de hoy"><span id="taxis-total"></span> ›</button></div>' +
+        '<ol class="taxis-lista" id="taxis-lista">' + filas + '</ol>' +
+        (resto > 0
+          ? '<button type="button" class="taxis-mas" data-taxis-mas>' +
+            (taxisDesplegados ? 'Ver solo los ' + MAX_FILAS_TAXIS + ' primeros' : 'Ver los ' + resto + ' restantes') + '</button>'
+          : '');
+    },
+    actualizar: function (estado) {
+      const lista = $('taxis-lista');
+      const taxis = taxisDeLaFlota(estado);
+      const maximo = taxis.length ? Math.max(taxis[0].facturado, 0.01) : 1;
+      $('taxis-total').textContent = euros(estado.caja.hoy.ingresos);
+
+      // FLIP 1: dónde está cada fila antes de recolocar.
+      const filas = {};
+      lista.querySelectorAll('[data-fila-taxi]').forEach(function (li) { filas[li.dataset.filaTaxi] = li; });
+      const orden = taxis.map(function (t) { return String(t.licencia.id); });
+      const actual = Array.prototype.map.call(lista.children, function (li) { return li.dataset.filaTaxi; });
+      const cambia = orden.join(',') !== actual.join(',');
+      const animar = cambia && !movimientoReducido.matches;
+      const antes = {};
+      if (animar) orden.forEach(function (id) { if (filas[id]) antes[id] = filas[id].getBoundingClientRect().top; });
+
+      taxis.forEach(function (t, i) {
+        const li = filas[t.licencia.id];
+        if (!li) return;
+        // El retrato solo se rehace si cambia quién conduce.
+        const claveRetrato = t.quien + '|' + t.retrato + '|' + (t.icono === 'baja');
+        if (li.dataset.retrato !== claveRetrato) {
+          li.querySelector('.taxi-retrato').innerHTML = htmlRetratoFila(t);
+          li.dataset.retrato = claveRetrato;
+        }
+        li.querySelector('.taxi-quien strong').textContent = t.quien;
+        const zona = t.zona && Libre.config.zonas[t.zona];
+        li.querySelector('.taxi-quien small').textContent = zona ? zona.nombre : Libre.sim.textoLicencia(t.licencia);
+        const sit = li.querySelector('.taxi-situacion');
+        sit.textContent = t.situacion === 'ocupado' ? 'Ocupado' : t.situacion === 'libre' ? 'Libre' : t.motivo;
+        sit.className = 'taxi-situacion ' + t.situacion;
+        li.querySelector('.taxi-importe').textContent = euros(t.facturado);
+        li.querySelector('.taxi-barra > span').style.width = (Math.max(0, t.facturado) / maximo * 100).toFixed(1) + '%';
+        li.classList.toggle('fuera', !taxisDesplegados && i >= MAX_FILAS_TAXIS);
+        li.querySelector('button').setAttribute('aria-label',
+          t.quien + ', ' + sit.textContent + ', ' + euros(t.facturado) + ' hoy. Ver en Flota');
+      });
+
+      if (!cambia) return;
+      // FLIP 2: se ordenan en el DOM y se animan desde donde estaban.
+      orden.forEach(function (id) { if (filas[id]) lista.appendChild(filas[id]); });
+      if (!animar) return;
+      orden.forEach(function (id) {
+        const li = filas[id];
+        if (!li || antes[id] === undefined || li.classList.contains('fuera')) return;
+        const delta = antes[id] - li.getBoundingClientRect().top;
+        if (Math.abs(delta) < 1) return;
+        li.style.transition = 'none';
+        li.style.transform = 'translateY(' + delta + 'px)';
+        void li.offsetWidth;
+        li.style.transition = '';
+        li.style.transform = '';
+      });
+    }
+  };
+
+  /* Destello breve en la fila del taxi que acaba de cobrar. */
+  function destellarFila(licenciaId) {
+    const li = document.querySelector('[data-fila-taxi="' + licenciaId + '"]');
+    if (!li || movimientoReducido.matches) return;
+    li.classList.remove('cobro');
+    void li.offsetWidth;
+    li.classList.add('cobro');
+    setTimeout(function () { li.classList.remove('cobro'); }, 700);
+  }
+
+  /*
    * Objetivo: la compra más barata que aún no puedes pagar. Se queda fija
    * hasta que la compras (o deja de existir); así, cuando llega el dinero,
    * la barra se pone verde en vez de saltar a otra compra.
@@ -945,7 +1056,7 @@
     }
   };
 
-  const secciones = [seccionEscena, seccionTaximetro, seccionTicket, seccionObjetivo, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
+  const secciones = [seccionEscena, seccionTaximetro, seccionTicket, seccionObjetivo, seccionTaxis, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -1009,8 +1120,8 @@
     }
   }
 
-  /* Gancho para lo que tenga que reaccionar a un cobro (la lista de taxis). */
-  function alCobrar() {}
+  /* Lo que reacciona a un cobro, aparte del importe flotante. */
+  function alCobrar(licenciaId) { destellarFila(licenciaId); }
 
   function lanzarFlotante(importe, nombre) {
     const ancla = document.querySelector('#sec-taximetro .display') || $('dinero');
@@ -1114,7 +1225,7 @@
    */
   const VISTA_DE = {
     'sec-escena': 'calle', 'sec-taximetro': 'calle', 'sec-ticket': 'calle',
-    'sec-objetivo': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
+    'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
     'sec-flota': 'flota', 'sec-mejoras': 'mejoras', 'sec-partida': 'partida'
   };
   const CLAVE_VISTA = 'libre-vista';
@@ -1213,6 +1324,23 @@
         if (desglose) {
           desglose.open = !desglose.open;
           if (desglose.open) desglose.scrollIntoView({ block: 'nearest' });
+        }
+        return;
+      }
+      if (ev.target.closest('[data-taxis-mas]')) {
+        taxisDesplegados = !taxisDesplegados;
+        opciones.redibujar();
+        return;
+      }
+      const filaTaxi = ev.target.closest('[data-ir-licencia]');
+      if (filaTaxi) {
+        // A ese taxi en la pestaña Flota.
+        cambiarVista('flota');
+        opciones.redibujar();
+        const destino = document.querySelector('.licencia[data-licencia="' + filaTaxi.dataset.irLicencia + '"]');
+        if (destino) {
+          destino.scrollIntoView({ block: 'center' });
+          destellar(destino);
         }
         return;
       }
