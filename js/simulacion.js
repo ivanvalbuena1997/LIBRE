@@ -1016,7 +1016,7 @@
         return;
       }
       const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax);
-      pararUnRato(estado, quien, ev.vomito.horasParado * 60);
+      pararUnRato(estado, quien, ev.vomito.horasParado * 60, 'vomito');
       incidencia(estado, resumen, 'vomito',
         'Un cliente vomita en el taxi' + (esConductor ? ' de ' + sujeto : '') + ': limpieza de ' +
         Libre.ui_euros(coste) + ' y una hora parado.', -coste, 'otros', quien);
@@ -1035,16 +1035,14 @@
   /*
    * El turno (tuyo o de un conductor) se queda parado `minutos` de juego
    * (al ritmo real de siempre: con jornadas largas el reloj va más lento).
+   * `motivo` ('vomito', 'pinchazo') solo sirve para enseñarlo en pantalla.
    */
-  function pararUnRato(estado, quien, minutos) {
+  function pararUnRato(estado, quien, minutos, motivo) {
     const hasta = estado.reloj.minutos + minutos / factorJornada(estado);
-    if (quien.quien === 'conductor') {
-      quien.paradoHasta = Math.max(quien.paradoHasta || 0, hasta);
-      quien.carrera = null;
-    } else {
-      estado.jugador.paradoHasta = Math.max(estado.jugador.paradoHasta || 0, hasta);
-      estado.jugador.carrera = null;
-    }
+    const datos = quien.quien === 'conductor' ? quien : estado.jugador;
+    datos.paradoHasta = Math.max(datos.paradoHasta || 0, hasta);
+    datos.motivoParada = motivo || null;
+    datos.carrera = null;
   }
 
   function elegirObjeto(estado) {
@@ -1056,15 +1054,17 @@
   }
 
   /* El turno (tuyo o de un conductor) no trabaja más hasta que termine. */
-  function pararHastaFinDeTurno(estado, quien) {
+  function pararHastaFinDeTurno(estado, quien, motivo) {
     if (quien.quien === 'conductor') {
       const lic = estado.licencias.find(function (l) { return l.turnos.dia === quien || l.turnos.noche === quien; });
       const turno = lic.turnos.dia === quien ? 'dia' : 'noche';
       quien.paradoHasta = finDeTurno(estado.reloj.minutos, turno);
+      quien.motivoParada = motivo || null;
       quien.carrera = null;
     } else {
       const u = ubicacionJugador(estado);
       estado.jugador.paradoHasta = finDeTurno(estado.reloj.minutos, u.turno);
+      estado.jugador.motivoParada = motivo || null;
       estado.jugador.carrera = null;
     }
   }
@@ -1154,7 +1154,7 @@
           estado.inventario.ruedas + ').', 0, null, turno);
         return;
       }
-      pararHastaFinDeTurno(estado, turno);
+      pararHastaFinDeTurno(estado, turno, 'pinchazo');
       incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
         ': neumático de ' + Libre.ui_euros(ev.pinchazo.coste) + ' y ' + (esConductor ? 'no factura' : 'no facturas') +
         ' más hoy.', -ev.pinchazo.coste, 'otros', turno);

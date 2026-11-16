@@ -150,9 +150,16 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   crece dentro de la jornada. Iconos de parado: avería, baja, sin conductor y
   jornada terminada. Con lluvia, gotas. Las tarjetas de zona sirven para elegir zona mientras conduces a
   mano.
-- El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
-  scroll. Mientras conduces es el botón de buscar cliente; si no conduces,
-  queda apagado («Fuera de servicio»): nada de contadores corriendo solos.
+- El taxímetro debe verse entero en el móvil sin scroll. Tiene dos modos
+  que cambian solos (`modoTaximetro()`): **conductor** si conduces y es tu
+  turno (o aún no tienes conductores), y es el botón de buscar cliente;
+  **flota** el resto del tiempo: piloto «FLOTA», el display suma
+  `caja.hoy.ingresos` (sube con cada cobro de cualquier taxi), el pie
+  resume «N ocupados · N libres · N parados» y la hora de tu turno, y
+  tocarlo abre el desglose de la caja de hoy. Los importes flotantes salen
+  por taxi (diferencia de `facturadoJornada`) con el nombre del conductor.
+- Taxis parados: la simulación guarda `motivoParada` ('pinchazo',
+  'vomito') junto a `paradoHasta`, solo para enseñarlo.
 - Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
   fuera, con tope en la config. Sin conductores contratados, o si se cerró
   con el ticket en pantalla, el reloj no avanza. Tu turno no produce fuera. Con pausa al cierre, resuelve los

@@ -124,18 +124,44 @@
     piloto.textContent = libre ? 'LIBRE' : 'OCUPADO';
   }
 
+  /*
+   * Dos modos, que cambian solos:
+   *   conductor  conduces tú y es tu turno (o aún no tienes conductores):
+   *              el taxímetro es el botón de buscar cliente.
+   *   flota      el resto del tiempo: el display suma lo recaudado hoy por
+   *              toda la flota y al tocarlo se abre el desglose de la caja.
+   */
+  function modoTaximetro(estado) {
+    const s = Libre.sim;
+    return s.conduce(estado) && (s.jugadorEnTurno(estado) || !s.hayConductores(estado)) ? 'conductor' : 'flota';
+  }
+  let modoAnterior = null;
+
+  /* «2 ocupados · 2 libres · 1 parado» (sin los grupos vacíos). */
+  function resumenFlota(taxis) {
+    const n = { ocupado: 0, libre: 0, parado: 0 };
+    taxis.forEach(function (t) { n[t.situacion]++; });
+    const partes = [];
+    if (n.ocupado) partes.push(n.ocupado + (n.ocupado === 1 ? ' ocupado' : ' ocupados'));
+    if (n.libre) partes.push(n.libre + (n.libre === 1 ? ' libre' : ' libres'));
+    if (n.parado) partes.push(n.parado + (n.parado === 1 ? ' parado' : ' parados'));
+    return partes.join(' · ') || 'Sin taxis';
+  }
+
   const seccionTaximetro = {
     id: 'sec-taximetro',
-    firma: function (estado) {
-      return Libre.sim.conduce(estado) ? 'a-mano' : 'flota';
-    },
+    firma: function (estado) { return modoTaximetro(estado); },
     html: function (estado) {
-      // Sin conducir, el taxímetro se apaga: la flota se ve en «Hoy» y en los importes.
-      if (!Libre.sim.conduce(estado)) {
-        return '<div class="taximetro apagado">' + htmlDisplay() + '</div>' +
-          '<p class="estado-carrera">Gestionas la flota. Para conducir, elige un turno en Flota.</p>';
+      const modo = modoTaximetro(estado);
+      // Transición breve solo cuando cambia de modo, no al cargar.
+      const clase = modoAnterior && modoAnterior !== modo ? ' cambio-modo' : '';
+      modoAnterior = modo;
+      if (modo === 'flota') {
+        return '<button type="button" class="taximetro taximetro-flota' + clase + '" data-desglose ' +
+          'aria-label="Recaudación de hoy de la flota: ver el desglose">' + htmlDisplay() +
+          '<span class="taximetro-pie pie-flota"><span id="tx-resumen"></span><small id="tx-miturno"></small></span></button>';
       }
-      return '<button type="button" class="taximetro taximetro-boton" data-accion="buscarCliente" ' +
+      return '<button type="button" class="taximetro taximetro-boton' + clase + '" data-accion="buscarCliente" ' +
         'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() +
         '<span class="progreso"><span id="carrera-barra"></span></span>' +
         '<span class="taximetro-pie" id="tx-pie"></span></button>';
@@ -144,10 +170,14 @@
       const c = Libre.config;
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
 
-      if (!Libre.sim.conduce(estado)) {
-        pintarDisplay(0, 'FUERA DE SERVICIO', info.tarifa, false);
-        $('tx-valor').textContent = '--,--';
-        $('tx-piloto').textContent = 'APAGADO';
+      if (modoTaximetro(estado) === 'flota') {
+        pintarDisplay(estado.caja.hoy.ingresos, 'RECAUDACIÓN HOY ›', info.tarifa, false);
+        const piloto = $('tx-piloto');
+        piloto.textContent = 'FLOTA';
+        piloto.classList.add('flota');
+        $('tx-resumen').textContent = resumenFlota(taxisDeLaFlota(estado));
+        const u = Libre.sim.ubicacionJugador(estado);
+        $('tx-miturno').textContent = u ? 'Tu turno: ' + dos(c.turnos[u.turno].horaInicio) + ':00' : '';
         return;
       }
 
@@ -212,7 +242,14 @@
   const MAX_CARRILES = 5;
   const escalaEscena = { jornada: null, valor: 0 };
 
-  /* Todos los taxis con coche: { licencia, facturado, enCarrera, icono, quien }. */
+  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza' };
+  const TEXTO_SITUACION = { averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
+
+  /*
+   * Todos los taxis con coche, de más a menos facturado en la jornada:
+   * { licencia, quien, retrato, zona, facturado, enCarrera, icono,
+   *   situacion ('ocupado', 'libre' o 'parado'), motivo }.
+   */
   function taxisDeLaFlota(estado) {
     const ahora = estado.reloj.minutos;
     const turno = Libre.sim.turnoDeHora(Libre.sim.infoReloj(ahora).hora);
@@ -227,12 +264,17 @@
       else if (!t) icono = 'vacio';
       else if (t.quien === 'conductor' && t.baja && jornada < t.baja.hasta) icono = 'baja';
       else if ((t.quien === 'jugador' ? estado.jugador.paradoHasta : t.paradoHasta) > ahora) icono = 'fin';
+      const motivoParada = t ? (t.quien === 'jugador' ? estado.jugador.motivoParada : t.motivoParada) : null;
       return {
         licencia: lic,
         quien: t ? (t.quien === 'jugador' ? 'Tú' : t.nombre) : 'Sin conductor',
+        retrato: t && t.quien === 'conductor' ? t.retrato : null,
+        zona: t ? t.zona : null,
         facturado: (lic.facturadoJornada || 0) + (enCurso || 0),
         enCarrera: enCurso !== null && !pausa,
-        icono
+        icono,
+        situacion: icono ? 'parado' : enCurso !== null ? 'ocupado' : 'libre',
+        motivo: icono === 'fin' ? (MOTIVO_PARADA[motivoParada] || 'Parado') : icono ? TEXTO_SITUACION[icono] : null
       };
     }).sort(function (a, b) { return b.facturado - a.facturado; });
   }
@@ -921,40 +963,66 @@
   // MS_ENTRE_FLOTANTES; lo que no cabe se suma al siguiente.
   const MAX_FLOTANTES = 4;
   const MS_ENTRE_FLOTANTES = 300;
-  const flotantes = { vivos: 0, pendiente: 0, ultimo: 0, base: null, lanzados: 0, etiqueta: '' };
+  // Cada taxi se vigila por separado (lo facturado en la jornada) para saber
+  // quién ha cobrado: «+14,20 € Marta». Tus carreras salen sin nombre.
+  const flotantes = { vivos: 0, ultimo: 0, porLicencia: null, cola: [], etiqueta: '' };
+
+  /* Quién trabaja ahora en esa licencia (para el nombre del importe). */
+  function nombreEnTurno(estado, lic) {
+    const t = lic.turnos[Libre.sim.turnoDeHora(Libre.sim.infoReloj(estado.reloj.minutos).hora)];
+    return t && t.quien === 'conductor' ? t.nombre : '';
+  }
+
+  function encolarFlotante(importe, nombre) {
+    const cola = flotantes.cola;
+    const ultimo = cola[cola.length - 1];
+    // Lo que no cabe se suma al último de la cola.
+    if (cola.length >= MAX_FLOTANTES) {
+      ultimo.importe += importe;
+      if (ultimo.nombre !== nombre) ultimo.nombre = '';
+    } else {
+      cola.push({ importe, nombre });
+    }
+  }
 
   function vigilarCobros(estado) {
-    const t = estado.totales;
-    if (!flotantes.base) {
-      flotantes.base = { carreras: t.carreras, ingresos: t.ingresos };
-      return;
-    }
-    const completas = Math.floor(t.carreras) - Math.floor(flotantes.base.carreras);
-    const ingresado = t.ingresos - flotantes.base.ingresos;
-    // Se espera a que se complete al menos una carrera para enseñar su importe.
-    if (completas > 0 && ingresado > 0) {
-      flotantes.base = { carreras: t.carreras, ingresos: t.ingresos };
-      if (!movimientoReducido.matches) flotantes.pendiente += ingresado;
-    }
+    const actual = {};
+    estado.licencias.forEach(function (l) { actual[l.id] = l.facturadoJornada || 0; });
+    if (!flotantes.porLicencia) { flotantes.porLicencia = actual; return; }
+    estado.licencias.forEach(function (l) {
+      const antes = flotantes.porLicencia[l.id];
+      // Licencia nueva o cierre de caja (vuelve a cero): no es un cobro.
+      if (antes === undefined || actual[l.id] < antes) return;
+      const cobrado = actual[l.id] - antes;
+      if (cobrado < 0.005) return;
+      alCobrar(l.id);
+      if (!movimientoReducido.matches) encolarFlotante(cobrado, nombreEnTurno(estado, l));
+    });
+    flotantes.porLicencia = actual;
+
     const ahora = Date.now();
-    if (flotantes.pendiente >= 0.005 && flotantes.vivos < MAX_FLOTANTES &&
+    if (flotantes.cola.length > 0 && flotantes.vivos < MAX_FLOTANTES &&
         ahora - flotantes.ultimo >= MS_ENTRE_FLOTANTES) {
-      lanzarFlotante(flotantes.pendiente);
-      flotantes.pendiente = 0;
+      const f = flotantes.cola.shift();
+      lanzarFlotante(f.importe, f.nombre);
       flotantes.ultimo = ahora;
     }
   }
 
-  function lanzarFlotante(importe) {
+  /* Gancho para lo que tenga que reaccionar a un cobro (la lista de taxis). */
+  function alCobrar() {}
+
+  function lanzarFlotante(importe, nombre) {
     const ancla = document.querySelector('#sec-taximetro .display') || $('dinero');
     const caja = ancla.getBoundingClientRect();
     const el = document.createElement('div');
     el.className = 'flotante';
-    el.textContent = '+' + euros(importe) + (flotantes.etiqueta ? ' · ' + flotantes.etiqueta : '');
-    flotantes.etiqueta = '';
-    // Dos columnas alternas para que no se pisen.
-    el.style.left = (caja.right - 8 - (flotantes.lanzados++ % 2) * 88) + 'px';
-    el.style.top = (caja.top + 6) + 'px';
+    el.textContent = '+' + euros(importe) + (nombre ? ' ' + nombre : '') +
+      (!nombre && flotantes.etiqueta ? ' · ' + flotantes.etiqueta : '');
+    if (!nombre) flotantes.etiqueta = '';
+    // Salen por encima del display para no tapar las cifras.
+    el.style.left = (caja.right - 8) + 'px';
+    el.style.top = (caja.top - 30) + 'px';
     document.body.appendChild(el);
     flotantes.vivos++;
     let quitado = false;
@@ -1114,8 +1182,9 @@
     ultimoCierreVisto = null;
     ticketAviso = null;
     objetivoId = null;
-    flotantes.base = null;
-    flotantes.pendiente = 0;
+    flotantes.porLicencia = null;
+    flotantes.cola = [];
+    modoAnterior = null;
     contador.mostrado = null;
     secciones.forEach(function (s) { s.ultimaFirma = null; });
   }
@@ -1137,6 +1206,14 @@
       if (ev.target.closest('[data-cerrar-ticket]')) {
         ticketAviso = null;
         opciones.redibujar();
+        return;
+      }
+      if (ev.target.closest('[data-desglose]')) {
+        const desglose = document.querySelector('.caja-plegable');
+        if (desglose) {
+          desglose.open = !desglose.open;
+          if (desglose.open) desglose.scrollIntoView({ block: 'nearest' });
+        }
         return;
       }
       const botonPartida = ev.target.closest('[data-partida]');

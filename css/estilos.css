@@ -89,6 +89,7 @@
   --tx-fantasma: rgba(255, 74, 61, 0.08);
   --tx-apagado: #3a3a38;
   --tx-texto: #c9c9c4;
+  --tx-flota: #f2a516;         /* piloto «FLOTA»: ámbar de aviso */
   --radio: 12px;
 }
 
@@ -361,10 +362,27 @@ textarea {
   box-shadow: inset 0 -3px 0 var(--sombra-fuerte), 0 3px 10px var(--sombra);
 }
 .taximetro-boton { cursor: pointer; }
-/* Taxímetro apagado: no conduces, solo gestionas la flota. */
-.taximetro.apagado .display-cifras { text-shadow: none; }
-.taximetro.apagado .display-valor { color: var(--tx-apagado); }
-.taximetro.apagado .display-euro { opacity: 0.3; }
+/* Modo flota: el display suma lo de toda la flota; tocarlo abre el desglose. */
+.taximetro-flota { cursor: pointer; }
+.taximetro-flota:active { transform: translateY(1px); }
+.taximetro-flota:focus-visible { outline: 3px solid var(--verde-libre); outline-offset: 2px; }
+.piloto.flota {
+  background: var(--tx-flota);
+  color: var(--tx-carcasa);
+  box-shadow: 0 0 10px var(--tx-flota);
+}
+.taximetro-pie.pie-flota {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  text-align: left;
+}
+.pie-flota small { font-size: 0.72rem; opacity: 0.8; white-space: nowrap; }
+/* Cambio de modo: el display se enciende de nuevo, breve. */
+.taximetro.cambio-modo .display,
+.taximetro.cambio-modo .piloto { animation: cambio-modo 0.45s ease-out; }
+@keyframes cambio-modo { from { opacity: 0.15; } }
 .taximetro-boton:disabled { opacity: 1; cursor: default; }
 .taximetro-boton:not(:disabled):active { transform: translateY(1px); }
 .taximetro-boton:focus-visible { outline: 3px solid var(--verde-libre); outline-offset: 2px; }
@@ -1074,7 +1092,7 @@ button.zona-tarjeta { cursor: pointer; }
 }
 @keyframes flotar {
   from { opacity: 1; transform: translate(-100%, 0); }
-  to   { opacity: 0; transform: translate(-100%, -80px); }
+  to   { opacity: 0; transform: translate(-100%, -110px); }
 }
 
 /* Destello al comprar algo */
