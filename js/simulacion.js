@@ -305,7 +305,26 @@
   /* Precio de un viaje: tarifa fija si la tiene; si no, taxímetro. */
   function importeViaje(viaje, tarifaId, km, minParado) {
     if (viaje.tarifaFija) return cfg().tarifas[viaje.tarifaFija].fija;
+    if (viaje.tarifa === 't3') return precioTarifa3(tarifaId, km, minParado);
     return precioTaximetro(tarifaId, km, minParado);
+  }
+
+  /*
+   * Tarifa 3 (salidas de Barajas fuera de la M-30): la bajada de bandera cubre
+   * los primeros km; el resto, con la tarifa 1 o 2 que toque, y el tiempo
+   * parado en la misma proporción que los km de más.
+   */
+  function precioTarifa3(tarifaId, km, minParado) {
+    const t3 = cfg().tarifas.t3;
+    const t = cfg().tarifas[tarifaId];
+    const deMas = Math.max(0, km - t3.kmIncluidos);
+    const parte = km > 0 ? deMas / km : 0;
+    return t3.inicio + deMas * t.porKm + (minParado * parte / 60) * t.porHora;
+  }
+
+  /* Minutos medios de cola en una zona (si la cola varía, el punto medio). */
+  function colaMedia(zona) {
+    return zona.colaMax ? (zona.colaMin + zona.colaMax) / 2 : zona.colaMin;
   }
 
   /* Viaje medio de una zona con la tarifa dada: importe, km y minutos esperados. */
@@ -362,7 +381,7 @@
   function minutosPorCarrera(estado, zonaId, tarifaId) {
     const zona = cfg().zonas[zonaId];
     const m = modificadores(estado, zonaId);
-    return zona.busquedaMin * m.busqueda + zona.colaMin * m.cola + viajeMedio(zonaId, tarifaId).minutos;
+    return zona.busquedaMin * m.busqueda + colaMedia(zona) * m.cola + viajeMedio(zonaId, tarifaId).minutos;
   }
 
   // ------------------------------------------------------------ Costes
@@ -700,20 +719,21 @@
     // Ciclo medio por carrera = 60 / carreras por hora. La parte fija es
     // buscar + cola; lo que falte hasta el ciclo es espera por poca demanda.
     const medio = viajeMedio(zonaId, info.tarifa);
-    const fija = zona.busquedaMin * m.busqueda + zona.colaMin * m.cola;
-    const extraMedio = Math.max(0, 60 / viajesHoraPorCoche - medio.minutos - fija);
+    const cola = (modoEspera === 'azar' && zona.colaMax ? zona.colaMin + rnd() * (zona.colaMax - zona.colaMin) : colaMedia(zona)) * m.cola;
+    const fija = zona.busquedaMin * m.busqueda + cola;
+    const extraMedio = Math.max(0, 60 / viajesHoraPorCoche - medio.minutos - (zona.busquedaMin * m.busqueda + colaMedia(zona) * m.cola));
     const extra = modoEspera === 'azar' ? -Math.log(1 - rnd()) * extraMedio : extraMedio;
     const espera = fija + extra;
 
     // Buscando cliente se gasta combustible; en la cola de una parada, no.
-    const enMarcha = zona.colaMin > 0 ? zona.busquedaMin * m.busqueda : espera - zona.colaMin * m.cola;
+    const enMarcha = zona.colaMin > 0 ? zona.busquedaMin * m.busqueda : espera - cola;
     const kmVacio = Math.max(0, enMarcha) / 60 * c.conduccion.velocidadVacioKmH;
 
     const f = factorJornada(estado);
     const ahora = estado.reloj.minutos;
     return {
       zona: zonaId,
-      tarifa: viaje.tarifaFija || info.tarifa,
+      tarifa: viaje.tarifaFija || viaje.tarifa || info.tarifa,
       inicio: ahora,
       finEspera: ahora + espera / f,
       fin: ahora + (espera + minutosViaje) / f,
@@ -880,7 +900,9 @@
           return;
         }
         const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar');
-        x.turno.carrera = carrera.finEspera > finHora
+        // En una parada con cola (Barajas: 1–2 h) se guarda el turno aunque pase
+        // de la hora; sin cola, la espera se corta en la hora (no tiene memoria).
+        x.turno.carrera = carrera.finEspera > finHora && !cfg().zonas[zonaId].colaMin
           ? tramoEnVacio(estado, zonaId, x.licencia.vehiculo, finHora)
           : carrera;
       });
@@ -1432,6 +1454,7 @@
     zonaDesbloqueada,
     zonasDisponibles,
     precioTaximetro,
+    precioTarifa3,
     viajeMedio,
     netoCaja,
     costePorKm,

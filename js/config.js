@@ -40,8 +40,10 @@
       t1: { nombre: 'Tarifa 1', inicio: 2.55, porKm: 1.40, porHora: 27.00 },
       t2: { nombre: 'Tarifa 2', inicio: 3.20, porKm: 1.60, porHora: 29.00 },
       // Dato real: tarifas fijas del aeropuerto.
-      // Tarifa 3: salidas de Barajas a destinos fuera de la M-30 de menos de 9 km.
-      t3: { nombre: 'Tarifa 3', fija: 22.00 },
+      // Tarifa 3 (Dato de Iván, 16-11-2026): salidas de Barajas a destinos fuera
+      // de la M-30. 22 € de bajada de bandera que cubren los primeros 9 km; a
+      // partir de ahí corre el taxímetro con la tarifa 1 o 2 que toque.
+      t3: { nombre: 'Tarifa 3', inicio: 22.00, kmIncluidos: 9 },
       // Tarifa 4: entre Barajas y el interior de la M-30, sin suplementos.
       t4: { nombre: 'Tarifa 4', fija: 33.00 }
     },
@@ -210,10 +212,13 @@
      *   busquedaMin  minutos de juego dando vueltas hasta encontrar cliente
      *                cuando hay demanda de sobra (consume combustible).
      *   colaMin      minutos de cola en una parada (no consume combustible).
+     *   colaMax      si está, la cola dura al azar entre colaMin y colaMax.
      *   viajes       tipos de carrera con su proporción; km y minutos parados
      *                entran en el taxímetro, "minutos" es lo que dura el viaje.
      *                Con tarifaFija se cobra ese precio fijo en vez del taxímetro
-     *                (los km siguen contando para el combustible).
+     *                (los km siguen contando para el combustible). Con
+     *                tarifa: 't3', bajada de bandera de la tarifa 3 y taxímetro
+     *                normal a partir de sus km incluidos.
      *   requiere     mejora que desbloquea la zona (si falta, está abierta).
      *   Los coches que sobran en una zona con cola esperan sin gastar; en una
      *   zona sin cola dan vueltas en vacío y gastan combustible.
@@ -274,13 +279,15 @@
         textoEspera: 'En la cola de la parada de Barajas',
         requiere: 'aeropuerto',
         busquedaMin: 0,
-        colaMin: 35,              // Equilibrio
+        // Dato de Iván: en la parada de Barajas se espera entre 1 y 2 horas.
+        colaMin: 60,
+        colaMax: 120,
         variacion: 0.25,
         viajes: [                 // Equilibrio (proporciones y km)
           { proporcion: 0.60, tarifaFija: 't4', km: 15, minParado: 0, minutos: 25 }, // al interior de la M-30
-          { proporcion: 0.15, tarifaFija: 't3', km: 7, minParado: 0, minutos: 12 },  // fuera de la M-30, < 9 km
-          { proporcion: 0.15, km: 18, minParado: 5, minutos: 24 },                   // con taxímetro, cerca
-          { proporcion: 0.10, km: 32, minParado: 7, minutos: 38 }                    // con taxímetro, lejos
+          { proporcion: 0.15, tarifa: 't3', km: 7, minParado: 0, minutos: 12 },     // fuera de la M-30, cerca
+          { proporcion: 0.15, tarifa: 't3', km: 18, minParado: 5, minutos: 24 },    // fuera de la M-30, media
+          { proporcion: 0.10, tarifa: 't3', km: 32, minParado: 7, minutos: 38 }     // fuera de la M-30, lejos
         ],
         demanda: {                // Equilibrio
           //            0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23

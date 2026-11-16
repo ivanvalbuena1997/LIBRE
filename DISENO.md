@@ -32,7 +32,8 @@ Tarifas especiales que el juego puede usar como mecánicas:
 Datos confirmados por Iván el 13 de noviembre de 2026:
 
 - Inicio de servicio: 2,55 € en tarifa 1 y 3,20 € en tarifa 2.
-- Tarifa 3: 22 €. Tarifa 4: 33 €.
+- Tarifa 3: 22 € de bajada de bandera, que cubren los primeros 9 km; si el viaje pasa de 9 km, se aplica la tarifa 1 o 2 según corresponda. Tarifa 4: 33 €. (Precisión del 16 de noviembre de 2026.)
+- Espera en la parada del aeropuerto: entre 1 y 2 horas (16 de noviembre de 2026).
 - Licencias en el área de Madrid: 15.812.
 - Régimen de descanso: cada licencia tiene día de libranza obligatorio, fijado por resolución anual del Ayuntamiento.
 - Número de licencia: número y letra, por ejemplo 15288-L. La letra es el día de libranza y sale de la última cifra: lunes (L) si acaba en 7 u 8, martes (M) en 9 o 0, miércoles en 1 o 2, jueves (J) en 3 o 4 y viernes (V) en 5 o 6. En fin de semana libra según la paridad del día del mes: una licencia par trabaja el sábado 10 y libra el domingo 11; una impar, al revés. La letra del miércoles está por confirmar (el juego usa X).

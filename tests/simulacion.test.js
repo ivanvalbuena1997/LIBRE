@@ -616,7 +616,15 @@ prueba('sin el curso, los conductores eligen al azar una zona con clientes; con 
   comprarConRequisitos(e, 'gestionZonas');
   e.reloj.minutos = 11 * 60;
   sim.avanzar(e, 0.1);
-  assert.ok(zonas().indexOf('aeropuerto') !== -1, 'con el curso, alguno va al aeropuerto, que es lo que más deja');
+  // Con el curso, alguno está en la zona que más deja a un solo coche.
+  const info = sim.infoReloj(e.reloj.minutos);
+  let mejor = null, valor = -Infinity;
+  sim.zonasDisponibles(e).forEach(function (z) {
+    const r = sim.rendimientoZona(e, z, 1, info);
+    const v = r.viajesHora * r.importe * (1 - config.conductores.porcentaje) - r.kmHora * sim.costePorKm(e);
+    if (v > valor) { valor = v; mejor = z; }
+  });
+  assert.ok(zonas().indexOf(mejor) !== -1, 'con el curso, alguno va a ' + mejor + ', la zona que más deja');
 });
 
 prueba('el vómito depende de la zona y la hora, y deja una hora parado', function () {
@@ -631,6 +639,20 @@ prueba('el vómito depende de la zona y la hora, y deja una hora parado', functi
   for (let i = 0; i < 400 && !e.caja.hoy.incidencias.vomito; i++) sim.avanzar(e, 0.1);
   const parado = e.licencias[0].turnos.noche.paradoHasta - e.reloj.minutos;
   assert.ok(parado > 0 && parado <= v.horasParado * 60 + 1e-6, 'una hora parado, no toda la jornada: ' + parado);
+});
+
+prueba('tarifa 3: 22 € hasta 9 km y después taxímetro; cola de 1 a 2 horas en Barajas', function () {
+  const t3 = config.tarifas.t3;
+  cerca(sim.precioTarifa3('t1', 7, 0), t3.inicio, 1e-9);
+  cerca(sim.precioTarifa3('t1', 18, 0), t3.inicio + 9 * config.tarifas.t1.porKm, 1e-9);
+  cerca(sim.precioTarifa3('t2', 18, 0), t3.inicio + 9 * config.tarifas.t2.porKm, 1e-9);
+  const e = flotaDe(1);
+  comprarConRequisitos(e, 'aeropuerto');
+  sim.elegirZona(e, 1, 'dia', 'aeropuerto');
+  e.reloj.minutos = 10 * 60;
+  assert.ok(sim.buscarCliente(e, azarFijo(0.1)).ok);
+  const espera = e.jugador.carrera.finEspera - e.jugador.carrera.inicio;
+  assert.ok(espera >= 60 && espera <= 120, 'espera en la cola: ' + espera);
 });
 
 console.log(pasadas + ' pruebas correctas');
