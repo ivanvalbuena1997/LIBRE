@@ -100,6 +100,20 @@
         delete l.ruedaRepuesto;
       });
       estado.inventario = { ruedas, bolsas: 0 };
+    },
+    // Versión 12: rasgos. Los conductores ya contratados reciben una cualidad
+    // y un defecto al azar, y se sortean los candidatos para contratar.
+    11: function (estado) {
+      estado.licencias.forEach(function (l) {
+        ['dia', 'noche'].forEach(function (t) {
+          const x = l.turnos[t];
+          if (!x || x.quien !== 'conductor' || x.cualidad) return;
+          const r = Libre.sim.sortearRasgos(estado);
+          x.cualidad = r.cualidad;
+          x.defecto = r.defecto;
+        });
+      });
+      Libre.sim.sortearCandidatos(estado);
     }
   };
 

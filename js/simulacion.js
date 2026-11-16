@@ -86,6 +86,8 @@
       ultimaMarca: ahoraMs || 0
     };
     estado.licencias[0].numero = sortearNumeroLicencia(estado, rng);
+    // Los tres candidatos que verás al contratar.
+    sortearCandidatos(estado);
     return estado;
   }
 
@@ -548,7 +550,11 @@
   }
 
   /* Contrata un conductor para un turno libre de una licencia con coche. */
-  function contratarConductor(estado, licenciaId, turno) {
+  /*
+   * Contratas a uno de los candidatos (`indice` en estado.candidatos; el
+   * primero si no se dice). Todos cuestan lo mismo. Después se sortean otros.
+   */
+  function contratarConductor(estado, licenciaId, turno, indice) {
     const c = cfg();
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic || TURNOS.indexOf(turno) === -1) return fallo('Ese turno no existe.');
@@ -556,14 +562,19 @@
     if (lic.turnos[turno]) return fallo('Ese turno ya está cubierto.');
     const precio = c.conductores.costeContratacion;
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
+    const candidato = candidatos(estado)[Number(indice) || 0];
+    if (!candidato) return fallo('Ese candidato no existe.');
 
     const otro = lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
-    const retrato = sortearPersonaje(estado);
-    const nombre = c.conductores.personajes[retrato].nombre;
+    const nombre = candidato.nombre;
     const primero = !hayConductores(estado);
     estado.dinero -= precio;
     estado.conductoresContratados++;
-    lic.turnos[turno] = { quien: 'conductor', nombre, retrato, zona: otro ? otro.zona : c.zonaInicial };
+    lic.turnos[turno] = {
+      quien: 'conductor', nombre, retrato: candidato.retrato, zona: otro ? otro.zona : c.zonaInicial,
+      cualidad: candidato.cualidad, defecto: candidato.defecto
+    };
+    sortearCandidatos(estado);
 
     if (primero) {
       return exito(nombre + ' se encarga del turno de ' + c.turnos[turno].nombre.toLowerCase() +
@@ -577,9 +588,9 @@
    * nuevo: al azar entre los que no trabajan ya para ti; si están todos, entre
    * todos. Se guarda con el conductor, así no cambia al recargar.
    */
-  function sortearPersonaje(estado) {
+  function sortearPersonaje(estado, apartados) {
     const total = cfg().conductores.personajes.length;
-    const usados = {};
+    const usados = Object.assign({}, apartados);
     estado.licencias.forEach(function (l) {
       TURNOS.forEach(function (t) {
         const x = l.turnos[t];
@@ -590,6 +601,73 @@
     for (let i = 0; i < total; i++) if (!usados[i]) libres.push(i);
     const lista = libres.length ? libres : Array.from({ length: total }, function (_, i) { return i; });
     return lista[Math.floor(azar(estado) * lista.length)];
+  }
+
+  // ----------------------------------------------- Rasgos de los conductores
+
+  /* Cualidad o defecto por id (null si no existe). */
+  function buscarRasgo(id) {
+    const c = cfg().conductores;
+    return c.cualidades.concat(c.defectos).find(function (r) { return r.id === id; }) || null;
+  }
+
+  /* Una cualidad y un defecto al azar que no sean opuestos (sin las cualidades `evitar`). */
+  function sortearRasgos(estado, evitar) {
+    const c = cfg().conductores;
+    const posibles = c.cualidades.filter(function (q) { return !(evitar && evitar[q.id]); });
+    const cualidad = posibles[Math.floor(azar(estado) * posibles.length)];
+    const defectos = c.defectos.filter(function (d) { return d.id !== cualidad.opuesto; });
+    const defecto = defectos[Math.floor(azar(estado) * defectos.length)];
+    return { cualidad: cualidad.id, defecto: defecto.id };
+  }
+
+  /* Candidatos para el próximo contrato: personajes y cualidades distintos. */
+  function sortearCandidatos(estado) {
+    const c = cfg().conductores;
+    const apartados = {}, cualidades = {};
+    estado.candidatos = [];
+    for (let i = 0; i < c.candidatos; i++) {
+      const retrato = sortearPersonaje(estado, apartados);
+      apartados[retrato] = true;
+      const r = sortearRasgos(estado, cualidades);
+      cualidades[r.cualidad] = true;
+      estado.candidatos.push({ retrato, nombre: c.personajes[retrato].nombre, cualidad: r.cualidad, defecto: r.defecto });
+    }
+    return estado.candidatos;
+  }
+
+  function candidatos(estado) {
+    return estado.candidatos && estado.candidatos.length ? estado.candidatos : sortearCandidatos(estado);
+  }
+
+  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza'];
+
+  /*
+   * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
+   * su cualidad y su defecto. Lo que depende del turno (esperaDia,
+   * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
+   * trabaja. Para tu turno, todo 1. Sin tope: lo pone topeConductor().
+   */
+  function factoresConductor(estado, t) {
+    const f = {};
+    VALORES_CONDUCTOR.forEach(function (k) { f[k] = 1; });
+    if (!t || t.quien !== 'conductor') return f;
+    const turno = turnoDeHora(infoReloj(estado.reloj.minutos).hora);
+    function aplicar(efecto) {
+      Object.keys(efecto || {}).forEach(function (k) {
+        if (k === 'esperaDia') { if (turno === 'dia') f.espera *= efecto[k]; }
+        else if (k === 'esperaNoche') { if (turno === 'noche') f.espera *= efecto[k]; }
+        else if (f[k] !== undefined) f[k] *= efecto[k];
+      });
+    }
+    [t.cualidad, t.defecto].forEach(function (id) { const r = buscarRasgo(id); if (r) aplicar(r.efecto); });
+    return f;
+  }
+
+  /* El factor recortado a los topes de la config: nada llega a cero ni se dispara. */
+  function topeConductor(valor, factor) {
+    const t = cfg().conductores.topes[valor];
+    return Math.min(t[1], Math.max(t[0], factor));
   }
 
   /* Dejas tu turno: queda libre para un conductor. Tu flota sigue trabajando. */
@@ -703,11 +781,16 @@
    *                       memoria, para poder cortarla en cada hora).
    * Devuelve la carrera, con su combustible ya calculado.
    */
-  function planearCarrera(estado, zonaId, vehiculo, viajesHoraPorCoche, rnd, modoEspera) {
+  /*
+   * factorEspera (conductores): multiplica la búsqueda y la espera por poca
+   * demanda, no la cola de las paradas. Ya viene con su tope.
+   */
+  function planearCarrera(estado, zonaId, vehiculo, viajesHoraPorCoche, rnd, modoEspera, factorEspera) {
     const c = cfg();
     const zona = c.zonas[zonaId];
     const info = infoReloj(estado.reloj.minutos);
     const m = modificadores(estado, zonaId);
+    const fe = factorEspera || 1;
 
     const viaje = elegirViaje(zona, rnd);
     const variacion = 1 + (rnd() * 2 - 1) * zona.variacion;
@@ -720,13 +803,14 @@
     // buscar + cola; lo que falte hasta el ciclo es espera por poca demanda.
     const medio = viajeMedio(zonaId, info.tarifa);
     const cola = (modoEspera === 'azar' && zona.colaMax ? zona.colaMin + rnd() * (zona.colaMax - zona.colaMin) : colaMedia(zona)) * m.cola;
-    const fija = zona.busquedaMin * m.busqueda + cola;
-    const extraMedio = Math.max(0, 60 / viajesHoraPorCoche - medio.minutos - (zona.busquedaMin * m.busqueda + colaMedia(zona) * m.cola));
-    const extra = modoEspera === 'azar' ? -Math.log(1 - rnd()) * extraMedio : extraMedio;
+    const busqueda = zona.busquedaMin * m.busqueda;
+    const fija = busqueda * fe + cola;
+    const extraMedio = Math.max(0, 60 / viajesHoraPorCoche - medio.minutos - (busqueda + colaMedia(zona) * m.cola));
+    const extra = (modoEspera === 'azar' ? -Math.log(1 - rnd()) * extraMedio : extraMedio) * fe;
     const espera = fija + extra;
 
     // Buscando cliente se gasta combustible; en la cola de una parada, no.
-    const enMarcha = zona.colaMin > 0 ? zona.busquedaMin * m.busqueda : espera - cola;
+    const enMarcha = zona.colaMin > 0 ? busqueda * fe : espera - cola;
     const kmVacio = Math.max(0, enMarcha) / 60 * c.conduccion.velocidadVacioKmH;
 
     const f = factorJornada(estado);
@@ -899,7 +983,8 @@
           x.turno.carrera = tramoEnVacio(estado, zonaId, x.licencia.vehiculo, finHora);
           return;
         }
-        const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar');
+        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera);
+        const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar', fe);
         // En una parada con cola (Barajas: 1–2 h) se guarda el turno aunque pase
         // de la hora; sin cola, la espera se corta en la hora (no tiene memoria).
         x.turno.carrera = carrera.finEspera > finHora && !cfg().zonas[zonaId].colaMin
@@ -982,7 +1067,11 @@
     const sujeto = esConductor ? quien.nombre : 'Tú';
 
     const m = modificadores(estado);
-    if (!m.sinImpagos && toca(estado, 'sinPagar', ev.sinPagar.probCarrera)) {
+    // Rasgos del conductor (todo 1 en tu turno), con sus topes.
+    const f = factoresConductor(estado, quien);
+    const baseProp = ev.propina.probCarrera;
+    const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina);
+    if (!m.sinImpagos && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar))) {
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
@@ -992,13 +1081,13 @@
     cobrar(estado, resumen, carrera.importe, 1);
     if (esConductor) gastar(estado, resumen, 'conductores', carrera.importe * cfg().conductores.porcentaje);
 
-    if (toca(estado, 'propina', ev.propina.probCarrera + m.propinaProb)) {
+    if (toca(estado, 'propina', probPropina)) {
       consumirForzado(estado, 'propina');
       const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax) * m.propinaImporte;
       incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras', quien);
     }
 
-    if (toca(estado, 'objeto', ev.objeto.probCarrera)) {
+    if (toca(estado, 'objeto', ev.objeto.probCarrera * topeConductor('objeto', f.objeto))) {
       const forzado = consumirForzado(estado, 'objeto');
       const objeto = forzado && forzado.arg ? ev.objeto.objetos[Number(forzado.arg) - 1] : elegirObjeto(estado);
       incidencia(estado, resumen, 'objeto',
@@ -1015,11 +1104,14 @@
         incidencia(estado, resumen, 'bolsa', 'Un cliente se marea, pero había bolsa: el coche queda limpio.', 0, null, quien);
         return;
       }
-      const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax);
-      pararUnRato(estado, quien, ev.vomito.horasParado * 60, 'vomito');
+      const limpieza = topeConductor('limpieza', f.limpieza);
+      const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax) * limpieza;
+      const minutos = ev.vomito.horasParado * 60 * limpieza;
+      pararUnRato(estado, quien, minutos, 'vomito');
       incidencia(estado, resumen, 'vomito',
         'Un cliente vomita en el taxi' + (esConductor ? ' de ' + sujeto : '') + ': limpieza de ' +
-        Libre.ui_euros(coste) + ' y una hora parado.', -coste, 'otros', quien);
+        Libre.ui_euros(coste) + ' y ' + (minutos === 60 ? 'una hora' : Math.round(minutos) + ' minutos') + ' parado.',
+        -coste, 'otros', quien);
     }
   }
 
@@ -1101,15 +1193,17 @@
         return;
       }
       if (!puedeTrabajar(estado, lic, t, ahora)) return;
-      if (azar(estado) < ev.baja.probTurno) {
+      const f = factoresConductor(estado, t);
+      if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja)) {
         const jornadas = enteroEntre(estado, ev.baja.jornadasMin, ev.baja.jornadasMax);
         t.baja = { hasta: jornada + jornadas };
         incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +
           (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null, t);
         return;
       }
-      if (azar(estado) < ev.pinchazo.probTurno) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
-      else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno) {
+      if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo)) {
+        t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
+      } else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia)) {
         t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
       }
     });
@@ -1289,10 +1383,22 @@
     Object.keys(grupos).forEach(function (zonaId) {
       const coches = grupos[zonaId];
       const r = rendimientoZona(estado, zonaId, coches.length, info);
-      const viajes = r.viajesHora * horas;
+      // Cada coche hace su parte de los viajes; si su conductor espera menos
+      // (rasgo, nivel, objetos), su ciclo es más corto y hace más.
+      const porCoche = r.viajesHora / coches.length;
+      const ciclo = porCoche > 0 ? 60 / porCoche : 0;
+      const viaje = viajeMedio(zonaId, info.tarifa).minutos;
+      const espera = Math.max(0, ciclo - viaje);
+      const pesos = coches.map(function (x) {
+        if (ciclo === 0) return 1;
+        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera);
+        return ciclo / (espera * fe + viaje);
+      });
+      const k = pesos.reduce(function (a, b) { return a + b; }, 0) / coches.length;
+      const viajes = r.viajesHora * horas * k;
       const ingresos = viajes * r.importe;
       if (viajes > 0) cobrar(estado, resumen, ingresos, viajes);
-      coches.forEach(function (x) { sumarFacturado(x.licencia, ingresos / coches.length); });
+      coches.forEach(function (x, i) { sumarFacturado(x.licencia, ingresos * pesos[i] / (k * coches.length)); });
 
       let costeKmMedio = 0;
       let conConductor = 0;
@@ -1300,8 +1406,8 @@
         costeKmMedio += costePorKm(estado, x.licencia.vehiculo) / coches.length;
         if (x.turno.quien === 'conductor') conConductor++;
       });
-      gastar(estado, resumen, 'combustible', r.kmHora * horas * costeKmMedio);
-      estado.caja.hoy.km += r.kmHora * horas;
+      gastar(estado, resumen, 'combustible', r.kmHora * horas * k * costeKmMedio);
+      estado.caja.hoy.km += r.kmHora * horas * k;
       if (conConductor > 0 && ingresos > 0) {
         gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * c.conductores.porcentaje);
       }
@@ -1493,6 +1599,12 @@
     puedeTrabajar,
     lloviendo,
     forzarEvento,
+    buscarRasgo,
+    sortearRasgos,
+    sortearCandidatos,
+    candidatos,
+    factoresConductor,
+    topeConductor,
     avanzar,
     progresoSinConexion
   };

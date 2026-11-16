@@ -779,6 +779,32 @@
     }
   };
 
+  /*
+   * Rasgos como etiquetas: la cualidad con «+» y el defecto con «−» (no se
+   * distinguen solo por el color). El título explica qué hacen.
+   */
+  function htmlRasgos(cualidad, defecto) {
+    const q = Libre.sim.buscarRasgo(cualidad), d = Libre.sim.buscarRasgo(defecto);
+    return (q ? '<span class="rasgo cualidad" title="' + esc(q.descripcion) + '">+ ' + esc(q.nombre) + '</span>' : '') +
+      (d ? '<span class="rasgo defecto" title="' + esc(d.descripcion) + '">− ' + esc(d.nombre) + '</span>' : '');
+  }
+
+  // Turno en el que estás eligiendo conductor ('licencia|turno') o null.
+  let eligiendoConductor = null;
+
+  /* Los candidatos para un turno vacío: retrato, nombre, rasgos y contratar. */
+  function htmlCandidatos(estado, lic, turno) {
+    const precio = Libre.config.conductores.costeContratacion;
+    return '<div class="candidatos">' + Libre.sim.candidatos(estado).map(function (x, i) {
+      const q = Libre.sim.buscarRasgo(x.cualidad), d = Libre.sim.buscarRasgo(x.defecto);
+      return '<div class="candidato"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
+        '<div class="candidato-datos"><strong>' + esc(x.nombre) + '</strong>' +
+        '<span class="rasgos">' + htmlRasgos(x.cualidad, x.defecto) + '</span>' +
+        '<small>' + esc(q.descripcion) + ' ' + esc(d.descripcion) + '</small></div>' +
+        boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], '', precio) + '</div>';
+    }).join('') + '</div>';
+  }
+
   function htmlTurno(estado, lic, turno) {
     const c = Libre.config;
     const t = lic.turnos[turno];
@@ -786,9 +812,12 @@
     if (!lic.vehiculo) {
       cuerpo = '<span class="ayuda">Necesita coche</span>';
     } else if (!t) {
-      cuerpo = boton('Contratar conductor · ' + euros(c.conductores.costeContratacion), 'contratarConductor',
-        [lic.id, turno], '', c.conductores.costeContratacion) +
-        (Libre.sim.conduce(estado) ? '' : boton('Conducir yo', 'conducir', [lic.id, turno]));
+      const clave = lic.id + '|' + turno;
+      const abierto = eligiendoConductor === clave;
+      cuerpo = '<button type="button" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '">' +
+        (abierto ? 'Cerrar candidatos' : 'Contratar conductor · ' + euros(c.conductores.costeContratacion)) + '</button>' +
+        (Libre.sim.conduce(estado) ? '' : boton('Conducir yo', 'conducir', [lic.id, turno])) +
+        (abierto ? htmlCandidatos(estado, lic, turno) : '');
     } else if (t.quien === 'jugador') {
       const otro = turno === 'dia' ? 'noche' : 'dia';
       cuerpo = '<span class="quien">Tú</span>' + selectorZona(estado, lic.id, turno, t.zona) +
@@ -800,6 +829,7 @@
       const deBaja = t.baja && jornada < t.baja.hasta;
       cuerpo = '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
         '<span class="quien">' + esc(t.nombre) + '</span>' +
+        '<span class="rasgos">' + htmlRasgos(t.cualidad, t.defecto) + '</span>' +
         // La zona la eligen ellos (al azar, o la mejor con el Curso gestión de zonas).
         '<span class="turno-zona">Trabaja en ' + esc(Libre.config.zonas[t.zona] ? Libre.config.zonas[t.zona].nombre : t.zona) + '</span>' +
         boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro') +
@@ -833,9 +863,10 @@
         ['dia', 'noche'].map(function (tn) {
           const t = l.turnos[tn];
           return t ? [t.quien, t.nombre, t.retrato, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
-            t.paradoHasta > estado.reloj.minutos] : null;
+            t.paradoHasta > estado.reloj.minutos, t.cualidad, t.defecto] : null;
         })];
-    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario]);
+    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, eligiendoConductor,
+    eligiendoConductor ? estado.candidatos : null]);
   }
 
   /*
@@ -1258,6 +1289,7 @@
     ultimoCierreVisto = null;
     ticketAviso = null;
     objetivoId = null;
+    eligiendoConductor = null;
     flotantes.porLicencia = null;
     flotantes.cola = [];
     modoAnterior = null;
@@ -1346,10 +1378,21 @@
         }
         return;
       }
+      const elegir = ev.target.closest('[data-elegir-conductor]');
+      if (elegir) {
+        const clave = elegir.dataset.elegirConductor;
+        eligiendoConductor = eligiendoConductor === clave ? null : clave;
+        opciones.redibujar();
+        return;
+      }
       const el = ev.target.closest('button[data-accion]');
       if (!el || el.disabled) return;
       const args = el.dataset.args ? el.dataset.args.split('|') : [];
       const resultado = ejecutar(el.dataset.accion, args);
+      if (resultado && resultado.ok && el.dataset.accion === 'contratarConductor') {
+        eligiendoConductor = null;
+        opciones.redibujar();
+      }
       if (resultado && resultado.ok) destelloTrasCompra(el.dataset.accion, args);
     });
 

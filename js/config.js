@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 11,
+    versionGuardado: 12,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -140,6 +140,74 @@
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,
       costeContratacion: 400,      // Equilibrio: pago único al contratar.
+      candidatos: 3,               // Equilibrio: entre cuántos eliges al contratar.
+
+      /*
+       * Rasgos (Equilibrio): cada conductor tiene una cualidad y un defecto,
+       * sorteados al crearse. Una cualidad nunca sale con su `opuesto`.
+       * efecto: factores sobre valores que ya existen en el juego:
+       *   espera       minutos buscando cliente o esperando por poca demanda
+       *                (no la cola de las paradas)
+       *   esperaDia    la espera, solo en el turno de día
+       *   esperaNoche  la espera, solo en el turno de noche
+       *   propina, sinPagar, objeto   probabilidades por carrera
+       *   baja, pinchazo, averia      probabilidades al empezar el turno
+       *   limpieza     coste de limpiar un vómito y tiempo parado
+       * Solo afectan a los conductores contratados, nunca a tu turno.
+       */
+      cualidades: [
+        { id: 'simpatico', nombre: 'Simpático', opuesto: 'antipatico', efecto: { propina: 1.3 },
+          descripcion: 'Cae bien a los clientes: un 30 % más de propinas.' },
+        { id: 'cuidadoso', nombre: 'Cuidadoso', opuesto: 'manazas', efecto: { pinchazo: 0.6, averia: 0.6 },
+          descripcion: 'Trata bien el coche: un 40 % menos de pinchazos y averías.' },
+        { id: 'conoceCiudad', nombre: 'Conoce la ciudad', opuesto: 'lento', efecto: { espera: 0.9 },
+          descripcion: 'Sabe dónde están los clientes: un 10 % menos de espera entre carreras.' },
+        { id: 'deHierro', nombre: 'De hierro', opuesto: 'enfermizo', efecto: { baja: 0.5 },
+          descripcion: 'Nunca se pone malo: la mitad de bajas.' },
+        { id: 'ojoAvizor', nombre: 'Ojo avizor', opuesto: 'despistado', efecto: { sinPagar: 0.5 },
+          descripcion: 'No se le escapa nadie: la mitad de clientes sin pagar.' },
+        { id: 'honrado', nombre: 'Honrado', opuesto: null, efecto: { objeto: 1.5 },
+          descripcion: 'Devuelve todo lo que se olvidan: un 50 % más de objetos devueltos.' },
+        { id: 'buho', nombre: 'Búho', opuesto: 'trasnochador', efecto: { esperaNoche: 0.88 },
+          descripcion: 'Rinde de noche: un 12 % menos de espera en el turno de noche.' },
+        { id: 'madrugador', nombre: 'Madrugador', opuesto: 'dormilon', efecto: { esperaDia: 0.88 },
+          descripcion: 'Rinde de día: un 12 % menos de espera en el turno de día.' }
+      ],
+      defectos: [
+        { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.7 },
+          descripcion: 'Seco con los clientes: un 30 % menos de propinas.' },
+        { id: 'manazas', nombre: 'Manazas', efecto: { pinchazo: 1.5, averia: 1.5 },
+          descripcion: 'Maltrata el coche: un 50 % más de pinchazos y averías.' },
+        { id: 'lento', nombre: 'Lento', efecto: { espera: 1.1 },
+          descripcion: 'Tarda en encontrar clientes: un 10 % más de espera entre carreras.' },
+        { id: 'enfermizo', nombre: 'Enfermizo', efecto: { baja: 1.6 },
+          descripcion: 'Siempre está pachucho: un 60 % más de bajas.' },
+        { id: 'despistado', nombre: 'Despistado', efecto: { sinPagar: 1.6 },
+          descripcion: 'Se le escapan: un 60 % más de clientes sin pagar.' },
+        { id: 'dormilon', nombre: 'Dormilón', efecto: { esperaDia: 1.12 },
+          descripcion: 'Le cuesta arrancar: un 12 % más de espera en el turno de día.' },
+        { id: 'trasnochador', nombre: 'Trasnochador flojo', efecto: { esperaNoche: 1.12 },
+          descripcion: 'De noche se apaga: un 12 % más de espera en el turno de noche.' }
+      ],
+
+      /*
+       * Topes (Equilibrio) del efecto combinado sobre cada valor, como factor
+       * respecto al valor sin conductor: [mínimo, máximo]. En la espera, el
+       * tope es para lo que suman rasgo, nivel y objetos (las mejoras de
+       * búsqueda ya bajan solas hasta ×0,35 en el ocio y se respetan). En las
+       * propinas incluye la mejora «Propinas». La Cámara de seguridad sigue
+       * dejando a cero los clientes sin pagar.
+       */
+      topes: {
+        espera: [0.6, 1.4],
+        propina: [0.5, 2.5],
+        sinPagar: [0.3, 2],
+        objeto: [0.3, 2],
+        baja: [0.3, 2],
+        pinchazo: [0.3, 2],
+        averia: [0.3, 2],
+        limpieza: [0.4, 1.5]
+      },
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).
        * Rasgos del retrato (js/retratos.js):

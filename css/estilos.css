@@ -913,6 +913,35 @@ button.zona-tarjeta { cursor: pointer; }
 .turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
 .turno-zona { font-size: 0.85rem; color: var(--suave); margin-right: 4px; }
 
+/* Rasgos: cualidad (+) y defecto (−) */
+.rasgos { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.rasgo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+  cursor: help;
+}
+.rasgo.cualidad { background: var(--verde-claro); color: var(--verde-texto); }
+.rasgo.defecto { background: var(--rojo-claro); color: var(--rojo-taxi); }
+
+/* Candidatos al contratar */
+.candidatos { flex-basis: 100%; display: grid; gap: 6px; margin-top: 4px; }
+.candidato {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+.candidato .retrato { width: 40px; height: 40px; grid-row: 1 / span 2; align-self: start; }
+.candidato-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.candidato-datos small { color: var(--suave); font-size: 0.75rem; line-height: 1.3; }
+.candidato button { grid-column: 2; justify-self: start; }
+
 /* Inventario de consumibles (en Flota) */
 .inventario {
   border: 1px solid var(--borde);

@@ -83,6 +83,15 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   descontando el porcentaje del conductor en cada carrera. Sin clientes, un
   «tramo en vacío» hasta la hora. Los coches que sobran esperan más y gastan
   en vacío (o esperan en la cola sin gastar si la zona tiene cola).
+- Rasgos de los conductores (`config.conductores.cualidades` y `defectos`):
+  una cualidad y un defecto por conductor, nunca opuestos, guardados en el
+  turno (`cualidad`, `defecto`). Al contratar eliges entre los candidatos de
+  `estado.candidatos` (personajes y cualidades distintos; se sortean otros
+  tras cada contrato). Solo modifican valores que ya existen: espera entre
+  carreras (no la cola de las paradas), probabilidades de propina, sin
+  pagar, objeto, baja, pinchazo y avería, y la limpieza de un vómito.
+  `factoresConductor()` los multiplica y `topeConductor()` los recorta a
+  `config.conductores.topes`. Tu turno no tiene rasgos.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

@@ -220,6 +220,8 @@ prueba('sin conexión solo avanza con el taxi automatizado y con tope', function
 prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function () {
   function flota() {
     const e = sim.crearEstadoInicial(0);
+    e.azar = 777;   // los mismos conductores (y rasgos) en las dos flotas
+    sim.sortearCandidatos(e);
     e.dinero = 1e6;
     e.ajustes.pararAlCierre = false;
     sim.dejarDeConducir(Object.assign(e, { mejoras: { oficina: true } }));
@@ -653,6 +655,93 @@ prueba('tarifa 3: 22 € hasta 9 km y después taxímetro; cola de 1 a 2 horas e
   assert.ok(sim.buscarCliente(e, azarFijo(0.1)).ok);
   const espera = e.jugador.carrera.finEspera - e.jugador.carrera.inicio;
   assert.ok(espera >= 60 && espera <= 120, 'espera en la cola: ' + espera);
+});
+
+// ------------------------------------------------------ Conductores
+
+prueba('rasgos: una cualidad y un defecto, nunca opuestos', function () {
+  const e = sim.crearEstadoInicial(0);
+  const c = config.conductores;
+  for (let i = 0; i < 300; i++) {
+    const r = sim.sortearRasgos(e);
+    const cualidad = c.cualidades.find(function (x) { return x.id === r.cualidad; });
+    assert.ok(cualidad, 'cualidad válida');
+    assert.ok(c.defectos.some(function (x) { return x.id === r.defecto; }), 'defecto válido');
+    assert.notStrictEqual(r.defecto, cualidad.opuesto, r.cualidad + ' con ' + r.defecto);
+  }
+});
+
+prueba('al contratar eliges entre tres candidatos distintos, al mismo precio', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 5000;
+  const lista = sim.candidatos(e);
+  assert.strictEqual(lista.length, config.conductores.candidatos);
+  assert.strictEqual(new Set(lista.map(function (x) { return x.retrato; })).size, lista.length, 'personajes distintos');
+  assert.strictEqual(new Set(lista.map(function (x) { return x.cualidad; })).size, lista.length, 'cualidades distintas');
+  const elegido = lista[2];
+  const antes = e.dinero;
+  assert.ok(sim.contratarConductor(e, 1, 'noche', 2).ok);
+  assert.strictEqual(antes - e.dinero, config.conductores.costeContratacion);
+  const t = e.licencias[0].turnos.noche;
+  assert.strictEqual(t.retrato, elegido.retrato);
+  assert.strictEqual(t.cualidad, elegido.cualidad);
+  assert.strictEqual(t.defecto, elegido.defecto);
+  assert.notStrictEqual(e.candidatos[0], lista[0], 'después salen otros candidatos');
+});
+
+prueba('los rasgos cambian los valores, con tope', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  t.cualidad = 'simpatico'; t.defecto = 'manazas';
+  let f = sim.factoresConductor(e, t);
+  cerca(f.propina, 1.3); cerca(f.pinchazo, 1.5); cerca(f.averia, 1.5); cerca(f.espera, 1);
+  t.cualidad = 'buho'; t.defecto = 'dormilon';
+  e.reloj.minutos = 23 * 60;
+  cerca(sim.factoresConductor(e, t).espera, 0.88, 1e-9);
+  e.reloj.minutos = 12 * 60;
+  cerca(sim.factoresConductor(e, t).espera, 1.12, 1e-9);
+  assert.strictEqual(sim.factoresConductor(e, e.licencias[0].turnos.dia).propina, 1, 'tú no tienes rasgos');
+  const tope = config.conductores.topes.espera;
+  assert.strictEqual(sim.topeConductor('espera', 0.01), tope[0]);
+  assert.strictEqual(sim.topeConductor('espera', 50), tope[1]);
+});
+
+prueba('un conductor Lento hace menos carreras que uno que Conoce la ciudad', function () {
+  function carreras(cualidad, defecto) {
+    const e = flotaDe(1);
+    e.azar = 4242;
+    const t = e.licencias[0].turnos.dia;
+    sim.dejarDeConducir(e);
+    e.mejoras.oficina = 1;
+    sim.dejarDeConducir(e);
+    sim.contratarConductor(e, 1, 'dia');
+    ['dia', 'noche'].forEach(function (n) {
+      e.licencias[0].turnos[n].cualidad = cualidad;
+      e.licencias[0].turnos[n].defecto = defecto;
+    });
+    for (let i = 0; i < 20 * DIA() * 10; i++) sim.avanzar(e, 0.1);
+    return e.totales.carreras;
+  }
+  const rapido = carreras('conoceCiudad', 'antipatico'), lento = carreras('honrado', 'lento');
+  assert.ok(rapido > lento * 1.05, rapido + ' frente a ' + lento);
+});
+
+prueba('las partidas de la versión 11 dan rasgos a sus conductores', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(2);
+  viejo.version = 11;
+  delete viejo.candidatos;
+  viejo.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) { if (l.turnos[t]) { delete l.turnos[t].cualidad; delete l.turnos[t].defecto; } });
+  });
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  migrado.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) {
+      const x = l.turnos[t];
+      if (x && x.quien === 'conductor') assert.ok(sim.buscarRasgo(x.cualidad) && sim.buscarRasgo(x.defecto));
+    });
+  });
+  assert.strictEqual(migrado.candidatos.length, config.conductores.candidatos);
 });
 
 console.log(pasadas + ' pruebas correctas');
