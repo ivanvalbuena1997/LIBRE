@@ -74,8 +74,10 @@ prueba('una carrera a mano cobra al terminar', function () {
   const carrera = e.jugador.carrera;
   sim.avanzar(e, segundosDe(e, carrera.fin - carrera.inicio + 1));
   assert.strictEqual(e.jugador.carrera, null);
-  cerca(e.dinero, antes + carrera.importe - carrera.combustible);
-  assert.strictEqual(e.caja.hoy.carreras, 1);
+  // Puede salir un evento (propina, objeto…): va aparte, en extras y otros.
+  const cobrado = e.caja.hoy.incidencias.sinPagar ? 0 : carrera.importe;
+  cerca(e.dinero, antes + cobrado - carrera.combustible + e.caja.hoy.extras - e.caja.hoy.otros);
+  assert.strictEqual(e.caja.hoy.carreras, cobrado ? 1 : 0);
 });
 
 prueba('el taxímetro sube en vivo del inicio de servicio al importe final', function () {
@@ -229,10 +231,18 @@ prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function 
     });
     return e;
   }
+  // Mide el modelo de carreras: sin eventos (una avería mueve mucho 30 días)
+  // y con la semilla fija.
+  const eventos = JSON.parse(JSON.stringify(config.eventos));
+  Object.keys(config.eventos).forEach(function (k) {
+    ['probCarrera', 'probTurno', 'probJornada'].forEach(function (p) { if (p in config.eventos[k]) config.eventos[k][p] = 0; });
+  });
   const fuera = flota(), jugando = flota();
+  jugando.azar = 20261116;
   const inicio = fuera.dinero;
   const r = sim.avanzar(fuera, 30 * DIA(), { sinPausa: true, agregado: true });
   for (let i = 0; i < 300 * DIA(); i++) sim.avanzar(jugando, 0.1);
+  config.eventos = eventos;
   const a = fuera.dinero - inicio, b = jugando.dinero - inicio;
   assert.ok(r.carreras > 0);
   assert.ok(Math.abs(b / a - 1) < 0.05, 'jugando ' + b.toFixed(0) + ' frente a sin conexión ' + a.toFixed(0));
