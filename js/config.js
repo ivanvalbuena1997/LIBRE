@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 12,
+    versionGuardado: 13,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -189,6 +189,20 @@
         { id: 'trasnochador', nombre: 'Trasnochador flojo', efecto: { esperaNoche: 1.12 },
           descripcion: 'De noche se apaga: un 12 % más de espera en el turno de noche.' }
       ],
+
+      /*
+       * Experiencia y niveles (Equilibrio). Cada carrera terminada da
+       * `porCarrera` puntos al conductor que la hace (un conductor hace unas
+       * 25–30 carreras por jornada). `experiencia[n - 1]` es la experiencia
+       * total para tener el nivel n: el 5 llega hacia la quinta jornada y el
+       * 10 hacia la 35. Cada nivel por encima del 1 quita `esperaPorNivel` de
+       * la espera entre carreras (acumulable, con el tope de la espera).
+       */
+      niveles: {
+        porCarrera: 1,
+        experiencia: [0, 20, 48, 87, 142, 219, 326, 477, 688, 983],
+        esperaPorNivel: 0.025
+      },
 
       /*
        * Topes (Equilibrio) del efecto combinado sobre cada valor, como factor

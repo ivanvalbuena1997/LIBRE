@@ -789,6 +789,16 @@
       (d ? '<span class="rasgo defecto" title="' + esc(d.descripcion) + '">− ' + esc(d.nombre) + '</span>' : '');
   }
 
+  /* Insignia de nivel con la barra de experiencia hasta el siguiente. */
+  function htmlNivel(t) {
+    const p = Libre.sim.progresoConductor(t);
+    const texto = p.hasta === null ? 'nivel máximo' : Math.floor(p.xp) + ' de ' + p.hasta + ' de experiencia';
+    return '<span class="nivel" title="Nivel ' + p.nivel + ': ' + texto + '">' +
+      '<span class="nivel-insignia">' + p.nivel + '</span>' +
+      '<span class="nivel-barra" role="progressbar" aria-label="Experiencia: ' + texto + '" aria-valuemin="0" aria-valuemax="100" ' +
+      'aria-valuenow="' + Math.round(p.avance * 100) + '"><span style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span></span>';
+  }
+
   // Turno en el que estás eligiendo conductor ('licencia|turno') o null.
   let eligiendoConductor = null;
 
@@ -828,7 +838,7 @@
       const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
       const deBaja = t.baja && jornada < t.baja.hasta;
       cuerpo = '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
-        '<span class="quien">' + esc(t.nombre) + '</span>' +
+        '<span class="quien">' + esc(t.nombre) + '</span>' + htmlNivel(t) +
         '<span class="rasgos">' + htmlRasgos(t.cualidad, t.defecto) + '</span>' +
         // La zona la eligen ellos (al azar, o la mejor con el Curso gestión de zonas).
         '<span class="turno-zona">Trabaja en ' + esc(Libre.config.zonas[t.zona] ? Libre.config.zonas[t.zona].nombre : t.zona) + '</span>' +
@@ -863,7 +873,8 @@
         ['dia', 'noche'].map(function (tn) {
           const t = l.turnos[tn];
           return t ? [t.quien, t.nombre, t.retrato, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
-            t.paradoHasta > estado.reloj.minutos, t.cualidad, t.defecto] : null;
+            t.paradoHasta > estado.reloj.minutos, t.cualidad, t.defecto,
+            t.quien === 'conductor' ? Math.floor(t.xp || 0) : 0] : null;
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null]);

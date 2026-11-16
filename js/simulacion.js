@@ -572,7 +572,9 @@
     estado.conductoresContratados++;
     lic.turnos[turno] = {
       quien: 'conductor', nombre, retrato: candidato.retrato, zona: otro ? otro.zona : c.zonaInicial,
-      cualidad: candidato.cualidad, defecto: candidato.defecto
+      cualidad: candidato.cualidad, defecto: candidato.defecto,
+      // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
+      xp: 0, carreras: 0, facturado: 0
     };
     sortearCandidatos(estado);
 
@@ -640,11 +642,71 @@
     return estado.candidatos && estado.candidatos.length ? estado.candidatos : sortearCandidatos(estado);
   }
 
+  // ------------------------------------------------ Experiencia y niveles
+
+  /* Nivel de un conductor (1 a 10) según su experiencia. */
+  function nivelConductor(t) {
+    const umbrales = cfg().conductores.niveles.experiencia;
+    const xp = (t && t.xp) || 0;
+    let nivel = 0;
+    while (nivel < umbrales.length && xp >= umbrales[nivel]) nivel++;
+    return Math.max(1, nivel);
+  }
+
+  /*
+   * Lo que lleva de su nivel: { nivel, xp, desde, hasta, avance 0–1 }
+   * (hasta = null en el nivel máximo). Para la interfaz.
+   */
+  function progresoConductor(t) {
+    const umbrales = cfg().conductores.niveles.experiencia;
+    const nivel = nivelConductor(t);
+    const xp = (t && t.xp) || 0;
+    const desde = umbrales[nivel - 1];
+    const hasta = nivel < umbrales.length ? umbrales[nivel] : null;
+    return { nivel, xp, desde, hasta, avance: hasta === null ? 1 : (xp - desde) / (hasta - desde) };
+  }
+
+  /*
+   * Suma experiencia y, si sube de nivel, lo avisa con su retrato (salvo
+   * sinAviso: sin conexión no hay avisos nuevos).
+   */
+  function ganarExperiencia(estado, resumen, t, puntos, sinAviso) {
+    if (!t || t.quien !== 'conductor' || !(puntos > 0)) return;
+    const antes = nivelConductor(t);
+    t.xp = (t.xp || 0) + puntos;
+    const despues = nivelConductor(t);
+    if (despues > antes && !sinAviso) {
+      resumen.eventos.push({
+        tipo: 'nivel', conductor: t.nombre, retrato: t.retrato, nivel: despues,
+        texto: t.nombre + ' sube a nivel ' + despues + ': espera menos entre carreras.'
+      });
+    }
+  }
+
+  /*
+   * Para probar desde la consola: da experiencia al conductor que se llama
+   * `nombre` (el primero que encuentre). Devuelve los avisos de nivel.
+   */
+  function darExperiencia(estado, nombre, puntos) {
+    let turno = null;
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (t) {
+        const x = l.turnos[t];
+        if (!turno && x && x.quien === 'conductor' && x.nombre.toLowerCase() === String(nombre).toLowerCase()) turno = x;
+      });
+    });
+    if (!turno) return { ok: false, mensaje: 'No tienes ningún conductor que se llame ' + nombre + '.', eventos: [] };
+    const resumen = resumenVacio();
+    ganarExperiencia(estado, resumen, turno, Number(puntos) || 0);
+    return { ok: true, mensaje: turno.nombre + ': nivel ' + nivelConductor(turno) + ' (' + Math.floor(turno.xp) + ' de experiencia).',
+      eventos: resumen.eventos };
+  }
+
   const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza'];
 
   /*
    * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
-   * su cualidad y su defecto. Lo que depende del turno (esperaDia,
+   * su cualidad, su defecto y su nivel. Lo que depende del turno (esperaDia,
    * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
    * trabaja. Para tu turno, todo 1. Sin tope: lo pone topeConductor().
    */
@@ -661,6 +723,8 @@
       });
     }
     [t.cualidad, t.defecto].forEach(function (id) { const r = buscarRasgo(id); if (r) aplicar(r.efecto); });
+    // Cada nivel por encima del 1 espera un poco menos.
+    f.espera *= 1 - cfg().conductores.niveles.esperaPorNivel * (nivelConductor(t) - 1);
     return f;
   }
 
@@ -1015,8 +1079,11 @@
     if (carrera.vacio) return;
     const antes = estado.totales.ingresos;
     eventosDeCarrera(estado, resumen, carrera, turno);
-    sumarFacturado(estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }),
-      estado.totales.ingresos - antes);
+    const cobrado = estado.totales.ingresos - antes;
+    sumarFacturado(estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }), cobrado);
+    turno.carreras = (turno.carreras || 0) + 1;
+    turno.facturado = (turno.facturado || 0) + cobrado;
+    ganarExperiencia(estado, resumen, turno, cfg().conductores.niveles.porCarrera);
   }
 
   // ------------------------------------------------------------- Eventos
@@ -1398,7 +1465,14 @@
       const viajes = r.viajesHora * horas * k;
       const ingresos = viajes * r.importe;
       if (viajes > 0) cobrar(estado, resumen, ingresos, viajes);
-      coches.forEach(function (x, i) { sumarFacturado(x.licencia, ingresos * pesos[i] / (k * coches.length)); });
+      coches.forEach(function (x, i) {
+        const parte = pesos[i] / (k * coches.length);
+        sumarFacturado(x.licencia, ingresos * parte);
+        if (x.turno.quien !== 'conductor') return;
+        x.turno.carreras = (x.turno.carreras || 0) + viajes * parte;
+        x.turno.facturado = (x.turno.facturado || 0) + ingresos * parte;
+        ganarExperiencia(estado, resumen, x.turno, viajes * parte * c.conductores.niveles.porCarrera, true);
+      });
 
       let costeKmMedio = 0;
       let conConductor = 0;
@@ -1604,6 +1678,9 @@
     sortearCandidatos,
     candidatos,
     factoresConductor,
+    nivelConductor,
+    progresoConductor,
+    darExperiencia,
     topeConductor,
     avanzar,
     progresoSinConexion

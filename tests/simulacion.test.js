@@ -729,7 +729,7 @@ prueba('un conductor Lento hace menos carreras que uno que Conoce la ciudad', fu
 prueba('las partidas de la versión 11 dan rasgos a sus conductores', function () {
   require('../js/guardado.js');
   const viejo = flotaDe(2);
-  viejo.version = 11;
+  viejo.version = 11;  // y la 12 le pone la experiencia
   delete viejo.candidatos;
   viejo.licencias.forEach(function (l) {
     ['dia', 'noche'].forEach(function (t) { if (l.turnos[t]) { delete l.turnos[t].cualidad; delete l.turnos[t].defecto; } });
@@ -742,6 +742,62 @@ prueba('las partidas de la versión 11 dan rasgos a sus conductores', function (
     });
   });
   assert.strictEqual(migrado.candidatos.length, config.conductores.candidatos);
+});
+
+prueba('cada carrera da experiencia; el nivel sube con la curva y acorta la espera', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  t.cualidad = 'honrado'; t.defecto = 'antipatico';
+  const umbrales = config.conductores.niveles.experiencia;
+  assert.strictEqual(sim.nivelConductor(t), 1);
+  t.xp = umbrales[4];
+  assert.strictEqual(sim.nivelConductor(t), 5);
+  t.xp = umbrales[4] - 0.5;
+  assert.strictEqual(sim.nivelConductor(t), 4);
+  t.xp = 1e6;
+  assert.strictEqual(sim.nivelConductor(t), umbrales.length);
+  t.xp = umbrales[4];
+  cerca(sim.factoresConductor(e, t).espera, 1 - 4 * config.conductores.niveles.esperaPorNivel, 1e-9);
+  // Jugando: la experiencia es igual a las carreras que hace.
+  t.xp = 0; t.carreras = 0;
+  for (let i = 0; i < 2 * DIA() * 10; i++) sim.avanzar(e, 0.1);
+  assert.ok(t.carreras > 10, 'hace carreras: ' + t.carreras);
+  cerca(t.xp, t.carreras * config.conductores.niveles.porCarrera, 1e-9);
+  assert.ok(t.facturado > 0);
+});
+
+prueba('subir de nivel avisa; darExperiencia lo prueba desde la consola', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  const r = sim.darExperiencia(e, t.nombre, config.conductores.niveles.experiencia[3]);
+  assert.ok(r.ok);
+  assert.strictEqual(sim.nivelConductor(t), 4);
+  assert.strictEqual(r.eventos.length, 1);
+  assert.strictEqual(r.eventos[0].tipo, 'nivel');
+  assert.strictEqual(r.eventos[0].retrato, t.retrato);
+  assert.ok(!sim.darExperiencia(e, 'Nadie', 10).ok);
+});
+
+prueba('sin conexión la experiencia se cuenta agrupada', function () {
+  const e = flotaDe(2);
+  const r = sim.avanzar(e, 2 * DIA(), { sinPausa: true, agregado: true });
+  let xp = 0;
+  e.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) { const x = l.turnos[t]; if (x && x.quien === 'conductor') xp += x.xp; });
+  });
+  cerca(xp, r.carreras * config.conductores.niveles.porCarrera, 1e-6);
+});
+
+prueba('las partidas de la versión 12 empiezan en nivel 1', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(1);
+  viejo.version = 12;
+  const t = viejo.licencias[0].turnos.noche;
+  delete t.xp; delete t.carreras; delete t.facturado;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  const x = migrado.licencias[0].turnos.noche;
+  assert.strictEqual(x.xp, 0);
+  assert.strictEqual(sim.nivelConductor(x), 1);
 });
 
 console.log(pasadas + ' pruebas correctas');

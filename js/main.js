@@ -69,6 +69,19 @@
    *   Libre.forzarEvento('objeto', 10)    lluvia, pinchazo, baja, averia
    *   Libre.forzarEvento('lluvia', 2)     (horas de lluvia; bajas: jornadas)
    */
+  /*
+   * Para probar los niveles desde la consola:
+   *   Libre.darExperiencia('Laura', 100)
+   */
+  Libre.darExperiencia = function (nombre, puntos) {
+    const r = sim.darExperiencia(estado, nombre, puntos);
+    if (r.eventos.length > 0) ui.mostrarEventos(r.eventos);
+    else if (r.mensaje) ui.mostrarMensaje(r.mensaje);
+    guardar();
+    ui.dibujar(estado);
+    return r.mensaje;
+  };
+
   Libre.forzarEvento = function (tipo, arg) {
     const r = sim.forzarEvento(estado, tipo, arg);
     if (r.eventos.length > 0) ui.mostrarEventos(r.eventos);

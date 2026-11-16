@@ -92,6 +92,13 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   pagar, objeto, baja, pinchazo y avería, y la limpieza de un vómito.
   `factoresConductor()` los multiplica y `topeConductor()` los recorta a
   `config.conductores.topes`. Tu turno no tiene rasgos.
+- Experiencia (`turno.xp`): cada carrera terminada de un conductor da
+  `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
+  tabla `niveles.experiencia` (10 niveles) y cada nivel acorta la espera.
+  También se guardan `carreras` y `facturado` desde que lo contrataste.
+  Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket);
+  sin conexión la experiencia se suma agrupada y sin aviso. Para probar:
+  `Libre.darExperiencia('Laura', 100)` en la consola.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

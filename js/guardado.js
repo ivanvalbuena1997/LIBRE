@@ -114,6 +114,19 @@
         });
       });
       Libre.sim.sortearCandidatos(estado);
+    },
+    // Versión 13: experiencia. Los conductores ya contratados empiezan en
+    // nivel 1, con sus contadores de carreras y facturado a cero.
+    12: function (estado) {
+      estado.licencias.forEach(function (l) {
+        ['dia', 'noche'].forEach(function (t) {
+          const x = l.turnos[t];
+          if (!x || x.quien !== 'conductor') return;
+          x.xp = x.xp || 0;
+          x.carreras = x.carreras || 0;
+          x.facturado = x.facturado || 0;
+        });
+      });
     }
   };
 
