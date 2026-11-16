@@ -452,4 +452,75 @@ prueba('sin conexión no hay eventos nuevos, pero la avería sigue contando jorn
   assert.ok(sim.puedeTrabajar(e, averiada, averiada.turnos.noche, e.reloj.minutos));
 });
 
+// --------------------------------------------------------- Mejoras nuevas
+
+prueba('las mejoras por niveles se compran de una en una hasta el máximo', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e6;
+  for (let n = 1; n <= 5; n++) {
+    assert.ok(sim.comprarMejora(e, 'propinas').ok);
+    assert.strictEqual(sim.nivelMejora(e, 'propinas'), n);
+  }
+  assert.ok(!sim.comprarMejora(e, 'propinas').ok, 'no hay nivel 6');
+  cerca(sim.modificadores(e).propinaProb, 0.15);
+  cerca(sim.modificadores(e).propinaImporte, 1.8);
+});
+
+prueba('con cámara nadie se va sin pagar', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;
+  sim.comprarMejora(e, 'camara');
+  sim.forzarEvento(e, 'sinPagar');
+  const antes = e.totales.carreras;
+  for (let i = 0; i < 400 && e.totales.carreras === antes; i++) sim.avanzar(e, 0.1);
+  assert.ok(!e.caja.hoy.incidencias.sinPagar);
+});
+
+prueba('la rueda de repuesto se gasta en un pinchazo y se puede volver a comprar', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;
+  assert.ok(sim.comprarRueda(e, 1).ok);
+  assert.ok(!sim.comprarRueda(e, 1).ok, 'ya la lleva');
+  sim.forzarEvento(e, 'pinchazo');
+  assert.ok(!e.licencias[0].ruedaRepuesto, 'se ha gastado');
+  assert.strictEqual(e.caja.hoy.incidencias.pinchazo.importe, 0, 'sin coste');
+  assert.ok(!(e.licencias[0].turnos.noche.paradoHasta > e.reloj.minutos), 'sigue trabajando');
+  assert.ok(sim.comprarRueda(e, 1).ok);
+});
+
+prueba('el mecánico propio acorta y abarata las averías', function () {
+  function averia(nivelMecanico) {
+    const e = flotaDe(3);
+    e.reloj.minutos = 22 * 60;
+    e.azar = 12345;
+    for (let i = 0; i < nivelMecanico; i++) sim.comprarMejora(e, 'mecanico');
+    sim.forzarEvento(e, 'averia');
+    const lic = e.licencias.find(function (l) { return l.averia; });
+    return { dias: lic.averia.hasta - sim.jornadaDe(e.reloj.minutos), coste: e.caja.hoy.otros };
+  }
+  const sin = averia(0), con = averia(5);
+  assert.ok(con.dias < sin.dias);
+  cerca(con.coste, sin.coste * 0.4, 0.01);
+});
+
+prueba('sacudir esterillas da monedas a cada conductor al acabar su turno', function () {
+  const e = flotaDe(2);
+  sim.comprarMejora(e, 'esterillas');
+  e.reloj.minutos = 18 * 60 + 50;                 // justo antes de las 19:00
+  sim.avanzar(e, DIA() / 24 / 3);                 // cruza el fin del turno de día
+  const a = e.caja.hoy.incidencias.esterillas;
+  // De día, en la licencia 1 conduces tú: solo cuenta el conductor de la 2.
+  assert.strictEqual(a.veces, 1);
+  assert.ok(a.importe >= 0.5 && a.importe <= 2);
+});
+
+prueba('las partidas de la versión 7 pasan sus mejoras a nivel 1', function () {
+  const viejo = sim.crearEstadoInicial(0);
+  viejo.mejoras = { callejero: true, aeropuerto: true };
+  viejo.version = 7;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  assert.strictEqual(migrado.mejoras.callejero, 1);
+  assert.ok(sim.zonaDesbloqueada(migrado, 'aeropuerto'));
+});
+
 console.log(pasadas + ' pruebas correctas');

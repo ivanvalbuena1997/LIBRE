@@ -90,6 +90,11 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
   Sin mejoras, su efecto neto debe quedar cerca de cero (medido con un bot).
   Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
+- Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
+  la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
+  efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven. Las
+  `porVehiculo` (rueda de repuesto) se compran coche a coche y se gastan
+  (`licencia.ruedaRepuesto`).
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
   entre un 1 % y un 2 % más que jugando.

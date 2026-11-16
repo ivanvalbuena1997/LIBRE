@@ -259,8 +259,13 @@
       });
     });
     c.mejoras.forEach(function (m) {
-      if (estado.mejoras[m.id] || (m.requiere && !estado.mejoras[m.requiere])) return;
-      lista.push({ id: 'mejora-' + m.id, nombre: m.nombre, precio: m.precio, selector: '[data-mejora="' + m.id + '"]' });
+      const siguiente = Libre.sim.siguienteNivel(estado, m.id);
+      if (!siguiente || (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere))) return;
+      lista.push({
+        id: 'mejora-' + m.id + '-' + siguiente.nivel,
+        nombre: m.nombre + (m.niveles ? ' ' + siguiente.nivel : ''),
+        precio: siguiente.precio, selector: '[data-mejora="' + m.id + '"]'
+      });
     });
     if (estado.licencias.length < c.licencias.maximo) {
       lista.push({
@@ -433,6 +438,7 @@
   function mostrarEventos(eventos) {
     eventos.forEach(function (ev) {
       if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
+      if (ev.tipo === 'esterillas') return;
       if (colaAvisos.length < 3) colaAvisos.push(ev.texto);
     });
     soltarAviso();
@@ -672,7 +678,10 @@
 
   const seccionMejoras = {
     id: 'sec-mejoras',
-    firma: function (estado) { return JSON.stringify(estado.mejoras); },
+    firma: function (estado) {
+      // La rueda de repuesto depende de qué coches la llevan.
+      return JSON.stringify([estado.mejoras, estado.licencias.map(function (l) { return [l.id, l.vehiculo, !!l.ruedaRepuesto]; })]);
+    },
     html: function (estado) {
       const c = Libre.config;
       const nombreDe = function (id) {
@@ -680,14 +689,32 @@
         return m ? m.nombre : id;
       };
       return '<h2>Mejoras</h2>' + c.mejoras.map(function (m) {
-        const tenida = !!estado.mejoras[m.id];
-        const bloqueada = m.requiere && !estado.mejoras[m.requiere];
+        const nivel = Libre.sim.nivelMejora(estado, m.id);
+        const siguiente = Libre.sim.siguienteNivel(estado, m.id);
+        const bloqueada = m.requiere && !Libre.sim.nivelMejora(estado, m.requiere);
+        let titulo = esc(m.nombre);
+        if (m.niveles) titulo += ' <span class="chip chip-gris">Nivel ' + nivel + '/' + m.niveles.length + '</span>';
         let pie;
-        if (tenida) pie = '';
-        else if (bloqueada) pie = '<p>Antes necesitas «' + esc(nombreDe(m.requiere)) + '».</p>';
-        else pie = botonCompra('Comprar', m.precio, 'comprarMejora', [m.id]);
-        return '<div class="mejora' + (tenida ? ' comprada' : '') + '" data-mejora="' + m.id + '">' +
-          '<div class="mejora-titulo">' + esc(m.nombre) + '</div>' +
+        let completa = false;
+        if (m.porVehiculo) {
+          // Rueda de repuesto: un botón por cada coche que no la lleve.
+          const coches = estado.licencias.filter(function (l) { return l.vehiculo; });
+          const sin = coches.filter(function (l) { return !l.ruedaRepuesto; });
+          pie = '<p>Llevan rueda ' + (coches.length - sin.length) + ' de ' + coches.length + ' coches.</p>' +
+            sin.map(function (l) {
+              return botonCompra('Para el taxi ' + esc(Libre.sim.textoLicencia(l)), m.precio, 'comprarRueda', [l.id]);
+            }).join('');
+        } else if (!siguiente) {
+          completa = true;
+          pie = '';
+        } else if (bloqueada) {
+          pie = '<p>Antes necesitas «' + esc(nombreDe(m.requiere)) + '».</p>';
+        } else {
+          pie = (m.niveles ? '<p>Nivel ' + siguiente.nivel + ': ' + esc(siguiente.descripcion) + '</p>' : '') +
+            botonCompra(m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar', siguiente.precio, 'comprarMejora', [m.id]);
+        }
+        return '<div class="mejora' + (completa ? ' comprada' : '') + '" data-mejora="' + m.id + '">' +
+          '<div class="mejora-titulo">' + titulo + '</div>' +
           '<p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
       }).join('');
     }
@@ -841,6 +868,8 @@
       destellar(document.querySelector('[data-licencia="' + args[0] + '"]'));
     } else if (accion === 'comprarMejora') {
       destellar(document.querySelector('[data-mejora="' + args[0] + '"]'));
+    } else if (accion === 'comprarRueda') {
+      destellar(document.querySelector('[data-mejora="rueda"]'));
     }
   }
 

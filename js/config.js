@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 7,
+    versionGuardado: 8,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -84,7 +84,9 @@
         costeMin: 150, costeMax: 400,
         cochesMinimos: 2           // con menos coches no hay averías
       },
-      lluvia: { nombre: 'Lluvia', probJornada: 0.2, horasMin: 1, horasMax: 3, factorDemanda: 2 }
+      lluvia: { nombre: 'Lluvia', probJornada: 0.2, horasMin: 1, horasMax: 3, factorDemanda: 2 },
+      // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.
+      esterillas: { nombre: 'Monedas de las esterillas' }
     },
 
     sinConexion: {
@@ -278,6 +280,14 @@
      *             cuotaEmisora: activa el coste diario de la emisora
      *             dejarVolante: permite dejar de conducir y solo gestionar
      *             seguro: multiplica el seguro diario de cada coche
+     *             propinaProb: suma a la probabilidad de propina
+     *             propinaImporte: multiplica el importe de la propina
+     *             sinImpagos: nadie se va sin pagar
+     *             averiaDias / averiaCoste: multiplican días y coste de una avería
+     *             monedasMin / monedasMax: € que encuentra cada conductor al acabar su turno
+     *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
+     *             (el efecto del nivel es el total, no se suma al anterior).
+     *   porVehiculo  se compra para cada coche y se gasta (rueda de repuesto).
      * Precios y efectos: Equilibrio.
      */
     mejoras: [
@@ -366,6 +376,49 @@
         id: 'app', nombre: 'App de pedidos', precio: 12000, requiere: 'emisora',
         descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
         efecto: { busqueda: 0.7 }
+      },
+      {
+        id: 'esterillas', nombre: 'Sacudir esterillas',
+        descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
+        niveles: [
+          { precio: 500, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },
+          { precio: 1500, descripcion: 'De 1 a 3 € por turno.', efecto: { monedasMin: 1, monedasMax: 3 } },
+          { precio: 3500, descripcion: 'De 1,50 a 4,50 € por turno.', efecto: { monedasMin: 1.5, monedasMax: 4.5 } },
+          { precio: 7000, descripcion: 'De 2 a 6 € por turno.', efecto: { monedasMin: 2, monedasMax: 6 } },
+          { precio: 12000, descripcion: 'De 3 a 8 € por turno.', efecto: { monedasMin: 3, monedasMax: 8 } }
+        ]
+      },
+      {
+        id: 'rueda', nombre: 'Rueda de repuesto', precio: 80, porVehiculo: true,
+        descripcion: 'Para un coche y de un solo uso: si pincha, se cambia la rueda y se sigue trabajando sin coste.',
+        efecto: {}
+      },
+      {
+        id: 'propinas', nombre: 'Propinas',
+        descripcion: 'Trato de primera: más clientes dejan propina y dejan más.',
+        niveles: [
+          { precio: 1500, descripcion: '+3 puntos de probabilidad y propinas un 15 % mayores.', efecto: { propinaProb: 0.03, propinaImporte: 1.15 } },
+          { precio: 3500, descripcion: '+6 puntos y un 30 % mayores.', efecto: { propinaProb: 0.06, propinaImporte: 1.3 } },
+          { precio: 7000, descripcion: '+9 puntos y un 45 % mayores.', efecto: { propinaProb: 0.09, propinaImporte: 1.45 } },
+          { precio: 12000, descripcion: '+12 puntos y un 60 % mayores.', efecto: { propinaProb: 0.12, propinaImporte: 1.6 } },
+          { precio: 20000, descripcion: '+15 puntos y un 80 % mayores.', efecto: { propinaProb: 0.15, propinaImporte: 1.8 } }
+        ]
+      },
+      {
+        id: 'mecanico', nombre: 'Mecánico propio',
+        descripcion: 'Un mecánico de confianza: las averías duran menos y cuestan menos.',
+        niveles: [
+          { precio: 3000, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },
+          { precio: 6000, descripcion: 'Un 30 % más cortas y baratas.', efecto: { averiaDias: 0.7, averiaCoste: 0.7 } },
+          { precio: 10000, descripcion: 'Un 45 % más cortas y un 40 % más baratas.', efecto: { averiaDias: 0.55, averiaCoste: 0.6 } },
+          { precio: 16000, descripcion: 'Un 55 % más cortas y la mitad de caras.', efecto: { averiaDias: 0.45, averiaCoste: 0.5 } },
+          { precio: 25000, descripcion: 'Un 65 % más cortas y un 60 % más baratas.', efecto: { averiaDias: 0.35, averiaCoste: 0.4 } }
+        ]
+      },
+      {
+        id: 'camara', nombre: 'Cámara de seguridad', precio: 6000,
+        descripcion: 'Con la cámara a la vista, ningún cliente se va sin pagar.',
+        efecto: { sinImpagos: true }
       },
       {
         id: 'oficina', nombre: 'Oficina de gestión', precio: 12000,

@@ -194,10 +194,16 @@
    * las mejoras que solo valen en esa zona.
    */
   function modificadores(estado, zonaId) {
-    const m = { segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1, cuotaEmisora: false, dejarVolante: false };
+    const m = {
+      segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
+      cuotaEmisora: false, dejarVolante: false,
+      propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
+      monedasMin: 0, monedasMax: 0
+    };
     cfg().mejoras.forEach(function (mejora) {
-      if (!estado.mejoras[mejora.id]) return;
-      const e = mejora.efecto;
+      const nivel = nivelMejora(estado, mejora.id);
+      if (!nivel || mejora.porVehiculo) return;
+      const e = mejora.niveles ? mejora.niveles[nivel - 1].efecto : mejora.efecto;
       if (e.soloZona && e.soloZona !== zonaId) return;
       if (e.segundosDia) m.segundosDia += e.segundosDia;
       if (e.consumo) m.consumo *= e.consumo;
@@ -207,8 +213,36 @@
       if (e.seguro) m.seguro *= e.seguro;
       if (e.cuotaEmisora) m.cuotaEmisora = true;
       if (e.dejarVolante) m.dejarVolante = true;
+      if (e.propinaProb) m.propinaProb += e.propinaProb;
+      if (e.propinaImporte) m.propinaImporte *= e.propinaImporte;
+      if (e.sinImpagos) m.sinImpagos = true;
+      if (e.averiaDias) m.averiaDias *= e.averiaDias;
+      if (e.averiaCoste) m.averiaCoste *= e.averiaCoste;
+      if (e.monedasMax) { m.monedasMin = e.monedasMin; m.monedasMax = e.monedasMax; }
     });
     return m;
+  }
+
+  /* Nivel comprado de una mejora: 0 si no la tienes (las de un nivel valen 1). */
+  function nivelMejora(estado, id) {
+    const v = estado.mejoras[id];
+    return v === true ? 1 : Number(v) || 0;
+  }
+
+  /*
+   * Lo siguiente que se puede comprar de una mejora: { nivel, precio, descripcion }
+   * o null si ya está completa (o es por vehículo: se compra coche a coche).
+   */
+  function siguienteNivel(estado, id) {
+    const mejora = buscarMejora(id);
+    const nivel = nivelMejora(estado, id);
+    if (mejora.porVehiculo) return null;
+    if (mejora.niveles) {
+      if (nivel >= mejora.niveles.length) return null;
+      const n = mejora.niveles[nivel];
+      return { nivel: nivel + 1, precio: n.precio, descripcion: n.descripcion };
+    }
+    return nivel ? null : { nivel: 1, precio: mejora.precio, descripcion: mejora.descripcion };
   }
 
   function buscarMejora(id) {
@@ -218,19 +252,33 @@
   function comprarMejora(estado, id) {
     const mejora = buscarMejora(id);
     if (!mejora) return fallo('Esa mejora no existe.');
-    if (estado.mejoras[id]) return fallo('Ya la tienes.');
-    if (mejora.requiere && !estado.mejoras[mejora.requiere]) {
+    if (mejora.porVehiculo) return fallo('Esa se compra para cada coche.');
+    const siguiente = siguienteNivel(estado, id);
+    if (!siguiente) return fallo('Ya la tienes completa.');
+    if (mejora.requiere && !nivelMejora(estado, mejora.requiere)) {
       return fallo('Antes necesitas: ' + buscarMejora(mejora.requiere).nombre + '.');
     }
+    if (estado.dinero < siguiente.precio) return fallo('No te llega el dinero.');
+    estado.dinero -= siguiente.precio;
+    estado.mejoras[id] = siguiente.nivel;
+    return exito(mejora.nombre + (mejora.niveles ? ' nivel ' + siguiente.nivel : '') + ': hecho.');
+  }
+
+  /* Rueda de repuesto para un coche: se gasta en el próximo pinchazo. */
+  function comprarRueda(estado, licenciaId) {
+    const mejora = buscarMejora('rueda');
+    const lic = buscarLicencia(estado, licenciaId);
+    if (!lic || !lic.vehiculo) return fallo('Esa licencia no tiene coche.');
+    if (lic.ruedaRepuesto) return fallo('Ese coche ya lleva rueda de repuesto.');
     if (estado.dinero < mejora.precio) return fallo('No te llega el dinero.');
     estado.dinero -= mejora.precio;
-    estado.mejoras[id] = true;
-    return exito(mejora.nombre + ': hecho.');
+    lic.ruedaRepuesto = true;
+    return exito('Rueda de repuesto para el taxi ' + textoLicencia(lic) + '.');
   }
 
   function zonaDesbloqueada(estado, zonaId) {
     const zona = cfg().zonas[zonaId];
-    return !!zona && (!zona.requiere || !!estado.mejoras[zona.requiere]);
+    return !!zona && (!zona.requiere || nivelMejora(estado, zona.requiere) > 0);
   }
 
   function zonasDisponibles(estado) {
@@ -808,7 +856,8 @@
     const esConductor = quien.quien === 'conductor';
     const sujeto = esConductor ? quien.nombre : 'Tú';
 
-    if (toca(estado, 'sinPagar', ev.sinPagar.probCarrera)) {
+    const m = modificadores(estado);
+    if (!m.sinImpagos && toca(estado, 'sinPagar', ev.sinPagar.probCarrera)) {
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
@@ -818,9 +867,9 @@
     cobrar(estado, resumen, carrera.importe, 1);
     if (esConductor) gastar(estado, resumen, 'conductores', carrera.importe * cfg().conductores.porcentaje);
 
-    if (toca(estado, 'propina', ev.propina.probCarrera)) {
+    if (toca(estado, 'propina', ev.propina.probCarrera + m.propinaProb)) {
       consumirForzado(estado, 'propina');
-      const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax);
+      const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax) * m.propinaImporte;
       incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras');
     }
 
@@ -942,8 +991,14 @@
     turno.pendiente = null;
     const ev = cfg().eventos;
     if (p.tipo === 'pinchazo') {
-      pararHastaFinDeTurno(estado, turno);
       const esConductor = turno.quien === 'conductor';
+      if (lic.ruedaRepuesto) {
+        lic.ruedaRepuesto = false;
+        incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
+          ': se cambia la rueda de repuesto y ' + (esConductor ? 'sigue' : 'sigues') + ' trabajando.', 0, null);
+        return;
+      }
+      pararHastaFinDeTurno(estado, turno);
       incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
         ': neumático de ' + Libre.ui_euros(ev.pinchazo.coste) + ' y ' + (esConductor ? 'no factura' : 'no facturas') +
         ' más hoy.', -ev.pinchazo.coste, 'otros');
@@ -955,12 +1010,32 @@
 
   function aplicarAveria(estado, resumen, lic) {
     const ev = cfg().eventos.averia;
-    const jornadas = enteroEntre(estado, ev.jornadasMin, ev.jornadasMax);
-    const coste = entre(estado, ev.costeMin, ev.costeMax);
+    const m = modificadores(estado);
+    const jornadas = Math.max(1, Math.round(enteroEntre(estado, ev.jornadasMin, ev.jornadasMax) * m.averiaDias));
+    const coste = entre(estado, ev.costeMin, ev.costeMax) * m.averiaCoste;
     lic.averia = { hasta: jornadaDe(estado.reloj.minutos) + jornadas };
     TURNOS.forEach(function (t) { if (lic.turnos[t]) lic.turnos[t].carrera = null; });
     incidencia(estado, resumen, 'averia', 'Avería en el taxi ' + textoLicencia(lic) + ': ' + jornadas +
       ' jornadas en el taller y ' + Libre.ui_euros(coste) + ' de reparación.', -coste, 'otros');
+  }
+
+  /*
+   * Sacudir esterillas: al terminar un turno (a las 7:00 y a las 19:00), cada
+   * conductor que ha trabajado encuentra unas monedas. Sin aviso, solo ticket.
+   */
+  function monedasFinDeTurno(estado, resumen) {
+    const m = modificadores(estado);
+    if (!m.monedasMax) return;
+    const ahora = estado.reloj.minutos;
+    const terminado = turnoDeHora(infoReloj(ahora - 1).hora);
+    estado.licencias.forEach(function (lic) {
+      const t = lic.turnos[terminado];
+      if (!lic.vehiculo || !t || t.quien !== 'conductor') return;
+      if (!puedeTrabajar(estado, lic, Object.assign({}, t, { paradoHasta: 0 }), ahora - 1)) return;
+      const monedas = entre(estado, m.monedasMin, m.monedasMax);
+      incidencia(estado, resumen, 'esterillas', t.nombre + ' encuentra ' + Libre.ui_euros(monedas) +
+        ' en las esterillas.', monedas, 'extras');
+    });
   }
 
   /* Una vez por jornada se sortea si llueve, cuándo y cuánto. */
@@ -1150,6 +1225,10 @@
         }
       });
       if (!agregado) avisarLluvia(estado, resumen);
+      if (!agregado && llega && limite % 60 === 0) {
+        const h = (limite % MIN_DIA) / 60;
+        if (h === cfg().turnos.dia.horaInicio || h === cfg().turnos.dia.horaFin) monedasFinDeTurno(estado, resumen);
+      }
       if (llega && limite % MIN_DIA === cfg().reloj.minutoCierreCaja) {
         cerrarCaja(estado, resumen);
         if (pararse) {
@@ -1208,6 +1287,9 @@
     factorJornada,
     modificadores,
     comprarMejora,
+    nivelMejora,
+    siguienteNivel,
+    comprarRueda,
     zonaDesbloqueada,
     zonasDisponibles,
     precioTaximetro,

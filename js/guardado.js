@@ -64,6 +64,12 @@
       });
       estado.lluvia = null;
       estado.eventosForzados = [];
+    },
+    // Versión 8: mejoras por niveles (las ya compradas pasan a nivel 1).
+    7: function (estado) {
+      Object.keys(estado.mejoras).forEach(function (id) {
+        if (estado.mejoras[id] === true) estado.mejoras[id] = 1;
+      });
     }
   };
 
