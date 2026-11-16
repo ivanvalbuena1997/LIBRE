@@ -16,11 +16,11 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   - `Libre.config` → `js/config.js`
   - `Libre.sim` → `js/simulacion.js`
   - `Libre.guardado` → `js/guardado.js`
-  - `Libre.escena` → `js/escena.js` (tira SVG decorativa; solo interfaz)
+  - `Libre.ambiente` → `js/ambiente.js` (tira SVG de ambiente; solo interfaz)
   - `Libre.retratos` → `js/retratos.js` (retratos SVG de conductores; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
-  guardado, escena, retratos, interfaz, main.
+  guardado, ambiente, retratos, interfaz, main.
 
 ## Reglas de arquitectura
 
@@ -144,11 +144,11 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   menú inferior; con más taxis la escena crece (un carril por taxi, hasta 5)
   y las zonas pueden quedar debajo, pero el taxímetro siempre entero.
   Cualquier texto nuevo ahí, a una línea y sin añadir alto.
-- Escena: un carril por taxi, los 5 que más facturan (el resto en «+N más»).
-  La posición sale de `licencia.facturadoJornada` (a cero en cada cierre) más
-  lo que marca su taxímetro (`importeDeCarrera`), sobre una escala que solo
-  crece dentro de la jornada. Iconos de parado: avería, baja, sin conductor y
-  jornada terminada. Con lluvia, gotas. Las tarjetas de zona sirven para elegir zona mientras conduces a
+- Tira de ambiente (`js/ambiente.js`, 36 px): cielo según la hora, perfil
+  de edificios y lluvia. Es un módulo aparte con `montar(contenedor)` y
+  `dibujar(contenedor, estado)`; para cambiarla por otra vista (un mapa)
+  basta otro módulo con esas dos funciones. No enseña datos de la partida.
+- Las tarjetas de zona sirven para elegir zona mientras conduces a
   mano.
 - El taxímetro debe verse entero en el móvil sin scroll. Tiene dos modos
   que cambian solos (`modoTaximetro()`): **conductor** si conduces y es tu

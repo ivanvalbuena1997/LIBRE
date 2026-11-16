@@ -812,7 +812,7 @@
     if (u) sumarFacturado(buscarLicencia(estado, u.licenciaId), estado.totales.ingresos - antes);
   }
 
-  /* Lo que lleva facturado cada taxi en la jornada (para la escena). */
+  /* Lo que lleva facturado cada taxi en la jornada (para la lista de taxis). */
   function sumarFacturado(lic, importe) {
     if (lic && importe > 0) lic.facturadoJornada = (lic.facturadoJornada || 0) + importe;
   }

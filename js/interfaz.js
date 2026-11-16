@@ -228,20 +228,6 @@
       '</dl>';
   }
 
-  /*
-   * Escena: tira decorativa encima del taxímetro (js/escena.js).
-   * A mano, el taxi se mueve solo con pasajero; automatizado, mientras algún
-   * coche de la flota tenga viajes a esa hora.
-   */
-  /*
-   * Escena: un carril por taxi (los 5 que más facturan; el resto, en la lista
-   * «+N más»). La posición de cada taxi es lo facturado en la jornada (más lo
-   * que marca su taxímetro si lleva pasajero) sobre una escala que solo crece
-   * durante la jornada, para que un taxi parado no retroceda.
-   */
-  const MAX_CARRILES = 5;
-  const escalaEscena = { jornada: null, valor: 0 };
-
   const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza' };
   const TEXTO_SITUACION = { averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
 
@@ -279,51 +265,19 @@
     }).sort(function (a, b) { return b.facturado - a.facturado; });
   }
 
-  const TEXTO_ICONO = { averia: 'en el taller', baja: 'conductor de baja', vacio: 'sin conductor', fin: 'jornada terminada' };
-
-  const seccionEscena = {
-    id: 'sec-escena',
-    firma: function (estado) {
-      const n = estado.licencias.filter(function (l) { return l.vehiculo; }).length;
-      return Math.min(n, MAX_CARRILES) + '|' + Math.max(0, n - MAX_CARRILES);
-    },
-    html: function (estado) {
-      const n = estado.licencias.filter(function (l) { return l.vehiculo; }).length;
-      const mas = n - MAX_CARRILES;
-      return Libre.escena.html(Math.min(n, MAX_CARRILES)) +
-        (mas > 0
-          ? '<details class="escena-mas"><summary>+' + mas + ' más</summary><ol class="escena-lista" id="escena-lista"></ol></details>'
-          : '');
-    },
+  /*
+   * Tira de ambiente encima del taxímetro (js/ambiente.js): un módulo aparte
+   * que se monta una vez en su hueco y se dibuja con el estado. Para cambiarla
+   * por otra vista basta otro módulo con montar() y dibujar().
+   */
+  const seccionAmbiente = {
+    id: 'sec-ambiente',
+    firma: function () { return 'fija'; },
+    html: function () { return '<div class="ambiente-hueco" id="ambiente-hueco"></div>'; },
     actualizar: function (estado) {
-      const info = Libre.sim.infoReloj(estado.reloj.minutos);
-      const todos = taxisDeLaFlota(estado);
-      const visibles = todos.slice(0, MAX_CARRILES)
-        .sort(function (a, b) { return a.licencia.id - b.licencia.id; });   // carriles estables
-
-      // Escala de la jornada: empieza en la carrera media de 6 trayectos y crece
-      // (×1,6) cuando el primero pasa del 85 %; nunca encoge dentro de la jornada.
-      const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
-      if (escalaEscena.jornada !== jornada) { escalaEscena.jornada = jornada; escalaEscena.valor = 60; }
-      const primero = todos.length ? todos[0].facturado : 0;
-      while (primero > escalaEscena.valor * 0.85) escalaEscena.valor *= 1.6;
-
-      Libre.escena.actualizar($('sec-escena').querySelector('svg'), {
-        hora: info.minutoDelDia / 60,
-        lluvia: Libre.sim.lloviendo(estado, estado.reloj.minutos),
-        taxis: visibles.map(function (t) {
-          return { avance: t.facturado / escalaEscena.valor, enCarrera: t.enCarrera, icono: t.icono };
-        })
-      });
-
-      const lista = $('escena-lista');
-      if (lista && lista.closest('details').open) {
-        lista.innerHTML = todos.map(function (t) {
-          return '<li><span>' + esc(Libre.sim.textoLicencia(t.licencia)) + ' · ' + esc(t.quien) +
-            (t.icono ? ' · <em>' + TEXTO_ICONO[t.icono] + '</em>' : t.enCarrera ? ' · en carrera' : '') +
-            '</span><strong>' + euros(t.facturado) + '</strong></li>';
-        }).join('');
-      }
+      const hueco = $('ambiente-hueco');
+      if (!hueco.firstChild) Libre.ambiente.montar(hueco);
+      Libre.ambiente.dibujar(hueco, estado);
     }
   };
 
@@ -1056,7 +1010,7 @@
     }
   };
 
-  const secciones = [seccionEscena, seccionTaximetro, seccionTicket, seccionObjetivo, seccionTaxis, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
+  const secciones = [seccionAmbiente, seccionTaximetro, seccionTicket, seccionObjetivo, seccionTaxis, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -1224,7 +1178,7 @@
    * La pestaña elegida se recuerda en este navegador (comodidad, no partida).
    */
   const VISTA_DE = {
-    'sec-escena': 'calle', 'sec-taximetro': 'calle', 'sec-ticket': 'calle',
+    'sec-ambiente': 'calle', 'sec-taximetro': 'calle', 'sec-ticket': 'calle',
     'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
     'sec-flota': 'flota', 'sec-mejoras': 'mejoras', 'sec-partida': 'partida'
   };
