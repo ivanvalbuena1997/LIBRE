@@ -33,7 +33,6 @@ function segundosDe(estado, minutos) {
 function comprarConRequisitos(e, id) {
   const m = config.mejoras.find(function (x) { return x.id === id; });
   if (m.requiere && !sim.nivelMejora(e, m.requiere)) comprarConRequisitos(e, m.requiere);
-  if (m.porVehiculo) return sim.comprarRueda(e, e.licencias[0].id);
   return sim.comprarMejora(e, id);
 }
 
@@ -499,16 +498,44 @@ prueba('con cámara nadie se va sin pagar', function () {
   assert.ok(!e.caja.hoy.incidencias.sinPagar);
 });
 
-prueba('la rueda de repuesto se gasta en un pinchazo y se puede volver a comprar', function () {
+prueba('las ruedas del inventario se gastan en los pinchazos y se reponen', function () {
   const e = flotaDe(1);
   e.reloj.minutos = 22 * 60;
-  assert.ok(sim.comprarRueda(e, 1).ok);
-  assert.ok(!sim.comprarRueda(e, 1).ok, 'ya la lleva');
+  assert.ok(!sim.comprarInventario(e, 'ruedas', 1).ok, 'sin la mejora no hay inventario de ruedas');
+  comprarConRequisitos(e, 'rueda');
+  assert.ok(sim.comprarInventario(e, 'ruedas', 2).ok);
+  assert.strictEqual(e.inventario.ruedas, 2);
   sim.forzarEvento(e, 'pinchazo');
-  assert.ok(!e.licencias[0].ruedaRepuesto, 'se ha gastado');
+  assert.strictEqual(e.inventario.ruedas, 1, 'se ha gastado una');
   assert.strictEqual(e.caja.hoy.incidencias.pinchazo.importe, 0, 'sin coste');
   assert.ok(!(e.licencias[0].turnos.noche.paradoHasta > e.reloj.minutos), 'sigue trabajando');
-  assert.ok(sim.comprarRueda(e, 1).ok);
+  assert.ok(sim.comprarInventario(e, 'ruedas', 100).ok);
+  assert.strictEqual(e.inventario.ruedas, config.inventario.ruedas.maximo, 'no pasa del máximo del almacén');
+  assert.ok(!sim.comprarInventario(e, 'ruedas', 1).ok, 'almacén lleno');
+});
+
+prueba('con bolsas en el inventario no hay vómito: se gasta una', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;
+  comprarConRequisitos(e, 'bolsas');
+  sim.comprarInventario(e, 'bolsas', 3);
+  sim.forzarEvento(e, 'vomito');
+  for (let i = 0; i < 400 && e.inventario.bolsas === 3; i++) sim.avanzar(e, 0.1);
+  assert.strictEqual(e.inventario.bolsas, 2);
+  assert.ok(!e.caja.hoy.incidencias.vomito, 'no hay vómito');
+  assert.strictEqual(e.caja.hoy.incidencias.bolsa.veces, 1);
+});
+
+prueba('las partidas de la versión 10 pasan sus ruedas de repuesto al inventario', function () {
+  const viejo = flotaDe(3);
+  viejo.licencias[0].ruedaRepuesto = true;
+  viejo.licencias[2].ruedaRepuesto = true;
+  delete viejo.inventario;
+  viejo.version = 10;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  assert.strictEqual(migrado.inventario.ruedas, 2);
+  assert.strictEqual(migrado.inventario.bolsas, 0);
+  assert.ok(migrado.licencias.every(function (l) { return l.ruedaRepuesto === undefined; }));
 });
 
 prueba('el mecánico propio acorta y abarata las averías', function () {

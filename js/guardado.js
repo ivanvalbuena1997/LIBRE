@@ -90,6 +90,16 @@
           x.retrato = mismo !== -1 ? mismo : Math.floor(Math.random() * personajes.length);
         });
       });
+    },
+    // Versión 11: inventario de consumibles. Las ruedas de repuesto que
+    // llevaban los coches pasan al almacén común.
+    10: function (estado) {
+      let ruedas = 0;
+      estado.licencias.forEach(function (l) {
+        if (l.ruedaRepuesto) ruedas++;
+        delete l.ruedaRepuesto;
+      });
+      estado.inventario = { ruedas, bolsas: 0 };
     }
   };
 

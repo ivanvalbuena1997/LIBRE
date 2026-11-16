@@ -876,6 +876,27 @@ button.zona-tarjeta { cursor: pointer; }
 .turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
 .turno-zona { font-size: 0.85rem; color: var(--suave); margin-right: 4px; }
 
+/* Inventario de consumibles (en Flota) */
+.inventario {
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.inventario-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 6px 0;
+  border-top: 1px dashed var(--borde);
+}
+.inventario-nombre { flex: 1; font-weight: 600; }
+.inventario-cuenta { font-variant-numeric: tabular-nums; font-weight: 700; }
+.inventario-cuenta.bajo { color: var(--rojo-taxi); }
+.inventario-botones { display: flex; gap: 6px; flex-basis: 100%; }
+.inventario-botones button { flex: 1; min-height: 40px; padding: 6px 10px; }
+
 /* Retratos */
 .retrato { display: inline-flex; width: 36px; height: 36px; flex: none; }
 .retrato-svg { width: 100%; height: 100%; border-radius: 50%; }

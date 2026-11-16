@@ -492,7 +492,7 @@
   function mostrarEventos(eventos) {
     eventos.forEach(function (ev) {
       if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
-      if (ev.tipo === 'esterillas') return;
+      if (ev.tipo === 'esterillas' || ev.tipo === 'bolsa') return;
       if (colaAvisos.length < 3) colaAvisos.push(ev);
     });
     soltarAviso();
@@ -711,7 +711,40 @@
           return t ? [t.quien, t.nombre, t.retrato, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
             t.paradoHasta > estado.reloj.minutos] : null;
         })];
-    }), !!estado.jugador.carrera, estado.mejoras, jornada]);
+    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario]);
+  }
+
+  /*
+   * Inventario de consumibles (ruedas, bolsas): común a toda la flota. Cada
+   * uno se desbloquea con su mejora; se repone con +1 / +10 hasta el máximo.
+   */
+  function htmlInventario(estado) {
+    const items = Libre.config.inventario;
+    const abiertos = Object.keys(items).filter(function (k) { return Libre.sim.inventarioAbierto(estado, k); });
+    if (abiertos.length === 0) return '';
+    return '<div class="inventario"><div class="licencia-titulo"><span>Inventario</span></div>' +
+      abiertos.map(function (k) {
+        const item = items[k];
+        const hay = estado.inventario[k] || 0;
+        const hueco = item.maximo - hay;
+        const bajo = hay <= item.aviso;
+        const botones = [1, 10].filter(function (n) { return n === 1 || hueco > 1; }).map(function (n) {
+          const cuantas = Math.min(n, hueco);
+          return boton('+' + cuantas + ' · ' + euros(cuantas * item.precio), 'comprarInventario', [k, cuantas], '',
+            hueco > 0 ? cuantas * item.precio : undefined);
+        }).join('');
+        return '<div class="inventario-fila" data-inventario="' + k + '">' +
+          '<span class="inventario-nombre">' + esc(item.nombre) + '</span>' +
+          '<span class="inventario-cuenta' + (bajo ? ' bajo' : '') + '">' + hay + ' / ' + item.maximo + '</span>' +
+          '<span class="inventario-botones">' + (hueco > 0 ? botones : '<span class="ayuda">Almacén lleno</span>') + '</span></div>';
+      }).join('') + '</div>';
+  }
+
+  function inventarioBajo(estado) {
+    const items = Libre.config.inventario;
+    return Object.keys(items).some(function (k) {
+      return Libre.sim.inventarioAbierto(estado, k) && (estado.inventario[k] || 0) <= items[k].aviso;
+    });
   }
 
   const seccionFlota = {
@@ -723,7 +756,7 @@
         ? 'Cada coche puede trabajar dos turnos. Tus conductores trabajan solos y se quedan el ' +
           Math.round(c.conductores.porcentaje * 100) + ' % de lo que recaudan. Tu turno, si conduces, es a clic.'
         : 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.';
-      return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' +
+      return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) +
         estado.licencias.map(function (lic) {
           const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'sin coche';
           const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
@@ -764,12 +797,6 @@
   /* Estado de un nodo: 'comprada', 'bloqueada', 'disponible' o 'sinDinero'. */
   function estadoNodo(estado, m) {
     if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) return 'bloqueada';
-    if (m.porVehiculo) {
-      const precio = m.precio;
-      const falta = estado.licencias.some(function (l) { return l.vehiculo && !l.ruedaRepuesto; });
-      if (!falta) return 'comprada';
-      return estado.dinero >= precio ? 'disponible' : 'sinDinero';
-    }
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
     if (!siguiente) return 'comprada';
     return estado.dinero >= siguiente.precio ? 'disponible' : 'sinDinero';
@@ -780,10 +807,10 @@
     return m ? m.nombre : id;
   }
 
-  /* ¿Hay alguna mejora (no por vehículo) que se pueda comprar ya? Para la marca del menú. */
+  /* ¿Hay alguna mejora que se pueda comprar ya? Para la marca del menú. */
   function hayMejoraComprable(estado, rama) {
     return Libre.config.mejoras.some(function (m) {
-      return !m.porVehiculo && (!rama || m.rama === rama) && estadoNodo(estado, m) === 'disponible';
+      return (!rama || m.rama === rama) && estadoNodo(estado, m) === 'disponible';
     });
   }
 
@@ -792,13 +819,6 @@
     let pie;
     if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) {
       pie = '<p class="nodo-requisito">Antes necesitas «' + esc(nombreMejora(m.requiere)) + '».</p>';
-    } else if (m.porVehiculo) {
-      const coches = estado.licencias.filter(function (l) { return l.vehiculo; });
-      const sin = coches.filter(function (l) { return !l.ruedaRepuesto; });
-      pie = '<p>Llevan rueda ' + (coches.length - sin.length) + ' de ' + coches.length + ' coches.</p>' +
-        sin.map(function (l) {
-          return botonCompra('Para el taxi ' + esc(Libre.sim.textoLicencia(l)), m.precio, 'comprarRueda', [l.id]);
-        }).join('');
     } else if (!siguiente) {
       pie = '<p class="nodo-completa">Comprada' + (m.niveles ? ' entera: los ' + m.niveles.length + ' niveles' : '') + '.</p>';
     } else {
@@ -811,7 +831,7 @@
   function htmlNodo(estado, m) {
     const nivel = Libre.sim.nivelMejora(estado, m.id);
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
-    const precio = m.porVehiculo ? m.precio : siguiente ? siguiente.precio : null;
+    const precio = siguiente ? siguiente.precio : null;
     const niveles = m.niveles
       ? '<span class="nodo-niveles" aria-label="Nivel ' + nivel + ' de ' + m.niveles.length + '">' +
         m.niveles.map(function (n, k) { return '<i class="' + (k < nivel ? 'hecho' : '') + '"></i>'; }).join('') + '</span>'
@@ -829,8 +849,7 @@
   const seccionMejoras = {
     id: 'sec-mejoras',
     firma: function (estado) {
-      return JSON.stringify([ramaValida(), nodoAbierto, estado.mejoras,
-        estado.licencias.map(function (l) { return [l.id, l.vehiculo, !!l.ruedaRepuesto]; })]);
+      return JSON.stringify([ramaValida(), nodoAbierto, estado.mejoras]);
     },
     html: function (estado) {
       const c = Libre.config;
@@ -1005,8 +1024,8 @@
       destellar(document.querySelector('[data-licencia="' + args[0] + '"]'));
     } else if (accion === 'comprarMejora') {
       destellar(document.querySelector('[data-mejora="' + args[0] + '"]'));
-    } else if (accion === 'comprarRueda') {
-      destellar(document.querySelector('[data-mejora="rueda"]'));
+    } else if (accion === 'comprarInventario') {
+      destellar(document.querySelector('[data-inventario="' + args[0] + '"]'));
     }
   }
 
@@ -1048,9 +1067,10 @@
   function actualizarAvisos(estado) {
     const hay = { calle: !!estado.cierrePendiente, flota: false, mejoras: hayMejoraComprable(estado) };
     document.querySelectorAll('[data-precio]').forEach(function (b) {
-      if (b.disabled) return;
+      if (b.disabled || b.closest('.inventario')) return;
       if (VISTA_DE[b.closest('section').id] === 'flota') hay.flota = true;
     });
+    if (inventarioBajo(estado)) hay.flota = true;
     Object.keys(hay).forEach(function (vista) {
       const marca = document.querySelector('[data-aviso="' + vista + '"]');
       if (marca) marca.classList.toggle('visible', hay[vista] && vista !== vistaActual);

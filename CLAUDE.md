@@ -100,14 +100,17 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
 - Árbol de mejoras: cada mejora tiene `rama` (`config.ramasMejoras`) y
   `requiere` la anterior de su rama (basta su nivel 1); el orden de la lista
   en la config es el de la rama. La interfaz no inventa requisitos: los lee.
-  Comprar alguna vez una rueda de repuesto cuenta como tenerla (abre el
-  mecánico). En pantalla: una pestaña por rama y los nodos en vertical; al
+  En pantalla: una pestaña por rama y los nodos en vertical; al
   tocar uno se abre su ficha.
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
   la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
-  efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven. Las
-  `porVehiculo` (rueda de repuesto) se compran coche a coche y se gastan
-  (`licencia.ruedaRepuesto`).
+  efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven.
+- Inventario de consumibles (`config.inventario`, `estado.inventario`), común
+  a toda la flota: ruedas de repuesto y bolsas de papel. Cada uno se
+  desbloquea con su mejora (efecto `inventario`) y luego se compran unidades
+  hasta el máximo del almacén (`comprarInventario()`). Un pinchazo gasta una
+  rueda si hay; un vómito, una bolsa. Se repone en la tarjeta «Inventario» de
+  Flota; con pocas unidades, la pestaña avisa.
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
   entre un 1 % y un 2 % más que jugando.

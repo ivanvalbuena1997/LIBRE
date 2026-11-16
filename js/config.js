@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 10,
+    versionGuardado: 11,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -85,8 +85,20 @@
         cochesMinimos: 2           // con menos coches no hay averías
       },
       lluvia: { nombre: 'Lluvia', probJornada: 0.2, horasMin: 1, horasMax: 3, factorDemanda: 2 },
+      // Bolsa del inventario gastada en vez de un vómito (solo sale en el ticket).
+      bolsa: { nombre: 'Bolsas usadas' },
       // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.
       esterillas: { nombre: 'Monedas de las esterillas' }
+    },
+
+    /*
+     * Inventario de consumibles, común a toda la flota. Cada uno se desbloquea
+     * con su mejora; luego se compran unidades hasta el máximo del almacén.
+     * aviso: con estas unidades o menos, la pestaña Flota avisa. Equilibrio.
+     */
+    inventario: {
+      ruedas: { nombre: 'Ruedas de repuesto', unidad: 'rueda', precio: 80, maximo: 10, aviso: 1, mejora: 'rueda' },
+      bolsas: { nombre: 'Bolsas de papel', unidad: 'bolsa', precio: 2, maximo: 50, aviso: 5, mejora: 'bolsas' }
     },
 
     sinConexion: {
@@ -312,7 +324,7 @@
      *             monedasMin / monedasMax: € que encuentra cada conductor al acabar su turno
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
      *             (el efecto del nivel es el total, no se suma al anterior).
-     *   porVehiculo  se compra para cada coche y se gasta (rueda de repuesto).
+     *             inventario: desbloquea un consumible del inventario (config.inventario)
      * Precios y efectos: Equilibrio. Precios revisados el 16-11-2026 (propuesta C): cada
      * mejora se paga en unas 1–2 h de juego con 6 coches (medido con un bot).
      */
@@ -361,7 +373,12 @@
         efecto: { sinImpagos: true }
       },
       {
-        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'camara', precio: 2000,
+        id: 'bolsas', nombre: 'Bolsas de papel', rama: 'clientes', requiere: 'camara', precio: 800,
+        descripcion: 'Desbloquea las bolsas de papel en el inventario: con una bolsa a mano, el cliente mareado no vomita en el coche.',
+        efecto: { inventario: 'bolsas' }
+      },
+      {
+        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'bolsas', precio: 2000,
         descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.08 }
       },
@@ -414,9 +431,9 @@
       },
       // ---- Rama: Taller y seguros
       {
-        id: 'rueda', nombre: 'Rueda de repuesto', rama: 'taller', precio: 80, porVehiculo: true,
-        descripcion: 'Para un coche y de un solo uso: si pincha, se cambia la rueda y se sigue trabajando sin coste.',
-        efecto: {  }
+        id: 'rueda', nombre: 'Rueda de repuesto', rama: 'taller', precio: 300,
+        descripcion: 'Desbloquea las ruedas de repuesto en el inventario: si un taxi pincha, se cambia la rueda y sigue trabajando sin coste.',
+        efecto: { inventario: 'ruedas' }
       },
       {
         id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller', requiere: 'rueda',

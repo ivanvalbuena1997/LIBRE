@@ -67,6 +67,8 @@
       jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial },
       conductoresContratados: 0,
       mejoras: {},
+      // Consumibles de toda la flota (se desbloquean con mejoras).
+      inventario: { ruedas: 0, bolsas: 0 },
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
       // Pausa al cierre del día: mientras no sea null el reloj está parado y
@@ -202,7 +204,7 @@
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
-      if (!nivel || mejora.porVehiculo) return;
+      if (!nivel) return;
       const e = mejora.niveles ? mejora.niveles[nivel - 1].efecto : mejora.efecto;
       if (e.soloZona && e.soloZona !== zonaId) return;
       if (e.segundosDia) m.segundosDia += e.segundosDia;
@@ -237,7 +239,6 @@
   function siguienteNivel(estado, id) {
     const mejora = buscarMejora(id);
     const nivel = nivelMejora(estado, id);
-    if (mejora.porVehiculo) return null;
     if (mejora.niveles) {
       if (nivel >= mejora.niveles.length) return null;
       const n = mejora.niveles[nivel];
@@ -253,7 +254,6 @@
   function comprarMejora(estado, id) {
     const mejora = buscarMejora(id);
     if (!mejora) return fallo('Esa mejora no existe.');
-    if (mejora.porVehiculo) return fallo('Esa se compra para cada coche.');
     const siguiente = siguienteNivel(estado, id);
     if (!siguiente) return fallo('Ya la tienes completa.');
     if (mejora.requiere && !nivelMejora(estado, mejora.requiere)) {
@@ -265,18 +265,24 @@
     return exito(mejora.nombre + (mejora.niveles ? ' nivel ' + siguiente.nivel : '') + ': hecho.');
   }
 
-  /* Rueda de repuesto para un coche: se gasta en el próximo pinchazo. */
-  function comprarRueda(estado, licenciaId) {
-    const mejora = buscarMejora('rueda');
-    const lic = buscarLicencia(estado, licenciaId);
-    if (!lic || !lic.vehiculo) return fallo('Esa licencia no tiene coche.');
-    if (lic.ruedaRepuesto) return fallo('Ese coche ya lleva rueda de repuesto.');
-    if (estado.dinero < mejora.precio) return fallo('No te llega el dinero.');
-    estado.dinero -= mejora.precio;
-    lic.ruedaRepuesto = true;
-    // Haber comprado alguna vez una rueda abre la siguiente mejora de su rama.
-    estado.mejoras.rueda = 1;
-    return exito('Rueda de repuesto para el taxi ' + textoLicencia(lic) + '.');
+  /* ¿Está desbloqueado ese consumible del inventario? */
+  function inventarioAbierto(estado, tipo) {
+    const item = cfg().inventario[tipo];
+    return !!item && nivelMejora(estado, item.mejora) > 0;
+  }
+
+  /* Compra unidades de un consumible, hasta llenar el almacén. */
+  function comprarInventario(estado, tipo, cantidad) {
+    const item = cfg().inventario[tipo];
+    if (!item) return fallo('Ese consumible no existe.');
+    if (!inventarioAbierto(estado, tipo)) return fallo('Antes necesitas la mejora «' + buscarMejora(item.mejora).nombre + '».');
+    const hay = estado.inventario[tipo] || 0;
+    const n = Math.min(Number(cantidad) || 1, item.maximo - hay);
+    if (n <= 0) return fallo('El almacén de ' + item.nombre.toLowerCase() + ' está lleno.');
+    if (estado.dinero < n * item.precio) return fallo('No te llega el dinero.');
+    estado.dinero -= n * item.precio;
+    estado.inventario[tipo] = hay + n;
+    return exito('+' + n + ' ' + item.nombre.toLowerCase() + ' (' + estado.inventario[tipo] + ' en el almacén).');
   }
 
   function zonaDesbloqueada(estado, zonaId) {
@@ -979,6 +985,12 @@
 
     if (toca(estado, 'vomito', ev.vomito.probCarrera)) {
       consumirForzado(estado, 'vomito');
+      if (estado.inventario.bolsas > 0) {
+        // Con una bolsa a mano no pasa nada: se gasta y sale en el ticket.
+        estado.inventario.bolsas--;
+        incidencia(estado, resumen, 'bolsa', 'Un cliente se marea, pero había bolsa: el coche queda limpio.', 0, null, quien);
+        return;
+      }
       const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax);
       pararHastaFinDeTurno(estado, quien);
       incidencia(estado, resumen, 'vomito',
@@ -1087,10 +1099,11 @@
     const ev = cfg().eventos;
     if (p.tipo === 'pinchazo') {
       const esConductor = turno.quien === 'conductor';
-      if (lic.ruedaRepuesto) {
-        lic.ruedaRepuesto = false;
+      if (estado.inventario.ruedas > 0) {
+        estado.inventario.ruedas--;
         incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
-          ': se cambia la rueda de repuesto y ' + (esConductor ? 'sigue' : 'sigues') + ' trabajando.', 0, null, turno);
+          ': se cambia la rueda de repuesto y ' + (esConductor ? 'sigue' : 'sigues') + ' trabajando (quedan ' +
+          estado.inventario.ruedas + ').', 0, null, turno);
         return;
       }
       pararHastaFinDeTurno(estado, turno);
@@ -1388,7 +1401,8 @@
     comprarMejora,
     nivelMejora,
     siguienteNivel,
-    comprarRueda,
+    inventarioAbierto,
+    comprarInventario,
     zonaDesbloqueada,
     zonasDisponibles,
     precioTaximetro,
