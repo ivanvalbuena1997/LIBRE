@@ -127,6 +127,16 @@
           x.facturado = x.facturado || 0;
         });
       });
+    },
+    // Versión 14: objetos para conductores. Almacén vacío y nadie lleva nada.
+    13: function (estado) {
+      estado.objetos = estado.objetos || {};
+      estado.licencias.forEach(function (l) {
+        ['dia', 'noche'].forEach(function (t) {
+          const x = l.turnos[t];
+          if (x && x.quien === 'conductor') x.objetos = x.objetos || [];
+        });
+      });
     }
   };
 

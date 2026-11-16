@@ -950,6 +950,28 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .nivel-barra > span { display: block; height: 100%; background: var(--ambar); }
 
+/* Huecos de objeto del conductor */
+.huecos { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.objeto-llevado {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 0 0 8px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.turno-cuerpo .quitar-objeto { min-height: 32px; min-width: 32px; padding: 0; border: 0; background: none; color: var(--suave); }
+.hueco-libre {
+  padding: 4px 10px;
+  border: 1.5px dashed var(--borde);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--suave);
+}
+.huecos select { min-height: 36px; font-size: 0.82rem; }
+
 /* Candidatos al contratar */
 .candidatos { flex-basis: 100%; display: grid; gap: 6px; margin-top: 4px; }
 .candidato {

@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 13,
+    versionGuardado: 14,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -107,6 +107,31 @@
     inventario: {
       ruedas: { nombre: 'Ruedas de repuesto', unidad: 'rueda', precio: 80, maximo: 10, aviso: 1, mejora: 'rueda' },
       bolsas: { nombre: 'Bolsas de papel', unidad: 'bolsa', precio: 2, maximo: 50, aviso: 5, mejora: 'bolsas' }
+    },
+
+    /*
+     * Objetos para los conductores (Equilibrio). Se compran al almacén de la
+     * flota (como mucho `maximo` de cada uno sin equipar) y se equipan a un
+     * conductor, uno de cada como mucho, en sus huecos (según su nivel:
+     * conductores.niveles.huecos). efecto: como el de los rasgos, con los
+     * mismos topes. Las ruedas y las bolsas siguen siendo consumibles.
+     */
+    objetos: {
+      maximo: 10,
+      lista: [
+        { id: 'gps', nombre: 'GPS', precio: 800, efecto: { espera: 0.9 },
+          descripcion: 'Rutas y avisos de clientes: un 10 % menos de espera entre carreras.' },
+        { id: 'ambientador', nombre: 'Ambientador', precio: 300, efecto: { propina: 1.25 },
+          descripcion: 'Un taxi que huele bien: un 25 % más de propinas.' },
+        { id: 'cojin', nombre: 'Cojín lumbar', precio: 400, efecto: { baja: 0.6 },
+          descripcion: 'Doce horas sentado sin dolor de espalda: un 40 % menos de bajas.' },
+        { id: 'termo', nombre: 'Termo de café', precio: 350, efecto: { esperaNoche: 0.9 },
+          descripcion: 'Despierto toda la noche: un 10 % menos de espera en el turno de noche.' },
+        { id: 'gafas', nombre: 'Gafas de sol', precio: 350, efecto: { esperaDia: 0.9 },
+          descripcion: 'Sin deslumbrarse: un 10 % menos de espera en el turno de día.' },
+        { id: 'funda', nombre: 'Funda de asientos', precio: 250, efecto: { limpieza: 0.5 },
+          descripcion: 'Si un cliente vomita y no hay bolsa, la limpieza cuesta la mitad y se para la mitad de tiempo.' }
+      ]
     },
 
     sinConexion: {
@@ -201,7 +226,9 @@
       niveles: {
         porCarrera: 1,
         experiencia: [0, 20, 48, 87, 142, 219, 326, 477, 688, 983],
-        esperaPorNivel: 0.025
+        esperaPorNivel: 0.025,
+        // Huecos de objeto por nivel (1 a 10): uno más en el 4 y otro en el 8.
+        huecos: [1, 1, 1, 2, 2, 2, 2, 3, 3, 3]
       },
 
       /*

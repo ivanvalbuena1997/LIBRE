@@ -843,6 +843,7 @@
         // La zona la eligen ellos (al azar, o la mejor con el Curso gestión de zonas).
         '<span class="turno-zona">Trabaja en ' + esc(Libre.config.zonas[t.zona] ? Libre.config.zonas[t.zona].nombre : t.zona) + '</span>' +
         boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro') +
+        htmlHuecos(estado, lic, turno, t) +
         estadoTurno(estado, lic, t);
     }
     return '<div class="turno"><div class="turno-nombre">' + esc(c.turnos[turno].nombre) + '<br>' + horario(turno) + '</div>' +
@@ -874,9 +875,9 @@
           const t = l.turnos[tn];
           return t ? [t.quien, t.nombre, t.retrato, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
             t.paradoHasta > estado.reloj.minutos, t.cualidad, t.defecto,
-            t.quien === 'conductor' ? Math.floor(t.xp || 0) : 0] : null;
+            t.quien === 'conductor' ? Math.floor(t.xp || 0) : 0, t.objetos] : null;
         })];
-    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, eligiendoConductor,
+    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null]);
   }
 
@@ -884,10 +885,49 @@
    * Inventario de consumibles (ruedas, bolsas): común a toda la flota. Cada
    * uno se desbloquea con su mejora; se repone con +1 / +10 hasta el máximo.
    */
+  /* Objetos para conductores en el almacén: cuántos hay sin equipar y comprar. */
+  function htmlObjetosAlmacen(estado) {
+    const c = Libre.config.objetos;
+    return c.lista.map(function (o) {
+      const hay = (estado.objetos || {})[o.id] || 0;
+      return '<div class="inventario-fila" data-inventario="' + o.id + '" title="' + esc(o.descripcion) + '">' +
+        '<span class="inventario-nombre">' + esc(o.nombre) + '</span>' +
+        '<span class="inventario-cuenta">' + hay + '</span>' +
+        '<span class="inventario-botones">' + (hay < c.maximo
+          ? boton('+1 · ' + euros(o.precio), 'comprarObjeto', [o.id, 1], '', o.precio)
+          : '<span class="ayuda">Almacén lleno</span>') + '</span></div>';
+    }).join('');
+  }
+
+  /*
+   * Huecos de objeto de un conductor: lo que lleva (con × para devolverlo al
+   * almacén) y, en los libres, un desplegable con lo que hay en el almacén.
+   */
+  function htmlHuecos(estado, lic, turno, t) {
+    const huecos = Libre.sim.huecosConductor(t);
+    const llevados = t.objetos || [];
+    let html = llevados.map(function (id) {
+      const o = Libre.sim.buscarObjeto(id);
+      return '<span class="objeto-llevado" title="' + esc(o.descripcion) + '">' + esc(o.nombre) +
+        boton('×', 'quitarObjeto', [lic.id, turno, id], 'quitar-objeto') + '</span>';
+    }).join('');
+    const disponibles = Libre.config.objetos.lista.filter(function (o) {
+      return ((estado.objetos || {})[o.id] || 0) > 0 && llevados.indexOf(o.id) === -1;
+    });
+    for (let i = llevados.length; i < huecos; i++) {
+      html += disponibles.length
+        ? '<select data-cambio="equiparObjeto" data-args="' + lic.id + '|' + turno + '" aria-label="Equipar objeto">' +
+          '<option value="" selected disabled>Hueco libre: equipar…</option>' +
+          disponibles.map(function (o) { return '<option value="' + o.id + '">' + esc(o.nombre) + '</option>'; }).join('') +
+          '</select>'
+        : '<span class="hueco-libre">Hueco libre</span>';
+    }
+    return '<span class="huecos">' + html + '</span>';
+  }
+
   function htmlInventario(estado) {
     const items = Libre.config.inventario;
     const abiertos = Object.keys(items).filter(function (k) { return Libre.sim.inventarioAbierto(estado, k); });
-    if (abiertos.length === 0) return '';
     return '<div class="inventario"><div class="licencia-titulo"><span>Inventario</span></div>' +
       abiertos.map(function (k) {
         const item = items[k];
@@ -903,7 +943,8 @@
           '<span class="inventario-nombre">' + esc(item.nombre) + '</span>' +
           '<span class="inventario-cuenta' + (bajo ? ' bajo' : '') + '">' + hay + ' / ' + item.maximo + '</span>' +
           '<span class="inventario-botones">' + (hueco > 0 ? botones : '<span class="ayuda">Almacén lleno</span>') + '</span></div>';
-      }).join('') + '</div>';
+      }).join('') +
+      '<div class="licencia-titulo"><span>Objetos para conductores</span></div>' + htmlObjetosAlmacen(estado) + '</div>';
   }
 
   function inventarioBajo(estado) {

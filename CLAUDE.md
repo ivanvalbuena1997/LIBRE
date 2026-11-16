@@ -99,6 +99,12 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket);
   sin conexión la experiencia se suma agrupada y sin aviso. Para probar:
   `Libre.darExperiencia('Laura', 100)` en la consola.
+- Objetos de conductor (`config.objetos`): se compran al almacén de la
+  flota (`estado.objetos`, unidades sin equipar) y se equipan en los huecos
+  del conductor (`turno.objetos`, sin repetir; 1, 2 en nivel 4 y 3 en nivel
+  8). Quitar uno lo devuelve al almacén. Su efecto entra en
+  `factoresConductor()` con los rasgos y el nivel, bajo los mismos topes.
+  Ruedas y bolsas siguen siendo consumibles del inventario.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

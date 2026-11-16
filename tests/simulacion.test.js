@@ -800,4 +800,63 @@ prueba('las partidas de la versión 12 empiezan en nivel 1', function () {
   assert.strictEqual(sim.nivelConductor(x), 1);
 });
 
+prueba('objetos: se compran al almacén, se equipan sin repetir y según los huecos', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  t.cualidad = 'honrado'; t.defecto = 'antipatico';
+  const gps = config.objetos.lista.find(function (o) { return o.id === 'gps'; });
+  const antes = e.dinero;
+  assert.ok(sim.comprarObjeto(e, 'gps', 2).ok);
+  assert.strictEqual(antes - e.dinero, 2 * gps.precio);
+  assert.ok(sim.comprarObjeto(e, 'cojin').ok);
+  assert.ok(sim.equiparObjeto(e, 1, 'noche', 'gps').ok);
+  assert.strictEqual(e.objetos.gps, 1);
+  cerca(sim.factoresConductor(e, t).espera, gps.efecto.espera, 1e-9);
+  assert.ok(!sim.equiparObjeto(e, 1, 'noche', 'gps').ok, 'no dos iguales');
+  assert.ok(!sim.equiparObjeto(e, 1, 'noche', 'cojin').ok, 'nivel 1: un solo hueco');
+  t.xp = config.conductores.niveles.experiencia[3];
+  assert.strictEqual(sim.huecosConductor(t), 2, 'nivel 4: dos huecos');
+  assert.ok(sim.equiparObjeto(e, 1, 'noche', 'cojin').ok);
+  t.xp = config.conductores.niveles.experiencia[7];
+  assert.strictEqual(sim.huecosConductor(t), 3, 'nivel 8: tres huecos');
+  assert.ok(!sim.equiparObjeto(e, 1, 'noche', 'ambientador').ok, 'no hay ambientador en el almacén');
+  assert.ok(sim.quitarObjeto(e, 1, 'noche', 'gps').ok);
+  assert.strictEqual(e.objetos.gps, 2);
+  assert.ok(!sim.equiparObjeto(e, 1, 'dia', 'gps').ok, 'tu turno no lleva objetos');
+  e.objetos.funda = config.objetos.maximo;
+  assert.ok(!sim.comprarObjeto(e, 'funda').ok, 'almacén lleno');
+});
+
+prueba('rasgo, nivel y objetos se combinan con tope', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  e.reloj.minutos = 23 * 60;
+  t.cualidad = 'buho'; t.defecto = 'antipatico';
+  t.xp = 1e6;
+  t.objetos = ['gps', 'termo'];
+  const f = sim.factoresConductor(e, t);
+  const sinTope = 0.88 * 0.9 * 0.9 * (1 - 9 * config.conductores.niveles.esperaPorNivel);
+  cerca(f.espera, sinTope, 1e-9);
+  assert.strictEqual(sim.topeConductor('espera', f.espera), config.conductores.topes.espera[0], 'se queda en el tope');
+  t.cualidad = 'simpatico'; t.defecto = 'lento'; t.objetos = ['ambientador'];
+  e.mejoras.propinas = 5;
+  // Propinas al máximo (×2) × 1,3 × 1,25 pasa del tope de ×2,5.
+  const m = sim.modificadores(e);
+  const base = config.eventos.propina.probCarrera;
+  const total = (base + m.propinaProb) / base * sim.factoresConductor(e, t).propina;
+  assert.ok(total > config.conductores.topes.propina[1]);
+  assert.strictEqual(sim.topeConductor('propina', total), config.conductores.topes.propina[1]);
+});
+
+prueba('las partidas de la versión 13 tienen el almacén de objetos vacío', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(1);
+  viejo.version = 13;
+  delete viejo.objetos;
+  delete viejo.licencias[0].turnos.noche.objetos;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  assert.deepStrictEqual(migrado.objetos, {});
+  assert.deepStrictEqual(migrado.licencias[0].turnos.noche.objetos, []);
+});
+
 console.log(pasadas + ' pruebas correctas');

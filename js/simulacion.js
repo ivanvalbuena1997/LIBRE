@@ -69,6 +69,8 @@
       mejoras: {},
       // Consumibles de toda la flota (se desbloquean con mejoras).
       inventario: { ruedas: 0, bolsas: 0 },
+      // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
+      objetos: {},
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
       // Pausa al cierre del día: mientras no sea null el reloj está parado y
@@ -574,7 +576,8 @@
       quien: 'conductor', nombre, retrato: candidato.retrato, zona: otro ? otro.zona : c.zonaInicial,
       cualidad: candidato.cualidad, defecto: candidato.defecto,
       // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
-      xp: 0, carreras: 0, facturado: 0
+      xp: 0, carreras: 0, facturado: 0,
+      objetos: []   // ids de los objetos que lleva equipados
     };
     sortearCandidatos(estado);
 
@@ -676,9 +679,12 @@
     t.xp = (t.xp || 0) + puntos;
     const despues = nivelConductor(t);
     if (despues > antes && !sinAviso) {
+      const huecos = cfg().conductores.niveles.huecos;
+      const hueco = huecos[despues - 1] > huecos[antes - 1];
       resumen.eventos.push({
         tipo: 'nivel', conductor: t.nombre, retrato: t.retrato, nivel: despues,
-        texto: t.nombre + ' sube a nivel ' + despues + ': espera menos entre carreras.'
+        texto: t.nombre + ' sube a nivel ' + despues + ': espera menos entre carreras' +
+          (hueco ? ' y tiene un hueco más para objetos.' : '.')
       });
     }
   }
@@ -702,11 +708,70 @@
       eventos: resumen.eventos };
   }
 
+  // ------------------------------------------------ Objetos de conductor
+
+  function buscarObjeto(id) {
+    return cfg().objetos.lista.find(function (o) { return o.id === id; }) || null;
+  }
+
+  /* Huecos de objeto que tiene un conductor por su nivel. */
+  function huecosConductor(t) {
+    return cfg().conductores.niveles.huecos[nivelConductor(t) - 1];
+  }
+
+  /* Turno de conductor de esa licencia, o null. */
+  function turnoConductor(estado, licenciaId, turno) {
+    const lic = buscarLicencia(estado, licenciaId);
+    const t = lic && lic.turnos[turno];
+    return t && t.quien === 'conductor' ? t : null;
+  }
+
+  /* Compra objetos para el almacén de la flota (sin equipar). */
+  function comprarObjeto(estado, id, cantidad) {
+    const o = buscarObjeto(id);
+    if (!o) return fallo('Ese objeto no existe.');
+    estado.objetos = estado.objetos || {};
+    const hay = estado.objetos[id] || 0;
+    const n = Math.min(Number(cantidad) || 1, cfg().objetos.maximo - hay);
+    if (n <= 0) return fallo('Ya tienes ' + hay + ' sin equipar: es el máximo del almacén.');
+    if (estado.dinero < n * o.precio) return fallo('No te llega el dinero.');
+    estado.dinero -= n * o.precio;
+    estado.objetos[id] = hay + n;
+    return exito('+' + n + ' ' + o.nombre + ' al almacén.');
+  }
+
+  /* Del almacén a un conductor: hueco libre y sin repetir objeto. */
+  function equiparObjeto(estado, licenciaId, turno, id) {
+    const t = turnoConductor(estado, licenciaId, turno);
+    const o = buscarObjeto(id);
+    if (!t) return fallo('Ahí no hay ningún conductor.');
+    if (!o) return fallo('Ese objeto no existe.');
+    t.objetos = t.objetos || [];
+    if (t.objetos.indexOf(id) !== -1) return fallo(t.nombre + ' ya lleva ' + o.nombre + '.');
+    if (t.objetos.length >= huecosConductor(t)) return fallo(t.nombre + ' no tiene huecos libres.');
+    if (!(estado.objetos && estado.objetos[id] > 0)) return fallo('No te queda ' + o.nombre + ' en el almacén.');
+    estado.objetos[id]--;
+    t.objetos.push(id);
+    return exito(t.nombre + ' lleva ' + o.nombre + '.');
+  }
+
+  /* De un conductor al almacén (para pasarlo a otro). */
+  function quitarObjeto(estado, licenciaId, turno, id) {
+    const t = turnoConductor(estado, licenciaId, turno);
+    if (!t) return fallo('Ahí no hay ningún conductor.');
+    const i = (t.objetos || []).indexOf(id);
+    if (i === -1) return fallo('No lleva ese objeto.');
+    t.objetos.splice(i, 1);
+    estado.objetos = estado.objetos || {};
+    estado.objetos[id] = (estado.objetos[id] || 0) + 1;
+    return exito(buscarObjeto(id).nombre + ' vuelve al almacén.');
+  }
+
   const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza'];
 
   /*
    * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
-   * su cualidad, su defecto y su nivel. Lo que depende del turno (esperaDia,
+   * su cualidad, su defecto, sus objetos y su nivel. Lo que depende del turno (esperaDia,
    * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
    * trabaja. Para tu turno, todo 1. Sin tope: lo pone topeConductor().
    */
@@ -723,6 +788,7 @@
       });
     }
     [t.cualidad, t.defecto].forEach(function (id) { const r = buscarRasgo(id); if (r) aplicar(r.efecto); });
+    (t.objetos || []).forEach(function (id) { const o = buscarObjeto(id); if (o) aplicar(o.efecto); });
     // Cada nivel por encima del 1 espera un poco menos.
     f.espera *= 1 - cfg().conductores.niveles.esperaPorNivel * (nivelConductor(t) - 1);
     return f;
@@ -1679,6 +1745,11 @@
     candidatos,
     factoresConductor,
     nivelConductor,
+    buscarObjeto,
+    huecosConductor,
+    comprarObjeto,
+    equiparObjeto,
+    quitarObjeto,
     progresoConductor,
     darExperiencia,
     topeConductor,
