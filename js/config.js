@@ -113,7 +113,7 @@
       modelos: {
         turismo: {
           nombre: 'Turismo',
-          precio: 2000,              // Iván (valor de juego): precio del coche.
+          precio: 1500,              // Iván (valor de juego): precio del coche.
           consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
         }
       }
