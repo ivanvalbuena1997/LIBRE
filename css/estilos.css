@@ -73,6 +73,12 @@
   --ventana-noche: #10142a;
   --ventana-encendida: #ffd36b;
   --lluvia: #a9c6de;
+  /* Dibujo del taxi en las tarjetas de Flota */
+  --taxi-contorno: #2a2a2a;
+  --taxi-cristal: #9fb7c9;
+  --neumatico: #1c1c1c;
+  --llanta: #b5b5b0;
+  --placa-franja: #1d4fa3;     /* franja azul de la placa con el número de licencia */
   --luna: #f3f0dc;
 
   /* Taxímetro: carcasa negra y cifras de LED rojo, como los de verdad. */
@@ -887,127 +893,306 @@ button.zona-tarjeta { cursor: pointer; }
 .zonas-cerradas span { white-space: nowrap; }
 
 /* Flota */
-.licencia {
+.flota-titulo { margin: 0 0 8px; font-size: 0.95rem; }
+.icono {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Inventario: cuadrícula de fichas; al tocar una se abre su panel debajo */
+.inventario {
   border: 1px solid var(--borde);
   border-radius: 10px;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
-.licencia-titulo {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  margin-bottom: 6px;
+.fichas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 6px;
+}
+.ficha-inv {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 2px 6px;
+  align-items: center;
+  min-height: 60px;
+  padding: 6px 7px 9px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--tarjeta);
+  font: inherit;
+  color: var(--texto);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+.ficha-inv .icono { grid-row: 1; width: 22px; height: 22px; }
+.ficha-inv.abierta { border-color: var(--texto); box-shadow: inset 0 0 0 1px var(--texto); }
+.ficha-inv-nombre {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: start;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  color: var(--suave);
+}
+.ficha-inv-cantidad { grid-column: 2; grid-row: 1; text-align: right; font-weight: 800; font-size: 1rem; font-variant-numeric: tabular-nums; }
+.ficha-inv-cantidad small { font-weight: 600; font-size: 0.72rem; color: var(--suave); }
+.ficha-inv.bajo .ficha-inv-cantidad { color: var(--rojo-taxi); }
+.ficha-inv-barra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--borde);
+}
+.ficha-inv-barra > span { display: block; height: 100%; background: var(--verde-libre); }
+.ficha-inv.bajo .ficha-inv-barra > span { background: var(--rojo-taxi); }
+.ficha-panel {
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--fondo);
+}
+.ficha-panel p { margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
+.ficha-panel .acciones button { min-height: 44px; }
+
+/* Licencia: tarjeta con el taxi, su placa y los dos turnos */
+.licencia {
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+.licencia-cabecera { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.licencia-cabecera small { display: block; color: var(--suave); font-size: 0.78rem; margin-top: 2px; }
+.taxi-dibujo { width: 64px; height: 39px; flex: none; }
+.taxi-dibujo .taxi-chapa, .taxi-dibujo .taxi-luminoso {
+  fill: var(--blanco);
+  stroke: var(--taxi-contorno);
+  stroke-width: 0.8;
+}
+.taxi-dibujo .taxi-cristal { fill: var(--taxi-cristal); }
+.taxi-dibujo .taxi-franja { fill: var(--rojo-taxi); }
+.taxi-dibujo .taxi-faro { fill: var(--ventana-encendida); }
+.taxi-dibujo .neumatico { fill: var(--neumatico); }
+.taxi-dibujo .llanta { fill: var(--llanta); }
+/* Número de licencia en una placa blanca con borde, como una matrícula */
+.placa {
+  display: inline-block;
+  padding: 1px 8px 1px 18px;
+  border: 2px solid var(--texto);
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--placa-franja) 0 12px, var(--blanco) 12px);
+  font: 800 0.95rem ui-monospace, "Cascadia Mono", Consolas, monospace;
+  letter-spacing: 0.05em;
 }
 .turno {
   display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 6px 8px;
-  align-items: center;
-  padding: 6px 0;
+  grid-template-columns: 52px 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 8px 0 2px;
   border-top: 1px dashed var(--borde);
 }
-.turno-nombre { font-size: 0.85rem; color: var(--suave); }
-.turno-cuerpo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.turno-cuerpo .quien { font-weight: 600; margin-right: 4px; }
-.turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
-.turno-zona { font-size: 0.85rem; color: var(--suave); margin-right: 4px; }
-
-/* Rasgos: cualidad (+) y defecto (−) */
-.rasgos { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.rasgo {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 999px;
-  white-space: nowrap;
-  cursor: help;
+.turno-hora {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding-top: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
-.rasgo.cualidad { background: var(--verde-claro); color: var(--verde-texto); }
-.rasgo.defecto { background: var(--rojo-claro); color: var(--rojo-taxi); }
+.turno-hora small { font-weight: 400; color: var(--suave); font-size: 0.7rem; }
+.turno-hora .icono { width: 22px; height: 22px; }
+.turno-dia .turno-hora .icono { color: var(--ambar); }
+.turno-noche .turno-hora .icono { color: var(--tarifa-2); }
+.turno-cuerpo { min-width: 0; }
+.turno-cuerpo button, .turno-cuerpo select { min-height: 44px; }
+.turno-tu { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.turno-estado { display: block; font-size: 0.8rem; color: var(--rojo-taxi); }
 
-/* Nivel del conductor: insignia y barra de experiencia */
-.nivel { display: inline-flex; align-items: center; gap: 4px; }
+/* Turno vacío: un hueco punteado con el botón de contratar */
+.turno-vacio {
+  padding: 8px;
+  border: 1.5px dashed var(--borde);
+  border-radius: 10px;
+}
+.turno-vacio-texto { display: block; font-size: 0.82rem; color: var(--suave); margin-bottom: 6px; }
+.turno-vacio-botones { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Conductor en la tarjeta: toda la fila abre su ficha */
+.conductor {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--tarjeta);
+  font: inherit;
+  color: var(--texto);
+  text-align: left;
+  cursor: pointer;
+}
+.conductor .retrato { width: 52px; height: 52px; }
+.conductor-datos { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.conductor-nombre { display: flex; align-items: center; gap: 6px; }
+.conductor-nombre strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conductor-flecha { font-size: 1.4rem; color: var(--suave); }
 .nivel-insignia {
   display: inline-grid;
   place-items: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
   border-radius: 6px;
   background: var(--texto);
   color: var(--blanco);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 800;
+  flex: none;
 }
-.nivel-barra {
+.nivel-insignia.grande { min-width: 44px; height: 44px; font-size: 1.3rem; border-radius: 10px; }
+.xp-barra {
   display: block;
-  width: 48px;
-  height: 5px;
+  flex: 1;
+  min-width: 40px;
+  max-width: 120px;
+  height: 6px;
   border-radius: 999px;
   background: var(--borde);
   overflow: hidden;
 }
-.nivel-barra > span { display: block; height: 100%; background: var(--ambar); }
+.xp-barra > span { display: block; height: 100%; background: var(--ambar); transition: width 0.4s ease-out; }
 
-/* Huecos de objeto del conductor */
-.huecos { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.objeto-llevado {
+/* Rasgos: icono y «+» o «−», además del color */
+.rasgos { display: flex; flex-wrap: wrap; gap: 4px; }
+.rasgo {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 0 0 0 8px;
-  border: 1px solid var(--borde);
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 7px 1px 5px;
   border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  white-space: nowrap;
 }
-.turno-cuerpo .quitar-objeto { min-height: 32px; min-width: 32px; padding: 0; border: 0; background: none; color: var(--suave); }
-.hueco-libre {
-  padding: 4px 10px;
+.rasgo .icono { width: 14px; height: 14px; }
+.rasgo.cualidad { background: var(--verde-claro); color: var(--verde-texto); }
+.rasgo.defecto { background: var(--rojo-claro); color: var(--rojo-taxi); }
+
+/* Huecos de objeto en pequeño */
+.huecos-mini { display: flex; gap: 4px; }
+.hueco {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
   border: 1.5px dashed var(--borde);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  color: var(--suave);
+  border-radius: 6px;
+  flex: none;
 }
-.huecos select { min-height: 36px; font-size: 0.82rem; }
+.hueco.lleno { border: 1px solid var(--texto); }
+.hueco .icono { width: 15px; height: 15px; }
 
 /* Candidatos al contratar */
-.candidatos { flex-basis: 100%; display: grid; gap: 6px; margin-top: 4px; }
+.candidatos { display: grid; gap: 6px; margin-top: 8px; }
 .candidato {
   display: grid;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: 44px 1fr;
   gap: 4px 8px;
   align-items: center;
   padding: 8px;
   border: 1px solid var(--borde);
   border-radius: 10px;
+  background: var(--tarjeta);
 }
-.candidato .retrato { width: 40px; height: 40px; grid-row: 1 / span 2; align-self: start; }
+.candidato .retrato { width: 44px; height: 44px; grid-row: 1 / span 2; align-self: start; }
 .candidato-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .candidato-datos small { color: var(--suave); font-size: 0.75rem; line-height: 1.3; }
 .candidato button { grid-column: 2; justify-self: start; }
 
-/* Inventario de consumibles (en Flota) */
-.inventario {
+/* Ficha del conductor: hoja que sube desde abajo */
+.hoja-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: var(--sombra-fuerte);
+}
+.hoja {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  max-width: 560px;
+  max-height: 88vh;
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 16px 16px 0 0;
+  background: var(--tarjeta);
+  box-shadow: 0 -6px 24px var(--sombra-fuerte);
+  animation: subir-hoja 0.25s ease-out;
+}
+@keyframes subir-hoja { from { transform: translateY(40px); } }
+.hoja-cerrar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--suave);
+  cursor: pointer;
+}
+.hoja h4 { margin: 16px 0 6px; font-size: 0.85rem; color: var(--suave); text-transform: uppercase; letter-spacing: 0.04em; }
+.ficha-cabecera { display: flex; gap: 12px; align-items: center; padding-right: 40px; }
+.ficha-cabecera .retrato { width: 88px; height: 88px; }
+.ficha-cabecera h3 { margin: 0 0 2px; font-size: 1.3rem; }
+.ficha-cabecera p { margin: 0; font-size: 0.85rem; color: var(--suave); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ficha-cabecera p .icono { width: 15px; height: 15px; }
+.ficha-nivel { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+.ficha-nivel > div { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.ficha-nivel .xp-barra { flex: none; width: 100%; max-width: none; height: 8px; }
+.ficha-nivel small { color: var(--suave); font-size: 0.8rem; }
+.ficha-rasgos, .ficha-objetos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ficha-rasgos li { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 0.85rem; }
+.ficha-objeto {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
   border: 1px solid var(--borde);
   border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
 }
-.inventario-fila {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
-  padding: 6px 0;
-  border-top: 1px dashed var(--borde);
-}
-.inventario-nombre { flex: 1; font-weight: 600; }
-.inventario-cuenta { font-variant-numeric: tabular-nums; font-weight: 700; }
-.inventario-cuenta.bajo { color: var(--rojo-taxi); }
-.inventario-botones { display: flex; gap: 6px; flex-basis: 100%; }
-.inventario-botones button { flex: 1; min-height: 40px; padding: 6px 10px; }
+.ficha-objeto .icono { width: 22px; height: 22px; }
+.ficha-objeto > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
+.ficha-objeto small { color: var(--suave); font-size: 0.75rem; line-height: 1.3; }
+.ficha-objeto button, .ficha-objeto select { min-height: 44px; }
+.ficha-objeto.libre { border-style: dashed; }
+.ficha-objeto.bloqueado { border-style: dashed; opacity: 0.6; }
+.ficha-zona { margin: 0; font-size: 0.88rem; }
+.ficha-despedir { margin-top: 18px; }
+.ficha-despedir button { width: 100%; min-height: 44px; }
 
 /* Retratos */
 .retrato { display: inline-flex; width: 36px; height: 36px; flex: none; }
@@ -1027,7 +1212,6 @@ button.zona-tarjeta { cursor: pointer; }
 .r-gafas { fill: none; stroke: var(--rasgos); stroke-width: 0.9; }
 .mensaje.con-retrato { display: flex; align-items: center; gap: 10px; }
 .mensaje .retrato { width: 32px; height: 32px; }
-.turno-cuerpo button { min-height: 40px; padding: 6px 10px; }
 
 /* Mejoras: árbol con una rama por pestaña */
 .ramas {

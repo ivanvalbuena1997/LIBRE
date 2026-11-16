@@ -110,6 +110,16 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
   como incidencia «Finiquitos» y sus objetos vuelven al almacén. La
   interfaz siempre pide confirmación.
+- Pestaña Flota: el inventario es una cuadrícula de fichas (consumibles con
+  barra sobre el máximo; objetos con lo que hay sin equipar); al tocar una
+  se abre debajo su panel con los botones de compra. Cada licencia es una
+  tarjeta con el dibujo del taxi, su número en una placa y los dos turnos
+  (icono de sol o luna). Un conductor se ve con retrato, nivel, barra de
+  experiencia, rasgos (icono y «+»/«−», no solo color) y huecos; al tocarlo
+  se abre su ficha (hoja que sube desde abajo; se cierra con ×, el fondo o
+  Escape) con todo lo demás, incluido despedir. Un turno vacío es un hueco
+  punteado con contratar. La experiencia se mueve en `actualizar()`, no en
+  la firma, para no rehacer la pestaña con cada carrera.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

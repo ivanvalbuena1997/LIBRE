@@ -95,6 +95,8 @@ Queda fuera: VTC y otros vehículos, día de libranza, gerentes, otras ciudades 
 
 Añadido el 16 de noviembre de 2026: los conductores hacen carreras reales y cobran al terminar cada una, y hay eventos aleatorios (propinas, clientes que no pagan, vómitos, objetos devueltos, pinchazos, bajas por enfermedad, averías y lluvia) que quedan apuntados como incidencias en el ticket del día.
 
+Añadido el 16 de noviembre de 2026: cada conductor tiene una cualidad y un defecto (al contratar se elige entre tres candidatos), gana experiencia con cada carrera hasta el nivel 10, puede llevar objetos (GPS, ambientador, cojín lumbar, termo de café, gafas de sol, funda de asientos) en uno a tres huecos según su nivel, y despedirlo cuesta un finiquito que crece con el nivel. Todo modifica valores que ya existían (espera entre carreras y probabilidades de los eventos), con topes.
+
 ## Técnica
 
 HTML, CSS y JavaScript sin framework ni paso de compilación, publicado en GitHub Pages.
