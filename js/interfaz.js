@@ -197,32 +197,85 @@
    * A mano, el taxi se mueve solo con pasajero; automatizado, mientras algún
    * coche de la flota tenga viajes a esa hora.
    */
+  /*
+   * Escena: un carril por taxi (los 5 que más facturan; el resto, en la lista
+   * «+N más»). La posición de cada taxi es lo facturado en la jornada (más lo
+   * que marca su taxímetro si lleva pasajero) sobre una escala que solo crece
+   * durante la jornada, para que un taxi parado no retroceda.
+   */
+  const MAX_CARRILES = 5;
+  const escalaEscena = { jornada: null, valor: 0 };
+
+  /* Todos los taxis con coche: { licencia, facturado, enCarrera, icono, quien }. */
+  function taxisDeLaFlota(estado) {
+    const ahora = estado.reloj.minutos;
+    const turno = Libre.sim.turnoDeHora(Libre.sim.infoReloj(ahora).hora);
+    const jornada = Libre.sim.jornadaDe(ahora);
+    const pausa = Libre.sim.enPausa(estado);
+    return estado.licencias.filter(function (l) { return l.vehiculo; }).map(function (lic) {
+      const t = lic.turnos[turno];
+      const carrera = !t ? null : t.quien === 'jugador' ? estado.jugador.carrera : t.carrera;
+      const enCurso = Libre.sim.importeDeCarrera(estado, carrera);
+      let icono = null;
+      if (lic.averia && jornada < lic.averia.hasta) icono = 'averia';
+      else if (!t) icono = 'vacio';
+      else if (t.quien === 'conductor' && t.baja && jornada < t.baja.hasta) icono = 'baja';
+      else if ((t.quien === 'jugador' ? estado.jugador.paradoHasta : t.paradoHasta) > ahora) icono = 'fin';
+      return {
+        licencia: lic,
+        quien: t ? (t.quien === 'jugador' ? 'Tú' : t.nombre) : 'Sin conductor',
+        facturado: (lic.facturadoJornada || 0) + (enCurso || 0),
+        enCarrera: enCurso !== null && !pausa,
+        icono
+      };
+    }).sort(function (a, b) { return b.facturado - a.facturado; });
+  }
+
+  const TEXTO_ICONO = { averia: 'en el taller', baja: 'conductor de baja', vacio: 'sin conductor', fin: 'jornada terminada' };
+
   const seccionEscena = {
     id: 'sec-escena',
-    firma: function () { return 'fija'; },
-    html: function () { return Libre.escena.html(); },
+    firma: function (estado) {
+      const n = estado.licencias.filter(function (l) { return l.vehiculo; }).length;
+      return Math.min(n, MAX_CARRILES) + '|' + Math.max(0, n - MAX_CARRILES);
+    },
+    html: function (estado) {
+      const n = estado.licencias.filter(function (l) { return l.vehiculo; }).length;
+      const mas = n - MAX_CARRILES;
+      return Libre.escena.html(Math.min(n, MAX_CARRILES)) +
+        (mas > 0
+          ? '<details class="escena-mas"><summary>+' + mas + ' más</summary><ol class="escena-lista" id="escena-lista"></ol></details>'
+          : '');
+    },
     actualizar: function (estado) {
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
-      let moviendo;
-      let ocupado;
-      if (!Libre.sim.conduce(estado)) {
-        const grupos = Libre.sim.cochesPorZona(estado, info);
-        moviendo = Object.keys(grupos).some(function (zonaId) {
-          return Libre.sim.rendimientoZona(estado, zonaId, grupos[zonaId].length, info).viajesHora > 0;
-        });
-        ocupado = false;
-      } else {
-        ocupado = Libre.sim.importeEnCurso(estado) !== null;
-        moviendo = ocupado;
-      }
-      if (Libre.sim.enPausa(estado)) {
-        moviendo = false;
-      }
-      Libre.escena.actualizar($('sec-escena').firstChild, {
+      const todos = taxisDeLaFlota(estado);
+      const visibles = todos.slice(0, MAX_CARRILES)
+        .sort(function (a, b) { return a.licencia.id - b.licencia.id; });   // carriles estables
+
+      // Escala de la jornada: empieza en la carrera media de 6 trayectos y crece
+      // (×1,6) cuando el primero pasa del 85 %; nunca encoge dentro de la jornada.
+      const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+      if (escalaEscena.jornada !== jornada) { escalaEscena.jornada = jornada; escalaEscena.valor = 60; }
+      const primero = todos.length ? todos[0].facturado : 0;
+      while (primero > escalaEscena.valor * 0.85) escalaEscena.valor *= 1.6;
+
+      Libre.escena.actualizar($('sec-escena').querySelector('svg'), {
         hora: info.minutoDelDia / 60,
-        moviendo,
-        pilotoVisible: !ocupado
+        lluvia: Libre.sim.lloviendo(estado, estado.reloj.minutos),
+        taxis: visibles.map(function (t) {
+          return { avance: t.facturado / escalaEscena.valor, enCarrera: t.enCarrera, icono: t.icono };
+        })
       });
+
+      const lista = $('escena-lista');
+      if (lista && lista.closest('details').open) {
+        lista.innerHTML = todos.map(function (t) {
+          return '<li><span>' + esc(Libre.sim.textoLicencia(t.licencia)) + ' · ' + esc(t.quien) +
+            (t.icono ? ' · <em>' + TEXTO_ICONO[t.icono] + '</em>' : t.enCarrera ? ' · en carrera' : '') +
+            '</span><strong>' + euros(t.facturado) + '</strong></li>';
+        }).join('');
+      }
     }
   };
 

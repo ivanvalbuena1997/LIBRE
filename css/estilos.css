@@ -74,6 +74,7 @@
   --ventana-encendida: #ffd36b;
   --asfalto: #3b3d40;
   --carril: #e8e8e2;
+  --lluvia: #a9c6de;
   --luna: #f3f0dc;
   --taxi-contorno: #2a2a2a;
   --taxi-cristal: #9fb7c9;
@@ -471,17 +472,73 @@ textarea {
 
 /* Escena encima del taxímetro */
 #sec-escena {
+  position: relative;
   padding: 0;
-  height: 44px;
   overflow: hidden;
   margin-bottom: 8px;
 }
-.escena { display: block; width: 100%; height: 44px; }
+/* Alto según los carriles (de 1 a 5): el SVG guarda su proporción. */
+.escena { display: block; width: 100%; height: auto; }
+
+/* Cada taxi en su carril: se desliza hasta su sitio */
+.escena .taxi { transition: transform 0.6s linear; }
+.escena .taxi.oculto-taxi { display: none; }
+.escena .taxi .radios,
+.escena .taxi .taxi-cuerpo { animation-play-state: paused; }
+.escena .taxi.en-carrera .radios,
+.escena .taxi.en-carrera .taxi-cuerpo { animation-play-state: running; }
+.escena .taxi .piloto-taxi { opacity: 0; }
+.escena .taxi.piloto-on .piloto-taxi { opacity: 1; filter: drop-shadow(0 0 2px var(--verde-libre)); }
+
+/* Icono del motivo de parada */
+.escena .icono { display: none; }
+.escena .taxi[data-icono="averia"] .icono-averia,
+.escena .taxi[data-icono="baja"] .icono-baja,
+.escena .taxi[data-icono="vacio"] .icono-vacio,
+.escena .taxi[data-icono="fin"] .icono-fin { display: inline; }
+.escena .icono-fondo { fill: var(--blanco); stroke: var(--taxi-contorno); stroke-width: 0.8; }
+.escena .icono-trazo { fill: none; stroke: var(--taxi-contorno); stroke-width: 1.4; stroke-linecap: round; }
+.escena .icono-cruz { fill: none; stroke: var(--rojo-taxi); stroke-width: 2; stroke-linecap: round; }
+.escena .icono-raya { stroke: var(--rojo-taxi); stroke-width: 1.2; }
+.escena .icono-luna { fill: var(--tarifa-2); }
+
+/* Lluvia */
+.escena .lluvia { display: none; }
+.escena.lloviendo .lluvia { display: inline; animation: llover 0.7s linear infinite; }
+.escena .gota { stroke: var(--lluvia); stroke-width: 1; stroke-linecap: round; }
+@keyframes llover { to { transform: translate(-4px, 12px); } }
+
+/* «+N más»: lista de todos los taxis */
+.escena-mas summary {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--blanco);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  box-shadow: 0 1px 4px var(--sombra);
+}
+.escena-mas summary::-webkit-details-marker { display: none; }
+.escena-lista { margin: 0; padding: 6px 12px 10px; list-style: none; font-size: 0.85rem; }
+.escena-lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+  border-top: 1px solid var(--borde);
+  font-variant-numeric: tabular-nums;
+}
+.escena-lista li:first-child { border-top: 0; }
+.escena-lista em { color: var(--rojo-taxi); font-style: normal; }
 .escena .edificio-lejos { fill: var(--edificio-lejos); }
 .escena .edificio-cerca { fill: var(--edificio-cerca); }
 .escena .ventanal { fill: var(--ventana-apagada); }
 .escena .asfalto { fill: var(--asfalto); }
-.escena .carril { fill: var(--carril); }
+.escena .carril { fill: var(--carril); opacity: 0.45; }
 .escena .estrella, .escena .luna { fill: var(--luna); opacity: 0; transition: opacity 1s; }
 .escena.noche .estrella, .escena.noche .luna { opacity: 1; }
 .escena.noche .edificio-lejos { fill: var(--edificio-lejos-noche); }
@@ -500,19 +557,16 @@ textarea {
 .escena .neumatico { fill: var(--neumatico); }
 .escena .llanta { fill: var(--llanta); }
 .escena .radio { stroke: var(--neumatico); stroke-width: 0.8; }
-.escena .piloto-taxi { fill: var(--verde-libre); opacity: 0; }
-.escena.piloto-on .piloto-taxi { opacity: 1; filter: drop-shadow(0 0 2px var(--verde-libre)); }
+.escena .piloto-taxi { fill: var(--verde-libre); }
 
-/* Movimiento: la calle se desplaza y las ruedas giran mientras hay carrera. */
+/* Movimiento: la calle se desplaza mientras algún taxi lleva pasajero. */
 .escena .capa { animation: desplazar linear infinite; animation-play-state: paused; }
 .escena .capa-lejos { animation-duration: 40s; }
 .escena .capa-cerca { animation-duration: 16s; }
 .escena .capa-carril { animation-duration: 3s; }
-.escena .radios { animation: girar 0.5s linear infinite; animation-play-state: paused; }
-.escena .taxi-cuerpo { animation: botar 0.6s ease-in-out infinite; animation-play-state: paused; }
-.escena.moviendo .capa,
-.escena.moviendo .radios,
-.escena.moviendo .taxi-cuerpo { animation-play-state: running; }
+.escena .radios { animation: girar 0.5s linear infinite; }
+.escena .taxi-cuerpo { animation: botar 0.6s ease-in-out infinite; }
+.escena.moviendo .capa { animation-play-state: running; }
 @keyframes desplazar { to { transform: translateX(-560px); } }
 @keyframes girar { to { transform: rotate(360deg); } }
 @keyframes botar { 50% { transform: translateY(-0.6px); } }

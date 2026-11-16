@@ -392,6 +392,7 @@
     const cerrada = estado.caja.hoy;
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
+    estado.licencias.forEach(function (l) { l.facturadoJornada = 0; });
     resumen.cierres.push(cerrada);
   }
 
@@ -705,8 +706,12 @@
    * tarifa fija marca el precio fijo desde el principio.
    */
   function importeEnCurso(estado) {
-    const carrera = estado.jugador.carrera;
-    if (!carrera || estado.reloj.minutos < carrera.finEspera) return null;
+    return importeDeCarrera(estado, estado.jugador.carrera);
+  }
+
+  /* Lo mismo para cualquier carrera (tuya o de un conductor). null sin pasajero. */
+  function importeDeCarrera(estado, carrera) {
+    if (!carrera || carrera.vacio || estado.reloj.minutos < carrera.finEspera) return null;
     const tarifa = cfg().tarifas[carrera.tarifa];
     if (tarifa.fija !== undefined) return tarifa.fija;
     const avance = Math.min(1, (estado.reloj.minutos - carrera.finEspera) / (carrera.fin - carrera.finEspera));
@@ -721,7 +726,15 @@
     };
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + (carrera.kmVacio || 0);
+    const antes = estado.totales.ingresos;
     eventosDeCarrera(estado, resumen, carrera, { quien: 'jugador', nombre: 'Tú' });
+    const u = ubicacionJugador(estado);
+    if (u) sumarFacturado(buscarLicencia(estado, u.licenciaId), estado.totales.ingresos - antes);
+  }
+
+  /* Lo que lleva facturado cada taxi en la jornada (para la escena). */
+  function sumarFacturado(lic, importe) {
+    if (lic && importe > 0) lic.facturadoJornada = (lic.facturadoJornada || 0) + importe;
   }
 
   function cobrar(estado, resumen, importe, carreras) {
@@ -831,7 +844,11 @@
     turno.carrera = null;
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + carrera.kmVacio;
-    if (!carrera.vacio) eventosDeCarrera(estado, resumen, carrera, turno);
+    if (carrera.vacio) return;
+    const antes = estado.totales.ingresos;
+    eventosDeCarrera(estado, resumen, carrera, turno);
+    sumarFacturado(estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }),
+      estado.totales.ingresos - antes);
   }
 
   // ------------------------------------------------------------- Eventos
@@ -1161,6 +1178,7 @@
       const viajes = r.viajesHora * horas;
       const ingresos = viajes * r.importe;
       if (viajes > 0) cobrar(estado, resumen, ingresos, viajes);
+      coches.forEach(function (x) { sumarFacturado(x.licencia, ingresos / coches.length); });
 
       let costeKmMedio = 0;
       let conConductor = 0;
@@ -1345,6 +1363,7 @@
     despedirConductor,
     buscarCliente,
     importeEnCurso,
+    importeDeCarrera,
     enPausa,
     arrancarDia,
     cambiarAjuste,

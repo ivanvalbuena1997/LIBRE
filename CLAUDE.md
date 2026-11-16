@@ -126,9 +126,15 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   roja avisa de compras posibles o de un ticket esperando. La pestaña elegida
   se recuerda en `localStorage` (`libre-vista`), aparte de la partida.
 - Pestaña Calle en móvil, de arriba abajo: escena, taxímetro, objetivo y
-  zonas. Debe caber sin scroll en 375×600 px por encima del menú inferior;
-  va muy justo, así que cualquier texto nuevo ahí, a una línea y sin añadir
-  alto. Las tarjetas de zona sirven para elegir zona mientras conduces a
+  zonas. Con un solo taxi debe caber sin scroll en 375×600 px por encima del
+  menú inferior; con más taxis la escena crece (un carril por taxi, hasta 5)
+  y las zonas pueden quedar debajo, pero el taxímetro siempre entero.
+  Cualquier texto nuevo ahí, a una línea y sin añadir alto.
+- Escena: un carril por taxi, los 5 que más facturan (el resto en «+N más»).
+  La posición sale de `licencia.facturadoJornada` (a cero en cada cierre) más
+  lo que marca su taxímetro (`importeDeCarrera`), sobre una escala que solo
+  crece dentro de la jornada. Iconos de parado: avería, baja, sin conductor y
+  jornada terminada. Con lluvia, gotas. Las tarjetas de zona sirven para elegir zona mientras conduces a
   mano.
 - El taxímetro es la primera tarjeta y debe verse entero en el móvil sin
   scroll. Mientras conduces es el botón de buscar cliente; si no conduces,

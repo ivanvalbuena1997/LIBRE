@@ -1,22 +1,26 @@
 /*
  * Libre · escena.
  *
- * Tira SVG decorativa encima del taxímetro: cielo que sigue el reloj del juego,
- * dos capas de edificios y el taxi blanco con la franja roja.
+ * Tira SVG encima del taxímetro: cielo que sigue el reloj del juego, dos
+ * capas de edificios y un carril por taxi (hasta 5). Cada taxi va más
+ * adelantado cuanto más lleva facturado en la jornada, avanza mientras lleva
+ * pasajero y, si está parado por algo, enseña un icono con el motivo.
  * Es solo interfaz: recibe datos ya calculados y no sabe nada de la simulación.
  *
  * Colores: variables CSS del :root (ver estilos.css). El cielo se interpola
  * en JS, así que lee esas variables una vez y las mezcla.
- * Movimiento: animaciones CSS (baratas) que se pausan cuando el taxi está
- * libre y se anulan con prefers-reduced-motion.
+ * Movimiento: transiciones y animaciones CSS, anuladas con prefers-reduced-motion.
  */
 (function (raiz) {
   'use strict';
   const Libre = raiz.Libre = raiz.Libre || {};
 
-  const ANCHO = 560;       // un tramo de calle; se repite dos veces para el bucle
-  const ALTO = 56;          // la tira se ve más baja: el SVG recorta el cielo
-  const SUELO = 46;        // donde empieza la calzada
+  const ANCHO = 560;        // un tramo de calle; se repite dos veces para el bucle
+  const SUELO = 46;         // donde empieza la calzada
+  const CARRIL = 18;        // alto de cada carril
+  const ESCALA_TAXI = 0.7;  // el dibujo del taxi mide unas 45 × 26 unidades
+  const X_SALIDA = 6;       // donde arrancan todos al empezar la jornada
+  const X_META = ANCHO - 34;
 
   /* Azar con semilla: los edificios salen siempre iguales. */
   function azar(semilla) {
@@ -62,8 +66,8 @@
   }
 
   /* Taxi de Madrid mirando a la derecha: blanco con franja roja diagonal. */
-  function taxi() {
-    return '<g class="taxi" transform="translate(70 27)"><g class="taxi-cuerpo">' +
+  function dibujoTaxi() {
+    return '<g class="taxi-cuerpo">' +
       '<rect class="taxi-luminoso" x="19" y="-4" width="7" height="4" rx="1"/>' +
       '<circle class="piloto-taxi" cx="22.5" cy="-6" r="2"/>' +
       '<path class="taxi-chapa" d="M9 6 L14 0 H30 L36 6 Z"/>' +
@@ -72,31 +76,69 @@
       '<rect class="taxi-chapa" x="1" y="5.5" width="43" height="9" rx="3"/>' +
       '<polygon class="taxi-franja" points="15,14.5 20,14.5 27,5.5 22,5.5"/>' +
       '<rect class="taxi-faro" x="41.5" y="7.5" width="2.5" height="2" rx="0.8"/>' +
-      '</g>' + rueda(10) + rueda(35) + '</g>';
+      '</g>' + rueda(10) + rueda(35);
   }
 
-  function html() {
+  /*
+   * Iconos del motivo por el que un taxi está parado, encima del techo.
+   * Solo se ve el que toca (clase data-icono en el taxi).
+   */
+  const ICONOS = {
+    averia: '<circle class="icono-fondo" r="6"/><path class="icono-trazo" d="M-3 3 L1.5 -1.5 M0.5 -3.5 a2.3 2.3 0 1 0 3 3"/>',
+    baja: '<circle class="icono-fondo" r="6"/><path class="icono-cruz" d="M-3 0 H3 M0 -3 V3"/>',
+    vacio: '<circle class="icono-fondo" r="6"/><circle class="icono-trazo" cy="-1.8" r="1.6"/>' +
+      '<path class="icono-trazo" d="M-3 3.5 Q0 0 3 3.5"/><path class="icono-raya" d="M-4 -4 L4 4"/>',
+    fin: '<circle class="icono-fondo" r="6"/><path class="icono-luna" d="M1.5 -3.5 A3.6 3.6 0 1 0 1.5 3.5 A2.8 2.8 0 1 1 1.5 -3.5 Z"/>'
+  };
+
+  function taxiEnCarril(i) {
+    const y = SUELO + i * CARRIL + 1;
+    let iconos = '';
+    Object.keys(ICONOS).forEach(function (k) {
+      iconos += '<g class="icono icono-' + k + '" transform="translate(' + 32 + ' ' + -3 + ')">' + ICONOS[k] + '</g>';
+    });
+    return '<g class="taxi" data-carril="' + i + '" style="transform: translate(' + X_SALIDA + 'px, ' + y + 'px)">' +
+      '<g transform="scale(' + ESCALA_TAXI + ')">' + dibujoTaxi() + '</g>' + iconos + '</g>';
+  }
+
+  /* SVG con `carriles` carriles (1 a 5). */
+  function html(carriles) {
+    const n = Math.max(1, carriles || 1);
+    const alto = SUELO + n * CARRIL;
     const lejos = tramoEdificios(7, 14, 34, 18, 34, 'edificio-lejos', false);
     const cerca = tramoEdificios(11, 10, 26, 16, 28, 'edificio-cerca', true);
-    let carril = '';
-    for (let x = 0; x < ANCHO; x += 28) carril += '<rect class="carril" x="' + x + '" y="51" width="14" height="1.2"/>';
+    let lineas = '';
+    for (let c = 1; c < n; c++) {
+      for (let x = 0; x < ANCHO; x += 28) {
+        lineas += '<rect class="carril" x="' + x + '" y="' + (SUELO + c * CARRIL - 0.6) + '" width="14" height="1.2"/>';
+      }
+    }
     let estrellas = '';
     const r = azar(3);
     for (let i = 0; i < 18; i++) {
       estrellas += '<circle class="estrella" cx="' + Math.round(r() * ANCHO) + '" cy="' + Math.round(2 + r() * 18) + '" r="0.7"/>';
     }
-    return '<svg class="escena" viewBox="0 0 ' + ANCHO + ' ' + ALTO + '" preserveAspectRatio="xMinYMax slice" ' +
-      'role="img" aria-label="Calle de Madrid con tu taxi">' +
+    let gotas = '';
+    const g = azar(5);
+    for (let i = 0; i < 60; i++) {
+      const x = Math.round(g() * ANCHO), y = Math.round(g() * alto);
+      gotas += '<path class="gota" d="M' + x + ' ' + y + ' l-2 6"/><path class="gota" d="M' + x + ' ' + (y - alto) + ' l-2 6"/>';
+    }
+    let taxis = '';
+    for (let i = 0; i < n; i++) taxis += taxiEnCarril(i);
+    return '<svg class="escena" viewBox="0 0 ' + ANCHO + ' ' + alto + '" preserveAspectRatio="xMinYMax meet" ' +
+      'role="img" aria-label="Calle de Madrid con tus taxis">' +
       '<defs><linearGradient id="escena-cielo" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" id="cielo-alto"/><stop offset="1" id="cielo-bajo"/></linearGradient></defs>' +
-      '<rect width="' + ANCHO + '" height="' + ALTO + '" fill="url(#escena-cielo)"/>' +
+      '<rect width="' + ANCHO + '" height="' + SUELO + '" fill="url(#escena-cielo)"/>' +
       '<g class="estrellas">' + estrellas + '</g>' +
       '<circle class="luna" cx="470" cy="12" r="5"/>' +
       capa('capa-lejos', lejos) +
       capa('capa-cerca', cerca) +
-      '<rect class="asfalto" y="' + SUELO + '" width="' + ANCHO + '" height="' + (ALTO - SUELO) + '"/>' +
-      capa('capa-carril', carril) +
-      taxi() +
+      '<rect class="asfalto" y="' + SUELO + '" width="' + ANCHO + '" height="' + (n * CARRIL) + '"/>' +
+      capa('capa-carril', lineas) +
+      taxis +
+      '<g class="lluvia">' + gotas + '</g>' +
       '</svg>';
   }
 
@@ -142,8 +184,12 @@
   }
 
   /*
-   * datos: { hora (decimal 0–24), moviendo, pilotoVisible }
-   * De noche se encienden ventanas, salen estrellas y luna.
+   * datos: {
+   *   hora (decimal 0–24), lluvia (bool),
+   *   taxis: [{ avance 0–1, enCarrera, icono: null|'averia'|'baja'|'vacio'|'fin' }]
+   * }
+   * De noche se encienden ventanas, salen estrellas y luna, y los taxis libres
+   * llevan el piloto verde encendido.
    */
   function actualizar(svg, datos) {
     if (!paleta) leerPaleta();
@@ -151,8 +197,19 @@
     svg.querySelector('#cielo-bajo').setAttribute('stop-color', colorCielo(datos.hora, 'bajo'));
     const noche = datos.hora >= 20.5 || datos.hora < 7;
     svg.classList.toggle('noche', noche);
-    svg.classList.toggle('moviendo', !!datos.moviendo);
-    svg.classList.toggle('piloto-on', !!datos.pilotoVisible && noche);
+    svg.classList.toggle('lloviendo', !!datos.lluvia);
+    const algunoEnMarcha = datos.taxis.some(function (t) { return t.enCarrera; });
+    svg.classList.toggle('moviendo', algunoEnMarcha);
+    svg.querySelectorAll('.taxi').forEach(function (g, i) {
+      const t = datos.taxis[i];
+      g.classList.toggle('oculto-taxi', !t);
+      if (!t) return;
+      const x = X_SALIDA + Math.max(0, Math.min(1, t.avance)) * (X_META - X_SALIDA);
+      g.style.transform = 'translate(' + x.toFixed(1) + 'px, ' + (SUELO + i * CARRIL + 1) + 'px)';
+      g.classList.toggle('en-carrera', !!t.enCarrera);
+      g.classList.toggle('piloto-on', noche && !t.enCarrera && !t.icono);
+      g.dataset.icono = t.icono || '';
+    });
   }
 
   Libre.escena = { html, actualizar };
