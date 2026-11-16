@@ -311,7 +311,8 @@
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
      *             (el efecto del nivel es el total, no se suma al anterior).
      *   porVehiculo  se compra para cada coche y se gasta (rueda de repuesto).
-     * Precios y efectos: Equilibrio.
+     * Precios y efectos: Equilibrio. Precios revisados el 16-11-2026 (propuesta C): cada
+     * mejora se paga en unas 1–2 h de juego con 6 coches (medido con un bot).
      */
     /*
      * Ramas del árbol de mejoras, en el orden de las pestañas.
@@ -332,7 +333,7 @@
         efecto: { busqueda: 0.9 }
       },
       {
-        id: 'limpieza', nombre: 'Taxi impecable', rama: 'clientes', requiere: 'callejero', precio: 1200,
+        id: 'limpieza', nombre: 'Taxi impecable', rama: 'clientes', requiere: 'callejero', precio: 600,
         descripcion: 'Coche limpio y agua para el cliente: un 5 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.05 }
       },
@@ -340,25 +341,25 @@
         id: 'propinas', nombre: 'Propinas', rama: 'clientes', requiere: 'limpieza',
         descripcion: 'Trato de primera: más clientes dejan propina y dejan más.',
         niveles: [
-          { precio: 1500, descripcion: '+3 puntos de probabilidad y propinas un 15 % mayores.', efecto: { propinaProb: 0.03, propinaImporte: 1.15 } },
-          { precio: 3500, descripcion: '+6 puntos y un 30 % mayores.', efecto: { propinaProb: 0.06, propinaImporte: 1.3 } },
-          { precio: 7000, descripcion: '+9 puntos y un 45 % mayores.', efecto: { propinaProb: 0.09, propinaImporte: 1.45 } },
-          { precio: 12000, descripcion: '+12 puntos y un 60 % mayores.', efecto: { propinaProb: 0.12, propinaImporte: 1.6 } },
-          { precio: 20000, descripcion: '+15 puntos y un 80 % mayores.', efecto: { propinaProb: 0.15, propinaImporte: 1.8 } }
+          { precio: 1350, descripcion: '+3 puntos de probabilidad y propinas un 15 % mayores.', efecto: { propinaProb: 0.03, propinaImporte: 1.15 } },
+          { precio: 1980, descripcion: '+6 puntos y un 30 % mayores.', efecto: { propinaProb: 0.06, propinaImporte: 1.3 } },
+          { precio: 2700, descripcion: '+9 puntos y un 45 % mayores.', efecto: { propinaProb: 0.09, propinaImporte: 1.45 } },
+          { precio: 3600, descripcion: '+12 puntos y un 60 % mayores.', efecto: { propinaProb: 0.12, propinaImporte: 1.6 } },
+          { precio: 4500, descripcion: '+15 puntos y un 80 % mayores.', efecto: { propinaProb: 0.15, propinaImporte: 1.8 } }
         ]
       },
       {
-        id: 'datafono', nombre: 'Pago con tarjeta', rama: 'clientes', requiere: 'propinas', precio: 5000,
+        id: 'datafono', nombre: 'Pago con tarjeta', rama: 'clientes', requiere: 'propinas', precio: 1440,
         descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.1 }
       },
       {
-        id: 'camara', nombre: 'Cámara de seguridad', rama: 'clientes', requiere: 'datafono', precio: 6000,
+        id: 'camara', nombre: 'Cámara de seguridad', rama: 'clientes', requiere: 'datafono', precio: 1000,
         descripcion: 'Con la cámara a la vista, ningún cliente se va sin pagar.',
         efecto: { sinImpagos: true }
       },
       {
-        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'camara', precio: 7000,
+        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'camara', precio: 2000,
         descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.08 }
       },
@@ -374,12 +375,12 @@
         efecto: { desbloqueaZona: 'estaciones' }
       },
       {
-        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'estaciones', precio: 3000,
+        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'estaciones', precio: 1300,
         descripcion: 'Te pasan clientes por radio: un 30 % menos de tiempo buscando. Tiene cuota diaria por coche.',
         efecto: { busqueda: 0.7, cuotaEmisora: true }
       },
       {
-        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'emisora', precio: 3500,
+        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'emisora', precio: 2300,
         descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 15 % más de demanda.',
         efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
       },
@@ -389,7 +390,7 @@
         efecto: { cola: 0.6, soloZona: 'aeropuerto' }
       },
       {
-        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 12000,
+        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 4000,
         descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
         efecto: { busqueda: 0.7 }
       },
@@ -400,12 +401,12 @@
         efecto: { consumo: 0.9 }
       },
       {
-        id: 'neumaticos', nombre: 'Neumáticos de bajo consumo', rama: 'vehiculo', requiere: 'conduccionEficiente', precio: 2200,
+        id: 'neumaticos', nombre: 'Neumáticos de bajo consumo', rama: 'vehiculo', requiere: 'conduccionEficiente', precio: 900,
         descripcion: 'Todos tus coches gastan un 8 % menos de combustible.',
         efecto: { consumo: 0.92 }
       },
       {
-        id: 'hibridos', nombre: 'Flota híbrida', rama: 'vehiculo', requiere: 'neumaticos', precio: 15000,
+        id: 'hibridos', nombre: 'Flota híbrida', rama: 'vehiculo', requiere: 'neumaticos', precio: 4000,
         descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
         efecto: { consumo: 0.65 }
       },
@@ -419,20 +420,20 @@
         id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller', requiere: 'rueda',
         descripcion: 'Un mecánico de confianza: las averías duran menos y cuestan menos.',
         niveles: [
-          { precio: 3000, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },
-          { precio: 6000, descripcion: 'Un 30 % más cortas y baratas.', efecto: { averiaDias: 0.7, averiaCoste: 0.7 } },
-          { precio: 10000, descripcion: 'Un 45 % más cortas y un 40 % más baratas.', efecto: { averiaDias: 0.55, averiaCoste: 0.6 } },
-          { precio: 16000, descripcion: 'Un 55 % más cortas y la mitad de caras.', efecto: { averiaDias: 0.45, averiaCoste: 0.5 } },
-          { precio: 25000, descripcion: 'Un 65 % más cortas y un 60 % más baratas.', efecto: { averiaDias: 0.35, averiaCoste: 0.4 } }
+          { precio: 300, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },
+          { precio: 525, descripcion: 'Un 30 % más cortas y baratas.', efecto: { averiaDias: 0.7, averiaCoste: 0.7 } },
+          { precio: 750, descripcion: 'Un 45 % más cortas y un 40 % más baratas.', efecto: { averiaDias: 0.55, averiaCoste: 0.6 } },
+          { precio: 1050, descripcion: 'Un 55 % más cortas y la mitad de caras.', efecto: { averiaDias: 0.45, averiaCoste: 0.5 } },
+          { precio: 1350, descripcion: 'Un 65 % más cortas y un 60 % más baratas.', efecto: { averiaDias: 0.35, averiaCoste: 0.4 } }
         ]
       },
       {
-        id: 'seguroFlota', nombre: 'Póliza de flota', rama: 'taller', requiere: 'mecanico', precio: 4000,
+        id: 'seguroFlota', nombre: 'Póliza de flota', rama: 'taller', requiere: 'mecanico', precio: 700,
         descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
         efecto: { seguro: 0.8 }
       },
       {
-        id: 'seguridadVial', nombre: 'Curso de seguridad vial', rama: 'taller', requiere: 'seguroFlota', precio: 9000,
+        id: 'seguridadVial', nombre: 'Curso de seguridad vial', rama: 'taller', requiere: 'seguroFlota', precio: 675,
         descripcion: 'Menos partes de accidente: el seguro de cada coche baja otro 25 %.',
         efecto: { seguro: 0.75 }
       },
@@ -441,35 +442,35 @@
         id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',
         descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
         niveles: [
-          { precio: 500, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },
-          { precio: 1500, descripcion: 'De 1 a 3 € por turno.', efecto: { monedasMin: 1, monedasMax: 3 } },
-          { precio: 3500, descripcion: 'De 1,50 a 4,50 € por turno.', efecto: { monedasMin: 1.5, monedasMax: 4.5 } },
-          { precio: 7000, descripcion: 'De 2 a 6 € por turno.', efecto: { monedasMin: 2, monedasMax: 6 } },
-          { precio: 12000, descripcion: 'De 3 a 8 € por turno.', efecto: { monedasMin: 3, monedasMax: 8 } }
+          { precio: 450, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },
+          { precio: 720, descripcion: 'De 1 a 3 € por turno.', efecto: { monedasMin: 1, monedasMax: 3 } },
+          { precio: 990, descripcion: 'De 1,50 a 4,50 € por turno.', efecto: { monedasMin: 1.5, monedasMax: 4.5 } },
+          { precio: 1350, descripcion: 'De 2 a 6 € por turno.', efecto: { monedasMin: 2, monedasMax: 6 } },
+          { precio: 1800, descripcion: 'De 3 a 8 € por turno.', efecto: { monedasMin: 3, monedasMax: 8 } }
         ]
       },
       {
-        id: 'jornada1', nombre: 'Jornada larga I', rama: 'jornada', requiere: 'esterillas', precio: 1500,
+        id: 'jornada1', nombre: 'Jornada larga I', rama: 'jornada', requiere: 'esterillas', precio: 400,
         descripcion: 'El día dura 10 segundos más: más carreras con los mismos costes fijos diarios.',
         efecto: { segundosDia: 10 }
       },
       {
-        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'jornada1', precio: 4500,
+        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'jornada1', precio: 700,
         descripcion: 'El día dura otros 10 segundos más.',
         efecto: { segundosDia: 10 }
       },
       {
-        id: 'jornada3', nombre: 'Jornada larga III', rama: 'jornada', requiere: 'jornada2', precio: 11000,
+        id: 'jornada3', nombre: 'Jornada larga III', rama: 'jornada', requiere: 'jornada2', precio: 1000,
         descripcion: 'El día dura otros 10 segundos más.',
         efecto: { segundosDia: 10 }
       },
       {
-        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornada3', precio: 12000,
+        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornada3', precio: 6000,
         descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota. Tu turno queda libre para un conductor.',
         efecto: { dejarVolante: true }
       },
       {
-        id: 'jornada4', nombre: 'Jornada larga IV', rama: 'jornada', requiere: 'oficina', precio: 22000,
+        id: 'jornada4', nombre: 'Jornada larga IV', rama: 'jornada', requiere: 'oficina', precio: 1400,
         descripcion: 'El día dura 15 segundos más.',
         efecto: { segundosDia: 15 }
       }
