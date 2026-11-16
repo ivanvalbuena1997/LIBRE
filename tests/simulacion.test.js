@@ -619,4 +619,18 @@ prueba('sin el curso, los conductores eligen al azar una zona con clientes; con 
   assert.ok(zonas().indexOf('aeropuerto') !== -1, 'con el curso, alguno va al aeropuerto, que es lo que más deja');
 });
 
+prueba('el vómito depende de la zona y la hora, y deja una hora parado', function () {
+  const e = flotaDe(1);
+  const v = config.eventos.vomito;
+  e.reloj.minutos = 12 * 60;
+  assert.strictEqual(sim.probVomito(e, { zona: 'centro' }), v.probCarrera, 'de día');
+  e.reloj.minutos = 23 * 60;
+  assert.strictEqual(sim.probVomito(e, { zona: 'centro' }), v.probNoche, 'de noche');
+  assert.strictEqual(sim.probVomito(e, { zona: 'ocio' }), v.probPorZona.ocio, 'a la salida del ocio');
+  sim.forzarEvento(e, 'vomito');
+  for (let i = 0; i < 400 && !e.caja.hoy.incidencias.vomito; i++) sim.avanzar(e, 0.1);
+  const parado = e.licencias[0].turnos.noche.paradoHasta - e.reloj.minutos;
+  assert.ok(parado > 0 && parado <= v.horasParado * 60 + 1e-6, 'una hora parado, no toda la jornada: ' + parado);
+});
+
 console.log(pasadas + ' pruebas correctas');

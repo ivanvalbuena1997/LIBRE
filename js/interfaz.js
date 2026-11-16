@@ -42,6 +42,12 @@
     return { dia, nombreDia: c.reloj.diasSemana[((dia % 7) + 7) % 7], avance: enJornada / Libre.sim.MIN_DIA };
   }
 
+  /* "HH:MM" de un minuto del reloj. */
+  function horaDe(minutos) {
+    const i = Libre.sim.infoReloj(minutos);
+    return dos(i.hora) + ':' + dos(i.minuto);
+  }
+
   function textoHora(info) {
     return jornadaDe(info.dia * Libre.sim.MIN_DIA + info.minutoDelDia).nombreDia + ' ' +
       dos(info.hora) + ':' + dos(info.minuto);
@@ -163,7 +169,7 @@
       $('tx-pie').textContent = pausa ? 'Día cerrado'
         : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
         : carrera ? c.zonas[carrera.zona].textoEspera + '…'
-        : parado ? 'Jornada terminada: vuelves en tu próximo turno'
+        : parado ? 'Parado hasta las ' + horaDe(estado.jugador.paradoHasta)
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
         : 'Toca para buscar cliente';
       // Latido suave mientras el taxi espera a que lo toques.
@@ -694,7 +700,7 @@
       const faltan = t.baja.hasta - jornada;
       texto = 'De baja: ' + (faltan === 1 ? 'falta 1 día' : 'faltan ' + faltan + ' días');
     }
-    else if (t.paradoHasta > estado.reloj.minutos) texto = 'Jornada terminada';
+    else if (t.paradoHasta > estado.reloj.minutos) texto = 'Parado hasta las ' + horaDe(t.paradoHasta);
     return texto ? '<span class="turno-estado">' + texto + '</span>' : '';
   }
 

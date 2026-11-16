@@ -735,7 +735,9 @@
     if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
     if (estado.jugador.paradoHasta > estado.reloj.minutos) {
-      return fallo('Hoy ya no puedes trabajar más: vuelves en tu próximo turno.');
+      const vuelta = infoReloj(estado.jugador.paradoHasta);
+      return fallo('Estás parado hasta las ' + String(vuelta.hora).padStart(2, '0') + ':' +
+        String(vuelta.minuto).padStart(2, '0') + '.');
     }
     if (!jugadorEnTurno(estado)) {
       const t = c.turnos[ubicacionJugador(estado).turno];
@@ -983,7 +985,7 @@
         Libre.ui_euros(objeto.recompensa) + ' de recompensa.', objeto.recompensa, 'extras', quien);
     }
 
-    if (toca(estado, 'vomito', ev.vomito.probCarrera)) {
+    if (toca(estado, 'vomito', probVomito(estado, carrera))) {
       consumirForzado(estado, 'vomito');
       if (estado.inventario.bolsas > 0) {
         // Con una bolsa a mano no pasa nada: se gasta y sale en el ticket.
@@ -992,10 +994,34 @@
         return;
       }
       const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax);
-      pararHastaFinDeTurno(estado, quien);
+      pararUnRato(estado, quien, ev.vomito.horasParado * 60);
       incidencia(estado, resumen, 'vomito',
         'Un cliente vomita en el taxi' + (esConductor ? ' de ' + sujeto : '') + ': limpieza de ' +
-        Libre.ui_euros(coste) + ' y ' + (esConductor ? 'termina' : 'terminas') + ' la jornada.', -coste, 'otros', quien);
+        Libre.ui_euros(coste) + ' y una hora parado.', -coste, 'otros', quien);
+    }
+  }
+
+  /* Probabilidad de vómito de una carrera: por zona, de noche o de día. */
+  function probVomito(estado, carrera) {
+    const v = cfg().eventos.vomito;
+    if (v.probPorZona && v.probPorZona[carrera.zona] !== undefined) return v.probPorZona[carrera.zona];
+    const hora = infoReloj(estado.reloj.minutos).hora;
+    const noche = hora >= v.horaNocheInicio || hora < v.horaNocheFin;
+    return noche ? v.probNoche : v.probCarrera;
+  }
+
+  /*
+   * El turno (tuyo o de un conductor) se queda parado `minutos` de juego
+   * (al ritmo real de siempre: con jornadas largas el reloj va más lento).
+   */
+  function pararUnRato(estado, quien, minutos) {
+    const hasta = estado.reloj.minutos + minutos / factorJornada(estado);
+    if (quien.quien === 'conductor') {
+      quien.paradoHasta = Math.max(quien.paradoHasta || 0, hasta);
+      quien.carrera = null;
+    } else {
+      estado.jugador.paradoHasta = Math.max(estado.jugador.paradoHasta || 0, hasta);
+      estado.jugador.carrera = null;
     }
   }
 
@@ -1440,6 +1466,7 @@
     sumarCierres,
     azar,
     jornadaDe,
+    probVomito,
     puedeTrabajar,
     lloviendo,
     forzarEvento,

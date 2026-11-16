@@ -95,7 +95,10 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   vez por jornada. Van a la caja como `extras` (dinero que entra), `otros`
   (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket. Sin
   conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
-  Sin mejoras, su efecto neto debe quedar cerca de cero (medido con un bot).
+  Sin mejoras, su efecto neto debe quedar cerca de cero (medido con un bot),
+  salvo los vómitos: a propósito (Iván) son un coste que se evita con bolsas
+  (1 % por carrera de noche, 3 % en Ocio nocturno, 1 hora parado). Con 3
+  coches restan un 15 % sin bolsas y un 3 % con ellas.
   Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
 - Árbol de mejoras: cada mejora tiene `rama` (`config.ramasMejoras`) y
   `requiere` la anterior de su rama (basta su nivel 1); el orden de la lista

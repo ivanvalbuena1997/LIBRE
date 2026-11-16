@@ -60,7 +60,13 @@
         porcentajeMin: 0.05, porcentajeMax: 0.25    // sobre el importe de la carrera
       },
       sinPagar: { nombre: 'Sin pagar', probCarrera: 0.01 },
-      vomito: { nombre: 'Vómitos', probCarrera: 0.0008, costeMin: 50, costeMax: 90 },
+      // Vómitos (Iván): mucho más de noche y, sobre todo, a la salida del ocio.
+      // probCarrera es de día; probNoche, de horaNocheInicio a horaNocheFin;
+      // probPorZona manda sobre las dos. Efecto: limpieza y horasParado sin trabajar.
+      vomito: {
+        nombre: 'Vómitos', probCarrera: 0.0008, probNoche: 0.01, probPorZona: { ocio: 0.03 },
+        horaNocheInicio: 21, horaNocheFin: 7, costeMin: 50, costeMax: 90, horasParado: 1
+      },
       objeto: {
         nombre: 'Objetos devueltos', probCarrera: 0.01,
         // De menos a más valor; «peso» es cuánto sale cada uno (menos, más raro).
