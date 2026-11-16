@@ -60,10 +60,35 @@
       // guarda el ticket por enseñar (los días que cubre y sus sumas).
       cierrePendiente: null,
       ajustes: { pararAlCierre: true },
+      // Semilla del azar de la flota (carreras de conductores y eventos).
+      // Vive en el estado: al recargar, la partida sigue igual.
+      azar: semillaInicial(rng),
       ultimaMarca: ahoraMs || 0
     };
     estado.licencias[0].numero = sortearNumeroLicencia(estado, rng);
     return estado;
+  }
+
+  // ------------------------------------------------------------------- Azar
+
+  function semillaInicial(rng) {
+    return Math.floor((rng || Math.random)() * 4294967296) >>> 0;
+  }
+
+  /*
+   * Generador con semilla guardada en estado.azar (mulberry32). Todo el azar
+   * de la flota sale de aquí, nunca de Math.random.
+   */
+  function azar(estado) {
+    estado.azar = (estado.azar + 0x6D2B79F5) >>> 0;
+    let t = estado.azar;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  function generador(estado) {
+    return function () { return azar(estado); };
   }
 
   // --------------------------------------------------- Número de licencia
@@ -447,6 +472,7 @@
     const lic = buscarLicencia(estado, licenciaId);
     const t = lic && lic.turnos[turno];
     if (!t || t.quien !== 'conductor') return fallo('Ahí no hay ningún conductor.');
+    // Si estaba en una carrera, se pierde: se va con el cliente.
     lic.turnos[turno] = null;
     return exito(t.nombre + ' ya no trabaja para ti.');
   }
@@ -472,6 +498,54 @@
   }
 
   /*
+   * Planea una carrera en una zona: espera hasta encontrar cliente y viaje.
+   *   viajesHoraPorCoche  carreras por hora que le tocan a este coche
+   *   espera              'media' (a mano: tarda lo esperado) o 'azar'
+   *                       (conductores: parte fija + parte exponencial, sin
+   *                       memoria, para poder cortarla en cada hora).
+   * Devuelve la carrera, con su combustible ya calculado.
+   */
+  function planearCarrera(estado, zonaId, vehiculo, viajesHoraPorCoche, rnd, modoEspera) {
+    const c = cfg();
+    const zona = c.zonas[zonaId];
+    const info = infoReloj(estado.reloj.minutos);
+    const m = modificadores(estado, zonaId);
+
+    const viaje = elegirViaje(zona, rnd);
+    const variacion = 1 + (rnd() * 2 - 1) * zona.variacion;
+    const km = viaje.km * variacion;
+    const minParado = viaje.minParado * variacion;
+    const minutosViaje = viaje.minutos * variacion;
+    const importe = importeViaje(viaje, info.tarifa, km, minParado);
+
+    // Ciclo medio por carrera = 60 / carreras por hora. La parte fija es
+    // buscar + cola; lo que falte hasta el ciclo es espera por poca demanda.
+    const medio = viajeMedio(zonaId, info.tarifa);
+    const fija = zona.busquedaMin * m.busqueda + zona.colaMin * m.cola;
+    const extraMedio = Math.max(0, 60 / viajesHoraPorCoche - medio.minutos - fija);
+    const extra = modoEspera === 'azar' ? -Math.log(1 - rnd()) * extraMedio : extraMedio;
+    const espera = fija + extra;
+
+    // Buscando cliente se gasta combustible; en la cola de una parada, no.
+    const enMarcha = zona.colaMin > 0 ? zona.busquedaMin * m.busqueda : espera - zona.colaMin * m.cola;
+    const kmVacio = Math.max(0, enMarcha) / 60 * c.conduccion.velocidadVacioKmH;
+
+    const f = factorJornada(estado);
+    const ahora = estado.reloj.minutos;
+    return {
+      zona: zonaId,
+      tarifa: viaje.tarifaFija || info.tarifa,
+      inicio: ahora,
+      finEspera: ahora + espera / f,
+      fin: ahora + (espera + minutosViaje) / f,
+      importe,
+      km,
+      kmVacio,
+      combustible: (km + kmVacio) * costePorKm(estado, vehiculo)
+    };
+  }
+
+  /*
    * El jugador sale a buscar cliente en su zona. La espera depende de la
    * demanda: con poca demanda tardas más en encontrar a alguien.
    */
@@ -494,36 +568,10 @@
       return fallo('Ahora no hay clientes en ' + zona.nombre + '. Prueba otra zona u otra hora.');
     }
 
-    const viaje = elegirViaje(zona, rnd);
-    const azar = 1 + (rnd() * 2 - 1) * zona.variacion;
-    const km = viaje.km * azar;
-    const minParado = viaje.minParado * azar;
-    const minutosViaje = viaje.minutos * azar;
-    const importe = importeViaje(viaje, info.tarifa, km, minParado);
-
     // Con mucha demanda esperas lo normal; con poca, hasta que aparece alguien.
-    const medio = viajeMedio(turno.zona, info.tarifa);
-    const ciclo = Math.max(minutosPorCarrera(estado, turno.zona, info.tarifa), 60 / demanda);
-    const espera = ciclo - medio.minutos;
-
-    // Buscando cliente se gasta combustible; en la cola de una parada, no.
-    const cola = zona.colaMin * modificadores(estado, turno.zona).cola;
-    const kmVacio = Math.max(0, espera - cola) / 60 * c.conduccion.velocidadVacioKmH;
+    const porCoche = Math.min(demanda, 60 / minutosPorCarrera(estado, turno.zona, info.tarifa));
     const lic = buscarLicencia(estado, ubicacionJugador(estado).licenciaId);
-
-    const f = factorJornada(estado);
-    const ahora = estado.reloj.minutos;
-    estado.jugador.carrera = {
-      zona: turno.zona,
-      tarifa: viaje.tarifaFija || info.tarifa,
-      inicio: ahora,
-      finEspera: ahora + espera / f,
-      fin: ahora + (espera + minutosViaje) / f,
-      importe,
-      km,
-      kmVacio,
-      combustible: (km + kmVacio) * costePorKm(estado, lic.vehiculo)
-    };
+    estado.jugador.carrera = planearCarrera(estado, turno.zona, lic.vehiculo, porCoche, rnd, 'media');
     return exito();
   }
 
@@ -610,8 +658,77 @@
     };
   }
 
-  /* Ingresos y gastos de todos los coches automáticos durante `minutos`. */
-  function producirAutomatico(estado, minutos, info, resumen) {
+  /*
+   * Conductores con carreras reales (juego abierto). Cada turno de conductor
+   * que esté en su franja y sin carrera empieza una: espera según la demanda
+   * de su zona repartida entre los coches que hay en ella, y luego el viaje.
+   * Si la espera pasaría de la hora en curso, ese rato queda «en vacío» hasta
+   * la hora (la espera no tiene memoria, así que se puede cortar sin sesgo).
+   */
+  function empezarCarrerasConductores(estado) {
+    const info = infoReloj(estado.reloj.minutos);
+    const grupos = cochesPorZona(estado, info);
+    const finHora = (Math.floor(estado.reloj.minutos / 60) + 1) * 60;
+    const rnd = generador(estado);
+    Object.keys(grupos).forEach(function (zonaId) {
+      const coches = grupos[zonaId];
+      const r = rendimientoZona(estado, zonaId, coches.length, info);
+      const porCoche = r.viajesHora / coches.length;
+      coches.forEach(function (x) {
+        if (x.turno.carrera) return;
+        if (porCoche <= 1e-6) {
+          x.turno.carrera = tramoEnVacio(estado, zonaId, x.licencia.vehiculo, finHora);
+          return;
+        }
+        const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar');
+        x.turno.carrera = carrera.finEspera > finHora
+          ? tramoEnVacio(estado, zonaId, x.licencia.vehiculo, finHora)
+          : carrera;
+      });
+    });
+  }
+
+  /* Rato sin cliente hasta `hasta`: gasta combustible si la zona no tiene cola. */
+  function tramoEnVacio(estado, zonaId, vehiculo, hasta) {
+    const zona = cfg().zonas[zonaId];
+    const ahora = estado.reloj.minutos;
+    const minutosReales = (hasta - ahora) * factorJornada(estado);
+    const kmVacio = zona.colaMin > 0 ? 0 : minutosReales / 60 * cfg().conduccion.velocidadVacioKmH;
+    return {
+      vacio: true, zona: zonaId, inicio: ahora, finEspera: hasta, fin: hasta,
+      importe: 0, km: 0, kmVacio, combustible: kmVacio * costePorKm(estado, vehiculo)
+    };
+  }
+
+  /* Cobra (o solo gasta, si fue un rato en vacío) la carrera de un conductor. */
+  function terminarCarreraConductor(estado, resumen, turno) {
+    const carrera = turno.carrera;
+    turno.carrera = null;
+    if (!carrera.vacio) {
+      cobrar(estado, resumen, carrera.importe, 1);
+      gastar(estado, resumen, 'conductores', carrera.importe * cfg().conductores.porcentaje);
+    }
+    gastar(estado, resumen, 'combustible', carrera.combustible);
+    estado.caja.hoy.km += carrera.km + carrera.kmVacio;
+  }
+
+  /* Todas las carreras de conductores en curso (para buscar el siguiente fin). */
+  function turnosConCarrera(estado) {
+    const lista = [];
+    estado.licencias.forEach(function (lic) {
+      TURNOS.forEach(function (t) {
+        const x = lic.turnos[t];
+        if (x && x.quien === 'conductor' && x.carrera) lista.push(x);
+      });
+    });
+    return lista;
+  }
+
+  /*
+   * Cuenta agrupada (sin conexión): ingresos y gastos medios de todos los
+   * coches con conductor durante `minutos`, por zona y hora.
+   */
+  function producirAgregado(estado, minutos, info, resumen) {
     const c = cfg();
     const grupos = cochesPorZona(estado, info);
     const horas = minutos / 60 * factorJornada(estado);
@@ -656,27 +773,45 @@
    * ajuste pararAlCierre está activo, deja el cierre pendiente y se para (el
    * resto del tiempo se descarta). opciones.sinPausa cierra los días sin
    * pararse: lo usa el progreso sin conexión.
+   *
+   * Conductores: con el juego abierto hacen carreras reales y cobran al
+   * terminar cada una. opciones.agregado usa en su lugar la cuenta media por
+   * zona y hora (sin conexión, sin simular carrera a carrera).
    */
   function avanzar(estado, segundos, opciones) {
     const resumen = resumenVacio();
     if (enPausa(estado) || !(segundos > 0)) return resumen;
     const pararse = estado.ajustes.pararAlCierre && !(opciones && opciones.sinPausa);
+    const agregado = !!(opciones && opciones.agregado);
     let restante = segundos * MIN_DIA / segundosPorDia(estado);
     resumen.minutos = restante;
 
+    if (agregado) {
+      // Las carreras que estaban a medias se cobran ya, enteras.
+      turnosConCarrera(estado).forEach(function (t) { terminarCarreraConductor(estado, resumen, t); });
+    }
+
     while (restante > 1e-9) {
       const ahora = estado.reloj.minutos;
+      if (!agregado) empezarCarrerasConductores(estado);
       let limite = (Math.floor(ahora / 60) + 1) * 60;
       const carrera = estado.jugador.carrera;
       if (carrera && carrera.fin > ahora && carrera.fin < limite) limite = carrera.fin;
+      const enCurso = agregado ? [] : turnosConCarrera(estado);
+      enCurso.forEach(function (t) {
+        if (t.carrera.fin > ahora && t.carrera.fin < limite) limite = t.carrera.fin;
+      });
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
-      producirAutomatico(estado, paso, infoReloj(ahora), resumen);
+      if (agregado) producirAgregado(estado, paso, infoReloj(ahora), resumen);
       estado.reloj.minutos = llega ? limite : ahora + paso;
       restante -= paso;
 
       if (carrera && estado.reloj.minutos >= carrera.fin) terminarCarrera(estado, resumen);
+      enCurso.forEach(function (t) {
+        if (t.carrera && estado.reloj.minutos >= t.carrera.fin) terminarCarreraConductor(estado, resumen, t);
+      });
       if (llega && limite % MIN_DIA === cfg().reloj.minutoCierreCaja) {
         cerrarCaja(estado, resumen);
         if (pararse) {
@@ -718,7 +853,7 @@
       // Una millonésima de más asegura cruzar el cierre pese al redondeo.
       if (hastaCierre > 0) segundos = hastaCierre + 1e-6;
     }
-    const resumen = avanzar(estado, segundos, { sinPausa: true });
+    const resumen = avanzar(estado, segundos, { sinPausa: true, agregado: true });
     if (estado.ajustes.pararAlCierre && resumen.cierres.length > 0) {
       estado.cierrePendiente = sumarCierres(resumen.cierres);
     }
@@ -769,6 +904,7 @@
     arrancarDia,
     cambiarAjuste,
     sumarCierres,
+    azar,
     avanzar,
     progresoSinConexion
   };

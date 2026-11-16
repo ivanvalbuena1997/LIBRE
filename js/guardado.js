@@ -49,6 +49,10 @@
         });
       });
       estado.jugador.zona = zona || Libre.config.zonaInicial;
+    },
+    // Versión 6: los conductores hacen carreras reales con azar con semilla.
+    5: function (estado) {
+      estado.azar = Math.floor(Math.random() * 4294967296) >>> 0;
     }
   };
 

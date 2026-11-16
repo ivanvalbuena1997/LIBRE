@@ -183,7 +183,7 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
     e.dinero = 100000;
     sim.contratarConductor(e, 1, 'noche');
     if (conMejora) sim.comprarMejora(e, 'jornada1');
-    return sim.avanzar(e, sim.segundosPorDia(e));
+    return sim.avanzar(e, sim.segundosPorDia(e), { agregado: true });   // cuenta media, sin azar
   }
   const normal = unDia(false), largo = unDia(true);
   assert.ok(largo.carreras > normal.carreras);
@@ -208,13 +208,38 @@ prueba('sin conexión solo avanza con el taxi automatizado y con tope', function
   assert.ok(r.carreras > 0);
 });
 
-prueba('sin conexión da lo mismo que jugando (sin pausa al cierre)', function () {
-  const fuera = conConductor();
-  const jugando = conConductor();
-  fuera.ajustes.pararAlCierre = jugando.ajustes.pararAlCierre = false;
-  sim.progresoSinConexion(fuera, 5.9 * DIA());   // no justo en un cierre de caja
-  for (let i = 0; i < 59 * DIA(); i++) sim.avanzar(jugando, 0.1);
-  cerca(fuera.dinero, jugando.dinero, 0.01);
+prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function () {
+  function flota() {
+    const e = sim.crearEstadoInicial(0);
+    e.dinero = 1e6;
+    e.ajustes.pararAlCierre = false;
+    sim.dejarDeConducir(Object.assign(e, { mejoras: { oficina: true } }));
+    for (let i = 0; i < 4; i++) sim.comprarLicencia(e);
+    e.licencias.forEach(function (l) {
+      if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
+      ['dia', 'noche'].forEach(function (t) { if (!l.turnos[t]) sim.contratarConductor(e, l.id, t); });
+    });
+    return e;
+  }
+  const fuera = flota(), jugando = flota();
+  const inicio = fuera.dinero;
+  const r = sim.avanzar(fuera, 30 * DIA(), { sinPausa: true, agregado: true });
+  for (let i = 0; i < 300 * DIA(); i++) sim.avanzar(jugando, 0.1);
+  const a = fuera.dinero - inicio, b = jugando.dinero - inicio;
+  assert.ok(r.carreras > 0);
+  assert.ok(Math.abs(b / a - 1) < 0.05, 'jugando ' + b.toFixed(0) + ' frente a sin conexión ' + a.toFixed(0));
+});
+
+prueba('los conductores cobran a saltos, al terminar cada carrera', function () {
+  const e = conConductor();
+  e.reloj.minutos = 20 * 60;                       // turno de noche, el del conductor
+  let saltos = 0, antes = e.totales.ingresos;
+  for (let i = 0; i < 200; i++) {
+    sim.avanzar(e, 0.1);
+    if (e.totales.ingresos !== antes) { saltos++; antes = e.totales.ingresos; }
+    assert.strictEqual(e.totales.carreras % 1, 0, 'carreras enteras');
+  }
+  assert.ok(saltos > 0 && saltos < 60, 'cobra solo a veces, no en cada instante: ' + saltos);
 });
 
 prueba('al cerrar el día el reloj se para hasta arrancar el siguiente', function () {

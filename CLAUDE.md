@@ -70,11 +70,20 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - Cada zona tiene varios tipos de carrera (cortas, medias, largas) y su
   demanda cambia cada jornada con `factorDeJornada()`: un «azar» que sale del
   número de jornada, así que el mismo día da siempre lo mismo (jugando y sin
-  conexión). Prohibido `Math.random` en lo que afecta a la flota.
-- Coches automáticos: valores medios, sin azar. Por zona y hora,
-  `viajes = min(demanda, coches × 60 / minutos por carrera)`. Los coches que
-  sobran dan vueltas en vacío (o esperan en la cola sin gastar si la zona
-  tiene cola).
+  conexión).
+- Azar de la flota: solo con `Libre.sim.azar(estado)`, un generador con
+  semilla guardada en `estado.azar`. Prohibido `Math.random` en lo que afecta
+  a la flota.
+- Conductores, con el juego abierto: carreras reales (`turno.carrera`), como
+  las tuyas. Esperan según su parte de la demanda de la zona
+  (`min(demanda, coches × capacidad) / coches` carreras por hora; espera fija
+  + exponencial, que se corta en cada hora), viajan y cobran al terminar,
+  descontando el porcentaje del conductor en cada carrera. Sin clientes, un
+  «tramo en vacío» hasta la hora. Los coches que sobran esperan más y gastan
+  en vacío (o esperan en la cola sin gastar si la zona tiene cola).
+- Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
+  hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
+  entre un 1 % y un 2 % más que jugando.
 - Tu turno siempre es a clic, también con conductores contratados: solo
   producen solos los turnos de conductores. Solo se trabaja dentro de la
   franja de tu turno (`jugadorEnTurno()`). Dejar el volante y quedarte solo
