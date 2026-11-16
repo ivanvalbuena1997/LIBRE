@@ -251,12 +251,17 @@ prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function 
 prueba('los conductores cobran a saltos, al terminar cada carrera', function () {
   const e = conConductor();
   e.reloj.minutos = 20 * 60;                       // turno de noche, el del conductor
+  // Sin bajas, pinchazos ni averías: que el conductor trabaje seguro.
+  const turno = { baja: config.eventos.baja.probTurno, pinchazo: config.eventos.pinchazo.probTurno };
+  config.eventos.baja.probTurno = config.eventos.pinchazo.probTurno = 0;
   let saltos = 0, antes = e.totales.ingresos;
   for (let i = 0; i < 200; i++) {
     sim.avanzar(e, 0.1);
     if (e.totales.ingresos !== antes) { saltos++; antes = e.totales.ingresos; }
     assert.strictEqual(e.totales.carreras % 1, 0, 'carreras enteras');
   }
+  config.eventos.baja.probTurno = turno.baja;
+  config.eventos.pinchazo.probTurno = turno.pinchazo;
   assert.ok(saltos > 0 && saltos < 60, 'cobra solo a veces, no en cada instante: ' + saltos);
 });
 
@@ -568,6 +573,23 @@ prueba('los conductores de la versión 9 reciben retrato y conservan su nombre',
   const t = migrado.licencias[1].turnos.dia;
   assert.strictEqual(t.nombre, 'Pilar');
   assert.ok(t.retrato >= 0);
+});
+
+prueba('sin el curso, los conductores eligen al azar una zona con clientes; con él, la mejor', function () {
+  const e = flotaDe(4);
+  comprarConRequisitos(e, 'aeropuerto');
+  e.reloj.minutos = 10 * 60;                     // de día: el ocio no tiene clientes
+  sim.avanzar(e, 0.1);
+  const zonas = function () {
+    return e.licencias.map(function (l) { return l.turnos.dia; })
+      .filter(function (t) { return t && t.quien === 'conductor'; }).map(function (t) { return t.zona; });
+  };
+  zonas().forEach(function (z) { assert.notStrictEqual(z, 'ocio', 'nadie se va a una zona vacía'); });
+  assert.ok(!sim.elegirZona(e, 2, 'dia', 'centro').ok, 'ya no se elige la zona de un conductor');
+  comprarConRequisitos(e, 'gestionZonas');
+  e.reloj.minutos = 11 * 60;
+  sim.avanzar(e, 0.1);
+  assert.ok(zonas().indexOf('aeropuerto') !== -1, 'con el curso, alguno va al aeropuerto, que es lo que más deja');
 });
 
 console.log(pasadas + ' pruebas correctas');

@@ -303,6 +303,8 @@
      *             cuotaEmisora: activa el coste diario de la emisora
      *             dejarVolante: permite dejar de conducir y solo gestionar
      *             seguro: multiplica el seguro diario de cada coche
+     *             gestionZonas: los conductores eligen la mejor zona cada hora
+     *                           (sin ella, eligen al azar entre las que tienen clientes)
      *             propinaProb: suma a la probabilidad de propina
      *             propinaImporte: multiplica el importe de la propina
      *             sinImpagos: nadie se va sin pagar
@@ -455,7 +457,12 @@
         efecto: { segundosDia: 10 }
       },
       {
-        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'jornada1', precio: 700,
+        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', requiere: 'jornada1', precio: 2500,
+        descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
+        efecto: { gestionZonas: true }
+      },
+      {
+        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'gestionZonas', precio: 700,
         descripcion: 'El día dura otros 10 segundos más.',
         efecto: { segundosDia: 10 }
       },

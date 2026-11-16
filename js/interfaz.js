@@ -675,7 +675,9 @@
       const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
       const deBaja = t.baja && jornada < t.baja.hasta;
       cuerpo = '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
-        '<span class="quien">' + esc(t.nombre) + '</span>' + selectorZona(estado, lic.id, turno, t.zona) +
+        '<span class="quien">' + esc(t.nombre) + '</span>' +
+        // La zona la eligen ellos (al azar, o la mejor con el Curso gestión de zonas).
+        '<span class="turno-zona">Trabaja en ' + esc(Libre.config.zonas[t.zona] ? Libre.config.zonas[t.zona].nombre : t.zona) + '</span>' +
         boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro') +
         estadoTurno(estado, lic, t);
     }

@@ -83,6 +83,12 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   descontando el porcentaje del conductor en cada carrera. Sin clientes, un
   «tramo en vacío» hasta la hora. Los coches que sobran esperan más y gastan
   en vacío (o esperan en la cola sin gastar si la zona tiene cola).
+- Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
+  una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
+  zonas», al empezar su turno o si su zona se queda sin clientes eligen al
+  azar entre las zonas con clientes; con el curso, cada hora la que más deja
+  al dueño contando a los compañeros. En Flota no se puede elegir su zona;
+  la tuya, sí.
 - Eventos (`config.eventos`): por carrera (propina, sin pagar, objeto
   devuelto, vómito; también en las tuyas), al empezar cada turno (baja,
   pinchazo y avería en conductores; en el tuyo solo pinchazo) y lluvia una

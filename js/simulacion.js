@@ -196,7 +196,7 @@
   function modificadores(estado, zonaId) {
     const m = {
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
-      cuotaEmisora: false, dejarVolante: false,
+      cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0
     };
@@ -219,6 +219,7 @@
       if (e.averiaDias) m.averiaDias *= e.averiaDias;
       if (e.averiaCoste) m.averiaCoste *= e.averiaCoste;
       if (e.monedasMax) { m.monedasMin = e.monedasMin; m.monedasMax = e.monedasMax; }
+      if (e.gestionZonas) m.gestionZonas = true;
     });
     return m;
   }
@@ -602,9 +603,60 @@
   function elegirZona(estado, licenciaId, turno, zonaId) {
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic || !lic.turnos[turno]) return fallo('Ese turno no existe.');
+    if (lic.turnos[turno].quien === 'conductor') return fallo('Tus conductores eligen ellos su zona.');
     if (!zonaDesbloqueada(estado, zonaId)) return fallo('Esa zona aún no está disponible.');
     lic.turnos[turno].zona = zonaId;
     return exito();
+  }
+
+  /*
+   * Los conductores eligen su zona (una vez por hora de juego).
+   *   Sin «Curso gestión de zonas»: al empezar su turno, o si su zona se queda
+   *   sin clientes, eligen al azar entre las zonas con clientes a esa hora.
+   *   Con el curso: cada hora se van a la que más les conviene, contando a los
+   *   compañeros que ya hay en cada zona (lo que deja de más al dueño).
+   */
+  function asignarZonasConductores(estado) {
+    const ahora = estado.reloj.minutos;
+    const hora = Math.floor(ahora / 60);
+    if (estado.horaZonas === hora) return;
+    estado.horaZonas = hora;
+    const info = infoReloj(ahora);
+    const turnoActual = turnoDeHora(info.hora);
+    const clave = jornadaDe(ahora) + turnoActual;
+    const umbral = cfg().economia.demandaMinimaManual;
+    const zonas = zonasDisponibles(estado);
+    const conClientes = zonas.filter(function (z) { return demandaZona(estado, z, info) >= umbral; });
+    const conductores = [];
+    estado.licencias.forEach(function (lic) {
+      const t = lic.turnos[turnoActual];
+      if (lic.vehiculo && t && t.quien === 'conductor' && puedeTrabajar(estado, lic, t, ahora)) conductores.push({ lic, t });
+    });
+    if (modificadores(estado).gestionZonas) {
+      const cuenta = {};
+      const parte = 1 - cfg().conductores.porcentaje;
+      conductores.forEach(function (x) {
+        let mejor = x.t.zona, valor = -Infinity;
+        zonas.forEach(function (z) {
+          const n = (cuenta[z] || 0) + 1;
+          const r1 = rendimientoZona(estado, z, n, info), r0 = rendimientoZona(estado, z, n - 1, info);
+          const v = (r1.viajesHora - r0.viajesHora) * r1.importe * parte -
+            (r1.kmHora - r0.kmHora) * costePorKm(estado, x.lic.vehiculo);
+          if (v > valor) { valor = v; mejor = z; }
+        });
+        x.t.zona = mejor;
+        x.t.zonaTurno = clave;
+        cuenta[mejor] = (cuenta[mejor] || 0) + 1;
+      });
+      return;
+    }
+    conductores.forEach(function (x) {
+      const sinClientes = conClientes.indexOf(x.t.zona) === -1;
+      if (x.t.zonaTurno === clave && !sinClientes) return;
+      const lista = conClientes.length ? conClientes : zonas;
+      x.t.zona = lista[Math.floor(azar(estado) * lista.length)];
+      x.t.zonaTurno = clave;
+    });
   }
 
   // ------------------------------------------------------ Carrera a mano
@@ -804,6 +856,7 @@
    */
   function empezarCarrerasConductores(estado, resumen) {
     sortearInicioDeTurnos(estado, resumen);
+    asignarZonasConductores(estado);
     const info = infoReloj(estado.reloj.minutos);
     const grupos = cochesPorZona(estado, info);
     const finHora = (Math.floor(estado.reloj.minutos / 60) + 1) * 60;
@@ -1254,7 +1307,10 @@
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
-      if (agregado) producirAgregado(estado, paso, infoReloj(ahora), resumen);
+      if (agregado) {
+        asignarZonasConductores(estado);
+        producirAgregado(estado, paso, infoReloj(ahora), resumen);
+      }
       estado.reloj.minutos = llega ? limite : ahora + paso;
       restante -= paso;
 

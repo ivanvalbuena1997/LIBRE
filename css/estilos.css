@@ -874,6 +874,7 @@ button.zona-tarjeta { cursor: pointer; }
 .turno-cuerpo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .turno-cuerpo .quien { font-weight: 600; margin-right: 4px; }
 .turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
+.turno-zona { font-size: 0.85rem; color: var(--suave); margin-right: 4px; }
 
 /* Retratos */
 .retrato { display: inline-flex; width: 36px; height: 36px; flex: none; }
