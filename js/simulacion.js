@@ -18,18 +18,31 @@
 
   function cfg() { return Libre.config; }
 
+  /* Euros con formato es-ES para los textos de los eventos (sin DOM). */
+  const formatoEuros = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', useGrouping: 'always' });
+  Libre.ui_euros = function (n) { return formatoEuros.format(n); };
+
   function fallo(mensaje) { return { ok: false, mensaje }; }
   function exito(mensaje) { return { ok: true, mensaje: mensaje || '' }; }
 
   // ------------------------------------------------------------------ Estado
 
+  /*
+   * Caja de una jornada. extras: propinas y recompensas; otros: gastos por
+   * incidencias (limpieza, neumático, reparación). incidencias: lo que pasó,
+   * agrupado por tipo { veces, importe } para el ticket.
+   */
   function cajaVacia(dia) {
-    return { dia, carreras: 0, km: 0, ingresos: 0, combustible: 0, conductores: 0, fijos: 0 };
+    return {
+      dia, carreras: 0, km: 0, ingresos: 0, extras: 0,
+      combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {}
+    };
   }
 
-  /* Beneficio de una caja: ingresos menos todos los gastos. */
+  /* Beneficio de una caja: ingresos y extras menos todos los gastos. */
   function netoCaja(caja) {
-    return caja.ingresos - caja.combustible - caja.conductores - caja.fijos;
+    return caja.ingresos + (caja.extras || 0) - caja.combustible - caja.conductores -
+      caja.fijos - (caja.otros || 0);
   }
 
   function crearEstadoInicial(ahoraMs, rng) {
@@ -63,6 +76,11 @@
       // Semilla del azar de la flota (carreras de conductores y eventos).
       // Vive en el estado: al recargar, la partida sigue igual.
       azar: semillaInicial(rng),
+      // Lluvia de la jornada en curso { jornada, desde, hasta, avisada }.
+      lluvia: null,
+      // Eventos forzados desde la consola para probar: se aplican en las
+      // próximas carreras, en orden.
+      eventosForzados: [],
       ultimaMarca: ahoraMs || 0
     };
     estado.licencias[0].numero = sortearNumeroLicencia(estado, rng);
@@ -134,6 +152,20 @@
       finDeSemana,
       tarifa: esTarifa1 ? 't1' : 't2'
     };
+  }
+
+  /* Jornada (de 7:00 a 7:00) de un minuto del reloj: 0 es la primera. */
+  function jornadaDe(minutos) {
+    return Math.floor((minutos - cfg().reloj.minutoCierreCaja) / MIN_DIA);
+  }
+
+  /* Minuto en que termina el turno que está en curso en `minutos`. */
+  function finDeTurno(minutos, turno) {
+    const t = cfg().turnos[turno];
+    const dia = Math.floor(minutos / MIN_DIA);
+    let fin = dia * MIN_DIA + t.horaFin * 60;
+    if (fin <= minutos) fin += MIN_DIA;
+    return fin;
   }
 
   /* Turno que está trabajando a una hora dada: 'dia' o 'noche'. */
@@ -256,7 +288,17 @@
     const zona = cfg().zonas[zonaId];
     const tabla = info.finDeSemana ? zona.demanda.finDeSemana : zona.demanda.laborable;
     const factorDia = zona.factorPorDia ? zona.factorPorDia[info.diaSemana] : 1;
-    return tabla[info.hora] * factorDia * factorDeJornada(info, zonaId) * modificadores(estado, zonaId).demanda;
+    return tabla[info.hora] * factorDia * factorDeJornada(info, zonaId) * modificadores(estado, zonaId).demanda *
+      factorLluvia(estado, info.dia * MIN_DIA + info.minutoDelDia);
+  }
+
+  function lloviendo(estado, minutos) {
+    const l = estado.lluvia;
+    return !!l && minutos >= l.desde && minutos < l.hasta;
+  }
+
+  function factorLluvia(estado, minutos) {
+    return lloviendo(estado, minutos) ? cfg().eventos.lluvia.factorDemanda : 1;
   }
 
   /* Minutos que tarda un coche en completar una carrera: buscar + cola + viaje. */
@@ -305,13 +347,20 @@
 
   // --------------------------------------------------- Pausa al cierre
 
-  const CAMPOS_CAJA = ['carreras', 'km', 'ingresos', 'combustible', 'conductores', 'fijos'];
+  const CAMPOS_CAJA = ['carreras', 'km', 'ingresos', 'extras', 'combustible', 'conductores', 'fijos', 'otros'];
 
   /* Suma varias cajas cerradas en un solo ticket { desdeDia, hastaDia, ... }. */
   function sumarCierres(cajas) {
-    const ticket = { desdeDia: cajas[0].dia, hastaDia: cajas[cajas.length - 1].dia };
+    const ticket = { desdeDia: cajas[0].dia, hastaDia: cajas[cajas.length - 1].dia, incidencias: {} };
     CAMPOS_CAJA.forEach(function (campo) {
       ticket[campo] = cajas.reduce(function (s, caja) { return s + (caja[campo] || 0); }, 0);
+    });
+    cajas.forEach(function (caja) {
+      Object.keys(caja.incidencias || {}).forEach(function (tipo) {
+        const a = ticket.incidencias[tipo] = ticket.incidencias[tipo] || { veces: 0, importe: 0 };
+        a.veces += caja.incidencias[tipo].veces;
+        a.importe += caja.incidencias[tipo].importe;
+      });
     });
     return ticket;
   }
@@ -555,6 +604,9 @@
     if (!conduce(estado)) return fallo('Ahora no conduces. Elige un turno libre en Flota.');
     if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
+    if (estado.jugador.paradoHasta > estado.reloj.minutos) {
+      return fallo('Hoy ya no puedes trabajar más: vuelves en tu próximo turno.');
+    }
     if (!jugadorEnTurno(estado)) {
       const t = c.turnos[ubicacionJugador(estado).turno];
       return fallo('Fuera de tu turno: trabajas de ' + t.nombre.toLowerCase() + ', de ' +
@@ -596,9 +648,9 @@
     estado.jugador.ultimaCarrera = {
       zona: carrera.zona, tarifa: carrera.tarifa, importe: carrera.importe, km: carrera.km
     };
-    cobrar(estado, resumen, carrera.importe, 1);
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + (carrera.kmVacio || 0);
+    eventosDeCarrera(estado, resumen, carrera, { quien: 'jugador', nombre: 'Tú' });
   }
 
   function cobrar(estado, resumen, importe, carreras) {
@@ -625,6 +677,7 @@
       const t = lic.turnos[turnoActual];
       if (!lic.vehiculo || !t) return;
       if (t.quien === 'jugador') return;   // tu turno siempre es a clic
+      if (!puedeTrabajar(estado, lic, t, info.dia * MIN_DIA + info.minutoDelDia)) return;
       (grupos[t.zona] = grupos[t.zona] || []).push({ licencia: lic, turno: t });
     });
     return grupos;
@@ -665,7 +718,8 @@
    * Si la espera pasaría de la hora en curso, ese rato queda «en vacío» hasta
    * la hora (la espera no tiene memoria, así que se puede cortar sin sesgo).
    */
-  function empezarCarrerasConductores(estado) {
+  function empezarCarrerasConductores(estado, resumen) {
+    sortearInicioDeTurnos(estado, resumen);
     const info = infoReloj(estado.reloj.minutos);
     const grupos = cochesPorZona(estado, info);
     const finHora = (Math.floor(estado.reloj.minutos / 60) + 1) * 60;
@@ -704,12 +758,281 @@
   function terminarCarreraConductor(estado, resumen, turno) {
     const carrera = turno.carrera;
     turno.carrera = null;
-    if (!carrera.vacio) {
-      cobrar(estado, resumen, carrera.importe, 1);
-      gastar(estado, resumen, 'conductores', carrera.importe * cfg().conductores.porcentaje);
-    }
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + carrera.kmVacio;
+    if (!carrera.vacio) eventosDeCarrera(estado, resumen, carrera, turno);
+  }
+
+  // ------------------------------------------------------------- Eventos
+
+  function entre(estado, min, max) {
+    return min + azar(estado) * (max - min);
+  }
+
+  function enteroEntre(estado, min, max) {
+    return Math.floor(entre(estado, min, max + 1));
+  }
+
+  /*
+   * Apunta una incidencia en la caja de hoy y en la lista de avisos.
+   * cuenta: 'extras' (dinero que entra), 'otros' (gasto) o null (solo aviso).
+   */
+  function incidencia(estado, resumen, tipo, texto, importe, cuenta) {
+    const caja = estado.caja.hoy;
+    const a = caja.incidencias[tipo] = caja.incidencias[tipo] || { veces: 0, importe: 0 };
+    a.veces++;
+    a.importe += importe;
+    if (cuenta === 'extras') { estado.dinero += importe; caja.extras += importe; }
+    if (cuenta === 'otros') { estado.dinero += importe; caja.otros -= importe; }
+    resumen.eventos.push({ tipo, texto, importe });
+  }
+
+  /* ¿Toca el evento? Si se forzó desde la consola, sí (y se consume después). */
+  function toca(estado, tipo, probabilidad) {
+    if ((estado.eventosForzados || []).some(function (f) { return f.tipo === tipo; })) return true;
+    return azar(estado) < probabilidad;
+  }
+
+  function consumirForzado(estado, tipo) {
+    const lista = estado.eventosForzados || [];
+    const i = lista.findIndex(function (f) { return f.tipo === tipo; });
+    return i === -1 ? null : lista.splice(i, 1)[0];
+  }
+
+  /*
+   * Al terminar una carrera (tuya o de un conductor): sin pagar, propina,
+   * objeto devuelto y vómito. quien: el turno del conductor o { quien: 'jugador' }.
+   */
+  function eventosDeCarrera(estado, resumen, carrera, quien) {
+    const ev = cfg().eventos;
+    const esConductor = quien.quien === 'conductor';
+    const sujeto = esConductor ? quien.nombre : 'Tú';
+
+    if (toca(estado, 'sinPagar', ev.sinPagar.probCarrera)) {
+      consumirForzado(estado, 'sinPagar');
+      incidencia(estado, resumen, 'sinPagar',
+        (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
+        Libre.ui_euros(carrera.importe) + ' perdidos.', -carrera.importe, null);
+      return;
+    }
+    cobrar(estado, resumen, carrera.importe, 1);
+    if (esConductor) gastar(estado, resumen, 'conductores', carrera.importe * cfg().conductores.porcentaje);
+
+    if (toca(estado, 'propina', ev.propina.probCarrera)) {
+      consumirForzado(estado, 'propina');
+      const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax);
+      incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras');
+    }
+
+    if (toca(estado, 'objeto', ev.objeto.probCarrera)) {
+      const forzado = consumirForzado(estado, 'objeto');
+      const objeto = forzado && forzado.arg ? ev.objeto.objetos[Number(forzado.arg) - 1] : elegirObjeto(estado);
+      incidencia(estado, resumen, 'objeto',
+        (esConductor ? sujeto + ' devuelve ' : 'Devuelves ') + objeto.nombre +
+        ' olvidado en el taxi: el cliente ' + (esConductor ? 'le' : 'te') + ' da ' +
+        Libre.ui_euros(objeto.recompensa) + ' de recompensa.', objeto.recompensa, 'extras');
+    }
+
+    if (toca(estado, 'vomito', ev.vomito.probCarrera)) {
+      consumirForzado(estado, 'vomito');
+      const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax);
+      pararHastaFinDeTurno(estado, quien);
+      incidencia(estado, resumen, 'vomito',
+        'Un cliente vomita en el taxi' + (esConductor ? ' de ' + sujeto : '') + ': limpieza de ' +
+        Libre.ui_euros(coste) + ' y ' + (esConductor ? 'termina' : 'terminas') + ' la jornada.', -coste, 'otros');
+    }
+  }
+
+  function elegirObjeto(estado) {
+    const objetos = cfg().eventos.objeto.objetos;
+    const total = objetos.reduce(function (s, o) { return s + o.peso; }, 0);
+    let r = azar(estado) * total;
+    for (const o of objetos) { if (r < o.peso) return o; r -= o.peso; }
+    return objetos[0];
+  }
+
+  /* El turno (tuyo o de un conductor) no trabaja más hasta que termine. */
+  function pararHastaFinDeTurno(estado, quien) {
+    if (quien.quien === 'conductor') {
+      const lic = estado.licencias.find(function (l) { return l.turnos.dia === quien || l.turnos.noche === quien; });
+      const turno = lic.turnos.dia === quien ? 'dia' : 'noche';
+      quien.paradoHasta = finDeTurno(estado.reloj.minutos, turno);
+      quien.carrera = null;
+    } else {
+      const u = ubicacionJugador(estado);
+      estado.jugador.paradoHasta = finDeTurno(estado.reloj.minutos, u.turno);
+      estado.jugador.carrera = null;
+    }
+  }
+
+  /* ¿Puede trabajar ese turno ahora? No con baja, avería o jornada terminada. */
+  function puedeTrabajar(estado, lic, turno, minutos) {
+    const jornada = jornadaDe(minutos);
+    if (lic.averia && jornada < lic.averia.hasta) return false;
+    if (turno.baja && jornada < turno.baja.hasta) return false;
+    if (turno.paradoHasta && turno.paradoHasta > minutos) return false;
+    return true;
+  }
+
+  /*
+   * Al empezar cada turno de cada taxi (conductores) se sortean baja,
+   * pinchazo y avería; en tu turno, solo el pinchazo. Pinchazo y avería
+   * reciben un minuto al azar dentro del turno.
+   */
+  function sortearInicioDeTurnos(estado, resumen) {
+    const ahora = estado.reloj.minutos;
+    const info = infoReloj(ahora);
+    const turnoActual = turnoDeHora(info.hora);
+    const clave = jornadaDe(ahora) + turnoActual;
+    const ev = cfg().eventos;
+    const jornada = jornadaDe(ahora);
+    const fin = finDeTurno(ahora, turnoActual);
+
+    estado.licencias.forEach(function (lic) {
+      const t = lic.turnos[turnoActual];
+      if (!lic.vehiculo || !t || t.sorteado === clave) return;
+      t.sorteado = clave;
+      if (t.quien === 'jugador') {
+        if (azar(estado) < ev.pinchazo.probTurno) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
+        return;
+      }
+      if (!puedeTrabajar(estado, lic, t, ahora)) return;
+      if (azar(estado) < ev.baja.probTurno) {
+        const jornadas = enteroEntre(estado, ev.baja.jornadasMin, ev.baja.jornadasMax);
+        t.baja = { hasta: jornada + jornadas };
+        incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +
+          (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null);
+        return;
+      }
+      if (azar(estado) < ev.pinchazo.probTurno) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
+      else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno) {
+        t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
+      }
+    });
+  }
+
+  /*
+   * Solo hay averías con 2 coches o más, nunca en el coche que conduces tú y
+   * nunca si dejaría la flota sin ningún coche en marcha.
+   */
+  function averiaPosible(estado, lic) {
+    const jornada = jornadaDe(estado.reloj.minutos);
+    const conCoche = estado.licencias.filter(function (l) { return !!l.vehiculo; });
+    if (conCoche.length < cfg().eventos.averia.cochesMinimos) return false;
+    if (TURNOS.some(function (t) { return lic.turnos[t] && lic.turnos[t].quien === 'jugador'; })) return false;
+    if (lic.averia && jornada < lic.averia.hasta) return false;
+    const enMarcha = conCoche.filter(function (l) { return l !== lic && !(l.averia && jornada < l.averia.hasta); });
+    return enMarcha.length > 0;
+  }
+
+  /* Turnos con un evento pendiente (pinchazo o avería) para esta hora. */
+  function turnosConPendiente(estado) {
+    const lista = [];
+    estado.licencias.forEach(function (lic) {
+      TURNOS.forEach(function (t) {
+        const x = lic.turnos[t];
+        if (x && x.pendiente) lista.push({ licencia: lic, turno: x });
+      });
+    });
+    return lista;
+  }
+
+  function aplicarPendiente(estado, resumen, lic, turno) {
+    const p = turno.pendiente;
+    turno.pendiente = null;
+    const ev = cfg().eventos;
+    if (p.tipo === 'pinchazo') {
+      pararHastaFinDeTurno(estado, turno);
+      const esConductor = turno.quien === 'conductor';
+      incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
+        ': neumático de ' + Libre.ui_euros(ev.pinchazo.coste) + ' y ' + (esConductor ? 'no factura' : 'no facturas') +
+        ' más hoy.', -ev.pinchazo.coste, 'otros');
+    } else if (p.tipo === 'averia') {
+      if (!averiaPosible(estado, lic)) return;
+      aplicarAveria(estado, resumen, lic);
+    }
+  }
+
+  function aplicarAveria(estado, resumen, lic) {
+    const ev = cfg().eventos.averia;
+    const jornadas = enteroEntre(estado, ev.jornadasMin, ev.jornadasMax);
+    const coste = entre(estado, ev.costeMin, ev.costeMax);
+    lic.averia = { hasta: jornadaDe(estado.reloj.minutos) + jornadas };
+    TURNOS.forEach(function (t) { if (lic.turnos[t]) lic.turnos[t].carrera = null; });
+    incidencia(estado, resumen, 'averia', 'Avería en el taxi ' + textoLicencia(lic) + ': ' + jornadas +
+      ' jornadas en el taller y ' + Libre.ui_euros(coste) + ' de reparación.', -coste, 'otros');
+  }
+
+  /* Una vez por jornada se sortea si llueve, cuándo y cuánto. */
+  function sortearLluvia(estado) {
+    const jornada = jornadaDe(estado.reloj.minutos);
+    if (estado.lluvia && estado.lluvia.jornada === jornada) return;
+    const ev = cfg().eventos.lluvia;
+    estado.lluvia = { jornada, desde: 0, hasta: 0, avisada: true };
+    if (!toca(estado, 'lluvia', ev.probJornada)) return;
+    const forzada = consumirForzado(estado, 'lluvia');
+    const inicioJornada = jornada * MIN_DIA + cfg().reloj.minutoCierreCaja;
+    const desde = forzada ? estado.reloj.minutos : entre(estado, Math.max(estado.reloj.minutos, inicioJornada), inicioJornada + MIN_DIA);
+    const horas = forzada && forzada.arg ? Number(forzada.arg) : entre(estado, ev.horasMin, ev.horasMax);
+    estado.lluvia = { jornada, desde, hasta: desde + horas * 60, avisada: false };
+  }
+
+  function avisarLluvia(estado, resumen) {
+    const l = estado.lluvia;
+    if (!l || l.avisada || estado.reloj.minutos < l.desde) return;
+    l.avisada = true;
+    const fin = infoReloj(l.hasta);
+    incidencia(estado, resumen, 'lluvia', 'Empieza a llover: hasta las ' + String(fin.hora).padStart(2, '0') + ':' +
+      String(fin.minuto).padStart(2, '0') + ' hay el doble de clientes.', 0, null);
+  }
+
+  /*
+   * Para probar desde la consola. Los eventos de carrera (propina, sinPagar,
+   * objeto, vomito) se aplican en la próxima carrera que termine; lluvia,
+   * pinchazo, baja y averia ocurren ya.
+   */
+  function forzarEvento(estado, tipo, arg) {
+    const resumen = resumenVacio();
+    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'lluvia', 'pinchazo', 'baja', 'averia'];
+    if (tipos.indexOf(tipo) === -1) return { ok: false, mensaje: 'Eventos: ' + tipos.join(', '), eventos: [] };
+    if (['propina', 'sinPagar', 'objeto', 'vomito'].indexOf(tipo) !== -1) {
+      estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
+      return { ok: true, mensaje: 'Pasará en la próxima carrera que termine.', eventos: [] };
+    }
+    if (tipo === 'lluvia') {
+      estado.lluvia = null;
+      estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
+      sortearLluvia(estado);
+      avisarLluvia(estado, resumen);
+      return { ok: true, mensaje: '', eventos: resumen.eventos };
+    }
+    // Pinchazo, baja y avería: al primer conductor que pueda (o a ti, el pinchazo).
+    const ahora = estado.reloj.minutos;
+    const turnoActual = turnoDeHora(infoReloj(ahora).hora);
+    let objetivo = null;
+    estado.licencias.forEach(function (lic) {
+      TURNOS.forEach(function (t) {
+        const x = lic.turnos[t];
+        if (objetivo || !x || !lic.vehiculo) return;
+        if (x.quien === 'jugador' && tipo !== 'pinchazo') return;
+        if (tipo === 'averia' && !averiaPosible(estado, lic)) return;
+        if (t === turnoActual || tipo !== 'pinchazo') objetivo = { licencia: lic, turno: x };
+      });
+    });
+    if (!objetivo) return { ok: false, mensaje: 'Ahora no hay a quién aplicarle ese evento.', eventos: [] };
+    if (tipo === 'baja') {
+      const jornadas = arg ? Number(arg) : 2;
+      objetivo.turno.baja = { hasta: jornadaDe(ahora) + jornadas };
+      objetivo.turno.carrera = null;
+      incidencia(estado, resumen, 'baja', objetivo.turno.nombre + ' está de baja por enfermedad: ' + jornadas +
+        (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null);
+    } else if (tipo === 'averia') {
+      aplicarAveria(estado, resumen, objetivo.licencia);
+    } else {
+      objetivo.turno.pendiente = { tipo: 'pinchazo', minuto: ahora };
+      aplicarPendiente(estado, resumen, objetivo.licencia, objetivo.turno);
+    }
+    return { ok: true, mensaje: '', eventos: resumen.eventos };
   }
 
   /* Todas las carreras de conductores en curso (para buscar el siguiente fin). */
@@ -759,7 +1082,7 @@
     return {
       minutos: 0, carreras: 0, ingresos: 0,
       combustible: 0, conductores: 0, fijos: 0,
-      cierres: []
+      cierres: [], eventos: []
     };
   }
 
@@ -793,7 +1116,10 @@
 
     while (restante > 1e-9) {
       const ahora = estado.reloj.minutos;
-      if (!agregado) empezarCarrerasConductores(estado);
+      if (!agregado) {
+        sortearLluvia(estado);
+        empezarCarrerasConductores(estado, resumen);
+      }
       let limite = (Math.floor(ahora / 60) + 1) * 60;
       const carrera = estado.jugador.carrera;
       if (carrera && carrera.fin > ahora && carrera.fin < limite) limite = carrera.fin;
@@ -801,6 +1127,12 @@
       enCurso.forEach(function (t) {
         if (t.carrera.fin > ahora && t.carrera.fin < limite) limite = t.carrera.fin;
       });
+      const pendientes = agregado ? [] : turnosConPendiente(estado);
+      pendientes.forEach(function (x) {
+        if (x.turno.pendiente.minuto > ahora && x.turno.pendiente.minuto < limite) limite = x.turno.pendiente.minuto;
+      });
+      if (!agregado && estado.lluvia && !estado.lluvia.avisada &&
+          estado.lluvia.desde > ahora && estado.lluvia.desde < limite) limite = estado.lluvia.desde;
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
@@ -812,6 +1144,12 @@
       enCurso.forEach(function (t) {
         if (t.carrera && estado.reloj.minutos >= t.carrera.fin) terminarCarreraConductor(estado, resumen, t);
       });
+      pendientes.forEach(function (x) {
+        if (x.turno.pendiente && estado.reloj.minutos >= x.turno.pendiente.minuto) {
+          aplicarPendiente(estado, resumen, x.licencia, x.turno);
+        }
+      });
+      if (!agregado) avisarLluvia(estado, resumen);
       if (llega && limite % MIN_DIA === cfg().reloj.minutoCierreCaja) {
         cerrarCaja(estado, resumen);
         if (pararse) {
@@ -905,6 +1243,10 @@
     cambiarAjuste,
     sumarCierres,
     azar,
+    jornadaDe,
+    puedeTrabajar,
+    lloviendo,
+    forzarEvento,
     avanzar,
     progresoSinConexion
   };

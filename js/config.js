@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 6,
+    versionGuardado: 7,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -44,6 +44,47 @@
       t3: { nombre: 'Tarifa 3', fija: 22.00 },
       // Tarifa 4: entre Barajas y el interior de la M-30, sin suplementos.
       t4: { nombre: 'Tarifa 4', fija: 33.00 }
+    },
+
+    /*
+     * Eventos aleatorios. Equilibrio: sin mejoras, el efecto neto de todos
+     * sobre el beneficio debe quedar cerca de cero.
+     *   probCarrera  probabilidad en cada carrera terminada (tuya o de conductor)
+     *   probTurno    probabilidad al empezar cada turno de cada taxi
+     *   probJornada  probabilidad una vez por jornada (general)
+     * nombre: cómo sale en el ticket.
+     */
+    eventos: {
+      propina: {
+        nombre: 'Propinas', probCarrera: 0.15,
+        porcentajeMin: 0.05, porcentajeMax: 0.25    // sobre el importe de la carrera
+      },
+      sinPagar: { nombre: 'Sin pagar', probCarrera: 0.01 },
+      vomito: { nombre: 'Vómitos', probCarrera: 0.0008, costeMin: 50, costeMax: 90 },
+      objeto: {
+        nombre: 'Objetos devueltos', probCarrera: 0.01,
+        // De menos a más valor; «peso» es cuánto sale cada uno (menos, más raro).
+        objetos: [
+          { nombre: 'un paraguas', recompensa: 5, peso: 30 },
+          { nombre: 'una bufanda', recompensa: 8, peso: 22 },
+          { nombre: 'unas gafas de sol', recompensa: 12, peso: 16 },
+          { nombre: 'un libro dedicado', recompensa: 15, peso: 12 },
+          { nombre: 'una cartera con el DNI', recompensa: 25, peso: 8 },
+          { nombre: 'las llaves de casa', recompensa: 30, peso: 6 },
+          { nombre: 'un móvil', recompensa: 50, peso: 3 },
+          { nombre: 'una tablet', recompensa: 70, peso: 1.6 },
+          { nombre: 'un portátil del trabajo', recompensa: 120, peso: 0.9 },
+          { nombre: 'un maletín con documentos', recompensa: 300, peso: 0.5 }
+        ]
+      },
+      pinchazo: { nombre: 'Pinchazos', probTurno: 0.015, coste: 120 },
+      baja: { nombre: 'Bajas', probTurno: 0.008, jornadasMin: 1, jornadasMax: 5 },
+      averia: {
+        nombre: 'Averías', probTurno: 0.0008, jornadasMin: 10, jornadasMax: 20,
+        costeMin: 150, costeMax: 400,
+        cochesMinimos: 2           // con menos coches no hay averías
+      },
+      lluvia: { nombre: 'Lluvia', probJornada: 0.2, horasMin: 1, horasMax: 3, factorDemanda: 2 }
     },
 
     sinConexion: {

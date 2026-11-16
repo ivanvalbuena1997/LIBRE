@@ -90,7 +90,9 @@ Incluye:
 - Unas 10 mejoras, entre ellas las que alargan el día.
 - Guardado automático y progreso mientras el juego está cerrado.
 
-Queda fuera: VTC y otros vehículos, averías, día de libranza, gerentes, otras ciudades y prestigio.
+Queda fuera: VTC y otros vehículos, día de libranza, gerentes, otras ciudades y prestigio.
+
+Añadido el 16 de noviembre de 2026: los conductores hacen carreras reales y cobran al terminar cada una, y hay eventos aleatorios (propinas, clientes que no pagan, vómitos, objetos devueltos, pinchazos, bajas por enfermedad, averías y lluvia) que quedan apuntados como incidencias en el ticket del día.
 
 ## Técnica
 

@@ -664,6 +664,7 @@ textarea {
 }
 .ticket-cabecera .ticket-linea { justify-content: center; }
 .ticket-total { font-weight: 800; font-size: 1.15rem; }
+.ticket-subtitulo { justify-content: center; font-weight: 700; letter-spacing: 0.15em; }
 .ticket-pie {
   margin: 10px 0 12px;
   animation: aparecer-linea 0.3s ease-out backwards;
@@ -798,6 +799,7 @@ button.zona-tarjeta { cursor: pointer; }
 .turno-nombre { font-size: 0.85rem; color: var(--suave); }
 .turno-cuerpo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .turno-cuerpo .quien { font-weight: 600; margin-right: 4px; }
+.turno-estado { flex-basis: 100%; font-size: 0.82rem; color: var(--rojo-taxi); }
 .turno-cuerpo button { min-height: 40px; padding: 6px 10px; }
 
 /* Mejoras */

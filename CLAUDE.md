@@ -2,8 +2,9 @@
 
 Juego incremental de gestión de taxis en Madrid. El diseño completo está en
 `DISENO.md`; la versión actual cubre solo la sección "Primera versión jugable"
-(etapas 1 y 2). No añadir nada de lo que esa sección deja fuera (VTC, averías,
-día de libranza, gerentes, otras ciudades, prestigio).
+(etapas 1 y 2). No añadir nada de lo que esa sección deja fuera (VTC, día de
+libranza, gerentes, otras ciudades, prestigio). Las averías y bajas entran
+como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
 
 ## Técnica
 
@@ -81,6 +82,14 @@ día de libranza, gerentes, otras ciudades, prestigio).
   descontando el porcentaje del conductor en cada carrera. Sin clientes, un
   «tramo en vacío» hasta la hora. Los coches que sobran esperan más y gastan
   en vacío (o esperan en la cola sin gastar si la zona tiene cola).
+- Eventos (`config.eventos`): por carrera (propina, sin pagar, objeto
+  devuelto, vómito; también en las tuyas), al empezar cada turno (baja,
+  pinchazo y avería en conductores; en el tuyo solo pinchazo) y lluvia una
+  vez por jornada. Van a la caja como `extras` (dinero que entra), `otros`
+  (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket. Sin
+  conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
+  Sin mejoras, su efecto neto debe quedar cerca de cero (medido con un bot).
+  Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
   entre un 1 % y un 2 % más que jugando.
@@ -93,8 +102,8 @@ día de libranza, gerentes, otras ciudades, prestigio).
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
   desaparece al arrancar el día (no tapa la página: en pausa se compra).
   Aspecto de papel térmico; sus líneas son carreras, kilómetros, recaudación,
-  combustible, conductores, costes fijos y neto, en ese orden (Iván). No
-  añadir líneas de ticket inventadas.
+  combustible, conductores, costes fijos y neto, en ese orden (Iván), y debajo
+  el bloque de incidencias. No añadir líneas de ticket inventadas.
 - Licencias: `numero` al azar entre 1 y el máximo de Madrid, sin repetir. La
   letra (día de libranza) sale de la última cifra (`config.licencias.letraPorCifra`)
   y se muestra como `15288-L` con `textoLicencia()`. La libranza aún no tiene

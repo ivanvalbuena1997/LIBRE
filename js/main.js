@@ -63,6 +63,21 @@
 
   ui.iniciar({ ejecutar, partida, redibujar: function () { ui.dibujar(estado); } });
 
+  /*
+   * Para probar los eventos desde la consola del navegador:
+   *   Libre.forzarEvento('pinchazo')      propina, sinPagar, objeto, vomito,
+   *   Libre.forzarEvento('objeto', 10)    lluvia, pinchazo, baja, averia
+   *   Libre.forzarEvento('lluvia', 2)     (horas de lluvia; bajas: jornadas)
+   */
+  Libre.forzarEvento = function (tipo, arg) {
+    const r = sim.forzarEvento(estado, tipo, arg);
+    if (r.eventos.length > 0) ui.mostrarEventos(r.eventos);
+    else if (r.mensaje) ui.mostrarMensaje(r.mensaje);
+    guardar();
+    ui.dibujar(estado);
+    return r.mensaje || r.eventos.map(function (e) { return e.texto; }).join(' ');
+  };
+
   let segundosSinGuardar = 0;
   function tic() {
     const ahora = Date.now();
@@ -70,6 +85,7 @@
     anterior = ahora;
     const resumen = sim.avanzar(estado, segundos);
     estado.ultimaMarca = ahora;
+    if (resumen.eventos.length > 0) ui.mostrarEventos(resumen.eventos);
     // Al pararse el día se guarda al momento: si recargas, sigue en pausa.
     if (estado.cierrePendiente && resumen.cierres.length > 0) guardar();
     segundosSinGuardar += segundos;

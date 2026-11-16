@@ -53,6 +53,17 @@
     // Versión 6: los conductores hacen carreras reales con azar con semilla.
     5: function (estado) {
       estado.azar = Math.floor(Math.random() * 4294967296) >>> 0;
+    },
+    // Versión 7: eventos (incidencias en la caja, lluvia, evento forzado).
+    6: function (estado) {
+      [estado.caja.hoy, estado.caja.ayer, estado.cierrePendiente].forEach(function (caja) {
+        if (!caja) return;
+        caja.extras = caja.extras || 0;
+        caja.otros = caja.otros || 0;
+        caja.incidencias = caja.incidencias || {};
+      });
+      estado.lluvia = null;
+      estado.eventosForzados = [];
     }
   };
 

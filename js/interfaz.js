@@ -156,12 +156,14 @@
 
       const boton = document.querySelector('.taximetro-boton');
       const pausa = Libre.sim.enPausa(estado);
-      const enTurno = Libre.sim.jugadorEnTurno(estado);
+      const parado = estado.jugador.paradoHasta > estado.reloj.minutos;
+      const enTurno = Libre.sim.jugadorEnTurno(estado) && !parado;
       const miTurno = c.turnos[Libre.sim.ubicacionJugador(estado).turno];
       boton.disabled = !!carrera || pausa || !enTurno;
       $('tx-pie').textContent = pausa ? 'Día cerrado'
         : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
         : carrera ? c.zonas[carrera.zona].textoEspera + '…'
+        : parado ? 'Jornada terminada: vuelves en tu próximo turno'
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
         : 'Toca para buscar cliente';
       // Latido suave mientras el taxi espera a que lo toques.
@@ -184,6 +186,8 @@
       fila('Combustible', 'combustible', '−') +
       fila('Conductores', 'conductores', '−') +
       fila(fijosPrevistos ? 'Costes fijos (al cierre)' : 'Costes fijos', 'fijos', '−') +
+      fila('Propinas y recompensas', 'extras', '') +
+      fila('Gastos por incidencias', 'otros', '−') +
       '<div class="total"><dt>Neto</dt><dd id="' + prefijo + '-neto">' + (caja ? euros(Libre.sim.netoCaja(caja)) : '') + '</dd></div>' +
       '</dl>';
   }
@@ -321,7 +325,7 @@
   }
 
   function lineasTicket(t) {
-    const neto = t.ingresos - t.combustible - t.conductores - t.fijos;
+    const neto = Libre.sim.netoCaja(t);
     return [
       { texto: 'Carreras', valor: String(Math.floor(t.carreras)) },
       { texto: 'Kilómetros', valor: numero(t.km || 0) + ' km' },
@@ -331,6 +335,26 @@
       { texto: 'Costes fijos', valor: '−' + euros(t.fijos) },
       { texto: 'Neto', valor: euros(neto), total: true }
     ];
+  }
+
+  /*
+   * Bloque de incidencias del ticket: cada tipo agrupado, con cuántas veces
+   * pasó y cuánto sumó o restó. Lo que no mueve dinero (bajas, lluvia) sale
+   * solo con las veces.
+   */
+  function htmlIncidencias(t, siguiente) {
+    const ev = Libre.config.eventos;
+    const tipos = Object.keys(t.incidencias || {});
+    if (tipos.length === 0) return '';
+    return '<div class="ticket-separador"></div>' +
+      '<div class="ticket-linea ticket-subtitulo" style="--i:' + siguiente() + '">Incidencias</div>' +
+      tipos.map(function (tipo) {
+        const a = t.incidencias[tipo];
+        const nombre = (ev[tipo] ? ev[tipo].nombre : tipo) + (a.veces > 1 ? ' ×' + a.veces : '');
+        const valor = a.importe === 0 ? '' : (a.importe > 0 ? '+' : '−') + euros(Math.abs(a.importe)) +
+          (tipo === 'sinPagar' ? ' sin cobrar' : '');
+        return '<div class="ticket-linea" style="--i:' + siguiente() + '"><span>' + esc(nombre) + '</span><span>' + valor + '</span></div>';
+      }).join('');
   }
 
   /* "Martes · día 2" o, si junta varios días, "Lunes a jueves · días 1 a 4". */
@@ -374,6 +398,7 @@
         lineas.filter(function (l) { return !l.total; }).map(linea).join('') +
         '<div class="ticket-separador doble"></div>' +
         lineas.filter(function (l) { return l.total; }).map(linea).join('') +
+        htmlIncidencias(t.datos, function () { return i++; }) +
         '</div></div>' +
         '<div class="ticket-pie" style="--i:' + (i++) + '">' +
         (t.pausa
@@ -398,6 +423,26 @@
    * Al volver tras tener el juego cerrado. Si se cerraron días, el ticket ya
    * está en el estado (o, sin pausa, se enseña como aviso); si no, un mensaje.
    */
+  /*
+   * Avisos de eventos: un mensaje breve cada pocos segundos como mucho; lo que
+   * no cabe queda solo en el ticket. Las propinas van en el importe flotante.
+   */
+  const MS_ENTRE_AVISOS = 3000;
+  const colaAvisos = [];
+  let ultimoAviso = 0;
+  function mostrarEventos(eventos) {
+    eventos.forEach(function (ev) {
+      if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
+      if (colaAvisos.length < 3) colaAvisos.push(ev.texto);
+    });
+    soltarAviso();
+  }
+  function soltarAviso() {
+    if (colaAvisos.length === 0 || Date.now() - ultimoAviso < MS_ENTRE_AVISOS) return;
+    ultimoAviso = Date.now();
+    mostrarMensaje(colaAvisos.shift());
+  }
+
   function mostrarResumenFuera(r, estado) {
     if (r.cierres.length > 0) {
       if (!estado.cierrePendiente) ticketAviso = Libre.sim.sumarCierres(r.cierres);
@@ -425,8 +470,9 @@
         ' · <strong class="' + (ganado < 0 ? 'negativo-texto' : '') + '">' + euros(ganado) + '</strong>' +
         ' <span class="caja-fijos">· fijos al cierre −' + euros(fijos) + '</span>';
       $('hoy-carreras').textContent = carreras;
-      ['ingresos', 'combustible', 'conductores'].forEach(function (campo) {
-        $('hoy-' + campo).textContent = (campo === 'ingresos' ? '' : '−') + euros(hoy[campo]);
+      ['ingresos', 'extras', 'combustible', 'conductores', 'otros'].forEach(function (campo) {
+        const suma = campo === 'ingresos' || campo === 'extras';
+        $('hoy-' + campo).textContent = (suma ? '' : '−') + euros(hoy[campo] || 0);
       });
       $('hoy-fijos').textContent = '−' + euros(fijos);
       const el = $('hoy-neto');
@@ -566,17 +612,42 @@
         (Libre.sim.modificadores(estado).dejarVolante ? boton('Dejar de conducir', 'dejarDeConducir', []) : '');
     } else {
       cuerpo = '<span class="quien">' + esc(t.nombre) + '</span>' + selectorZona(estado, lic.id, turno, t.zona) +
-        boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro');
+        boton('Despedir', 'despedirConductor', [lic.id, turno], 'boton-peligro') +
+        estadoTurno(estado, lic, t);
     }
     return '<div class="turno"><div class="turno-nombre">' + esc(c.turnos[turno].nombre) + '<br>' + horario(turno) + '</div>' +
       '<div class="turno-cuerpo">' + cuerpo + '</div></div>';
   }
 
+  /* Baja, avería o jornada terminada, en una línea bajo el conductor. */
+  function estadoTurno(estado, lic, t) {
+    const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+    let texto = '';
+    if (lic.averia && jornada < lic.averia.hasta) texto = 'Coche en el taller hasta el día ' + (lic.averia.hasta + 1);
+    else if (t.baja && jornada < t.baja.hasta) texto = 'De baja hasta el día ' + (t.baja.hasta + 1);
+    else if (t.paradoHasta > estado.reloj.minutos) texto = 'Jornada terminada';
+    return texto ? '<span class="turno-estado">' + texto + '</span>' : '';
+  }
+
+  /*
+   * Firma de la flota: lo que se ve, sin las carreras en curso (cambian en
+   * cada fotograma y harían que los desplegables no se pudieran usar).
+   */
+  function firmaFlota(estado) {
+    const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+    return JSON.stringify([estado.licencias.map(function (l) {
+      return [l.id, l.numero, l.vehiculo, l.averia && jornada < l.averia.hasta ? l.averia.hasta : 0,
+        ['dia', 'noche'].map(function (tn) {
+          const t = l.turnos[tn];
+          return t ? [t.quien, t.nombre, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
+            t.paradoHasta > estado.reloj.minutos] : null;
+        })];
+    }), !!estado.jugador.carrera, estado.mejoras]);
+  }
+
   const seccionFlota = {
     id: 'sec-flota',
-    firma: function (estado) {
-      return JSON.stringify([estado.licencias, !!estado.jugador.carrera, estado.mejoras]);
-    },
+    firma: firmaFlota,
     html: function (estado) {
       const c = Libre.config;
       const ayuda = Libre.sim.hayConductores(estado)
@@ -657,7 +728,7 @@
   // MS_ENTRE_FLOTANTES; lo que no cabe se suma al siguiente.
   const MAX_FLOTANTES = 4;
   const MS_ENTRE_FLOTANTES = 300;
-  const flotantes = { vivos: 0, pendiente: 0, ultimo: 0, base: null, lanzados: 0 };
+  const flotantes = { vivos: 0, pendiente: 0, ultimo: 0, base: null, lanzados: 0, etiqueta: '' };
 
   function vigilarCobros(estado) {
     const t = estado.totales;
@@ -686,7 +757,8 @@
     const caja = ancla.getBoundingClientRect();
     const el = document.createElement('div');
     el.className = 'flotante';
-    el.textContent = '+' + euros(importe);
+    el.textContent = '+' + euros(importe) + (flotantes.etiqueta ? ' · ' + flotantes.etiqueta : '');
+    flotantes.etiqueta = '';
     // Dos columnas alternas para que no se pisen.
     el.style.left = (caja.right - 8 - (flotantes.lanzados++ % 2) * 88) + 'px';
     el.style.top = (caja.top + 6) + 'px';
@@ -935,6 +1007,7 @@
 
     vigilarCobros(estado);
     vigilarCierres(estado);
+    soltarAviso();
     actualizarAvisos(estado);
   }
 
@@ -947,5 +1020,5 @@
     temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);
   }
 
-  Libre.ui = { iniciar, reiniciar, mostrarResumenFuera, dibujar, mostrarMensaje, euros, numero, esc };
+  Libre.ui = { iniciar, reiniciar, mostrarResumenFuera, mostrarEventos, dibujar, mostrarMensaje, euros, numero, esc };
 })(globalThis);
