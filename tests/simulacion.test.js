@@ -389,4 +389,67 @@ prueba('las carreras a mano salen de varios tipos y longitudes', function () {
   assert.ok(Math.max.apply(null, kms) > 3 * Math.min.apply(null, kms), 'hay cortas y largas');
 });
 
+// --------------------------------------------------------------- Eventos
+
+function flotaDe(n) {
+  const e = sim.crearEstadoInicial(0, function () { return 0.5; });
+  e.dinero = 1e6;
+  for (let i = 1; i < n; i++) sim.comprarLicencia(e);
+  e.licencias.forEach(function (l) {
+    if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
+    ['dia', 'noche'].forEach(function (t) { if (!l.turnos[t]) sim.contratarConductor(e, l.id, t); });
+  });
+  e.ajustes.pararAlCierre = false;
+  return e;
+}
+
+prueba('los eventos forzados de carrera salen en la próxima carrera y van a la caja', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;                     // noche: trabaja el conductor
+  sim.forzarEvento(e, 'objeto', 10);             // el maletín: 300 €
+  sim.forzarEvento(e, 'vomito');
+  let eventos = [];
+  for (let i = 0; i < 400 && !e.caja.hoy.incidencias.vomito; i++) eventos = eventos.concat(sim.avanzar(e, 0.1).eventos);
+  assert.strictEqual(e.caja.hoy.incidencias.objeto.importe, 300);
+  assert.ok(e.caja.hoy.extras >= 300);
+  assert.ok(e.caja.hoy.otros >= 50 && e.caja.hoy.otros <= 90, 'limpieza entre 50 y 90 €');
+  assert.ok(eventos.some(function (ev) { return ev.tipo === 'vomito'; }));
+  assert.ok(e.licencias[0].turnos.noche.paradoHasta > e.reloj.minutos, 'el conductor termina la jornada');
+});
+
+prueba('pinchazo, baja y avería paran el turno; la avería exige dos coches', function () {
+  const uno = flotaDe(1);
+  uno.reloj.minutos = 22 * 60;
+  assert.ok(!sim.forzarEvento(uno, 'averia').ok, 'con un coche no hay averías');
+  const e = flotaDe(3);
+  e.reloj.minutos = 22 * 60;
+  assert.ok(sim.forzarEvento(e, 'averia').ok);
+  const averiada = e.licencias.find(function (l) { return l.averia; });
+  assert.ok(averiada.averia.hasta - sim.jornadaDe(e.reloj.minutos) >= 10);
+  assert.ok(!sim.puedeTrabajar(e, averiada, averiada.turnos.noche, e.reloj.minutos));
+  assert.ok(sim.forzarEvento(e, 'baja', 2).ok);
+  assert.ok(sim.forzarEvento(e, 'pinchazo').ok);
+  assert.strictEqual(e.caja.hoy.incidencias.pinchazo.importe, -config.eventos.pinchazo.coste);
+});
+
+prueba('la lluvia dobla la demanda mientras dura', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 10 * 60;
+  const antes = sim.demandaZona(e, 'centro', sim.infoReloj(e.reloj.minutos));
+  sim.forzarEvento(e, 'lluvia', 1);
+  assert.ok(sim.lloviendo(e, e.reloj.minutos));
+  cerca(sim.demandaZona(e, 'centro', sim.infoReloj(e.reloj.minutos)), antes * config.eventos.lluvia.factorDemanda);
+});
+
+prueba('sin conexión no hay eventos nuevos, pero la avería sigue contando jornadas', function () {
+  const e = flotaDe(3);
+  e.reloj.minutos = 22 * 60;
+  sim.forzarEvento(e, 'averia');
+  const averiada = e.licencias.find(function (l) { return l.averia; });
+  const r = sim.avanzar(e, 25 * DIA(), { sinPausa: true, agregado: true });
+  assert.strictEqual(r.eventos.length, 0);
+  assert.ok(sim.jornadaDe(e.reloj.minutos) >= averiada.averia.hasta, 'la avería ya ha terminado');
+  assert.ok(sim.puedeTrabajar(e, averiada, averiada.turnos.noche, e.reloj.minutos));
+});
+
 console.log(pasadas + ' pruebas correctas');
