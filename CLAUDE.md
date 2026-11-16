@@ -133,23 +133,25 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
 - Licencias: `numero` al azar entre 1 y el máximo de Madrid, sin repetir. La
   letra (día de libranza) sale de la última cifra (`config.licencias.letraPorCifra`)
   y se muestra como `15288-L` con `textoLicencia()`. La libranza aún no tiene
-  efecto en el juego: está fuera de la primera versión. La
-  caja de hoy es un `<details>` de una línea.
+  efecto en el juego: está fuera de la primera versión.
 - Menú inferior fijo con pestañas Calle, Flota, Mejoras y Partida
   (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección). Una marca
   roja avisa de compras posibles o de un ticket esperando. La pestaña elegida
   se recuerda en `localStorage` (`libre-vista`), aparte de la partida.
-- Pestaña Calle en móvil, de arriba abajo: escena, taxímetro, objetivo y
-  zonas. Con un solo taxi debe caber sin scroll en 375×600 px por encima del
-  menú inferior; con más taxis la escena crece (un carril por taxi, hasta 5)
-  y las zonas pueden quedar debajo, pero el taxímetro siempre entero.
-  Cualquier texto nuevo ahí, a una línea y sin añadir alto.
+- Pestaña Calle en móvil, de arriba abajo: tira de ambiente, taxímetro,
+  «Siguiente», «Tus taxis hoy» y zonas. Con hasta 5 taxis debe caber sin
+  scroll en 375×800 px por encima del menú inferior (con 1 taxi, en
+  375×600). Cualquier texto nuevo ahí, a una línea y sin añadir alto.
+- No hay línea «Hoy»: el desglose de la caja de hoy sale bajo el taxímetro
+  al tocar el display en modo flota o el total de «Tus taxis hoy»
+  (`cajaAbierta`), y se cierra con su ×.
 - Tira de ambiente (`js/ambiente.js`, 36 px): cielo según la hora, perfil
   de edificios y lluvia. Es un módulo aparte con `montar(contenedor)` y
   `dibujar(contenedor, estado)`; para cambiarla por otra vista (un mapa)
   basta otro módulo con esas dos funciones. No enseña datos de la partida.
-- Las tarjetas de zona sirven para elegir zona mientras conduces a
-  mano.
+- Zonas: las abiertas, en una fila de botones compactos (sirven para
+  elegir zona mientras conduces a mano); las cerradas, en una sola línea
+  debajo con la mejora que las abre.
 - El taxímetro debe verse entero en el móvil sin scroll. Tiene dos modos
   que cambian solos (`modoTaximetro()`): **conductor** si conduces y es tu
   turno (o aún no tienes conductores), y es el botón de buscar cliente;

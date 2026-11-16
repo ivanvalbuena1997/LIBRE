@@ -291,6 +291,7 @@
    */
   const MAX_FILAS_TAXIS = 6;
   let taxisDesplegados = false;
+  let filasRecienCreadas = false;   // la primera colocación no se anima
 
   function htmlRetratoFila(t) {
     if (t.retrato !== null && t.retrato !== undefined) {
@@ -318,6 +319,7 @@
           '</button></li>';
       }).join('');
       const resto = ids.length - MAX_FILAS_TAXIS;
+      filasRecienCreadas = true;
       return '<div class="taxis-cabecera"><h2>Tus taxis hoy</h2>' +
         '<button type="button" class="taxis-total" data-desglose aria-label="Ver el desglose de la caja de hoy"><span id="taxis-total"></span> ›</button></div>' +
         '<ol class="taxis-lista" id="taxis-lista">' + filas + '</ol>' +
@@ -338,7 +340,8 @@
       const orden = taxis.map(function (t) { return String(t.licencia.id); });
       const actual = Array.prototype.map.call(lista.children, function (li) { return li.dataset.filaTaxi; });
       const cambia = orden.join(',') !== actual.join(',');
-      const animar = cambia && !movimientoReducido.matches;
+      const animar = cambia && !filasRecienCreadas && !movimientoReducido.matches;
+      filasRecienCreadas = false;
       const antes = {};
       if (animar) orden.forEach(function (id) { if (filas[id]) antes[id] = filas[id].getBoundingClientRect().top; });
 
@@ -625,24 +628,26 @@
     }
   }
 
-  /* Caja de hoy: una línea que se despliega con el desglose. */
+  /*
+   * Caja de hoy: el desglose, oculto hasta que lo pides tocando el display
+   * del taxímetro (modo flota) o el total de «Tus taxis hoy». Sale justo
+   * debajo del taxímetro.
+   */
+  let cajaAbierta = false;
   const seccionCaja = {
     id: 'sec-caja',
-    firma: function () { return 'fija'; },
+    firma: function () { return 'caja:' + cajaAbierta; },
     html: function () {
-      return '<details class="caja-plegable"><summary id="caja-resumen"></summary>' +
-        filasCaja(null, 'hoy', true) + '</details>';
+      if (!cajaAbierta) return '';
+      return '<div class="caja-desglose"><div class="caja-titulo"><strong>Caja de hoy</strong>' +
+        '<button type="button" class="caja-cerrar" data-desglose aria-label="Cerrar el desglose">×</button></div>' +
+        filasCaja(null, 'hoy', true) + '</div>';
     },
     actualizar: function (estado) {
       const hoy = estado.caja.hoy;
       const fijos = Libre.sim.costesFijosDiarios(estado);
       const neto = Libre.sim.netoCaja(hoy) - fijos;
-      // Lo ganado hasta ahora (sin los fijos, que se cobran al cierre).
-      const ganado = Libre.sim.netoCaja(hoy);
       const carreras = Math.floor(hoy.carreras);
-      $('caja-resumen').innerHTML = 'Hoy: ' + carreras + (carreras === 1 ? ' carrera' : ' carreras') +
-        ' · <strong class="' + (ganado < 0 ? 'negativo-texto' : '') + '">' + euros(ganado) + '</strong>' +
-        ' <span class="caja-fijos">· fijos al cierre −' + euros(fijos) + '</span>';
       $('hoy-carreras').textContent = carreras;
       ['ingresos', 'extras', 'combustible', 'conductores', 'otros'].forEach(function (campo) {
         const suma = campo === 'ingresos' || campo === 'extras';
@@ -656,9 +661,11 @@
   };
 
   /*
-   * Zonas: tarjetas con icono y medidor de demanda (viajes/h ahora respecto
-   * al máximo de la semana en esa zona). Sin demanda, atenuada y con la hora
-   * a la que abre. Mientras conduces a mano, tocar una tarjeta elige la zona.
+   * Zonas: las abiertas, una fila de botones compactos con icono, nombre,
+   * dato y medidor de demanda (viajes/h ahora respecto al máximo de la semana
+   * en esa zona); sin demanda, atenuada y con la hora a la que abre. Mientras
+   * conduces a mano, tocar una elige la zona. Las cerradas, en una sola línea
+   * debajo con la mejora que las abre.
    */
   const ICONOS_ZONA = {
     centro: '<path d="M3 21V10l5-3v14M8 21V4h8v17M16 21v-8h5v8M2 21h20M11 8h2M11 12h2M11 16h2"/>',
@@ -724,26 +731,30 @@
       const c = Libre.config;
       const aMano = Libre.sim.conduce(estado);
       const u = Libre.sim.ubicacionJugador(estado);
-      return '<div class="zonas-rejilla" role="group" aria-label="Zonas">' + Object.keys(c.zonas).map(function (id) {
+      const ids = Object.keys(c.zonas);
+      const cerradas = ids.filter(function (id) { return !Libre.sim.zonaDesbloqueada(estado, id); });
+      const lineaCerradas = cerradas.length === 0 ? '' :
+        '<p class="zonas-cerradas">Cerradas: ' + cerradas.map(function (id) {
+          const zona = c.zonas[id];
+          const mejora = c.mejoras.find(function (m) { return m.id === zona.requiere; });
+          return '<span title="' + esc(zona.descripcion) + '">' + esc(zona.nombre) +
+            ' <small>(' + esc(mejora ? mejora.nombre : zona.requiere) + ')</small></span>';
+        }).join(' · ') + '</p>';
+      return '<div class="zonas-fila" role="group" aria-label="Zonas">' + ids.filter(function (id) {
+        return cerradas.indexOf(id) === -1;
+      }).map(function (id) {
         const zona = c.zonas[id];
-        const abierta = Libre.sim.zonaDesbloqueada(estado, id);
         const cuerpo = iconoZona(id) +
           '<span class="zona-nombre">' + esc(zona.nombre) + '</span>' +
           '<span class="zona-dato" id="zona-dato-' + id + '"></span>' +
           '<span class="zona-medidor"><span id="zona-medidor-' + id + '"></span></span>';
-        if (!abierta) {
-          const mejora = c.mejoras.find(function (m) { return m.id === zona.requiere; });
-          return '<div class="zona-tarjeta cerrada" title="' + esc(zona.descripcion) + '">' + iconoZona(id) +
-            '<span class="zona-nombre">' + esc(zona.nombre) + '</span>' +
-            '<span class="zona-dato">Cerrada: ' + esc(mejora ? mejora.nombre : zona.requiere) + '</span></div>';
-        }
         if (aMano) {
           return '<button type="button" class="zona-tarjeta' + (id === u.datos.zona ? ' activa' : '') + '" id="zona-' + id + '" ' +
             'data-accion="elegirZona" data-args="' + u.licenciaId + '|' + u.turno + '|' + id + '" title="' + esc(zona.descripcion) + '">' +
             cuerpo + '</button>';
         }
         return '<div class="zona-tarjeta" id="zona-' + id + '" title="' + esc(zona.descripcion) + '">' + cuerpo + '</div>';
-      }).join('') + '</div>';
+      }).join('') + '</div>' + lineaCerradas;
     },
     actualizar: function (estado) {
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
@@ -1010,7 +1021,7 @@
     }
   };
 
-  const secciones = [seccionAmbiente, seccionTaximetro, seccionTicket, seccionObjetivo, seccionTaxis, seccionZonas, seccionCaja, seccionFlota, seccionMejoras, seccionPartida];
+  const secciones = [seccionAmbiente, seccionTaximetro, seccionTicket, seccionCaja, seccionObjetivo, seccionTaxis, seccionZonas, seccionFlota, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -1274,11 +1285,9 @@
         return;
       }
       if (ev.target.closest('[data-desglose]')) {
-        const desglose = document.querySelector('.caja-plegable');
-        if (desglose) {
-          desglose.open = !desglose.open;
-          if (desglose.open) desglose.scrollIntoView({ block: 'nearest' });
-        }
+        cajaAbierta = !cajaAbierta;
+        opciones.redibujar();
+        if (cajaAbierta) $('sec-caja').scrollIntoView({ block: 'nearest' });
         return;
       }
       if (ev.target.closest('[data-taxis-mas]')) {

@@ -262,7 +262,7 @@ main {
   border: 1px solid var(--borde);
   border-radius: var(--radio);
   padding: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .tarjeta h2 {
@@ -342,7 +342,7 @@ textarea {
 
 /* Taxímetro */
 #sec-taximetro {
-  padding: 10px;
+  padding: 8px;
 }
 .taximetro {
   display: block;
@@ -486,7 +486,7 @@ textarea {
 #sec-ambiente {
   padding: 0;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .ambiente { display: block; width: 100%; height: 36px; }
 .ambiente .edificio-lejos { fill: var(--edificio-lejos); }
@@ -572,15 +572,6 @@ textarea {
   width: 0;
 }
 
-.estado-carrera {
-  font-size: 0.88rem;
-  color: var(--suave);
-  min-height: 1.3em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* Tablas de números */
 .filas { margin: 0; }
 .filas div {
@@ -600,12 +591,12 @@ textarea {
 .negativo-texto { color: var(--rojo-taxi); }
 
 /* Tus taxis hoy */
-#sec-taxis { padding: 8px 10px; }
+#sec-taxis { padding: 6px 10px; }
 .taxis-cabecera {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 0 4px;
+  margin: 0;
 }
 .taxis-cabecera h2 { margin: 0; font-size: 0.95rem; }
 .taxis-total {
@@ -707,17 +698,27 @@ textarea {
   cursor: pointer;
 }
 
-/* Caja de hoy plegada en una línea */
+/* Desglose de la caja de hoy, bajo el taxímetro cuando lo pides */
 #sec-caja { padding: 0; }
-.caja-plegable summary {
-  padding: 12px 14px;
-  min-height: 44px;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
+.caja-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px 2px 14px;
+  border-bottom: 1px solid var(--borde);
 }
-.caja-plegable[open] summary { border-bottom: 1px solid var(--borde); }
-.caja-fijos { color: var(--suave); font-size: 0.85em; white-space: nowrap; }
-.caja-plegable .filas { padding: 8px 14px 12px; }
+.caja-cerrar {
+  min-width: 44px;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--suave);
+  cursor: pointer;
+}
+.caja-desglose .filas { padding: 8px 14px 12px; }
 
 /* Ticket de cierre de caja: papel térmico que sale de debajo del taxímetro */
 #sec-ticket {
@@ -800,23 +801,23 @@ textarea {
 /* Zonas que no responden mientras el día está cerrado */
 button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 
-/* Zonas: tarjetas con icono y medidor */
-#sec-zonas { padding: 8px; }
-.zonas-rejilla {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+/* Zonas: fila de botones compactos; las cerradas, en una línea debajo */
+#sec-zonas { padding: 6px; }
+.zonas-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 .zona-tarjeta {
+  position: relative;
+  flex: 1 1 130px;
   display: grid;
-  grid-template-columns: 26px 1fr;
-  grid-template-rows: auto auto auto;
-  column-gap: 8px;
-  row-gap: 1px;
+  grid-template-columns: 20px 1fr;
+  column-gap: 6px;
   align-items: center;
-  width: 100%;
-  min-height: 0;
-  padding: 8px 10px;
+  min-height: 44px;
+  padding: 5px 8px 7px;
+  overflow: hidden;
   text-align: left;
   font: inherit;
   color: var(--texto);
@@ -832,8 +833,8 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .zona-icono {
   grid-row: 1 / span 2;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.6;
@@ -843,14 +844,14 @@ button.zona-tarjeta { cursor: pointer; }
 .zona-icono .relleno { fill: currentColor; stroke: none; }
 .zona-nombre {
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.85rem;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .zona-dato {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   color: var(--suave);
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -858,14 +859,14 @@ button.zona-tarjeta { cursor: pointer; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Medidor de demanda: una raya fina al pie del botón. */
 .zona-medidor {
-  grid-column: 1 / -1;
-  display: block;
-  height: 5px;
-  margin-top: 5px;
-  border-radius: 999px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
   background: var(--borde);
-  overflow: hidden;
 }
 .zona-medidor > span {
   display: block;
@@ -874,20 +875,16 @@ button.zona-tarjeta { cursor: pointer; }
   background: var(--verde-libre);
   transition: width 0.4s ease-out;
 }
-/* Sin demanda a esta hora, o todavía sin comprar: atenuada. */
-.zona-tarjeta.vacia, .zona-tarjeta.cerrada { opacity: 0.5; }
+/* Sin demanda a esta hora: atenuada. */
+.zona-tarjeta.vacia { opacity: 0.5; }
 .zona-tarjeta.vacia .zona-medidor > span { background: var(--suave); }
-.zona-tarjeta.cerrada { grid-template-rows: auto auto; }
-/* El motivo del cierre se lee entero, en dos líneas si hace falta:
-   icono y nombre arriba, motivo a todo el ancho debajo. */
-.zona-tarjeta.cerrada .zona-icono { grid-row: 1; }
-.zona-tarjeta.cerrada .zona-dato {
-  grid-column: 1 / -1;
-  margin-top: 2px;
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
+.zonas-cerradas {
+  margin: 6px 2px 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--suave);
 }
+.zonas-cerradas span { white-space: nowrap; }
 
 /* Flota */
 .licencia {
