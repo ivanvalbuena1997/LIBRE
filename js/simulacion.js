@@ -247,7 +247,7 @@
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
-      monedasMin: 0, monedasMax: 0, almacen: 0
+      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -270,6 +270,7 @@
       if (e.monedasMax) { m.monedasMin = e.monedasMin; m.monedasMax = e.monedasMax; }
       if (e.gestionZonas) m.gestionZonas = true;
       if (e.almacen) m.almacen += e.almacen;
+      if (e.baja) m.baja *= e.baja;
     });
     return m;
   }
@@ -1661,7 +1662,8 @@
       }
       if (!puedeTrabajar(estado, lic, t, ahora)) return;
       const f = factoresConductor(estado, t);
-      if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja)) {
+      // Bajas: rasgo y objetos del conductor y las mejoras (Deflectores), con tope.
+      if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja * modificadores(estado).baja)) {
         const jornadas = enteroEntre(estado, ev.baja.jornadasMin, ev.baja.jornadasMax);
         t.baja = { hasta: jornada + jornadas };
         incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +

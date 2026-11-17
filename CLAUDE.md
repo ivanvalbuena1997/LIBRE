@@ -66,7 +66,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   defecto): al cerrar la caja, `estado.cierrePendiente` guarda el ticket (días
   que cubre y sus sumas) y mientras no sea `null` `avanzar()` no hace nada.
   Solo `arrancarDia()` lo quita. En pausa no se busca cliente; comprar sí.
-- Las mejoras "Jornada larga" alargan el día en segundos reales; los coches
+- La mejora «Jornada larga» (5 niveles; su nivel 1 abre la Oficina de
+  gestión) alarga el día en segundos reales; los coches
   trabajan al mismo ritmo real (`factorJornada`), así que caben más carreras
   contra el mismo coste fijo diario.
 - Cada zona tiene varios tipos de carrera (cortas, medias, largas) y su
@@ -186,7 +187,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Árbol de mejoras: cada mejora tiene `rama` (`config.ramasMejoras`) y
   `requiere` la anterior de su rama (basta su nivel 1); el orden de la lista
   en la config es el de la rama. Las que no tienen `requiere` abren la rama
-  (puede haber varias: Bolsas y Callejero; Curso de zonas y Esterillas), y la
+  (puede haber varias: Bolsas y Callejero; Deflectores y Conducción eficiente;
+  Curso de zonas, Taquillas y Esterillas), y la
   línea solo une un nodo con el siguiente si este lo pide. La interfaz no inventa requisitos: los lee.
   En pantalla: una pestaña por rama y los nodos en vertical; al
   tocar uno se abre su ficha.

@@ -531,6 +531,9 @@
      *             sinImpagos: nadie se va sin pagar
      *             averiaDias / averiaCoste: multiplican días y coste de una avería
      *             monedasMin / monedasMax: € que encuentra cada conductor al acabar su turno
+     *             baja: multiplica la probabilidad de baja de los conductores
+     *                   (junto con su rasgo y sus objetos, bajo el mismo tope)
+     *             almacen: objetos de más que caben en el almacén
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
      *             (el efecto del nivel es el total, no se suma al anterior).
      *             inventario: desbloquea un consumible del inventario (config.inventario)
@@ -623,6 +626,12 @@
         efecto: { busqueda: 0.7 }
       },
       // ---- Rama: Vehículo
+      {
+        // Equilibrio: barata, para abrir la rama. Comodidad del conductor.
+        id: 'deflectores', nombre: 'Deflectores de viento', rama: 'vehiculo', precio: 350,
+        descripcion: 'Tus conductores ventilan el coche sin corrientes ni ruido: un 15 % menos de bajas por resfriado.',
+        efecto: { baja: 0.85 }
+      },
       {
         id: 'conduccionEficiente', nombre: 'Curso de conducción eficiente', rama: 'vehiculo', precio: 800,
         descripcion: 'Todos tus coches gastan un 10 % menos de combustible.',

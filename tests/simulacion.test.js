@@ -1175,4 +1175,16 @@ prueba('el almacén guarda 10 objetos y «Taquillas» lo amplía por niveles', f
   assert.strictEqual(sim.capacidadAlmacen(e), 40);
 });
 
+prueba('Deflectores de viento: barata, abre Vehículo y baja las bajas, con tope', function () {
+  const d = config.mejoras.find(function (m) { return m.id === 'deflectores'; });
+  assert.strictEqual(d.rama, 'vehiculo');
+  assert.ok(!d.requiere, 'abre la rama');
+  assert.ok(d.precio <= 500, 'barata');
+  const e = flotaDe(1);
+  e.dinero = 1e6;
+  assert.strictEqual(sim.modificadores(e).baja, 1);
+  assert.ok(sim.comprarMejora(e, 'deflectores').ok);
+  cerca(sim.modificadores(e).baja, d.efecto.baja);
+});
+
 console.log(pasadas + ' pruebas correctas');
