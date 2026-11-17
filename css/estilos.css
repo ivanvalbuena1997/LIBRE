@@ -1030,7 +1030,7 @@ button.zona-tarjeta { cursor: pointer; }
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  width: 64px;
+  width: 40px;
   min-height: 44px;
   padding: 2px;
   border: 0;
@@ -1042,14 +1042,14 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .cara:hover { background: var(--fondo); }
 .cara-foto { position: relative; display: inline-flex; }
-.cara-foto .retrato { width: 44px; height: 44px; font-size: 0.72rem; }
+.cara-foto .retrato { width: 36px; height: 36px; font-size: 0.66rem; }
 .cara-categoria, .cara-nivel {
   position: absolute;
   bottom: -2px;
   display: inline-grid;
   place-items: center;
-  min-width: 18px;
-  height: 18px;
+  min-width: 16px;
+  height: 16px;
   padding: 0 3px;
   border-radius: 999px;
   border: 1.5px solid var(--tarjeta);
@@ -1080,7 +1080,7 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .cara-nombre {
   max-width: 100%;
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1113,30 +1113,33 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .licencia {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 2px;
   min-width: 0;
-  padding: 4px 4px 2px;
+  padding: 4px 2px 2px 4px;
   border: 1px solid var(--borde);
   border-radius: 12px;
 }
 /* Con candidatos o tu panel abiertos, la licencia ocupa la fila entera. */
 .licencia.abierta { grid-column: 1 / -1; }
 .licencia.abierta .candidatos, .licencia.abierta .panel-tu, .licencia.abierta > .acciones { width: 100%; }
-.licencia-placa { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
-.licencia-turnos { display: flex; justify-content: center; gap: 2px; }
-.licencia-sin-coche { width: 100%; padding: 4px 0; }
+.licencia-placa { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.licencia-turnos { display: flex; gap: 0; }
+/* Candidatos o tu panel, debajo y a todo el ancho. */
+.licencia > .candidatos, .licencia > .panel-tu, .licencia > .acciones { flex-basis: 100%; }
+.licencia-sin-coche { flex: 1; padding: 4px 0; }
 .licencia-sin-coche .boton-compra { width: 100%; }
 /* Número de licencia en una placa blanca con borde, como una matrícula */
 .placa {
   display: inline-block;
-  padding: 0 5px 0 12px;
+  padding: 0 3px 0 8px;
   border: 2px solid var(--texto);
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--placa-franja) 0 8px, var(--blanco) 8px);
-  font: 800 0.76rem ui-monospace, "Cascadia Mono", Consolas, monospace;
-  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, var(--placa-franja) 0 5px, var(--blanco) 5px);
+  font: 800 0.62rem ui-monospace, "Cascadia Mono", Consolas, monospace;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 .hueco-turno { position: relative; display: flex; align-items: flex-start; }

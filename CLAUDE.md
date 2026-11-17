@@ -152,8 +152,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   a peor categoría); al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
   que espera y la lista para vender. Las licencias van de dos en
-  dos (rejilla `.licencias`): cada una, su placa arriba (libranza en el
-  título, «Hoy libra» si toca) y debajo los dos turnos, cada uno con un sol
+  dos (rejilla `.licencias`): cada una, su placa a la izquierda (libranza
+  en el título, «Hoy libra» debajo si toca) y los dos turnos, cada uno con un sol
   o una luna pequeños sobre una cara (`htmlCara()`); la que tiene candidatos
   o tu panel abiertos ocupa la fila entera. Cara:
   retrato con un círculo de categoría (color y letra, abajo a la izquierda)
