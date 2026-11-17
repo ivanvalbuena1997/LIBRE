@@ -1188,7 +1188,7 @@
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario,
-    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null,
+    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, plegadas,
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.defecto, Libre.sim.nivelConductor(t), t.objetos,
         t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0];
@@ -1348,17 +1348,48 @@
       }).join('') + '</div>';
   }
 
+  /*
+   * Licencias plegadas en Flota (comodidad de este navegador, no de la
+   * partida): plegada, solo la cabecera con un retrato pequeño por turno.
+   */
+  const CLAVE_PLEGADAS = 'libre-plegadas';
+  let plegadas = [];
+  try { plegadas = JSON.parse(raiz.localStorage.getItem(CLAVE_PLEGADAS)) || []; } catch (e) { plegadas = []; }
+  function guardarPlegadas() {
+    try { raiz.localStorage.setItem(CLAVE_PLEGADAS, JSON.stringify(plegadas)); } catch (e) { /* da igual */ }
+  }
+  function plegar(id, plegar) {
+    plegadas = plegadas.filter(function (x) { return x !== id; });
+    if (plegar) plegadas.push(id);
+    guardarPlegadas();
+  }
+
+  /* Plegada: un retrato pequeño por turno (TÚ, el conductor o un hueco). */
+  function htmlLicenciaMini(estado, lic) {
+    return '<span class="licencia-mini">' + ['dia', 'noche'].map(function (tn) {
+      const t = lic.turnos[tn];
+      const cara = !t ? '<span class="retrato retrato-texto"></span>'
+        : t.quien === 'jugador' ? '<span class="retrato retrato-texto tu">TÚ</span>'
+        : '<span class="retrato" title="' + esc(t.nombre) + '">' + Libre.retratos.svg(t.retrato) + '</span>';
+      return '<span class="mini-turno">' + icono(tn) + cara + '</span>';
+    }).join('') + '</span>';
+  }
+
   function htmlLicencia(estado, lic) {
     const c = Libre.config;
     const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'Sin coche';
     const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
     // Candidatos de un turno vacío de esta licencia, a todo el ancho.
     const eligiendo = ['dia', 'noche'].find(function (t) { return eligiendoConductor === lic.id + '|' + t; });
-    return '<div class="licencia" data-licencia="' + lic.id + '">' +
-      '<div class="licencia-cabecera">' +
+    const plegada = plegadas.indexOf(lic.id) !== -1;
+    const cabecera = '<button type="button" class="licencia-cabecera" data-plegar="' + lic.id + '" aria-expanded="' + !plegada + '"' +
+      ' aria-label="Licencia ' + esc(Libre.sim.textoLicencia(lic)) + (plegada ? ': desplegar' : ': plegar') + '">' +
       '<span class="placa" title="Número de licencia y letra de libranza">' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
-      '<small>' + esc(modelo) + '</small>' +
-      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') + '</div>' +
+      (plegada ? htmlLicenciaMini(estado, lic) : '<small>' + esc(modelo) + '</small>') +
+      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') +
+      '<span class="plegar-flecha" aria-hidden="true">' + (plegada ? '▸' : '▾') + '</span></button>';
+    if (plegada) return '<div class="licencia plegada" data-licencia="' + lic.id + '">' + cabecera + '</div>';
+    return '<div class="licencia" data-licencia="' + lic.id + '">' + cabecera +
       '<p class="licencia-libranza">' + esc(textoLibranza(lic.numero)) + '</p>' +
       (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio, 'comprarVehiculo', [lic.id])) +
       htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') +
@@ -1379,7 +1410,12 @@
             '(en el móvil, mantén pulsado su retrato). También desde su ficha.'
           : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
+      const todasPlegadas = estado.licencias.every(function (l) { return plegadas.indexOf(l.id) !== -1; });
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
+        (estado.licencias.length > 1
+          ? '<div class="licencias-titulo"><h3 class="flota-titulo">Licencias <small>· ' + estado.licencias.length + '</small></h3>' +
+            '<button type="button" data-plegar-todas="' + !todasPlegadas + '">' + (todasPlegadas ? 'Desplegar todas' : 'Plegar todas') + '</button></div>'
+          : '') +
         estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) +
         htmlFichaConductor(estado);
@@ -1927,7 +1963,8 @@
       }
       const filaTaxi = ev.target.closest('[data-ir-licencia]');
       if (filaTaxi) {
-        // A ese taxi en la pestaña Flota.
+        // A ese taxi en la pestaña Flota (desplegado).
+        plegar(Number(filaTaxi.dataset.irLicencia), false);
         cambiarVista('flota');
         opciones.redibujar();
         const destino = document.querySelector('.licencia[data-licencia="' + filaTaxi.dataset.irLicencia + '"]');
@@ -1966,7 +2003,13 @@
           cambiarVista('mejoras');
           opciones.redibujar();
         }
-        const destino = document.querySelector(objetivo.dataset.objetivo);
+        let destino = document.querySelector(objetivo.dataset.objetivo);
+        if (!destino && plegadas.length) {
+          plegadas = [];
+          guardarPlegadas();
+          opciones.redibujar();
+          destino = document.querySelector(objetivo.dataset.objetivo);
+        }
         if (destino) {
           // La compra puede estar en otra pestaña: se va a ella primero.
           const vista = VISTA_DE[destino.closest('section').id];
@@ -1992,6 +2035,20 @@
       if (fichaInv) {
         const id = fichaInv.dataset.fichaInventario;
         fichaInventario = fichaInventario === id ? null : id;
+        opciones.redibujar();
+        return;
+      }
+      const botonPlegar = ev.target.closest('[data-plegar]');
+      if (botonPlegar) {
+        const id = Number(botonPlegar.dataset.plegar);
+        plegar(id, plegadas.indexOf(id) === -1);
+        opciones.redibujar();
+        return;
+      }
+      const plegarTodas = ev.target.closest('[data-plegar-todas]');
+      if (plegarTodas) {
+        plegadas = plegarTodas.dataset.plegarTodas === 'true' && estadoActual ? estadoActual.licencias.map(function (l) { return l.id; }) : [];
+        guardarPlegadas();
         opciones.redibujar();
         return;
       }

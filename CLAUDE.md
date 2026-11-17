@@ -156,7 +156,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   se abre su ficha (hoja que sube desde abajo; se cierra con ×, el fondo o
   Escape) con todo lo demás, incluido despedir. Un turno vacío es un hueco
   punteado con contratar; los candidatos salen debajo, a todo el ancho de
-  la licencia. La experiencia se mueve en `actualizar()`, no en
+  la licencia.
+  Las licencias se pliegan tocando su cabecera (o «Plegar todas»): plegada
+  solo enseña la placa y un retrato pequeño por turno. Las plegadas se
+  recuerdan en `localStorage` (`libre-plegadas`), aparte de la partida; ir
+  a una licencia desde Calle o desde «Siguiente» la despliega. La experiencia se mueve en `actualizar()`, no en
   la firma, para no rehacer la pestaña con cada carrera.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
