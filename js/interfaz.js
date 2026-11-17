@@ -970,7 +970,8 @@
       const abierto = eligiendoConductor === clave;
       const precio = precioMasBarato(estado);
       // Los candidatos salen debajo, a todo el ancho de la licencia.
-      cuerpo = '<div class="turno-vacio"><span class="turno-vacio-texto">Libre</span>' +
+      cuerpo = '<div class="turno-vacio"' + (Libre.sim.enPausa(estado) ? ' data-destino="' + clave + '"' : '') +
+        '><span class="turno-vacio-texto">Libre</span>' +
         '<button type="button" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
         (abierto ? '' : ' data-precio="' + precio + '"') + '>' +
         (abierto ? 'Cerrar candidatos' : 'Contratar · desde ' + euros(precio)) + '</button>' +
@@ -1000,7 +1001,10 @@
     const deBaja = t.baja && jornada < t.baja.hasta;
     const p = nivelDe(t);
     const aviso = textoEstadoTurno(estado, lic, t);
-    return '<button type="button" class="conductor" data-ficha-conductor="' + clave + '" aria-label="Ficha de ' + esc(t.nombre) + '">' +
+    // Con el día cerrado se puede arrastrar y soltar sobre otro sitio.
+    const mover = Libre.sim.enPausa(estado) ? ' data-arrastrable data-destino="' + clave + '"' : '';
+    return '<button type="button" class="conductor" data-ficha-conductor="' + clave + '"' + mover +
+      ' aria-label="Ficha de ' + esc(t.nombre) + '">' +
       '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
       '<span class="conductor-datos">' +
       '<span class="conductor-nombre"><strong>' + esc(t.nombre) + '</strong>' + etiquetaCategoria(t.categoria) +
@@ -1018,7 +1022,8 @@
     const max = Libre.config.conductores.reserva;
     const reserva = estado.reserva || [];
     const abierto = eligiendoConductor === 'reserva';
-    return '<div class="reserva"><h3 class="flota-titulo">Reserva <small>· ' + reserva.length + ' de ' + max + '</small></h3>' +
+    const destino = Libre.sim.enPausa(estado) && reserva.length < max ? ' data-destino="reserva"' : '';
+    return '<div class="reserva"' + destino + '><h3 class="flota-titulo">Reserva <small>· ' + reserva.length + ' de ' + max + '</small></h3>' +
       (reserva.length
         ? reserva.map(function (t, i) { return '<div class="reserva-fila">' + htmlFilaConductor(estado, 'reserva|' + i, t, null) + '</div>'; }).join('')
         : '<p class="ayuda">Conductores contratados que esperan turno. No trabajan ni cuestan nada mientras están aquí.</p>') +
@@ -1040,6 +1045,38 @@
     const lic = estado.licencias.find(function (l) { return String(l.id) === partes[0]; });
     const t = lic && lic.turnos[partes[1]];
     return t && t.quien === 'conductor' ? { lic, licId: lic.id, turno: partes[1], t, enReserva: false } : null;
+  }
+
+  /*
+   * Selector «Mover a…» de la ficha: cada turno de las licencias con coche
+   * (menos el tuyo y el suyo; si está ocupado, se intercambian) y la
+   * reserva. Solo entre jornadas, con el día cerrado.
+   */
+  function htmlMoverConductor(estado, x) {
+    if (!Libre.sim.enPausa(estado)) {
+      return '<p class="ficha-zona">Podrás cambiarlo de licencia o de turno al cerrar el día, con el ticket en pantalla.</p>';
+    }
+    const c = Libre.config;
+    const opciones = [];
+    estado.licencias.forEach(function (l) {
+      if (!l.vehiculo) return;
+      ['dia', 'noche'].forEach(function (tn) {
+        const otro = l.turnos[tn];
+        if (otro && otro.quien === 'jugador') return;
+        if (!x.enReserva && l.id === x.licId && tn === x.turno) return;
+        opciones.push('<option value="' + l.id + '|' + tn + '">Licencia ' + esc(Libre.sim.textoLicencia(l)) + ' · ' +
+          esc(c.turnos[tn].nombre) + (otro ? ' (cambiar con ' + esc(otro.nombre) + ')' : ' (libre)') + '</option>');
+      });
+    });
+    if (!x.enReserva && (estado.reserva || []).length < c.conductores.reserva) opciones.push('<option value="reserva">A la reserva</option>');
+    if (!x.enReserva) {
+      (estado.reserva || []).forEach(function (r, i) {
+        opciones.push('<option value="reserva|' + i + '">Reserva (cambiar con ' + esc(r.nombre) + ')</option>');
+      });
+    }
+    return '<p class="ficha-zona">También puedes arrastrarlo sobre otro conductor, un turno libre o la reserva.</p>' +
+      '<select data-cambio="moverConductor" data-args="' + x.licId + '|' + x.turno + '" aria-label="Mover a">' +
+      '<option value="" selected disabled>Mover a…</option>' + opciones.join('') + '</select>';
   }
 
   /* Lo que cambia su categoría: cualidad reforzada y defecto suavizado. */
@@ -1122,6 +1159,7 @@
         (Libre.sim.modificadores(estado).gestionZonas
           ? 'Con el Curso gestión de zonas va cada hora a la que más te deja.'
           : 'Elige su propia zona, al azar entre las que tienen clientes.') + '</p>') +
+      '<h4>Cambiar de sitio</h4>' + htmlMoverConductor(estado, x) +
       '<div class="ficha-despedir">' + boton('Despedir · finiquito ' + euros(coste), 'despedirConductor', [licId, turno],
         'boton-peligro', coste) + '</div>' +
       '</div>';
@@ -1134,7 +1172,7 @@
    */
   function firmaFlota(estado) {
     const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
-    return JSON.stringify([estado.licencias.map(function (l) {
+    return JSON.stringify([Libre.sim.enPausa(estado), estado.licencias.map(function (l) {
       return [l.id, l.numero, l.vehiculo, l.averia && jornada < l.averia.hasta ? l.averia.hasta : 0,
         ['dia', 'noche'].map(function (tn) {
           const t = l.turnos[tn];
@@ -1296,10 +1334,14 @@
     html: function (estado) {
       const c = Libre.config;
       if (fichaConductor && !conductorDe(estado, fichaConductor)) fichaConductor = null;
-      const ayuda = Libre.sim.hayConductores(estado)
-        ? 'Cada coche puede trabajar dos turnos. Tus conductores trabajan solos y se quedan el ' +
-          Math.round(c.conductores.porcentaje * 100) + ' % de lo que recaudan. Toca uno para ver su ficha.'
-        : 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.';
+      const hayAlguno = Libre.sim.todosLosConductores(estado).length > 0;
+      const ayuda = !hayAlguno
+        ? 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.'
+        : Libre.sim.enPausa(estado)
+          ? 'Día cerrado: arrastra a un conductor sobre otro, un turno libre o la reserva para reorganizarlos ' +
+            '(en el móvil, mantén pulsado su retrato). También desde su ficha.'
+          : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
+            ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
         estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         (estado.licencias.length < c.licencias.maximo
@@ -1703,6 +1745,111 @@
     secciones.forEach(function (s) { s.ultimaFirma = null; });
   }
 
+  /*
+   * Arrastrar conductores (solo con el día cerrado: las filas llevan
+   * data-arrastrable y los sitios donde soltar, data-destino). Con ratón,
+   * empieza al mover unos píxeles; con el dedo, tras mantener pulsado medio
+   * segundo (si mueve antes, es que desplaza la página). Al soltar sobre un
+   * destino se llama a moverConductor. Un retrato sigue al puntero (sin
+   * animación: solo se coloca donde está el dedo).
+   */
+  const MS_PULSACION_LARGA = 450;
+  let arrastre = null;
+  let ignorarClic = false;
+
+  function iniciarArrastre(opciones) {
+    const main = $('juego');
+
+    function marcarDestino(x, y) {
+      document.querySelectorAll('.destino-activo').forEach(function (d) { d.classList.remove('destino-activo'); });
+      const bajo = document.elementFromPoint(x, y);
+      const destino = bajo && bajo.closest('[data-destino]');
+      if (destino && destino.dataset.destino !== arrastre.origen) destino.classList.add('destino-activo');
+      return destino;
+    }
+
+    function activar() {
+      if (!arrastre) return;
+      arrastre.activo = true;
+      clearTimeout(arrastre.temporizador);
+      const fantasma = document.createElement('div');
+      fantasma.className = 'fantasma-arrastre';
+      fantasma.innerHTML = arrastre.fila.querySelector('.retrato').outerHTML;
+      document.body.appendChild(fantasma);
+      arrastre.fantasma = fantasma;
+      document.body.classList.add('arrastrando');
+      arrastre.fila.classList.add('arrastrado');
+      mover(arrastre.x, arrastre.y);
+    }
+
+    function mover(x, y) {
+      arrastre.fantasma.style.left = x + 'px';
+      arrastre.fantasma.style.top = y + 'px';
+      marcarDestino(x, y);
+    }
+
+    function terminar() {
+      if (!arrastre) return;
+      clearTimeout(arrastre.temporizador);
+      if (arrastre.fantasma) arrastre.fantasma.remove();
+      arrastre.fila.classList.remove('arrastrado');
+      document.body.classList.remove('arrastrando');
+      document.querySelectorAll('.destino-activo').forEach(function (d) { d.classList.remove('destino-activo'); });
+      arrastre = null;
+    }
+
+    main.addEventListener('pointerdown', function (ev) {
+      const fila = ev.target.closest('[data-arrastrable]');
+      if (!fila || ev.button > 0) return;
+      arrastre = { fila, origen: fila.dataset.fichaConductor, x: ev.clientX, y: ev.clientY, activo: false, raton: ev.pointerType === 'mouse' };
+      if (!arrastre.raton) arrastre.temporizador = setTimeout(activar, MS_PULSACION_LARGA);
+    });
+
+    document.addEventListener('pointermove', function (ev) {
+      if (!arrastre) return;
+      if (!arrastre.activo) {
+        const d = Math.hypot(ev.clientX - arrastre.x, ev.clientY - arrastre.y);
+        if (arrastre.raton && d > 6) { arrastre.x = ev.clientX; arrastre.y = ev.clientY; activar(); }
+        else if (!arrastre.raton && d > 10) terminar();   // desplaza la página
+        return;
+      }
+      ev.preventDefault();
+      mover(ev.clientX, ev.clientY);
+    });
+
+    // Mientras se arrastra con el dedo, la página no se desplaza.
+    document.addEventListener('touchmove', function (ev) {
+      if (arrastre && arrastre.activo) ev.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('pointerup', function (ev) {
+      if (!arrastre) return;
+      if (arrastre.activo) {
+        const destino = marcarDestino(ev.clientX, ev.clientY);
+        const origen = arrastre.origen;
+        ignorarClic = true;   // el clic que sigue no abre la ficha
+        setTimeout(function () { ignorarClic = false; }, 0);   // si no llega ese clic, no se queda colgado
+        terminar();
+        if (destino && destino.dataset.destino !== origen) {
+          ejecutar('moverConductor', origen.split('|').concat([destino.dataset.destino]));
+          opciones.redibujar();
+        }
+        return;
+      }
+      terminar();
+    });
+    document.addEventListener('pointercancel', terminar);
+    main.addEventListener('contextmenu', function (ev) {
+      if (arrastre) ev.preventDefault();
+    });
+    main.addEventListener('click', function (ev) {
+      if (!ignorarClic) return;
+      ignorarClic = false;
+      ev.stopPropagation();
+      ev.preventDefault();
+    }, true);
+  }
+
   /* Despedir siempre pide confirmación, con el nombre y el finiquito. */
   function confirmarDespido(args) {
     const hallado = estadoActual && conductorDe(estadoActual, args[0] + '|' + args[1]);
@@ -1837,6 +1984,8 @@
       if (resultado && resultado.ok) destelloTrasCompra(el.dataset.accion, args);
     });
 
+    iniciarArrastre(opciones);
+
     document.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape' && fichaConductor) {
         const clave = fichaConductor;
@@ -1851,6 +2000,7 @@
       const el = ev.target.closest('[data-cambio]');
       if (!el) return;
       const valor = el.type === 'checkbox' ? String(el.checked) : el.value;
+      if (el.dataset.cambio === 'moverConductor') fichaConductor = null;
       ejecutar(el.dataset.cambio, el.dataset.args.split('|').concat([valor]));
     });
   }

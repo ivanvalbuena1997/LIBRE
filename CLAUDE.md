@@ -105,6 +105,15 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   pueden despedir. En las acciones de conductor, la reserva se nombra con
   licencia 'reserva' y turno = su posición (`turnoConductor()`,
   `todosLosConductores()`).
+- Reorganizar conductores (`moverConductor(origenLicencia, origenTurno,
+  destino)`): solo entre jornadas, con el día cerrado (`enPausa()`). Entre
+  turnos de cualquier licencia con coche y la reserva; si el destino está
+  ocupado, se intercambian; nunca sobre tu turno. Pierden lo que estuvieran
+  esperando; baja, objetos y nivel van con ellos y la avería se queda en el
+  coche. En Flota: arrastrar el retrato (ratón: al mover; dedo: tras
+  mantener pulsado 450 ms) sobre un conductor, un turno libre o la reserva
+  (`data-arrastrable` y `data-destino`, solo en pausa), o el selector
+  «Mover a…» de la ficha.
 - Etiqueta de categoría (`etiquetaCategoria()` en la interfaz): el nombre
   (B, A, S, S+, LEGENDARIO) sobre su color (`--cat-*` en `:root`; gris,
   verde, azul, morado y oro). Sale en conductores, candidatos, objetos,

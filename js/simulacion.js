@@ -635,6 +635,70 @@
   }
 
   /*
+   * Un sitio para un conductor a partir de su clave: 'licencia|turno',
+   * 'reserva|posición' o 'reserva' (al final de la reserva).
+   * { lic, turno } o { reserva: true, i }, con el que ocupa ese sitio en t.
+   */
+  function sitioConductor(estado, clave) {
+    const partes = String(clave || '').split('|');
+    if (partes[0] === 'reserva') {
+      const reserva = estado.reserva || [];
+      const i = partes.length > 1 ? Number(partes[1]) : reserva.length;
+      if (!(i >= 0 && i <= reserva.length)) return null;
+      return { reserva: true, i, t: reserva[i] || null };
+    }
+    const lic = buscarLicencia(estado, Number(partes[0]));
+    if (!lic || TURNOS.indexOf(partes[1]) === -1) return null;
+    return { lic, turno: partes[1], t: lic.turnos[partes[1]] };
+  }
+
+  function ponerEnSitio(estado, sitio, t) {
+    if (sitio.reserva) estado.reserva[sitio.i] = t;   // null se limpia después
+    else sitio.lic.turnos[sitio.turno] = t;
+  }
+
+  /* «a la reserva» o «al turno de noche de la licencia 1234-X». */
+  function haciaSitio(sitio) {
+    return sitio.reserva ? 'a la reserva' : 'al turno de ' + cfg().turnos[sitio.turno].nombre.toLowerCase() +
+      ' de la licencia ' + textoLicencia(sitio.lic);
+  }
+
+  /*
+   * Reorganizar conductores: solo entre jornadas, con el día cerrado. Mueve
+   * al conductor de (origenLicencia, origenTurno) a `destino` (una clave de
+   * sitio). Si allí hay otro conductor, se intercambian. No sobre tu turno
+   * ni a una licencia sin coche. Lo que estuvieran esperando se pierde
+   * (empiezan de cero en su sitio nuevo); baja, objetos y nivel van con
+   * ellos y la avería se queda en el coche.
+   */
+  function moverConductor(estado, origenLicencia, origenTurno, destino) {
+    if (!enPausa(estado)) return fallo('Solo puedes reorganizar a tus conductores con el día cerrado.');
+    estado.reserva = estado.reserva || [];
+    const a = sitioConductor(estado, origenLicencia + '|' + origenTurno);
+    const b = sitioConductor(estado, destino);
+    if (!a || !a.t || a.t.quien !== 'conductor') return fallo('Ahí no hay ningún conductor.');
+    if (!b) return fallo('Ese sitio no existe.');
+    if (a.reserva && b.reserva) return exito('');
+    if (!a.reserva && !b.reserva && a.lic === b.lic && a.turno === b.turno) return exito('');
+    if (b.t && b.t.quien === 'jugador') return fallo('Ese turno es tuyo.');
+    if (b.lic && !b.lic.vehiculo) return fallo('Esa licencia aún no tiene coche.');
+    if (b.reserva && !b.t && estado.reserva.length >= cfg().conductores.reserva) return fallo('La reserva está llena.');
+    const x = a.t, y = b.t;
+    ponerEnSitio(estado, b, x);
+    ponerEnSitio(estado, a, y);
+    estado.reserva = estado.reserva.filter(Boolean);
+    [x, y].forEach(function (t) {
+      if (!t) return;
+      t.carrera = null;
+      t.pendiente = null;
+      t.zonaTurno = null;   // elige zona de nuevo en su sitio
+    });
+    return exito(y
+      ? x.nombre + ' y ' + y.nombre + ' se cambian el sitio.'
+      : x.nombre + ' pasa ' + haciaSitio(b) + '.');
+  }
+
+  /*
    * Personaje (índice en config.conductores.personajes) para un conductor
    * nuevo: al azar entre los que no trabajan ya para ti; si están todos, entre
    * todos. Se guarda con el conductor, así no cambia al recargar.
@@ -1894,6 +1958,7 @@
     contratarConductor,
     despedirConductor,
     contratarAReserva,
+    moverConductor,
     todosLosConductores,
     costeDespido,
     buscarCliente,

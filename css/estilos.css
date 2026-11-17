@@ -976,6 +976,26 @@ button.zona-tarjeta { cursor: pointer; }
 .ficha-panel p { margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
 .ficha-panel .acciones button { min-height: 44px; }
 
+/* Arrastrar conductores entre jornadas */
+[data-arrastrable] { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+[data-arrastrable] .retrato { cursor: grab; }
+.arrastrando, .arrastrando * { cursor: grabbing; }
+.arrastrando [data-destino] { outline: 2px dashed var(--borde); outline-offset: 1px; }
+.arrastrando .destino-activo { outline: 3px solid var(--verde-libre); background: var(--verde-claro); }
+.conductor.arrastrado { opacity: 0.4; }
+.fantasma-arrastre {
+  position: fixed;
+  z-index: 50;
+  width: 52px;
+  height: 52px;
+  transform: translate(-50%, -60%);
+  pointer-events: none;
+  border-radius: 50%;
+  box-shadow: 0 6px 16px var(--sombra-fuerte);
+}
+.fantasma-arrastre .retrato { width: 52px; height: 52px; }
+.hoja select[data-cambio="moverConductor"] { width: 100%; min-height: 44px; }
+
 /* Reserva: conductores contratados que esperan turno */
 .reserva {
   border: 1px dashed var(--borde);

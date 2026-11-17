@@ -1019,4 +1019,28 @@ prueba('las partidas de la versión 16 tienen la reserva vacía', function () {
   assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).reserva, []);
 });
 
+prueba('mover conductores: solo con el día cerrado; turnos, licencias y reserva', function () {
+  const e = flotaDe(2);
+  e.dinero = 1e6;
+  sim.contratarAReserva(e, 0);
+  const ana = e.licencias[1].turnos.dia, luis = e.licencias[1].turnos.noche, res = e.reserva[0];
+  assert.ok(!sim.moverConductor(e, 2, 'dia', '2|noche').ok, 'con el día abierto, no');
+  e.cierrePendiente = { dias: 1 };   // día cerrado, ticket en pantalla
+  assert.ok(sim.moverConductor(e, 2, 'dia', '2|noche').ok, 'intercambio de turnos');
+  assert.strictEqual(e.licencias[1].turnos.noche, ana);
+  assert.strictEqual(e.licencias[1].turnos.dia, luis);
+  assert.ok(!sim.moverConductor(e, 2, 'dia', '1|dia').ok, 'tu turno no');
+  assert.ok(sim.moverConductor(e, 'reserva', 0, '2|dia').ok, 'de la reserva a un turno: se intercambian');
+  assert.strictEqual(e.licencias[1].turnos.dia, res);
+  assert.strictEqual(e.reserva[0], luis);
+  assert.ok(sim.moverConductor(e, 1, 'noche', 'reserva').ok, 'a la reserva, y el turno queda libre');
+  assert.strictEqual(e.licencias[0].turnos.noche, null);
+  assert.strictEqual(e.reserva.length, 2);
+  assert.ok(sim.moverConductor(e, 'reserva', 0, '1|noche').ok, 'a un turno libre');
+  assert.strictEqual(e.licencias[0].turnos.noche, luis);
+  assert.strictEqual(e.reserva.length, 1);
+  e.licencias[1].vehiculo = null;
+  assert.ok(!sim.moverConductor(e, 1, 'noche', '2|dia').ok, 'no a una licencia sin coche');
+});
+
 console.log(pasadas + ' pruebas correctas');
