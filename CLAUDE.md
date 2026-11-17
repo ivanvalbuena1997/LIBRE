@@ -152,19 +152,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   a peor categoría); al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
   que espera y la lista para vender. Cada licencia es una
-  tarjeta compacta: una línea con su placa y el modelo, y una fila
-  por turno (icono de sol o luna). Un conductor es una fila de unos 48 px
-  con retrato, nombre, categoría, nivel, barra de experiencia y, debajo,
-  rasgos en icono con «+»/«−» (nombre en el título) y huecos; al tocarlo
-  se abre su ficha (hoja que sube desde abajo; se cierra con ×, el fondo o
-  Escape) con todo lo demás, incluido despedir. Un turno vacío es un hueco
-  punteado con contratar; los candidatos salen debajo, a todo el ancho de
-  la licencia.
-  Las licencias se pliegan tocando su cabecera (o «Plegar todas»): plegada
-  solo enseña la placa y un retrato pequeño por turno. Las plegadas se
-  recuerdan en `localStorage` (`libre-plegadas`), aparte de la partida; ir
-  a una licencia desde Calle o desde «Siguiente» la despliega. La experiencia se mueve en `actualizar()`, no en
-  la firma, para no rehacer la pestaña con cada carrera.
+  línea: su placa (libranza en el título, «Hoy libra» si toca) y los dos
+  turnos, cada uno con su icono de sol o luna y una cara (`htmlCara()`):
+  retrato con un círculo de categoría (color y letra, abajo a la izquierda)
+  y otro con el nivel (abajo a la derecha) y el nombre debajo. Tocar un
+  conductor abre su ficha (hoja que sube desde abajo; se cierra con ×, el
+  fondo o Escape) con experiencia, rasgos, objetos, despedir y mover. Tocar
+  un turno libre («+») abre los candidatos debajo de la licencia; tocar
+  «TÚ», tu zona y opciones. La reserva es una fila de caras.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

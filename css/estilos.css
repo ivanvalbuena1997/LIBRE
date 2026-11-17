@@ -982,7 +982,7 @@ button.zona-tarjeta { cursor: pointer; }
 .arrastrando, .arrastrando * { cursor: grabbing; }
 .arrastrando [data-destino] { outline: 2px dashed var(--borde); outline-offset: 1px; }
 .arrastrando .destino-activo { outline: 3px solid var(--verde-libre); background: var(--verde-claro); }
-.conductor.arrastrado { opacity: 0.4; }
+.cara.arrastrado { opacity: 0.4; }
 .fantasma-arrastre {
   position: fixed;
   z-index: 50;
@@ -997,10 +997,8 @@ button.zona-tarjeta { cursor: pointer; }
 .hoja select[data-cambio="moverConductor"] { width: 100%; min-height: 44px; }
 
 /* Libranza y elección de placa */
-.licencia-libranza { margin: 0 0 4px; font-size: 0.74rem; color: var(--suave); }
 .hoy-libra {
-  margin-left: auto;
-  padding: 1px 8px;
+  padding: 0 6px;
   border-radius: 999px;
   background: var(--fondo);
   border: 1px solid var(--ambar);
@@ -1023,6 +1021,75 @@ button.zona-tarjeta { cursor: pointer; }
 .placa-opcion small { color: var(--suave); font-size: 0.78rem; }
 .placa-opcion button { grid-column: 1 / -1; min-height: 44px; }
 
+/* Caras de conductor: retrato con categoría (abajo izquierda) y nivel (abajo derecha) */
+.cara {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+  max-width: 76px;
+  min-height: 44px;
+  padding: 2px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font: inherit;
+  color: var(--texto);
+  cursor: pointer;
+}
+.cara:hover { background: var(--fondo); }
+.cara-foto { position: relative; display: inline-flex; }
+.cara-foto .retrato { width: 44px; height: 44px; font-size: 0.72rem; }
+.cara-categoria, .cara-nivel {
+  position: absolute;
+  bottom: -2px;
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 3px;
+  border-radius: 999px;
+  border: 1.5px solid var(--tarjeta);
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.cara-categoria { left: -3px; }
+.cara-nivel { right: -3px; background: var(--texto); color: var(--blanco); }
+.cara-categoria.cat-B { background: var(--cat-b-texto); color: var(--blanco); }
+.cara-categoria.cat-A { background: var(--cat-a-texto); color: var(--blanco); }
+.cara-categoria.cat-S { background: var(--cat-s-texto); color: var(--blanco); }
+.cara-categoria.cat-Smas { background: var(--cat-smas-texto); color: var(--blanco); }
+.cara-categoria.cat-L { background: linear-gradient(135deg, var(--cat-l-oro-claro), var(--cat-l-oro)); color: var(--cat-l-texto); }
+.cara-aviso {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--rojo-taxi);
+  color: var(--blanco);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.cara-nombre {
+  max-width: 100%;
+  font-size: 0.72rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cara-vacia .cara-nombre { color: var(--suave); font-weight: 400; }
+.cara-foto.grande .retrato { width: 88px; height: 88px; }
+.cara-foto.grande .cara-categoria, .cara-foto.grande .cara-nivel { min-width: 26px; height: 26px; font-size: 0.78rem; }
+.cara-foto.grande .cara-categoria { left: 0; }
+.cara-foto.grande .cara-nivel { right: 0; }
+
 /* Reserva: conductores contratados que esperan turno */
 .reserva {
   border: 1px dashed var(--borde);
@@ -1030,45 +1097,22 @@ button.zona-tarjeta { cursor: pointer; }
   padding: 8px;
   margin-bottom: 12px;
 }
-.reserva-fila { border-top: 1px dashed var(--borde); }
-.reserva-fila:first-of-type { border-top: 0; }
+.reserva-caras { display: flex; flex-wrap: wrap; gap: 4px; }
 .reserva .ayuda { margin: 0 0 6px; font-size: 0.82rem; }
 .reserva-contratar { width: 100%; min-height: 44px; margin-top: 6px; }
 .boton-secundario { background: var(--fondo); }
 
-/* Licencia: tarjeta compacta con su placa y los dos turnos */
+/* Licencia en una línea: placa y los dos turnos */
 .licencia {
   border: 1px solid var(--borde);
   border-radius: 12px;
-  padding: 6px 8px;
-  margin-bottom: 8px;
+  padding: 4px 8px;
+  margin-bottom: 6px;
 }
-.licencia-cabecera {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 40px;
-  padding: 0 0 4px;
-  border: 0;
-  background: none;
-  font: inherit;
-  color: var(--texto);
-  text-align: left;
-  cursor: pointer;
-}
-.plegar-flecha { margin-left: auto; color: var(--suave); font-size: 0.9rem; }
-.hoy-libra + .plegar-flecha { margin-left: 6px; }
-.licencia.plegada { padding-bottom: 2px; }
-.licencia.plegada .licencia-cabecera { padding-bottom: 2px; }
-.licencia-mini { display: flex; gap: 10px; }
-.mini-turno { display: inline-flex; align-items: center; gap: 2px; }
-.mini-turno .icono { width: 14px; height: 14px; }
-.mini-turno .retrato { width: 26px; height: 26px; font-size: 0.55rem; }
-.licencias-titulo { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 6px; }
-.licencias-titulo .flota-titulo { margin: 0; }
-.licencias-titulo button { min-height: 40px; font-size: 0.85rem; }
-.licencia-cabecera small { color: var(--suave); font-size: 0.75rem; }
+.licencia-fila { display: flex; align-items: center; gap: 6px; }
+.licencia-placa { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; flex: 1; min-width: 0; }
+.licencia-sin-coche { flex: 2; }
+.licencia-sin-coche .boton-compra { width: 100%; }
 /* Número de licencia en una placa blanca con borde, como una matrícula */
 .placa {
   display: inline-block;
@@ -1078,19 +1122,12 @@ button.zona-tarjeta { cursor: pointer; }
   background: linear-gradient(90deg, var(--placa-franja) 0 9px, var(--blanco) 9px);
   font: 800 0.82rem ui-monospace, "Cascadia Mono", Consolas, monospace;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
-.turno {
-  display: grid;
-  grid-template-columns: 22px 1fr;
-  gap: 6px;
-  align-items: center;
-  padding: 4px 0;
-  border-top: 1px dashed var(--borde);
-}
-.turno-hora { display: grid; place-items: center; }
-.turno-hora .icono { width: 20px; height: 20px; }
-.turno-dia .turno-hora .icono { color: var(--ambar); }
-.turno-noche .turno-hora .icono { color: var(--tarifa-2); }
+.hueco-turno { display: flex; align-items: center; gap: 2px; }
+.hueco-turno > .icono { width: 16px; height: 16px; flex: none; }
+.turno-dia > .icono { color: var(--ambar); }
+.turno-noche > .icono { color: var(--tarifa-2); }
 .solo-lector {
   position: absolute;
   width: 1px;
@@ -1099,49 +1136,20 @@ button.zona-tarjeta { cursor: pointer; }
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-.turno-cuerpo { min-width: 0; }
-.turno-cuerpo button, .turno-cuerpo select { min-height: 44px; }
-.turno-tu { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.turno-tu .retrato { width: 36px; height: 36px; }
 .turno-estado { display: block; font-size: 0.76rem; color: var(--rojo-taxi); }
-
-/* Turno vacío: una línea punteada con contratar */
-.turno-vacio {
+.panel-tu {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  padding: 0 0 0 10px;
-  border: 1.5px dashed var(--borde);
+  margin: 4px 0;
+  padding: 8px;
   border-radius: 10px;
+  background: var(--fondo);
 }
-.turno-vacio-texto { flex: 1; font-size: 0.82rem; color: var(--suave); }
-.turno-vacio button { border-radius: 9px; }
+.panel-tu > span { flex-basis: 100%; font-size: 0.8rem; color: var(--suave); }
+.panel-tu select, .panel-tu button { min-height: 44px; }
 
-/* Conductor: una fila que abre su ficha */
-.conductor {
-  display: grid;
-  grid-template-columns: 36px 1fr auto;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  min-height: 48px;
-  padding: 3px 4px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  font: inherit;
-  color: var(--texto);
-  text-align: left;
-  cursor: pointer;
-}
-.conductor:hover { background: var(--fondo); }
-.conductor .retrato { width: 36px; height: 36px; }
-.conductor-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.conductor-nombre { display: flex; align-items: center; gap: 5px; min-width: 0; }
-.conductor-nombre strong { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.conductor-detalle { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.conductor-flecha { font-size: 1.3rem; color: var(--suave); }
 .nivel-insignia {
   display: inline-grid;
   place-items: center;
@@ -1181,12 +1189,10 @@ button.zona-tarjeta { cursor: pointer; }
   white-space: nowrap;
 }
 .rasgo .icono { width: 14px; height: 14px; }
-.rasgo.mini { padding: 1px 5px 1px 4px; gap: 1px; font-size: 0.75rem; }
 .rasgo.cualidad { background: var(--verde-claro); color: var(--verde-texto); }
 .rasgo.defecto { background: var(--rojo-claro); color: var(--rojo-taxi); }
 
 /* Huecos de objeto en pequeño */
-.huecos-mini { display: flex; gap: 4px; }
 .hueco {
   display: inline-grid;
   place-items: center;
@@ -1198,7 +1204,6 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .hueco.lleno { border: 1px solid var(--texto); }
 .hueco .icono { width: 13px; height: 13px; }
-.huecos-mini { margin-left: 4px; }
 
 /* Candidatos al contratar */
 .candidatos { display: grid; gap: 6px; margin: 4px 0 4px; }

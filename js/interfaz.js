@@ -860,18 +860,6 @@
     return '<span class="rasgo ' + clase + '" title="' + esc(r.descripcion) + '">' + icono(id) +
       (clase === 'cualidad' ? '+ ' : '− ') + esc(r.nombre) + '</span>';
   }
-  /* Rasgo en pequeño: su icono con «+» o «−»; el nombre, en el título. */
-  function htmlRasgoMini(id, clase) {
-    const r = Libre.sim.buscarRasgo(id);
-    if (!r) return '';
-    return '<span class="rasgo mini ' + clase + '" title="' + esc(r.nombre + ': ' + r.descripcion) + '" aria-label="' +
-      (clase === 'cualidad' ? 'Cualidad: ' : 'Defecto: ') + esc(r.nombre) + '">' + (clase === 'cualidad' ? '+' : '−') + icono(id) + '</span>';
-  }
-  function htmlRasgosMini(t) {
-    return Libre.sim.cualidadesDe(t).map(function (id) { return htmlRasgoMini(id, 'cualidad'); }).join('') +
-      Libre.sim.defectosDe(t).map(function (id) { return htmlRasgoMini(id, 'defecto'); }).join('');
-  }
-
   /* Cualidades (una o dos) y defecto (si tiene) de un conductor o candidato. */
   function htmlRasgos(x) {
     return '<span class="rasgos">' + Libre.sim.cualidadesDe(x).map(function (id) { return htmlRasgo(id, 'cualidad'); }).join('') +
@@ -893,20 +881,6 @@
     return '<span class="xp-barra" role="progressbar" aria-label="' + textoExperiencia(p) + '" aria-valuemin="0" ' +
       'aria-valuemax="100" aria-valuenow="' + Math.round(p.avance * 100) + '" data-xp="' + clave + '">' +
       '<span style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span>';
-  }
-
-  /* Huecos de objeto en pequeño: el icono de lo que lleva o un hueco vacío. */
-  function htmlHuecosMini(t) {
-    const llevados = t.objetos || [];
-    let html = '';
-    for (let i = 0; i < Libre.sim.huecosConductor(t); i++) {
-      const o = llevados[i] && Libre.sim.buscarObjeto(llevados[i]);
-      html += o ? '<span class="hueco lleno" title="' + esc(o.nombre) + '">' + icono(o.id) + '</span>'
-        : '<span class="hueco" title="Hueco libre"></span>';
-    }
-    return '<span class="huecos-mini" aria-label="Objetos: ' +
-      (llevados.length ? llevados.map(function (id) { return Libre.sim.buscarObjeto(id).nombre; }).join(', ') : 'ninguno') +
-      '">' + html + '</span>';
   }
 
   // Turno en el que estás eligiendo conductor ('licencia|turno') o null.
@@ -965,65 +939,75 @@
     return '';
   }
 
-  function htmlTurno(estado, lic, turno) {
+  /*
+   * Cara de un conductor: su retrato con dos círculos (abajo a la izquierda,
+   * la letra y el color de su categoría; abajo a la derecha, su nivel) y su
+   * nombre debajo. Al tocarla se abre su ficha; con el día cerrado se puede
+   * arrastrar y soltar sobre otro sitio. Si está parado (baja, avería,
+   * libranza…) sale atenuada con un aviso.
+   */
+  function htmlCirculos(t) {
+    const cat = Libre.sim.buscarCategoria(t.categoria);
+    const letra = cat ? (cat.id === 'L' ? 'L' : cat.nombre) : '';
+    return (cat ? '<span class="cara-categoria cat-' + (cat.id === 'S+' ? 'Smas' : cat.id) + '" aria-hidden="true">' + esc(letra) + '</span>' : '') +
+      '<span class="cara-nivel" aria-hidden="true">' + Libre.sim.nivelConductor(t) + '</span>';
+  }
+
+  function htmlCara(estado, clave, t, lic) {
+    const aviso = textoEstadoTurno(estado, lic, t);
+    const cat = Libre.sim.buscarCategoria(t.categoria);
+    const mover = Libre.sim.enPausa(estado) ? ' data-arrastrable data-destino="' + clave + '"' : '';
+    return '<button type="button" class="cara' + (aviso ? ' con-aviso' : '') + '" data-ficha-conductor="' + clave + '"' + mover +
+      ' title="' + esc(t.nombre + (aviso ? ' · ' + aviso : '')) + '"' +
+      ' aria-label="' + esc(t.nombre + ', categoría ' + (cat ? cat.nombre : '') + ', nivel ' + Libre.sim.nivelConductor(t) +
+        (aviso ? ', ' + aviso : '') + '. Ver su ficha') + '">' +
+      '<span class="cara-foto"><span class="retrato' + (aviso ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
+      htmlCirculos(t) + (aviso ? '<span class="cara-aviso" aria-hidden="true">!</span>' : '') + '</span>' +
+      '<span class="cara-nombre">' + esc(t.nombre) + '</span></button>';
+  }
+
+  // Panel abierto bajo una licencia para tu turno ('licencia|turno') o null.
+  let panelTu = null;
+
+  /* Un turno de la licencia: su icono y la cara de quien lo lleva (o un hueco). */
+  function htmlHuecoTurno(estado, lic, turno) {
     const c = Libre.config;
     const t = lic.turnos[turno];
     const clave = lic.id + '|' + turno;
-    let cuerpo;
-    if (!lic.vehiculo) {
-      cuerpo = '<p class="ayuda">Necesita coche</p>';
-    } else if (!t) {
-      // Turno vacío: un hueco con el botón de contratar.
+    const pausa = Libre.sim.enPausa(estado);
+    let cara;
+    if (!t) {
       const abierto = eligiendoConductor === clave;
-      const precio = precioMasBarato(estado);
-      // Los candidatos salen debajo, a todo el ancho de la licencia.
-      cuerpo = '<div class="turno-vacio"' + (Libre.sim.enPausa(estado) ? ' data-destino="' + clave + '"' : '') +
-        '><span class="turno-vacio-texto">Libre</span>' +
-        '<button type="button" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
-        (abierto ? '' : ' data-precio="' + precio + '"') + '>' +
-        (abierto ? 'Cerrar candidatos' : 'Contratar · desde ' + euros(precio)) + '</button>' +
-        (Libre.sim.conduce(estado) ? '' : boton('Conducir yo', 'conducir', [lic.id, turno])) + '</div>';
+      cara = '<button type="button" class="cara cara-vacia" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
+        (pausa ? ' data-destino="' + clave + '"' : '') + ' data-precio="' + precioMasBarato(estado) + '"' +
+        ' aria-label="Turno de ' + esc(c.turnos[turno].nombre.toLowerCase()) + ' libre: contratar">' +
+        '<span class="cara-foto"><span class="retrato retrato-texto">+</span></span><span class="cara-nombre">Libre</span></button>';
     } else if (t.quien === 'jugador') {
-      const otro = turno === 'dia' ? 'noche' : 'dia';
-      cuerpo = '<div class="turno-tu"><span class="retrato retrato-texto tu">TÚ</span>' +
-        selectorZona(estado, lic.id, turno, t.zona) +
-        (lic.turnos[otro] ? '' : boton('Pasar a ' + c.turnos[otro].nombre.toLowerCase(), 'cambiarTurnoJugador', [])) +
-        // Dejar el volante es una mejora (Oficina de gestión).
-        (Libre.sim.modificadores(estado).dejarVolante ? boton('Dejar de conducir', 'dejarDeConducir', []) : '') + '</div>';
+      cara = '<button type="button" class="cara" data-panel-tu="' + clave + '" aria-expanded="' + (panelTu === clave) + '"' +
+        ' aria-label="Tu turno: zona y opciones">' +
+        '<span class="cara-foto"><span class="retrato retrato-texto tu">TÚ</span></span><span class="cara-nombre">Tú</span></button>';
     } else {
-      cuerpo = htmlFilaConductor(estado, clave, t, lic);
+      cara = htmlCara(estado, clave, t, lic);
     }
-    return '<div class="turno turno-' + turno + '"><span class="turno-hora" title="' + esc(c.turnos[turno].nombre) + ', ' +
-      horario(turno) + '">' + icono(turno) + '<span class="solo-lector">' + esc(c.turnos[turno].nombre) + ', ' + horario(turno) +
-      '</span></span><div class="turno-cuerpo">' + cuerpo + '</div></div>';
+    return '<div class="hueco-turno turno-' + turno + '" title="' + esc(c.turnos[turno].nombre + ', ' + horario(turno)) + '">' +
+      icono(turno) + cara + '</div>';
+  }
+
+  /* Tu turno, desplegado bajo la licencia: zona, cambiar de turno, dejar de conducir. */
+  function htmlPanelTu(estado, lic, turno) {
+    const c = Libre.config;
+    const t = lic.turnos[turno];
+    const otro = turno === 'dia' ? 'noche' : 'dia';
+    return '<div class="panel-tu"><span>Tu turno de ' + esc(c.turnos[turno].nombre.toLowerCase()) + ' · zona</span>' +
+      selectorZona(estado, lic.id, turno, t.zona) +
+      (lic.turnos[otro] ? '' : boton('Pasar a ' + c.turnos[otro].nombre.toLowerCase(), 'cambiarTurnoJugador', [])) +
+      // Dejar el volante es una mejora (Oficina de gestión).
+      (Libre.sim.modificadores(estado).dejarVolante ? boton('Dejar de conducir', 'dejarDeConducir', []) : '') + '</div>';
   }
 
   /*
-   * Un conductor en una fila (en su licencia o en la reserva): retrato,
-   * nombre con categoría y nivel, experiencia; debajo rasgos en icono y
-   * huecos. Al tocarlo, su ficha.
-   */
-  function htmlFilaConductor(estado, clave, t, lic) {
-    const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
-    const deBaja = t.baja && jornada < t.baja.hasta;
-    const p = nivelDe(t);
-    const aviso = textoEstadoTurno(estado, lic, t);
-    // Con el día cerrado se puede arrastrar y soltar sobre otro sitio.
-    const mover = Libre.sim.enPausa(estado) ? ' data-arrastrable data-destino="' + clave + '"' : '';
-    return '<button type="button" class="conductor" data-ficha-conductor="' + clave + '"' + mover +
-      ' aria-label="Ficha de ' + esc(t.nombre) + '">' +
-      '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
-      '<span class="conductor-datos">' +
-      '<span class="conductor-nombre"><strong>' + esc(t.nombre) + '</strong>' + etiquetaCategoria(t.categoria) +
-      '<span class="nivel-insignia" title="Nivel ' + p.nivel + '">' + p.nivel + '</span>' + htmlBarraXp(clave, p) + '</span>' +
-      '<span class="conductor-detalle">' + htmlRasgosMini(t) + htmlHuecosMini(t) + '</span>' +
-      (aviso ? '<span class="turno-estado">' + aviso + '</span>' : '') +
-      '</span><span class="conductor-flecha" aria-hidden="true">›</span></button>';
-  }
-
-  /*
-   * Reserva: conductores contratados que no trabajan. Se contrata aquí
-   * directamente y, entre jornadas, se les da un turno.
+   * Reserva: conductores contratados que no trabajan, en una fila de caras.
+   * Se contrata aquí directamente y, entre jornadas, se les da un turno.
    */
   function htmlReserva(estado) {
     const max = Libre.config.conductores.reserva;
@@ -1032,7 +1016,7 @@
     const destino = Libre.sim.enPausa(estado) && reserva.length < max ? ' data-destino="reserva"' : '';
     return '<div class="reserva"' + destino + '><h3 class="flota-titulo">Reserva <small>· ' + reserva.length + ' de ' + max + '</small></h3>' +
       (reserva.length
-        ? reserva.map(function (t, i) { return '<div class="reserva-fila">' + htmlFilaConductor(estado, 'reserva|' + i, t, null) + '</div>'; }).join('')
+        ? '<div class="reserva-caras">' + reserva.map(function (t, i) { return htmlCara(estado, 'reserva|' + i, t, null); }).join('') + '</div>'
         : '<p class="ayuda">Conductores contratados que esperan turno. No trabajan ni cuestan nada mientras están aquí.</p>') +
       (reserva.length < max
         ? '<button type="button" class="reserva-contratar" data-elegir-conductor="reserva" aria-expanded="' + abierto + '">' +
@@ -1144,7 +1128,8 @@
     return '<div class="hoja-fondo" data-cerrar-ficha></div>' +
       '<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="ficha-nombre">' +
       '<button type="button" class="hoja-cerrar" data-cerrar-ficha aria-label="Cerrar la ficha">×</button>' +
-      '<div class="ficha-cabecera"><span class="retrato">' + Libre.retratos.svg(t.retrato) + '</span><div>' +
+      '<div class="ficha-cabecera"><span class="cara-foto grande"><span class="retrato">' + Libre.retratos.svg(t.retrato) + '</span>' +
+      htmlCirculos(t) + '</span><div>' +
       '<h3 id="ficha-nombre">' + esc(t.nombre) + ' ' + etiquetaCategoria(t.categoria) + '</h3>' +
       (x.enReserva
         ? '<p>En la reserva: no trabaja hasta que le des un turno.</p>'
@@ -1193,7 +1178,7 @@
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario,
-    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, plegadas,
+    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu,
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2,
         Libre.sim.nivelConductor(t), t.objetos,
@@ -1355,51 +1340,29 @@
   }
 
   /*
-   * Licencias plegadas en Flota (comodidad de este navegador, no de la
-   * partida): plegada, solo la cabecera con un retrato pequeño por turno.
+   * Licencia en una línea: su placa (con la libranza en el título) y los dos
+   * turnos. Debajo, si toca, los candidatos de un turno libre o tu panel.
    */
-  const CLAVE_PLEGADAS = 'libre-plegadas';
-  let plegadas = [];
-  try { plegadas = JSON.parse(raiz.localStorage.getItem(CLAVE_PLEGADAS)) || []; } catch (e) { plegadas = []; }
-  function guardarPlegadas() {
-    try { raiz.localStorage.setItem(CLAVE_PLEGADAS, JSON.stringify(plegadas)); } catch (e) { /* da igual */ }
-  }
-  function plegar(id, plegar) {
-    plegadas = plegadas.filter(function (x) { return x !== id; });
-    if (plegar) plegadas.push(id);
-    guardarPlegadas();
-  }
-
-  /* Plegada: un retrato pequeño por turno (TÚ, el conductor o un hueco). */
-  function htmlLicenciaMini(estado, lic) {
-    return '<span class="licencia-mini">' + ['dia', 'noche'].map(function (tn) {
-      const t = lic.turnos[tn];
-      const cara = !t ? '<span class="retrato retrato-texto"></span>'
-        : t.quien === 'jugador' ? '<span class="retrato retrato-texto tu">TÚ</span>'
-        : '<span class="retrato" title="' + esc(t.nombre) + '">' + Libre.retratos.svg(t.retrato) + '</span>';
-      return '<span class="mini-turno">' + icono(tn) + cara + '</span>';
-    }).join('') + '</span>';
-  }
-
   function htmlLicencia(estado, lic) {
     const c = Libre.config;
-    const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'Sin coche';
     const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
-    // Candidatos de un turno vacío de esta licencia, a todo el ancho.
     const eligiendo = ['dia', 'noche'].find(function (t) { return eligiendoConductor === lic.id + '|' + t; });
-    const plegada = plegadas.indexOf(lic.id) !== -1;
-    const cabecera = '<button type="button" class="licencia-cabecera" data-plegar="' + lic.id + '" aria-expanded="' + !plegada + '"' +
-      ' aria-label="Licencia ' + esc(Libre.sim.textoLicencia(lic)) + (plegada ? ': desplegar' : ': plegar') + '">' +
-      '<span class="placa" title="Número de licencia y letra de libranza">' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
-      (plegada ? htmlLicenciaMini(estado, lic) : '<small>' + esc(modelo) + '</small>') +
-      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') +
-      '<span class="plegar-flecha" aria-hidden="true">' + (plegada ? '▸' : '▾') + '</span></button>';
-    if (plegada) return '<div class="licencia plegada" data-licencia="' + lic.id + '">' + cabecera + '</div>';
-    return '<div class="licencia" data-licencia="' + lic.id + '">' + cabecera +
-      '<p class="licencia-libranza">' + esc(textoLibranza(lic.numero)) + '</p>' +
-      (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio, 'comprarVehiculo', [lic.id])) +
-      htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') +
-      (eligiendo ? htmlCandidatos(estado, lic, eligiendo) : '') + '</div>';
+    const tuAbierto = ['dia', 'noche'].find(function (t) {
+      return panelTu === lic.id + '|' + t && lic.turnos[t] && lic.turnos[t].quien === 'jugador';
+    });
+    return '<div class="licencia" data-licencia="' + lic.id + '"><div class="licencia-fila">' +
+      '<span class="licencia-placa"><span class="placa" title="' + esc(textoLibranza(lic.numero)) + '">' +
+      esc(Libre.sim.textoLicencia(lic)) + '</span>' +
+      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') + '</span>' +
+      (lic.vehiculo
+        ? htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche')
+        : '<span class="licencia-sin-coche">' + botonCompra('Comprar coche', modeloCompra.precio, 'comprarVehiculo', [lic.id]) + '</span>') +
+      '</div>' +
+      (eligiendo
+        ? (Libre.sim.conduce(estado) ? '' : '<div class="acciones">' + boton('Conducir yo este turno', 'conducir', [lic.id, eligiendo]) + '</div>') +
+          htmlCandidatos(estado, lic, eligiendo)
+        : '') +
+      (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
 
   const seccionFlota = {
@@ -1416,12 +1379,8 @@
             '(en el móvil, mantén pulsado su retrato). También desde su ficha.'
           : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
-      const todasPlegadas = estado.licencias.every(function (l) { return plegadas.indexOf(l.id) !== -1; });
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
-        (estado.licencias.length > 1
-          ? '<div class="licencias-titulo"><h3 class="flota-titulo">Licencias <small>· ' + estado.licencias.length + '</small></h3>' +
-            '<button type="button" data-plegar-todas="' + !todasPlegadas + '">' + (todasPlegadas ? 'Desplegar todas' : 'Plegar todas') + '</button></div>'
-          : '') +
+        '<h3 class="flota-titulo">Licencias <small>· ' + estado.licencias.length + '</small></h3>' +
         estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) +
         htmlFichaConductor(estado);
@@ -1816,6 +1775,7 @@
     fichaConductor = null;
     fichaInventario = null;
     eligiendoPlaca = false;
+    panelTu = null;
     flotantes.porLicencia = null;
     flotantes.cola = [];
     modoAnterior = null;
@@ -1969,8 +1929,7 @@
       }
       const filaTaxi = ev.target.closest('[data-ir-licencia]');
       if (filaTaxi) {
-        // A ese taxi en la pestaña Flota (desplegado).
-        plegar(Number(filaTaxi.dataset.irLicencia), false);
+        // A ese taxi en la pestaña Flota.
         cambiarVista('flota');
         opciones.redibujar();
         const destino = document.querySelector('.licencia[data-licencia="' + filaTaxi.dataset.irLicencia + '"]');
@@ -2009,13 +1968,7 @@
           cambiarVista('mejoras');
           opciones.redibujar();
         }
-        let destino = document.querySelector(objetivo.dataset.objetivo);
-        if (!destino && plegadas.length) {
-          plegadas = [];
-          guardarPlegadas();
-          opciones.redibujar();
-          destino = document.querySelector(objetivo.dataset.objetivo);
-        }
+        const destino = document.querySelector(objetivo.dataset.objetivo);
         if (destino) {
           // La compra puede estar en otra pestaña: se va a ella primero.
           const vista = VISTA_DE[destino.closest('section').id];
@@ -2044,17 +1997,9 @@
         opciones.redibujar();
         return;
       }
-      const botonPlegar = ev.target.closest('[data-plegar]');
-      if (botonPlegar) {
-        const id = Number(botonPlegar.dataset.plegar);
-        plegar(id, plegadas.indexOf(id) === -1);
-        opciones.redibujar();
-        return;
-      }
-      const plegarTodas = ev.target.closest('[data-plegar-todas]');
-      if (plegarTodas) {
-        plegadas = plegarTodas.dataset.plegarTodas === 'true' && estadoActual ? estadoActual.licencias.map(function (l) { return l.id; }) : [];
-        guardarPlegadas();
+      const botonTu = ev.target.closest('[data-panel-tu]');
+      if (botonTu) {
+        panelTu = panelTu === botonTu.dataset.panelTu ? null : botonTu.dataset.panelTu;
         opciones.redibujar();
         return;
       }
