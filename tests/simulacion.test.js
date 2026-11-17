@@ -1240,4 +1240,46 @@ prueba('libranza sin nadie que trabaje: saltas al cierre y sale el ticket', func
   }
 });
 
+prueba('stats de la ficha: los mismos números que usa la simulación', function () {
+  const e = conConductor();
+  e.reloj.minutos = 22 * 60;                     // noche: trabaja su turno
+  const t = e.licencias[0].turnos.noche;
+  t.categoria = 'A';
+  t.cualidad = 'madrugador';                     // solo de día: de noche no cuenta
+  t.defecto = 'enfermizo';
+  t.objetos = ['termo', 'ambientador'];
+  t.xp = 300;
+  const f = sim.factoresConductor(e, t);
+  const stats = sim.statsConductor(e, t, 'noche');
+  const de = function (lista, clave) { return lista.find(function (s) { return s.clave === clave; }); };
+  const ev = config.eventos;
+  cerca(de(stats, 'espera').valor, sim.topeConductor('espera', f.espera));
+  const deDia = de(stats, 'espera').fuentes.find(function (x) { return x.nombre === 'Madrugador'; });
+  assert.ok(deDia && deDia.soloTurno === 'dia' && deDia.cuenta === false, 'de noche Madrugador sale, pero no cuenta');
+  cerca(de(stats, 'propina').valor, ev.propina.probCarrera * sim.topeConductor('propina', f.propina));
+  cerca(de(stats, 'baja').valor, ev.baja.probTurno * sim.topeConductor('baja', f.baja));
+  assert.ok(de(stats, 'baja').factor > 1, 'Enfermizo sube las bajas');
+  cerca(de(stats, 'pinchazo').valor, ev.pinchazo.probTurno * sim.topeConductor('pinchazo', f.pinchazo));
+  cerca(de(stats, 'hallazgo').valor, config.objetos.probHallazgo * sim.buscarCategoria('A').hallazgo);
+  cerca(de(stats, 'limpieza').valor.minutos, ev.vomito.horasParado * 60 * sim.topeConductor('limpieza', f.limpieza));
+
+  // Mejoras: las propinas suman probabilidad y la baja de Deflectores multiplica.
+  e.dinero = 1e6;
+  assert.ok(comprarConRequisitos(e, 'propinas').ok);
+  assert.ok(comprarConRequisitos(e, 'deflectores').ok);
+  const m = sim.modificadores(e);
+  const con = sim.statsConductor(e, t, 'noche');
+  cerca(de(con, 'propina').valor, ev.propina.probCarrera *
+    sim.topeConductor('propina', (ev.propina.probCarrera + m.propinaProb) / ev.propina.probCarrera * f.propina));
+  cerca(de(con, 'baja').valor, ev.baja.probTurno * sim.topeConductor('baja', f.baja * m.baja));
+  assert.ok(de(con, 'baja').fuentes.some(function (x) { return x.tipo === 'mejora'; }));
+
+  // En la reserva no hay turno: lo de día va marcado y no se suma.
+  const reserva = de(sim.statsConductor(e, t, null), 'espera');
+  const madrugador = reserva.fuentes.find(function (x) { return x.nombre === 'Madrugador'; });
+  assert.ok(madrugador.soloTurno === 'dia' && madrugador.cuenta === false);
+  assert.ok(sim.statsConductor(e, t, 'dia').find(function (s) { return s.clave === 'espera'; }).fuentes
+    .find(function (x) { return x.nombre === 'Madrugador'; }).cuenta, 'de día sí cuenta');
+});
+
 console.log(pasadas + ' pruebas correctas');

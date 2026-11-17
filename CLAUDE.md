@@ -196,8 +196,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   nombre; la que tiene candidatos o tu panel abiertos ocupa la fila entera.
   Cara: retrato con la rareza (`ui-rareza`, abajo a la izquierda), el nivel
   (abajo a la derecha) y un «!» rojo si está parado. Tocar un conductor
-  abre su ficha (hoja que sube desde abajo, sin scroll en 390×844; se
-  cierra con ×, el fondo o Escape): cabecera, nivel con barra, rasgos,
+  abre su ficha (hoja que sube desde abajo, con scroll por dentro desde las
+  estadísticas; se cierra con ×, el fondo o Escape): cabecera, nivel con barra, rasgos,
   mosaico de 3 casillas de objetos (puesto con su «×» para quitar,
   «Equipar» o el nivel que abre el hueco; el efecto en corto con
   `textoEfecto()`). «Equipar» abre encima otra hoja (`equipando`,
@@ -212,6 +212,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   rasgos (las mismas filas que la ficha, `htmlFilasRasgos()`), «Contratar»
   y «A la reserva», «Te faltan…» y, al pie, vender objetos para contratar.
   Escape cierra la hoja de encima. Tocar «TÚ», tu zona y opciones.
+- Estadísticas de la ficha (`htmlStatsConductor()`, Iván 17-11-2026): todas
+  las stats con su valor real (probabilidad por carrera o por turno; la
+  espera, en %; la limpieza, euros y minutos) y el desglose de dónde sale.
+  Los números salen de `Libre.sim.statsConductor(estado, t, turno)`, que
+  repite las cuentas de `eventosDeCarrera()`, `sortearInicioDeTurnos()`,
+  `hallazgo()` y el reparto de carreras: si cambia una, cambiar también
+  esta (hay una prueba que las compara). `aportesConductor()` da de dónde
+  sale cada factor y `factoresConductor()` los multiplica.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

@@ -1060,25 +1060,15 @@
   const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza'];
 
   /*
-   * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
-   * sus cualidades y su defecto (con la fuerza de su categoría), sus
-   * objetos y su nivel. Lo que depende del turno (esperaDia,
-   * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
-   * trabaja. Para tu turno, todo 1. Sin tope: lo pone topeConductor().
+   * De dónde salen los factores de un conductor: una lista de aportes
+   * { tipo ('cualidad', 'defecto', 'objeto' o 'nivel'), id, nombre, efecto },
+   * en este orden. Cualidades y defectos ya llevan la fuerza de su categoría
+   * (la categoría refuerza las cualidades y suaviza los defectos); el nivel
+   * acorta la espera (cada nivel por encima del 1, un poco).
    */
-  function factoresConductor(estado, t) {
-    const f = {};
-    VALORES_CONDUCTOR.forEach(function (k) { f[k] = 1; });
-    if (!t || t.quien !== 'conductor') return f;
-    const turno = turnoDeHora(infoReloj(estado.reloj.minutos).hora);
-    function aplicar(efecto) {
-      Object.keys(efecto || {}).forEach(function (k) {
-        if (k === 'esperaDia') { if (turno === 'dia') f.espera *= efecto[k]; }
-        else if (k === 'esperaNoche') { if (turno === 'noche') f.espera *= efecto[k]; }
-        else if (f[k] !== undefined) f[k] *= efecto[k];
-      });
-    }
-    // La categoría refuerza las cualidades y suaviza el defecto.
+  function aportesConductor(t) {
+    const lista = [];
+    if (!t || t.quien !== 'conductor') return lista;
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
     function reforzar(efecto, fuerza) {
       const e = {};
@@ -1087,16 +1077,136 @@
     }
     cualidadesDe(t).forEach(function (id) {
       const r = buscarRasgo(id);
-      if (r) aplicar(reforzar(r.efecto, cat.fuerzaCualidad));
+      if (r) lista.push({ tipo: 'cualidad', id, nombre: r.nombre, efecto: reforzar(r.efecto, cat.fuerzaCualidad) });
     });
     defectosDe(t).forEach(function (id) {
       const d = buscarRasgo(id);
-      if (d) aplicar(reforzar(d.efecto, cat.fuerzaDefecto));
+      if (d) lista.push({ tipo: 'defecto', id, nombre: d.nombre, efecto: reforzar(d.efecto, cat.fuerzaDefecto) });
     });
-    (t.objetos || []).forEach(function (id) { const o = buscarObjeto(id); if (o) aplicar(o.efecto); });
-    // Cada nivel por encima del 1 espera un poco menos.
-    f.espera *= 1 - cfg().conductores.niveles.esperaPorNivel * (nivelConductor(t) - 1);
+    (t.objetos || []).forEach(function (id) {
+      const o = buscarObjeto(id);
+      if (o) lista.push({ tipo: 'objeto', id, nombre: o.nombre, efecto: o.efecto });
+    });
+    const nivel = nivelConductor(t);
+    lista.push({ tipo: 'nivel', id: 'nivel', nombre: 'Nivel ' + nivel,
+      efecto: { espera: 1 - cfg().conductores.niveles.esperaPorNivel * (nivel - 1) } });
+    return lista;
+  }
+
+  /*
+   * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
+   * sus aportes (aportesConductor()). Lo que depende del turno (esperaDia,
+   * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
+   * trabaja. Para tu turno, todo 1. Sin tope: lo pone topeConductor().
+   */
+  function factoresConductor(estado, t) {
+    const f = {};
+    VALORES_CONDUCTOR.forEach(function (k) { f[k] = 1; });
+    if (!t || t.quien !== 'conductor') return f;
+    const turno = turnoDeHora(infoReloj(estado.reloj.minutos).hora);
+    aportesConductor(t).forEach(function (a) {
+      Object.keys(a.efecto || {}).forEach(function (k) {
+        const v = a.efecto[k];
+        if (k === 'esperaDia') { if (turno === 'dia') f.espera *= v; }
+        else if (k === 'esperaNoche') { if (turno === 'noche') f.espera *= v; }
+        else if (f[k] !== undefined) f[k] *= v;
+      });
+    });
     return f;
+  }
+
+  /*
+   * Stats de un conductor para su ficha (solo lectura): el valor real de
+   * cada una, ya con rasgos, objetos, nivel, mejoras y topes, y de dónde
+   * sale. `turno` es el suyo ('dia' o 'noche'); null en la reserva. Lo que
+   * es solo de día o de noche lleva `soloTurno` y `cuenta` (false si no es
+   * su turno, o en la reserva): se enseña, pero no se suma.
+   * Cada stat: { clave, valor, factor (total, 1 = normal), tope,
+   *   fuentes: [{ tipo, nombre, factor, soloTurno, cuenta, anula }] }.
+   *   espera     valor = factor sobre la espera entre carreras (no hay un
+   *              tiempo fijo: depende de la zona y la hora)
+   *   propina, sinPagar, objeto, hallazgo   probabilidad por carrera
+   *   baja, pinchazo, averia                probabilidad al empezar cada turno
+   *   limpieza   valor = { costeMin, costeMax, minutos } de un vómito sin bolsa
+   * Mismas cuentas que eventosDeCarrera(), sortearInicioDeTurnos(),
+   * hallazgo() y el reparto de carreras; si cambian ellas, cambia esto.
+   */
+  function statsConductor(estado, t, turno) {
+    const ev = cfg().eventos;
+    const m = modificadores(estado);
+    const aportes = aportesConductor(t);
+    const mejoras = cfg().mejoras.filter(function (x) { return nivelMejora(estado, x.id) > 0; }).map(function (x) {
+      const n = nivelMejora(estado, x.id);
+      return { nombre: x.nombre, efecto: x.niveles ? x.niveles[n - 1].efecto : x.efecto };
+    });
+    function fuentesDe(clave) {
+      const fuentes = [];
+      aportes.forEach(function (a) {
+        Object.keys(a.efecto || {}).forEach(function (k) {
+          const dia = k === 'esperaDia', noche = k === 'esperaNoche';
+          if (k !== clave && !(clave === 'espera' && (dia || noche))) return;
+          const soloTurno = dia ? 'dia' : noche ? 'noche' : null;
+          // Lo de día no cuenta de noche (y al revés), ni en la reserva.
+          fuentes.push({ tipo: a.tipo, nombre: a.nombre, factor: a.efecto[k], soloTurno,
+            cuenta: !soloTurno || soloTurno === turno });
+        });
+      });
+      return fuentes;
+    }
+    function producto(fuentes) {
+      return fuentes.reduce(function (p, x) { return x.cuenta === false || x.anula ? p : p * x.factor; }, 1);
+    }
+    function probabilidad(clave, base, extra) {
+      const fuentes = fuentesDe(clave).concat(extra || []);
+      const bruto = producto(fuentes);
+      const factor = topeConductor(clave, bruto);
+      return { clave, valor: base * factor, factor, tope: factor !== bruto, fuentes };
+    }
+    const stats = [];
+
+    const espera = fuentesDe('espera');
+    const brutoEspera = producto(espera);
+    stats.push({ clave: 'espera', valor: topeConductor('espera', brutoEspera), factor: topeConductor('espera', brutoEspera),
+      tope: topeConductor('espera', brutoEspera) !== brutoEspera, fuentes: espera });
+
+    // Propinas: las mejoras suman probabilidad, y el tope va sobre el total.
+    const extrasPropina = mejoras.filter(function (x) { return x.efecto.propinaProb; }).map(function (x) {
+      return { tipo: 'mejora', nombre: x.nombre, factor: (ev.propina.probCarrera + x.efecto.propinaProb) / ev.propina.probCarrera };
+    });
+    const propina = fuentesDe('propina').concat(extrasPropina);
+    const brutoPropina = (ev.propina.probCarrera + m.propinaProb) / ev.propina.probCarrera *
+      producto(fuentesDe('propina'));
+    const factorPropina = topeConductor('propina', brutoPropina);
+    stats.push({ clave: 'propina', valor: ev.propina.probCarrera * factorPropina, factor: factorPropina, tope: factorPropina !== brutoPropina, fuentes: propina });
+
+    const sinPagar = probabilidad('sinPagar', ev.sinPagar.probCarrera);
+    if (m.sinImpagos) {
+      sinPagar.valor = 0;
+      sinPagar.factor = 0;
+      sinPagar.tope = false;
+      mejoras.filter(function (x) { return x.efecto.sinImpagos; }).forEach(function (x) {
+        sinPagar.fuentes.push({ tipo: 'mejora', nombre: x.nombre, factor: 0, anula: true });
+      });
+    }
+    stats.push(sinPagar);
+    stats.push(probabilidad('objeto', ev.objeto.probCarrera));
+
+    const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
+    stats.push({ clave: 'hallazgo', valor: cfg().objetos.probHallazgo * cat.hallazgo, factor: cat.hallazgo, tope: false,
+      fuentes: cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo }] });
+
+    stats.push(probabilidad('baja', ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
+      return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.baja };
+    })));
+    stats.push(probabilidad('pinchazo', ev.pinchazo.probTurno));
+    stats.push(probabilidad('averia', ev.averia.probTurno));
+
+    const limpieza = fuentesDe('limpieza');
+    const brutoLimpieza = producto(limpieza);
+    const l = topeConductor('limpieza', brutoLimpieza);
+    stats.push({ clave: 'limpieza', factor: l, tope: l !== brutoLimpieza, fuentes: limpieza,
+      valor: { costeMin: ev.vomito.costeMin * l, costeMax: ev.vomito.costeMax * l, minutos: ev.vomito.horasParado * 60 * l } });
+    return stats;
   }
 
   /* El factor recortado a los topes de la config: nada llega a cero ni se dispara. */
@@ -2122,6 +2232,8 @@
     enPausa,
     arrancarDia,
     puedeSaltarDia,
+    statsConductor,
+    aportesConductor,
     saltarAlCierre,
     cambiarAjuste,
     sumarCierres,

@@ -1426,6 +1426,24 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .ficha-objetos-bloque { display: flex; flex-direction: column; gap: var(--esp-2); }
 .ficha-objetos-bloque > strong { font-weight: 800; font-size: var(--t-normal); }
 .ficha-objetos-bloque > strong span { font-weight: 600; color: var(--tinta-suave); }
+.ficha-stats { display: flex; flex-direction: column; gap: var(--esp-2); }
+.ficha-stats > strong { font-weight: 800; font-size: var(--t-normal); }
+.ficha-stats > strong span { font-weight: 600; color: var(--tinta-suave); }
+.stats-lista { display: flex; flex-direction: column; }
+/* Una stat por fila: nombre y valor arriba, de dónde sale debajo. */
+.stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--esp-3);
+  padding: var(--esp-2) 0;
+  border-top: 1px solid var(--linea);
+}
+.stat:first-child { border-top: 0; }
+.stat-nombre { font-size: var(--t-pequeno); font-weight: 800; }
+.stat-valor { font-size: var(--t-pequeno); font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+.stat--bien .stat-valor { color: var(--dinero); }
+.stat--mal .stat-valor { color: var(--peligro); }
+.stat-desglose { grid-column: 1 / -1; font-size: var(--t-micro); color: var(--tinta-suave); line-height: 1.35; }
 .ficha-objetos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3); }
 .ficha-objeto {
   position: relative;

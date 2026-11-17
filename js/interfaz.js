@@ -1210,6 +1210,7 @@
       '<div class="ficha-objetos-bloque"><strong>Objetos <span>· ' + llevados.length + ' de ' + huecos +
       (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
       '<div class="ficha-objetos">' + casillas.join('') + '</div></div>' +
+      htmlStatsConductor(estado, t, x.enReserva ? null : turno) +
       '<div class="ficha-datos">' +
       '<div><span>Carreras</span><strong id="ficha-carreras"></strong></div>' +
       '<div><span>Facturado</span><strong id="ficha-facturado"></strong></div>' +
@@ -1266,6 +1267,63 @@
       const v = efecto[k];
       return (v < 1 ? '−' : '+') + Math.round(Math.abs(1 - v) * 100) + ' % ' + NOMBRE_EFECTO[k];
     }).join(', ');
+  }
+
+  /*
+   * Estadísticas de la ficha: el valor real de cada stat (statsConductor())
+   * y debajo de dónde sale. En verde si le favorece, en rojo si le perjudica.
+   * MAS_ES_MEJOR: las que conviene tener altas.
+   */
+  const NOMBRE_STAT = {
+    espera: 'Espera entre carreras', propina: 'Propina', sinPagar: 'Se va sin pagar',
+    objeto: 'Devuelve un olvido', hallazgo: 'Encuentra un objeto', baja: 'Baja',
+    pinchazo: 'Pinchazo', averia: 'Avería', limpieza: 'Limpiar un vómito'
+  };
+  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true };
+  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '' };
+
+  /* Porcentaje legible con las cifras justas: «18 %», «0,8 %», «0,08 %». */
+  function porcentaje(p) {
+    const v = p * 100;
+    const decimales = v === 0 || v >= 100 ? 0 : v >= 1 ? 1 : 2;
+    return v.toLocaleString('es-ES', { maximumFractionDigits: decimales }) + ' %';
+  }
+  /* Cambio de un factor: «−14 %», «+25 %». */
+  function cambio(factor) {
+    const v = Math.round((factor - 1) * 100);
+    return (v < 0 ? '−' : '+') + Math.abs(v) + ' %';
+  }
+
+  function textoStat(s) {
+    if (s.clave === 'espera') return s.factor === 1 ? 'Normal' : cambio(s.factor);
+    if (s.clave === 'limpieza') {
+      return euros(s.valor.costeMin) + '–' + euros(s.valor.costeMax) + ' · ' + Math.round(s.valor.minutos) + ' min parado';
+    }
+    const por = ['baja', 'pinchazo', 'averia'].indexOf(s.clave) !== -1 ? ' de los turnos' : ' de las carreras';
+    return porcentaje(s.valor) + por;
+  }
+
+  function textoFuente(f) {
+    const tipo = NOMBRE_TIPO_FUENTE[f.tipo];
+    const quien = (tipo ? tipo + ' ' : '') + f.nombre;
+    if (f.anula) return quien + ': lo evita del todo';
+    return quien + ' ' + (f.tipo === 'categoria' ? '×' + f.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : cambio(f.factor)) +
+      (f.soloTurno ? ' (solo de ' + (f.soloTurno === 'dia' ? 'día' : 'noche') + (f.cuenta ? '' : ', no cuenta') + ')' : '');
+  }
+
+  function htmlStatsConductor(estado, t, turno) {
+    const filas = Libre.sim.statsConductor(estado, t, turno).map(function (s) {
+      const efectiva = s.fuentes.filter(function (f) { return f.cuenta !== false; });
+      const sentido = s.factor === 1 || (efectiva.length === 0 && s.clave !== 'sinPagar') ? ''
+        : (s.factor > 1) === !!MAS_ES_MEJOR[s.clave] ? ' stat--bien' : ' stat--mal';
+      const desglose = s.fuentes.length === 0 ? 'Sin cambios: lo normal'
+        : s.fuentes.map(textoFuente).join(' · ') + (s.tope ? ' · llega al tope' : '');
+      return '<div class="stat' + sentido + '"><span class="stat-nombre">' + esc(NOMBRE_STAT[s.clave]) + '</span>' +
+        '<strong class="stat-valor">' + esc(textoStat(s)) + '</strong>' +
+        '<small class="stat-desglose">' + esc(desglose) + '</small></div>';
+    }).join('');
+    return '<div class="ficha-stats"><strong>Estadísticas <span>· con rasgos, objetos, nivel y mejoras</span></strong>' +
+      '<div class="stats-lista">' + filas + '</div></div>';
   }
 
   /* «168 / 219 XP» o «Máximo» (al lado de la barra de la ficha). */
