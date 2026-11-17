@@ -148,7 +148,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
-- Pestaña Flota: el inventario es una cuadrícula de fichas pequeñas, sin
+- Pestaña Flota: el almacén (en la interfaz se llama así; en el código
+  sigue siendo `inventario` para los consumibles) es una cuadrícula de fichas pequeñas, sin
   nombre a la vista (va en el título y en la ficha abierta): icono,
   cantidad y debajo la categoría (objetos) o la barra sobre el máximo
   (consumibles). Solo los objetos que tienes sin equipar, de mejor a peor
@@ -196,7 +197,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   a toda la flota: ruedas de repuesto y bolsas de papel. Cada uno se
   desbloquea con su mejora (efecto `inventario`) y luego se compran unidades
   hasta el máximo del almacén (`comprarInventario()`). Un pinchazo gasta una
-  rueda si hay; un vómito, una bolsa. Se repone en la tarjeta «Inventario» de
+  rueda si hay; un vómito, una bolsa. Se repone en la tarjeta «Almacén» de
   Flota; con pocas unidades, la pestaña avisa.
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da

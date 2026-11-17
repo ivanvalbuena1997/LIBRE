@@ -1312,7 +1312,7 @@
       return htmlFichaInventario(o.id, o.nombre, estado.objetos[o.id], 0, false, false, o.categoria);
     }).join('');
     const total = Libre.sim.objetosEnAlmacen(estado);
-    return '<div class="inventario"><h3 class="flota-titulo">Inventario <small>· objetos ' + total + ' de ' +
+    return '<div class="inventario"><h3 class="flota-titulo">Almacén <small>· objetos ' + total + ' de ' +
       Libre.sim.capacidadAlmacen(estado) + '</small></h3>' + htmlBandeja(estado) +
       '<div class="fichas">' + consumibles + objetos + '</div>' +
       (objetos ? '' : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +

@@ -552,7 +552,7 @@
       // ---- Rama: Clientes
       {
         id: 'bolsas', nombre: 'Bolsas de papel', rama: 'clientes', precio: 800,
-        descripcion: 'Desbloquea las bolsas de papel en el inventario: con una bolsa a mano, el cliente mareado no vomita en el coche.',
+        descripcion: 'Desbloquea las bolsas de papel en el almacén: con una bolsa a mano, el cliente mareado no vomita en el coche.',
         efecto: { inventario: 'bolsas' }
       },
       {
@@ -641,7 +641,7 @@
       // ---- Rama: Taller y seguros
       {
         id: 'rueda', nombre: 'Rueda de repuesto', rama: 'taller', precio: 300,
-        descripcion: 'Desbloquea las ruedas de repuesto en el inventario: si un taxi pincha, se cambia la rueda y sigue trabajando sin coste.',
+        descripcion: 'Desbloquea las ruedas de repuesto en el almacén: si un taxi pincha, se cambia la rueda y sigue trabajando sin coste.',
         efecto: { inventario: 'ruedas' }
       },
       {
