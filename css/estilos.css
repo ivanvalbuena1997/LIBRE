@@ -822,7 +822,7 @@ body[data-vista="calle"] main { padding-top: var(--esp-2); }
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) auto auto;
   grid-template-rows: auto auto;
-  column-gap: var(--esp-4);
+  column-gap: var(--esp-3);
   row-gap: 5px;
   align-items: center;
   width: 100%;
@@ -840,6 +840,9 @@ body[data-vista="calle"] main { padding-top: var(--esp-2); }
 .taxi-fila > button:focus-visible { outline: 3px solid var(--marca); outline-offset: 1px; }
 .taxi-retrato { grid-row: 1 / span 2; display: flex; }
 .taxi-retrato .retrato { width: 34px; height: 34px; }
+/* Rareza y nivel en pequeño sobre el retrato de 34 px (como en Conductores). */
+.taxi-retrato .cara-categoria { left: -6px; bottom: -4px; min-width: 16px; height: 16px; padding: 0 3px; font-size: var(--t-micro); }
+.taxi-retrato .cara-nivel { right: -6px; bottom: -4px; min-width: 16px; height: 16px; padding: 0 3px; border-width: 1.5px; }
 .retrato-texto {
   align-items: center;
   justify-content: center;
@@ -850,9 +853,11 @@ body[data-vista="calle"] main { padding-top: var(--esp-2); }
   font-weight: 800;
 }
 .retrato-texto.tu { border: 0; background: var(--tinta); color: var(--sobre-color); }
-.taxi-quien { min-width: 0; display: flex; gap: var(--esp-2); align-items: baseline; white-space: nowrap; overflow: hidden; }
-.taxi-quien strong { font-weight: 800; font-size: var(--t-cuerpo); overflow: hidden; text-overflow: ellipsis; }
+.taxi-quien { min-width: 0; display: flex; gap: 5px; align-items: baseline; white-space: nowrap; overflow: hidden; }
+.taxi-quien strong { flex: none; max-width: 100%; font-weight: 800; font-size: var(--t-cuerpo); overflow: hidden; text-overflow: ellipsis; }
 .taxi-quien small { color: var(--tinta-suave); font-size: var(--t-mini); overflow: hidden; text-overflow: ellipsis; }
+.taxi-quien .taxi-licencia { flex: none; font-size: var(--t-micro); }
+.taxi-quien .taxi-zona { margin-left: -1px; }
 .taxi-importe { font-size: var(--t-cuerpo); text-align: right; min-width: 64px; white-space: nowrap; }
 .taxi-barra { grid-column: 2 / -1; display: block; }
 .taxi-barra > span { display: block; transition: width 0.4s ease; }

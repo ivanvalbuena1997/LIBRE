@@ -332,8 +332,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   línea resume «N ocupados · N libres · N parados», el cuadro de la tarifa
   enseña la hora de tu turno, y tocarlo abre el desglose de la caja de hoy. Los importes flotantes salen
   por taxi (diferencia de `facturadoJornada`) con el nombre del conductor.
-- «Tus taxis hoy» (`seccionTaxis`): una fila de 44 px por taxi con retrato, nombre,
-  zona, chip de estado (`ui-chip`: Ocupado, Libre, Libranza, De baja o el
+- «Tus taxis hoy» (`seccionTaxis`): una fila de 44 px por taxi con retrato
+  (los conductores, con su rareza y su nivel como en Conductores:
+  `htmlCirculos()` en pequeño), nombre, licencia y zona («15288-L ·
+  Centro»; si no cabe, se corta solo la zona), chip de estado (`ui-chip`: Ocupado, Libre, Libranza, De baja o el
   motivo de la parada en ámbar), barra
   proporcional al que más lleva y lo facturado en la jornada. Las filas se
   crean una vez y en cada fotograma solo se rellenan y recolocan (FLIP);

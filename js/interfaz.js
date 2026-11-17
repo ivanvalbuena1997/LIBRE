@@ -261,7 +261,8 @@
 
   /*
    * Todos los taxis con coche, de más a menos facturado en la jornada:
-   * { licencia, quien, retrato, zona, facturado, enCarrera, icono,
+   * { licencia, quien, conductor (su turno, o null si eres tú o no hay nadie),
+   *   retrato, zona, facturado, enCarrera, icono,
    *   situacion ('ocupado', 'libre' o 'parado'), motivo }.
    */
   function taxisDeLaFlota(estado) {
@@ -283,6 +284,7 @@
       return {
         licencia: lic,
         quien: t ? (t.quien === 'jugador' ? 'Tú' : t.nombre) : 'Sin conductor',
+        conductor: t && t.quien === 'conductor' ? t : null,
         retrato: t && t.quien === 'conductor' ? t.retrato : null,
         zona: t ? t.zona : null,
         facturado: (lic.facturadoJornada || 0) + (enCurso || 0),
@@ -308,7 +310,9 @@
 
   function htmlRetratoFila(t) {
     if (t.retrato !== null && t.retrato !== undefined) {
-      return '<span class="retrato' + (t.icono === 'baja' ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>';
+      // Con su rareza y su nivel, como la cara de Conductores.
+      return '<span class="cara-foto"><span class="retrato' + (t.icono === 'baja' ? ' atenuado' : '') + '">' +
+        Libre.retratos.svg(t.retrato) + '</span>' + (t.conductor ? htmlCirculos(t.conductor) : '') + '</span>';
     }
     // Tú, o un turno sin conductor.
     return '<span class="retrato retrato-texto' + (t.quien === 'Tú' ? ' tu' : '') + '">' + (t.quien === 'Tú' ? 'TÚ' : '') + '</span>';
@@ -333,7 +337,7 @@
       const filas = ids.map(function (id) {
         return '<li class="taxi-fila" data-fila-taxi="' + id + '"><button type="button" data-ir-licencia="' + id + '">' +
           '<span class="taxi-retrato"></span>' +
-          '<span class="taxi-quien"><strong></strong><small></small></span>' +
+          '<span class="taxi-quien"><strong></strong><small class="taxi-licencia"></small><small class="taxi-zona"></small></span>' +
           '<span class="taxi-situacion"></span>' +
           '<span class="taxi-importe ui-dinero"></span>' +
           '<span class="taxi-barra ui-barra"><span class="ui-barra-relleno"></span></span>' +
@@ -370,22 +374,27 @@
         const li = filas[t.licencia.id];
         if (!li) return;
         // El retrato solo se rehace si cambia quién conduce.
-        const claveRetrato = t.quien + '|' + t.retrato + '|' + (t.icono === 'baja');
+        const claveRetrato = t.quien + '|' + t.retrato + '|' + (t.icono === 'baja') +
+          (t.conductor ? '|' + t.conductor.categoria + '|' + Libre.sim.nivelConductor(t.conductor) : '');
         if (li.dataset.retrato !== claveRetrato) {
           li.querySelector('.taxi-retrato').innerHTML = htmlRetratoFila(t);
           li.dataset.retrato = claveRetrato;
         }
         li.querySelector('.taxi-quien strong').textContent = t.quien;
         const zona = t.zona && Libre.config.zonas[t.zona];
-        li.querySelector('.taxi-quien small').textContent = zona ? zona.nombre : Libre.sim.textoLicencia(t.licencia);
+        // Licencia y zona («15288-L · Centro»): si no cabe, se corta solo la zona.
+        li.querySelector('.taxi-licencia').textContent = Libre.sim.textoLicencia(t.licencia);
+        li.querySelector('.taxi-zona').textContent = zona ? '· ' + zona.nombre : '';
         const sit = li.querySelector('.taxi-situacion');
         sit.textContent = t.situacion === 'ocupado' ? 'Ocupado' : t.situacion === 'libre' ? 'Libre' : t.motivo;
         sit.className = 'taxi-situacion ' + claseSituacion(t);
         li.querySelector('.taxi-importe').textContent = euros(t.facturado);
         li.querySelector('.taxi-barra > span').style.width = (Math.max(0, t.facturado) / maximo * 100).toFixed(1) + '%';
         li.classList.toggle('fuera', !taxisDesplegados && i >= MAX_FILAS_TAXIS);
+        const cat = t.conductor && Libre.sim.buscarCategoria(t.conductor.categoria);
         li.querySelector('button').setAttribute('aria-label',
-          t.quien + ', ' + sit.textContent + ', ' + euros(t.facturado) + ' hoy. Ver en Conductores');
+          t.quien + (cat ? ', categoría ' + cat.nombre + ', nivel ' + Libre.sim.nivelConductor(t.conductor) : '') +
+          ', licencia ' + Libre.sim.textoLicencia(t.licencia) + ', ' + sit.textContent + ', ' + euros(t.facturado) + ' hoy. Ver en Conductores');
       });
 
       if (!cambia) return;
