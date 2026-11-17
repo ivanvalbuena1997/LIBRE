@@ -468,6 +468,8 @@
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
     estado.licencias.forEach(function (l) { l.facturadoJornada = 0; });
+    // Cada día se presentan otros candidatos (Iván, 17-11-2026).
+    sortearCandidatos(estado);
     resumen.cierres.push(cerrada);
   }
 

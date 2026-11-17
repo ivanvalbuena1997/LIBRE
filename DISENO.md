@@ -205,7 +205,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 ### 5.6 Conductores
 
-**Contratar.** Hay siempre tres candidatos (personajes y cualidades distintos), con su retrato, categoría, rasgos y precio. Se quedan hasta que contratas a uno; entonces salen otros tres. Si no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí mismo. Se puede contratar para un turno libre o para la reserva.
+**Contratar.** Hay siempre tres candidatos (personajes y cualidades distintos), con su retrato, categoría, rasgos y precio. Cambian cada día, al cerrar la caja (Iván, 17-11-2026), y también al contratar a uno: entonces salen otros tres. Si no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí mismo. Se puede contratar para un turno libre o para la reserva.
 
 **Categorías.** Salen al azar, con los mismos pesos que los objetos:
 
@@ -217,7 +217,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 | S+ | 2 % | 5.000 € | 1 | 0 | ×1,6 | — | ×1,5 |
 | LEGENDARIO | 0,5 % | 12.000 € | 2 | 0 | ×1,8 | — | ×2 |
 
-Con tres candidatos, uno de cada 65 contratos más o menos ofrece un LEGENDARIO; al principio no te lo puedes permitir, y esa es la gracia.
+Con tres candidatos, una de cada 65 tandas más o menos ofrece un LEGENDARIO (y ahora sale una tanda nueva cada día, además de una tras cada contrato); al principio no te lo puedes permitir, y esa es la gracia.
 
 **Rasgos.** Una cualidad nunca sale con su defecto opuesto. La fuerza de la categoría escala el efecto («+30 %» con fuerza ×1,8 es «+54 %»).
 

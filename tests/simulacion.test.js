@@ -1282,4 +1282,17 @@ prueba('stats de la ficha: los mismos números que usa la simulación', function
     .find(function (x) { return x.nombre === 'Madrugador'; }).cuenta, 'de día sí cuenta');
 });
 
+prueba('los candidatos cambian cada día, al cerrar la caja', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.ajustes.pararAlCierre = true;
+  const antes = JSON.stringify(sim.candidatos(e));
+  e.reloj.minutos = config.reloj.minutoCierreCaja - 60;
+  sim.avanzar(e, segundosDe(e, 59));
+  assert.strictEqual(JSON.stringify(e.candidatos), antes, 'durante el día se quedan');
+  sim.avanzar(e, segundosDe(e, 2));
+  assert.ok(sim.enPausa(e));
+  assert.notStrictEqual(JSON.stringify(e.candidatos), antes, 'al cerrar, otros');
+  assert.strictEqual(e.candidatos.length, config.conductores.candidatos);
+});
+
 console.log(pasadas + ' pruebas correctas');
