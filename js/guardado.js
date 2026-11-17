@@ -167,6 +167,10 @@
     // Versión 17: reserva de conductores (vacía).
     16: function (estado) {
       estado.reserva = estado.reserva || [];
+    },
+    // Versión 18: libranzas. Las placas para elegir se sortean al comprar.
+    17: function (estado) {
+      estado.placasEnVenta = null;
     }
   };
 

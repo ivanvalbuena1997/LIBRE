@@ -996,6 +996,33 @@ button.zona-tarjeta { cursor: pointer; }
 .fantasma-arrastre .retrato { width: 52px; height: 52px; }
 .hoja select[data-cambio="moverConductor"] { width: 100%; min-height: 44px; }
 
+/* Libranza y elección de placa */
+.licencia-libranza { margin: 0 0 4px; font-size: 0.74rem; color: var(--suave); }
+.hoy-libra {
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--fondo);
+  border: 1px solid var(--ambar);
+  color: var(--ambar);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.placas-venta { border: 1px solid var(--borde); border-radius: 12px; padding: 8px; display: grid; gap: 6px; }
+.placas-titulo { display: flex; justify-content: space-between; align-items: center; }
+.placas-titulo button { min-height: 40px; }
+.placa-opcion {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+.placa-opcion small { color: var(--suave); font-size: 0.78rem; }
+.placa-opcion button { grid-column: 1 / -1; min-height: 44px; }
+
 /* Reserva: conductores contratados que esperan turno */
 .reserva {
   border: 1px dashed var(--borde);

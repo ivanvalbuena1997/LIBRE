@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 17,
+    versionGuardado: 18,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -373,9 +373,16 @@
       maximo: 15812,               // Dato real: licencias en el área de Madrid.
       // Dato real (Iván): la letra de la licencia indica el día de libranza y
       // sale de la última cifra del número. Ej.: 15288-L libra los lunes.
-      // Por ahora solo se muestra; la libranza no tiene efecto en el juego.
       // La X del miércoles está por confirmar.
-      letraPorCifra: { 7: 'L', 8: 'L', 9: 'M', 0: 'M', 1: 'X', 2: 'X', 3: 'J', 4: 'J', 5: 'V', 6: 'V' }
+      letraPorCifra: { 7: 'L', 8: 'L', 9: 'M', 0: 'M', 1: 'X', 2: 'X', 3: 'J', 4: 'J', 5: 'V', 6: 'V' },
+      libranza: true,              // Iván: las licencias libran (false: nunca; lo usan las pruebas).
+      // Día de la semana que libra cada letra (índice de reloj.diasSemana).
+      diaPorLetra: { L: 0, M: 1, X: 2, J: 3, V: 4 },
+      // Dato real (Iván): en fin de semana libra según la paridad del día del
+      // mes: una licencia par trabaja los días pares y libra los impares; una
+      // impar, al revés. En el juego, el día del mes es el «Día N» de la jornada.
+      // Al comprar una licencia eliges entre estas placas (números al azar).
+      placasAElegir: 2
     },
 
     vehiculos: {

@@ -9,6 +9,8 @@ require('../js/simulacion.js');
 const assert = require('assert');
 const sim = globalThis.Libre.sim;
 const config = globalThis.Libre.config;
+// Las pruebas miden ritmos sin días de libranza; las de libranza la encienden.
+config.licencias.libranza = false;
 
 let pasadas = 0;
 function prueba(nombre, fn) {
@@ -1041,6 +1043,43 @@ prueba('mover conductores: solo con el día cerrado; turnos, licencias y reserva
   assert.strictEqual(e.reserva.length, 1);
   e.licencias[1].vehiculo = null;
   assert.ok(!sim.moverConductor(e, 1, 'noche', '2|dia').ok, 'no a una licencia sin coche');
+});
+
+prueba('libranza: entre semana según la letra; en fin de semana según la paridad', function () {
+  config.licencias.libranza = true;
+  try {
+    const e = flotaDe(1);
+    const lic = e.licencias[0];
+    const minutoDe = function (jornada) { return config.reloj.minutoCierreCaja + jornada * sim.MIN_DIA + 60; };
+    lic.numero = 15288;   // L: libra los lunes (jornada 0, 7, 14…)
+    assert.ok(sim.libra(e, lic, minutoDe(0)), 'lunes');
+    assert.ok(!sim.libra(e, lic, minutoDe(1)), 'martes trabaja');
+    assert.ok(sim.libra(e, lic, minutoDe(7)), 'el lunes siguiente');
+    // Fin de semana: jornada 5 = sábado, «Día 6» (par); jornada 6 = domingo, «Día 7» (impar).
+    assert.ok(!sim.libra(e, lic, minutoDe(5)), 'par: trabaja el día par');
+    assert.ok(sim.libra(e, lic, minutoDe(6)), 'par: libra el día impar');
+    lic.numero = 15283;   // impar
+    assert.ok(sim.libra(e, lic, minutoDe(5)) && !sim.libra(e, lic, minutoDe(6)), 'impar: al revés');
+    // Libra el coche entero: ni conductores ni tú.
+    lic.numero = 15288;
+    e.reloj.minutos = minutoDe(0);
+    assert.ok(!sim.puedeTrabajar(e, lic, lic.turnos.noche, e.reloj.minutos));
+    assert.ok(!sim.buscarCliente(e).ok, 'tú tampoco');
+  } finally {
+    config.licencias.libranza = false;
+  }
+});
+
+prueba('al comprar licencia eliges entre dos placas con letras distintas', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e6;
+  const placas = sim.placasEnVenta(e);
+  assert.strictEqual(placas.length, config.licencias.placasAElegir);
+  assert.notStrictEqual(sim.letraLicencia(placas[0]), sim.letraLicencia(placas[1]));
+  assert.deepStrictEqual(sim.placasEnVenta(e), placas, 'se guardan hasta comprar');
+  assert.ok(sim.comprarLicencia(e, null, 1).ok);
+  assert.strictEqual(e.licencias[1].numero, placas[1]);
+  assert.notDeepStrictEqual(sim.placasEnVenta(e), placas, 'después, otras');
 });
 
 console.log(pasadas + ' pruebas correctas');

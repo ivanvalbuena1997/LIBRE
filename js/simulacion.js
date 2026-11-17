@@ -135,6 +135,44 @@
     return 0;
   }
 
+  /* Letra de libranza de un número de licencia (L, M, X, J o V). */
+  function letraLicencia(numero) {
+    return cfg().licencias.letraPorCifra[numero % 10];
+  }
+
+  /*
+   * ¿Libra esa licencia en la jornada de `minutos`? Entre semana, el día de
+   * su letra; en fin de semana, si la paridad de su número no coincide con
+   * la del día (el «Día N» de la jornada). Libra el coche entero, los dos
+   * turnos.
+   */
+  function libra(estado, lic, minutos) {
+    if (!cfg().licencias.libranza || !lic || !lic.numero) return false;
+    const jornada = jornadaDe(minutos === undefined ? estado.reloj.minutos : minutos);
+    const diaSemana = ((jornada % 7) + 7) % 7;
+    if (diaSemana < 5) return cfg().licencias.diaPorLetra[letraLicencia(lic.numero)] === diaSemana;
+    return lic.numero % 2 !== (jornada + 1) % 2;
+  }
+
+  /*
+   * Las placas entre las que eliges al comprar la próxima licencia: números
+   * libres con letras distintas (se sortean con el azar de la partida y se
+   * guardan hasta que compras).
+   */
+  function placasEnVenta(estado) {
+    const n = cfg().licencias.placasAElegir;
+    if (estado.placasEnVenta && estado.placasEnVenta.length === n) return estado.placasEnVenta;
+    const rnd = function () { return azar(estado); };
+    const lista = [];
+    for (let intento = 0; lista.length < n && intento < 200; intento++) {
+      const numero = sortearNumeroLicencia({ licencias: estado.licencias.concat(lista.map(function (x) { return { numero: x }; })) }, rnd);
+      const repetida = lista.some(function (x) { return letraLicencia(x) === letraLicencia(numero); });
+      if (!repetida || intento > 100) lista.push(numero);
+    }
+    estado.placasEnVenta = lista;
+    return lista;
+  }
+
   /* Texto de la licencia: número y letra de libranza, p. ej. "15288-L". */
   function textoLicencia(licencia) {
     const letra = cfg().licencias.letraPorCifra[licencia.numero % 10];
@@ -518,15 +556,22 @@
     return l.precioBase * Math.pow(l.factorSubida, estado.licencias.length - 1);
   }
 
-  function comprarLicencia(estado, rng) {
+  /*
+   * Compra una licencia con la placa `indice` de placasEnVenta() (la primera
+   * si no se dice). `rng` ya no se usa: las placas salen del azar de la partida.
+   */
+  function comprarLicencia(estado, rng, indice) {
     const c = cfg();
     if (estado.licencias.length >= c.licencias.maximo) return fallo('No quedan licencias en Madrid.');
     const precio = precioLicencia(estado);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
+    const numero = placasEnVenta(estado)[Number(indice) || 0];
+    if (!numero) return fallo('Esa placa no existe.');
     estado.dinero -= precio;
     const id = estado.licencias.reduce(function (m, l) { return Math.max(m, l.id); }, 0) + 1;
-    const licencia = { id, numero: sortearNumeroLicencia(estado, rng), vehiculo: null, turnos: { dia: null, noche: null } };
+    const licencia = { id, numero, vehiculo: null, turnos: { dia: null, noche: null } };
     estado.licencias.push(licencia);
+    estado.placasEnVenta = null;
     return exito('Licencia ' + textoLicencia(licencia) + ' comprada. Ahora necesita un coche.');
   }
 
@@ -1199,6 +1244,10 @@
       return fallo('Estás parado hasta las ' + String(vuelta.hora).padStart(2, '0') + ':' +
         String(vuelta.minuto).padStart(2, '0') + '.');
     }
+    const u = ubicacionJugador(estado);
+    if (libra(estado, buscarLicencia(estado, u.licenciaId))) {
+      return fallo('Hoy libra tu licencia: descansas hasta mañana a las 7:00.');
+    }
     if (!jugadorEnTurno(estado)) {
       const t = c.turnos[ubicacionJugador(estado).turno];
       return fallo('Fuera de tu turno: trabajas de ' + t.nombre.toLowerCase() + ', de ' +
@@ -1524,6 +1573,7 @@
   /* ¿Puede trabajar ese turno ahora? No con baja, avería o jornada terminada. */
   function puedeTrabajar(estado, lic, turno, minutos) {
     const jornada = jornadaDe(minutos);
+    if (libra(estado, lic, minutos)) return false;
     if (lic.averia && jornada < lic.averia.hasta) return false;
     if (turno.baja && jornada < turno.baja.hasta) return false;
     if (turno.paradoHasta && turno.paradoHasta > minutos) return false;
@@ -1951,6 +2001,9 @@
     elegirZona,
     precioLicencia,
     textoLicencia,
+    letraLicencia,
+    libra,
+    placasEnVenta,
     sortearNumeroLicencia,
     comprarLicencia,
     comprarVehiculo,

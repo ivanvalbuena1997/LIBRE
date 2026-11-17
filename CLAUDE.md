@@ -2,9 +2,9 @@
 
 Juego incremental de gestión de taxis en Madrid. El diseño completo está en
 `DISENO.md`; la versión actual cubre solo la sección "Primera versión jugable"
-(etapas 1 y 2). No añadir nada de lo que esa sección deja fuera (VTC, día de
-libranza, gerentes, otras ciudades, prestigio). Las averías y bajas entran
-como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
+(etapas 1 y 2). No añadir nada de lo que esa sección deja fuera (VTC,
+gerentes, otras ciudades, prestigio). Las averías y bajas entran como eventos
+aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 
 ## Técnica
 
@@ -207,8 +207,15 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   el bloque de incidencias. No añadir líneas de ticket inventadas.
 - Licencias: `numero` al azar entre 1 y el máximo de Madrid, sin repetir. La
   letra (día de libranza) sale de la última cifra (`config.licencias.letraPorCifra`)
-  y se muestra como `15288-L` con `textoLicencia()`. La libranza aún no tiene
-  efecto en el juego: está fuera de la primera versión.
+  y se muestra como `15288-L` con `textoLicencia()`. Al comprar eliges entre
+  las placas de `placasEnVenta()` (letras distintas; se guardan hasta que
+  compras).
+- Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia
+  no trabaja esa jornada (los dos turnos, también el tuyo): entre semana el
+  día de su letra; en fin de semana, si la paridad de su número no coincide
+  con la del «Día N». `puedeTrabajar()` la tiene en cuenta (también sin
+  conexión). `config.licencias.libranza = false` la apaga (las pruebas lo
+  hacen; las de libranza la encienden).
 - Menú inferior fijo con pestañas Calle, Flota, Mejoras y Partida
   (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección). Una marca
   roja avisa de compras posibles o de un ticket esperando. La pestaña elegida

@@ -91,7 +91,7 @@ Incluye:
 - Unas 10 mejoras, entre ellas las que alargan el día.
 - Guardado automático y progreso mientras el juego está cerrado.
 
-Queda fuera: VTC y otros vehículos, día de libranza, gerentes, otras ciudades y prestigio.
+Queda fuera: VTC y otros vehículos, gerentes, otras ciudades y prestigio. (El día de libranza entró el 17 de noviembre de 2026.)
 
 Añadido el 16 de noviembre de 2026: los conductores hacen carreras reales y cobran al terminar cada una, y hay eventos aleatorios (propinas, clientes que no pagan, vómitos, objetos devueltos, pinchazos, bajas por enfermedad, averías y lluvia) que quedan apuntados como incidencias en el ticket del día.
 
@@ -122,7 +122,7 @@ Decisiones añadidas el 13 de noviembre de 2026, durante la construcción de la 
 
 - **Cierre del día.** La jornada va de 7:00 a 7:00 y el día del juego cambia a las 7:00. Al cerrar, el reloj se para y sale un ticket de taxímetro con el resumen; el día siguiente empieza cuando el jugador lo arranca. Se puede desactivar con el ajuste «Parar al cierre del día». Con el juego cerrado, los días se resuelven solos y al volver sale un único ticket con la suma.
 - **Ocio nocturno.** De noche rinde claramente más que el centro, sobre todo de jueves a sábado; el centro se vacía de madrugada.
-- **Número de licencia.** Cada licencia comprada recibe un número al azar con su letra. Por ahora solo se muestra: la libranza sigue fuera de la primera versión.
+- **Número de licencia.** Cada licencia comprada recibe un número al azar con su letra. Desde el 17 de noviembre de 2026 la libranza tiene efecto: la licencia no trabaja el día de su letra ni el día de fin de semana que le toca por paridad, y al comprar se elige entre dos placas.
 
 ## Primer prompt para Claude Code
 

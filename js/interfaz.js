@@ -197,15 +197,19 @@
       const parado = estado.jugador.paradoHasta > estado.reloj.minutos;
       const enTurno = Libre.sim.jugadorEnTurno(estado) && !parado;
       const miTurno = c.turnos[Libre.sim.ubicacionJugador(estado).turno];
-      boton.disabled = !!carrera || pausa || !enTurno;
+      const libras = Libre.sim.libra(estado, estado.licencias.find(function (l) {
+        return l.id === Libre.sim.ubicacionJugador(estado).licenciaId;
+      }));
+      boton.disabled = !!carrera || pausa || !enTurno || libras;
       $('tx-pie').textContent = pausa ? 'Día cerrado'
+        : libras ? 'Hoy libra tu licencia: descansas'
         : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
         : carrera ? c.zonas[carrera.zona].textoEspera + '…'
         : parado ? 'Parado hasta las ' + horaDe(estado.jugador.paradoHasta)
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
         : 'Toca para buscar cliente';
       // Latido suave mientras el taxi espera a que lo toques.
-      $('tx-pie').classList.toggle('latido', !pausa && !carrera && enTurno);
+      $('tx-pie').classList.toggle('latido', !pausa && !carrera && enTurno && !libras);
 
       const barra = $('carrera-barra');
       const p = carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
@@ -231,7 +235,7 @@
   }
 
   const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza' };
-  const TEXTO_SITUACION = { averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
+  const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
 
   /*
    * Todos los taxis con coche, de más a menos facturado en la jornada:
@@ -248,7 +252,8 @@
       const carrera = !t ? null : t.quien === 'jugador' ? estado.jugador.carrera : t.carrera;
       const enCurso = Libre.sim.importeDeCarrera(estado, carrera);
       let icono = null;
-      if (lic.averia && jornada < lic.averia.hasta) icono = 'averia';
+      if (Libre.sim.libra(estado, lic)) icono = 'libranza';
+      else if (lic.averia && jornada < lic.averia.hasta) icono = 'averia';
       else if (!t) icono = 'vacio';
       else if (t.quien === 'conductor' && t.baja && jornada < t.baja.hasta) icono = 'baja';
       else if ((t.quien === 'jugador' ? estado.jugador.paradoHasta : t.paradoHasta) > ahora) icono = 'fin';
@@ -441,7 +446,7 @@
     if (estado.licencias.length < c.licencias.maximo) {
       lista.push({
         id: 'licencia-' + (estado.licencias.length + 1), nombre: 'Nueva licencia',
-        precio: Libre.sim.precioLicencia(estado), selector: '[data-accion="comprarLicencia"]'
+        precio: Libre.sim.precioLicencia(estado), selector: '[data-elegir-placa]'
       });
     }
     return lista;
@@ -949,6 +954,7 @@
   /* Baja, avería o parado, en una línea bajo el conductor. */
   function textoEstadoTurno(estado, lic, t) {
     const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+    if (lic && Libre.sim.libra(estado, lic)) return 'Hoy libra (libranza de la licencia)';
     if (lic && lic.averia && jornada < lic.averia.hasta) return 'Coche en el taller hasta el día ' + (lic.averia.hasta + 1);
     if (t.baja && jornada < t.baja.hasta) {
       const faltan = t.baja.hasta - jornada;
@@ -1182,6 +1188,7 @@
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario,
+    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null,
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.defecto, Libre.sim.nivelConductor(t), t.objetos,
         t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0];
@@ -1313,6 +1320,34 @@
     });
   }
 
+  /* «Libra los lunes · fin de semana: días impares» (según letra y paridad). */
+  function textoLibranza(numero) {
+    const c = Libre.config;
+    const dia = c.reloj.diasSemana[c.licencias.diaPorLetra[Libre.sim.letraLicencia(numero)]].toLowerCase();
+    return 'Libra los ' + dia + ' · fin de semana: los días ' + (numero % 2 === 0 ? 'impares' : 'pares');
+  }
+
+  // ¿Está abierta la elección de placa para comprar una licencia?
+  let eligiendoPlaca = false;
+
+  /* Comprar licencia: un botón que abre las placas a elegir, cada una con su libranza. */
+  function htmlComprarLicencia(estado) {
+    const c = Libre.config;
+    if (estado.licencias.length >= c.licencias.maximo) return '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>';
+    const precio = Libre.sim.precioLicencia(estado);
+    if (!eligiendoPlaca) {
+      return '<button type="button" class="boton-compra" data-elegir-placa data-precio="' + precio + '">' +
+        '<span>Comprar licencia nueva</span><span class="precio">' + euros(precio) + '</span></button>';
+    }
+    return '<div class="placas-venta"><div class="placas-titulo"><strong>Elige la placa</strong>' +
+      '<button type="button" data-elegir-placa>Cerrar</button></div>' +
+      Libre.sim.placasEnVenta(estado).map(function (numero, i) {
+        return '<div class="placa-opcion"><span class="placa">' + esc(Libre.sim.textoLicencia({ numero })) + '</span>' +
+          '<small>' + esc(textoLibranza(numero)) + '</small>' +
+          boton('Comprar · ' + euros(precio), 'comprarLicencia', ['', i], '', precio) + '</div>';
+      }).join('') + '</div>';
+  }
+
   function htmlLicencia(estado, lic) {
     const c = Libre.config;
     const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'Sin coche';
@@ -1322,7 +1357,9 @@
     return '<div class="licencia" data-licencia="' + lic.id + '">' +
       '<div class="licencia-cabecera">' +
       '<span class="placa" title="Número de licencia y letra de libranza">' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
-      '<small>' + esc(modelo) + '</small></div>' +
+      '<small>' + esc(modelo) + '</small>' +
+      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') + '</div>' +
+      '<p class="licencia-libranza">' + esc(textoLibranza(lic.numero)) + '</p>' +
       (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio, 'comprarVehiculo', [lic.id])) +
       htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') +
       (eligiendo ? htmlCandidatos(estado, lic, eligiendo) : '') + '</div>';
@@ -1344,9 +1381,7 @@
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
         estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
-        (estado.licencias.length < c.licencias.maximo
-          ? botonCompra('Comprar licencia nueva', Libre.sim.precioLicencia(estado), 'comprarLicencia', [])
-          : '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>') +
+        htmlComprarLicencia(estado) +
         htmlFichaConductor(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
@@ -1738,6 +1773,7 @@
     eligiendoConductor = null;
     fichaConductor = null;
     fichaInventario = null;
+    eligiendoPlaca = false;
     flotantes.porLicencia = null;
     flotantes.cola = [];
     modoAnterior = null;
@@ -1959,6 +1995,11 @@
         opciones.redibujar();
         return;
       }
+      if (ev.target.closest('[data-elegir-placa]')) {
+        eligiendoPlaca = !eligiendoPlaca;
+        opciones.redibujar();
+        return;
+      }
       if (ev.target.closest('[data-venta-contratar]')) {
         ventaParaContratar = !ventaParaContratar;
         opciones.redibujar();
@@ -1976,6 +2017,10 @@
       const args = el.dataset.args ? el.dataset.args.split('|') : [];
       if (el.dataset.accion === 'despedirConductor' && !confirmarDespido(args)) return;
       const resultado = ejecutar(el.dataset.accion, args);
+      if (resultado && resultado.ok && el.dataset.accion === 'comprarLicencia') {
+        eligiendoPlaca = false;
+        opciones.redibujar();
+      }
       if (resultado && resultado.ok && (el.dataset.accion === 'contratarConductor' || el.dataset.accion === 'contratarAReserva')) {
         eligiendoConductor = null;
         ventaParaContratar = false;
