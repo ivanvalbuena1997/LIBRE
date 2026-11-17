@@ -964,7 +964,9 @@ body[data-vista="calle"] main { padding-top: var(--esp-2); }
   min-height: 44px;
   margin-bottom: 8px;
 }
-.ajuste input { width: 22px; height: 22px; accent-color: var(--verde-libre); }
+.ajuste input { width: 22px; height: 22px; accent-color: var(--marca); }
+.ajuste-volumen input { flex: 1; width: auto; height: 44px; }
+.ajuste-volumen input:disabled { opacity: 0.4; }
 
 /* Zonas: una fila de chips que se desliza de lado si no caben; las
    cerradas, en una línea debajo. Con clientes, en azul (ui-chip-zona--activa);
@@ -1714,7 +1716,7 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 /* Destello al comprar algo */
 .destello { animation: destello 0.8s ease-out; }
 @keyframes destello {
-  from { background-color: var(--verde-claro); box-shadow: 0 0 0 3px var(--verde-libre); }
+  from { background-color: var(--tinte-verde); box-shadow: 0 0 0 3px var(--dinero); }
   to   { box-shadow: 0 0 0 3px transparent; }
 }
 

@@ -562,6 +562,7 @@
     html: function (estado) {
       const t = ticketEnPantalla(estado);
       if (!t) return '';
+      sonar('ticket');
       const lineas = lineasTicket(t.datos);
       let i = 0;
       const linea = function (l) {
@@ -624,8 +625,17 @@
   const MS_ENTRE_AVISOS = 3000;
   const colaAvisos = [];
   let ultimoAviso = 0;
+  // Qué sonido lleva cada evento de la simulación (los demás, ninguno).
+  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia' };
+
+  /* Toca un sonido (js/sonidos.js), si el módulo está cargado. */
+  function sonar(nombre) {
+    if (Libre.sonidos) Libre.sonidos.tocar(nombre);
+  }
+
   function mostrarEventos(eventos) {
     eventos.forEach(function (ev) {
+      if (SONIDO_EVENTO[ev.tipo]) sonar(SONIDO_EVENTO[ev.tipo]);
       if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
       if (ev.tipo === 'esterillas' || ev.tipo === 'bolsa') return;
       if (colaAvisos.length < 3) colaAvisos.push(ev);
@@ -1631,11 +1641,27 @@
   };
 
   let ajustesAbiertos = false;
+
+  /*
+   * Sonido sí o no y volumen (se guardan aparte de la partida, en
+   * js/sonidos.js). Sin sonido, el volumen se queda desactivado.
+   */
+  function htmlAjustesSonido() {
+    if (!Libre.sonidos) return '';
+    const a = Libre.sonidos.ajustes();
+    return '<label class="ajuste"><input type="checkbox" data-sonido="activo"' + (a.activo ? ' checked' : '') + '> Sonido</label>' +
+      '<label class="ajuste ajuste-volumen">Volumen' +
+      '<input type="range" min="0" max="100" step="5" value="' + Math.round(a.volumen * 100) + '" data-sonido="volumen"' +
+      (a.activo ? '' : ' disabled') + ' aria-label="Volumen"></label>';
+  }
   let enfocarAjustes = false;
 
   const seccionPartida = {
     id: 'sec-partida',
-    firma: function (estado) { return 'ajustes:' + ajustesAbiertos + ':' + estado.ajustes.pararAlCierre; },
+    firma: function (estado) {
+      return 'ajustes:' + ajustesAbiertos + ':' + estado.ajustes.pararAlCierre + ':' +
+        (Libre.sonidos ? JSON.stringify(Libre.sonidos.ajustes()) : '');
+    },
     html: function (estado) {
       if (!ajustesAbiertos) return '';
       return '<div class="hoja-fondo" data-cerrar-ajustes></div>' +
@@ -1644,6 +1670,7 @@
         '<h2 id="ajustes-titulo">Ajustes y partida</h2>' +
         '<label class="ajuste"><input type="checkbox" data-cambio="cambiarAjuste" data-args="pararAlCierre"' +
         (estado.ajustes.pararAlCierre ? ' checked' : '') + '> Parar al cierre del día</label>' +
+        htmlAjustesSonido() +
         '<p class="ayuda">Se guarda sola en este navegador. Para pasarla a otro dispositivo, exporta el texto y pégalo allí en Importar.</p>' +
         '<textarea id="partida-texto" spellcheck="false" placeholder="Texto de la partida"></textarea>' +
         '<div class="acciones">' +
@@ -1727,7 +1754,10 @@
   }
 
   /* Lo que reacciona a un cobro, aparte del importe flotante. */
-  function alCobrar(licenciaId) { destellarFila(licenciaId); }
+  function alCobrar(licenciaId) {
+    destellarFila(licenciaId);
+    sonar('cobro');
+  }
 
   function lanzarFlotante(importe, nombre) {
     const ancla = document.querySelector('#sec-taximetro .display') || $('dinero');
@@ -2196,6 +2226,7 @@
       const args = el.dataset.args ? el.dataset.args.split('|') : [];
       if (el.dataset.accion === 'despedirConductor' && !confirmarDespido(args)) return;
       const resultado = ejecutar(el.dataset.accion, args);
+      if (resultado && resultado.ok && el.dataset.accion === 'buscarCliente') sonar('tic');
       if (resultado && resultado.ok && el.dataset.accion === 'comprarLicencia') {
         eligiendoPlaca = false;
         opciones.redibujar();
@@ -2249,6 +2280,16 @@
         const origen = document.querySelector('[data-ficha-conductor="' + clave + '"]');
         if (origen) origen.focus({ preventScroll: true });
       }
+    });
+
+    // Sonido y volumen: no son de la partida, van al módulo de sonidos.
+    main.addEventListener('change', function (ev) {
+      const el = ev.target.closest('[data-sonido]');
+      if (!el || !Libre.sonidos) return;
+      if (el.dataset.sonido === 'activo') Libre.sonidos.cambiar({ activo: el.checked });
+      else Libre.sonidos.cambiar({ volumen: Number(el.value) / 100 });
+      opciones.redibujar();
+      sonar('cobro');   // para oír cómo queda
     });
 
     main.addEventListener('change', function (ev) {

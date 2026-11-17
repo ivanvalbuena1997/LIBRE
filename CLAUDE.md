@@ -20,9 +20,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   - `Libre.guardado` → `js/guardado.js`
   - `Libre.ambiente` → `js/ambiente.js` (calle SVG de la cabecera; solo interfaz)
   - `Libre.retratos` → `js/retratos.js` (retratos SVG de conductores; solo interfaz)
+  - `Libre.sonidos` → `js/sonidos.js` (sonidos con Web Audio; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
-  guardado, ambiente, retratos, interfaz, main.
+  guardado, ambiente, retratos, sonidos, interfaz, main.
 
 ## Reglas de arquitectura
 
@@ -58,6 +59,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `.ui-rareza`…). Fuentes autoalojadas en `fuentes/`. Las pantallas pasan
   a ellos fase a fase; los estilos viejos se borran al sustituirlos.
 - Dinero con `Libre.ui.euros()` (formato es-ES).
+- Sonidos (`js/sonidos.js`): sintetizados con Web Audio, sin archivos:
+  cobro (al cobrar cualquier taxi, como mucho uno cada 300 ms), propina,
+  nivel, objeto (hallazgo), avería (también pinchazo), ticket (al salir
+  uno nuevo) y tic (al buscar cliente). Mudos hasta el primer toque de la
+  página; sonido sí/no y volumen en la hoja de Ajustes, guardados en
+  `localStorage` (`libre-sonido`), aparte de la partida. La interfaz los
+  pide con `sonar()`; `SONIDO_EVENTO` dice qué evento lleva cuál. Con la
+  pestaña en segundo plano no suenan.
 - Animaciones: todas desactivadas con `prefers-reduced-motion` (CSS y JS).
   Los importes flotantes salen de comparar `estado.totales` entre fotogramas,
   con tope de 4 a la vez y uno cada 300 ms; lo que no cabe se suma al
