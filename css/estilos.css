@@ -79,6 +79,20 @@
   --neumatico: #1c1c1c;
   --llanta: #b5b5b0;
   --placa-franja: #1d4fa3;     /* franja azul de la placa con el número de licencia */
+
+  /* Categorías de objetos y conductores: fondo, texto y borde */
+  --cat-b-fondo: #ecece8;
+  --cat-b-texto: #55554f;
+  --cat-a-fondo: #dcf2e4;
+  --cat-a-texto: #0b6e37;
+  --cat-s-fondo: #dce8fb;
+  --cat-s-texto: #1d4fa3;
+  --cat-smas-fondo: #ecdffa;
+  --cat-smas-texto: #6a2fb0;
+  --cat-l-oro-claro: #ffe08a;
+  --cat-l-oro: #f0a92e;
+  --cat-l-texto: #3b2600;
+  --cat-l-borde: #8a5a12;
   --luna: #f3f0dc;
 
   /* Taxímetro: carcasa negra y cifras de LED rojo, como los de verdad. */
@@ -1140,8 +1154,25 @@ button.zona-tarjeta { cursor: pointer; }
   border: 1px solid var(--borde);
   align-self: flex-start;
 }
+.cat-B { background: var(--cat-b-fondo); color: var(--cat-b-texto); border-color: var(--cat-b-texto); }
+.cat-A { background: var(--cat-a-fondo); color: var(--cat-a-texto); border-color: var(--cat-a-texto); }
+.cat-S { background: var(--cat-s-fondo); color: var(--cat-s-texto); border-color: var(--cat-s-texto); }
+.cat-Smas { background: var(--cat-smas-fondo); color: var(--cat-smas-texto); border-color: var(--cat-smas-texto); }
+.cat-L {
+  background: linear-gradient(135deg, var(--cat-l-oro-claro), var(--cat-l-oro));
+  color: var(--cat-l-texto);
+  border-color: var(--cat-l-borde);
+}
+/* Fichas del inventario: una raya del color de su categoría a la izquierda */
+.ficha-inv.con-categoria { border-left-width: 4px; }
+.ficha-inv:has(.cat-B) { border-left-color: var(--cat-b-texto); }
+.ficha-inv:has(.cat-A) { border-left-color: var(--cat-a-texto); }
+.ficha-inv:has(.cat-S) { border-left-color: var(--cat-s-texto); }
+.ficha-inv:has(.cat-Smas) { border-left-color: var(--cat-smas-texto); }
+.ficha-inv:has(.cat-L) { border-left-color: var(--cat-l-oro); }
+.mensaje .categoria { margin-left: 2px; }
 .flota-titulo small { font-weight: 400; color: var(--suave); }
-.ficha-inv.con-categoria .ficha-inv-nombre .categoria { margin-top: 2px; }
+.ficha-inv.con-categoria .ficha-inv-nombre .categoria { margin-top: 2px; font-size: 0.58rem; letter-spacing: 0; padding: 0 3px; }
 
 /* Vender objetos: bandeja (almacén lleno) y listas de venta */
 .bandeja {

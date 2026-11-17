@@ -617,7 +617,7 @@
     if (colaAvisos.length === 0 || Date.now() - ultimoAviso < MS_ENTRE_AVISOS) return;
     ultimoAviso = Date.now();
     const ev = colaAvisos.shift();
-    mostrarMensaje(ev.texto, ev.retrato);
+    mostrarMensaje(ev.texto, ev.retrato, ev.tipo === 'hallazgo' ? ev.categoria : null);
   }
 
   function mostrarResumenFuera(r, estado) {
@@ -1851,10 +1851,12 @@
 
   let temporizadorMensaje = null;
   /* Mensaje breve abajo. Con retrato, sale la cara del conductor al lado. */
-  function mostrarMensaje(texto, retrato) {
+  function mostrarMensaje(texto, retrato, categoria) {
     const el = $('mensaje');
     if (retrato !== undefined && retrato !== null) {
-      el.innerHTML = '<span class="retrato">' + Libre.retratos.svg(retrato) + '</span><span>' + esc(texto) + '</span>';
+      // Con categoría (un objeto encontrado), su etiqueta de color al final.
+      el.innerHTML = '<span class="retrato">' + Libre.retratos.svg(retrato) + '</span><span>' + esc(texto) +
+        (categoria ? ' ' + etiquetaCategoria(categoria) : '') + '</span>';
       el.classList.add('con-retrato');
     } else {
       el.textContent = texto;

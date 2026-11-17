@@ -99,6 +99,10 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   LEGENDARIO, ninguno; `defecto` puede ser null), la fuerza de sus rasgos y
   cuánto encuentra. Los candidatos se quedan hasta que contratas a uno; si
   no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí.
+- Etiqueta de categoría (`etiquetaCategoria()` en la interfaz): el nombre
+  (B, A, S, S+, LEGENDARIO) sobre su color (`--cat-*` en `:root`; gris,
+  verde, azul, morado y oro). Sale en conductores, candidatos, objetos,
+  fichas del inventario (con raya de color) y en el aviso de un hallazgo.
 - Experiencia (`turno.xp`): cada carrera terminada de un conductor da
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
   tabla `niveles.experiencia` (10 niveles) y cada nivel acorta la espera.

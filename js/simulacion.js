@@ -804,8 +804,8 @@
     else estado.objetos[objeto.id] = (estado.objetos[objeto.id] || 0) + 1;
     resumen.eventos.push({
       tipo: 'hallazgo', conductor: t.nombre, retrato: t.retrato, objeto: objeto.id, categoria: objeto.categoria,
-      texto: t.nombre + ' encuentra ' + objeto.nombre + ' (' + buscarCategoria(objeto.categoria).nombre + ')' +
-        (lleno ? '. El almacén está lleno: vende algo para guardarlo.' : '.')
+      // La interfaz añade la etiqueta de su categoría.
+      texto: t.nombre + ' encuentra ' + objeto.nombre + (lleno ? '. El almacén está lleno: vende algo para guardarlo.' : '')
     });
   }
 
