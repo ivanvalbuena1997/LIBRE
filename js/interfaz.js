@@ -836,7 +836,10 @@
     buho: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
     madrugador: '<path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 6v3M5 11l1.5 1.5M19 11l-1.5 1.5"/>',
     dormilon: '<path d="M4 6h6l-6 7h6M13 11h6l-6 7h6"/>',
-    trasnochador: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M6 10v4"/>'
+    trasnochador: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M6 10v4"/>',
+    pulcro: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
+    guarro: '<path d="M8 6c2-2 6-2 8 0 3 1 4 5 2 7 1 3-2 6-5 5-2 2-6 1-6-2-3-1-4-5-1-7 0-1 1-2 2-3z"/><circle cx="19.5" cy="19.5" r="1"/>',
+    aprovechado: '<circle cx="15" cy="7" r="3.5"/><path d="M3 15h4l3 2h5a1.5 1.5 0 0 0 0-3h-3M7 15v5M3 20h4l9-1 5-4a1.5 1.5 0 0 0-2-2l-4 2.5"/>'
   };
 
   /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
