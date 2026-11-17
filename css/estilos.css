@@ -981,16 +981,16 @@ button.zona-tarjeta { cursor: pointer; }
 .ficha-panel p { margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
 .ficha-panel .acciones button { min-height: 44px; }
 
-/* Licencia: tarjeta con el taxi, su placa y los dos turnos */
+/* Licencia: tarjeta compacta con el taxi, su placa y los dos turnos */
 .licencia {
   border: 1px solid var(--borde);
   border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 12px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
 }
-.licencia-cabecera { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-.licencia-cabecera small { display: block; color: var(--suave); font-size: 0.78rem; margin-top: 2px; }
-.taxi-dibujo { width: 64px; height: 39px; flex: none; }
+.licencia-cabecera { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; }
+.licencia-cabecera small { color: var(--suave); font-size: 0.75rem; }
+.taxi-dibujo { width: 40px; height: 24px; flex: none; }
 .taxi-dibujo .taxi-chapa, .taxi-dibujo .taxi-luminoso {
   fill: var(--blanco);
   stroke: var(--taxi-contorno);
@@ -1004,79 +1004,86 @@ button.zona-tarjeta { cursor: pointer; }
 /* Número de licencia en una placa blanca con borde, como una matrícula */
 .placa {
   display: inline-block;
-  padding: 1px 8px 1px 18px;
+  padding: 0 6px 0 14px;
   border: 2px solid var(--texto);
-  border-radius: 5px;
-  background: linear-gradient(90deg, var(--placa-franja) 0 12px, var(--blanco) 12px);
-  font: 800 0.95rem ui-monospace, "Cascadia Mono", Consolas, monospace;
-  letter-spacing: 0.05em;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--placa-franja) 0 9px, var(--blanco) 9px);
+  font: 800 0.82rem ui-monospace, "Cascadia Mono", Consolas, monospace;
+  letter-spacing: 0.04em;
 }
 .turno {
   display: grid;
-  grid-template-columns: 52px 1fr;
-  gap: 8px;
-  align-items: start;
-  padding: 8px 0 2px;
+  grid-template-columns: 22px 1fr;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 0;
   border-top: 1px dashed var(--borde);
 }
-.turno-hora {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding-top: 4px;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-.turno-hora small { font-weight: 400; color: var(--suave); font-size: 0.7rem; }
-.turno-hora .icono { width: 22px; height: 22px; }
+.turno-hora { display: grid; place-items: center; }
+.turno-hora .icono { width: 20px; height: 20px; }
 .turno-dia .turno-hora .icono { color: var(--ambar); }
 .turno-noche .turno-hora .icono { color: var(--tarifa-2); }
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 .turno-cuerpo { min-width: 0; }
 .turno-cuerpo button, .turno-cuerpo select { min-height: 44px; }
 .turno-tu { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.turno-estado { display: block; font-size: 0.8rem; color: var(--rojo-taxi); }
+.turno-tu .retrato { width: 36px; height: 36px; }
+.turno-estado { display: block; font-size: 0.76rem; color: var(--rojo-taxi); }
 
-/* Turno vacío: un hueco punteado con el botón de contratar */
+/* Turno vacío: una línea punteada con contratar */
 .turno-vacio {
-  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 0 10px;
   border: 1.5px dashed var(--borde);
   border-radius: 10px;
 }
-.turno-vacio-texto { display: block; font-size: 0.82rem; color: var(--suave); margin-bottom: 6px; }
-.turno-vacio-botones { display: flex; flex-wrap: wrap; gap: 6px; }
+.turno-vacio-texto { flex: 1; font-size: 0.82rem; color: var(--suave); }
+.turno-vacio button { border-radius: 9px; }
 
-/* Conductor en la tarjeta: toda la fila abre su ficha */
+/* Conductor: una fila que abre su ficha */
 .conductor {
   display: grid;
-  grid-template-columns: 52px 1fr auto;
-  gap: 10px;
+  grid-template-columns: 36px 1fr auto;
+  gap: 8px;
   align-items: center;
   width: 100%;
-  padding: 6px;
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-  background: var(--tarjeta);
+  min-height: 48px;
+  padding: 3px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
   font: inherit;
   color: var(--texto);
   text-align: left;
   cursor: pointer;
 }
-.conductor .retrato { width: 52px; height: 52px; }
-.conductor-datos { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.conductor-nombre { display: flex; align-items: center; gap: 6px; }
-.conductor-nombre strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.conductor-flecha { font-size: 1.4rem; color: var(--suave); }
+.conductor:hover { background: var(--fondo); }
+.conductor .retrato { width: 36px; height: 36px; }
+.conductor-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.conductor-nombre { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.conductor-nombre strong { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conductor-detalle { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.conductor-flecha { font-size: 1.3rem; color: var(--suave); }
 .nivel-insignia {
   display: inline-grid;
   place-items: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 5px;
-  border-radius: 6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 5px;
   background: var(--texto);
   color: var(--blanco);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
   flex: none;
 }
@@ -1084,9 +1091,9 @@ button.zona-tarjeta { cursor: pointer; }
 .xp-barra {
   display: block;
   flex: 1;
-  min-width: 40px;
-  max-width: 120px;
-  height: 6px;
+  min-width: 30px;
+  max-width: 90px;
+  height: 5px;
   border-radius: 999px;
   background: var(--borde);
   overflow: hidden;
@@ -1106,6 +1113,7 @@ button.zona-tarjeta { cursor: pointer; }
   white-space: nowrap;
 }
 .rasgo .icono { width: 14px; height: 14px; }
+.rasgo.mini { padding: 1px 5px 1px 4px; gap: 1px; font-size: 0.75rem; }
 .rasgo.cualidad { background: var(--verde-claro); color: var(--verde-texto); }
 .rasgo.defecto { background: var(--rojo-claro); color: var(--rojo-taxi); }
 
@@ -1114,17 +1122,18 @@ button.zona-tarjeta { cursor: pointer; }
 .hueco {
   display: inline-grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border: 1.5px dashed var(--borde);
   border-radius: 6px;
   flex: none;
 }
 .hueco.lleno { border: 1px solid var(--texto); }
-.hueco .icono { width: 15px; height: 15px; }
+.hueco .icono { width: 13px; height: 13px; }
+.huecos-mini { margin-left: 4px; }
 
 /* Candidatos al contratar */
-.candidatos { display: grid; gap: 6px; margin-top: 8px; }
+.candidatos { display: grid; gap: 6px; margin: 4px 0 4px; }
 .candidato {
   display: grid;
   grid-template-columns: 44px 1fr;

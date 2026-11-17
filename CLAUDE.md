@@ -134,12 +134,14 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   a peor categoría); al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
   que espera y la lista para vender. Cada licencia es una
-  tarjeta con el dibujo del taxi, su número en una placa y los dos turnos
-  (icono de sol o luna). Un conductor se ve con retrato, nivel, barra de
-  experiencia, rasgos (icono y «+»/«−», no solo color) y huecos; al tocarlo
+  tarjeta compacta: una línea con el taxi, su placa y el modelo, y una fila
+  por turno (icono de sol o luna). Un conductor es una fila de unos 48 px
+  con retrato, nombre, categoría, nivel, barra de experiencia y, debajo,
+  rasgos en icono con «+»/«−» (nombre en el título) y huecos; al tocarlo
   se abre su ficha (hoja que sube desde abajo; se cierra con ×, el fondo o
   Escape) con todo lo demás, incluido despedir. Un turno vacío es un hueco
-  punteado con contratar. La experiencia se mueve en `actualizar()`, no en
+  punteado con contratar; los candidatos salen debajo, a todo el ancho de
+  la licencia. La experiencia se mueve en `actualizar()`, no en
   la firma, para no rehacer la pestaña con cada carrera.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de

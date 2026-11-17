@@ -869,6 +869,17 @@
     return '<span class="rasgo ' + clase + '" title="' + esc(r.descripcion) + '">' + icono(id) +
       (clase === 'cualidad' ? '+ ' : '− ') + esc(r.nombre) + '</span>';
   }
+  /* Rasgo en pequeño: su icono con «+» o «−»; el nombre, en el título. */
+  function htmlRasgoMini(id, clase) {
+    const r = Libre.sim.buscarRasgo(id);
+    if (!r) return '';
+    return '<span class="rasgo mini ' + clase + '" title="' + esc(r.nombre + ': ' + r.descripcion) + '" aria-label="' +
+      (clase === 'cualidad' ? 'Cualidad: ' : 'Defecto: ') + esc(r.nombre) + '">' + (clase === 'cualidad' ? '+' : '−') + icono(id) + '</span>';
+  }
+  function htmlRasgosMini(t) {
+    return htmlRasgoMini(t.cualidad, 'cualidad') + htmlRasgoMini(t.cualidad2, 'cualidad') + htmlRasgoMini(t.defecto, 'defecto');
+  }
+
   /* Cualidades (una o dos) y defecto (si tiene) de un conductor o candidato. */
   function htmlRasgos(x) {
     return '<span class="rasgos">' + htmlRasgo(x.cualidad, 'cualidad') + htmlRasgo(x.cualidad2, 'cualidad') +
@@ -931,7 +942,7 @@
       if (estado.dinero < precio) falta = true;
       return '<div class="candidato"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
         '<div class="candidato-datos"><strong>' + esc(x.nombre) + ' ' + etiquetaCategoria(x.categoria) + '</strong>' +
-        htmlRasgos(x) + '<small>' + textos + '</small></div>' +
+        htmlRasgos(x) + '<small>' + textos + '</small>' + htmlFuerzaCategoria(x) + '</div>' +
         '<div class="candidato-pie">' + boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], '', precio) +
         (estado.dinero < precio ? '<small class="falta">Te faltan ' + euros(precio - estado.dinero) + '</small>' : '') +
         '</div></div>';
@@ -968,12 +979,12 @@
       // Turno vacío: un hueco con el botón de contratar.
       const abierto = eligiendoConductor === clave;
       const precio = precioMasBarato(estado);
-      cuerpo = '<div class="turno-vacio"><span class="turno-vacio-texto">Turno libre</span>' +
-        '<span class="turno-vacio-botones"><button type="button" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
+      // Los candidatos salen debajo, a todo el ancho de la licencia.
+      cuerpo = '<div class="turno-vacio"><span class="turno-vacio-texto">Libre</span>' +
+        '<button type="button" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
         (abierto ? '' : ' data-precio="' + precio + '"') + '>' +
         (abierto ? 'Cerrar candidatos' : 'Contratar · desde ' + euros(precio)) + '</button>' +
-        (Libre.sim.conduce(estado) ? '' : boton('Conducir yo', 'conducir', [lic.id, turno])) + '</span>' +
-        (abierto ? htmlCandidatos(estado, lic, turno) : '') + '</div>';
+        (Libre.sim.conduce(estado) ? '' : boton('Conducir yo', 'conducir', [lic.id, turno])) + '</div>';
     } else if (t.quien === 'jugador') {
       const otro = turno === 'dia' ? 'noche' : 'dia';
       cuerpo = '<div class="turno-tu"><span class="retrato retrato-texto tu">TÚ</span>' +
@@ -986,18 +997,20 @@
       const deBaja = t.baja && jornada < t.baja.hasta;
       const p = nivelDe(t);
       const aviso = textoEstadoTurno(estado, lic, t);
+      // Una fila: retrato, nombre con categoría y nivel, experiencia; debajo
+      // rasgos en icono y huecos. Lo demás, en su ficha.
       cuerpo = '<button type="button" class="conductor" data-ficha-conductor="' + clave + '" aria-label="Ficha de ' + esc(t.nombre) + '">' +
         '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
         '<span class="conductor-datos">' +
         '<span class="conductor-nombre"><strong>' + esc(t.nombre) + '</strong>' + etiquetaCategoria(t.categoria) +
         '<span class="nivel-insignia" title="Nivel ' + p.nivel + '">' + p.nivel + '</span>' + htmlBarraXp(clave, p) + '</span>' +
-        htmlRasgos(t) + htmlHuecosMini(t) +
+        '<span class="conductor-detalle">' + htmlRasgosMini(t) + htmlHuecosMini(t) + '</span>' +
         (aviso ? '<span class="turno-estado">' + aviso + '</span>' : '') +
         '</span><span class="conductor-flecha" aria-hidden="true">›</span></button>';
     }
-    return '<div class="turno turno-' + turno + '"><div class="turno-hora">' + icono(turno) +
-      '<span>' + esc(c.turnos[turno].nombre) + '</span><small>' + horario(turno) + '</small></div>' +
-      '<div class="turno-cuerpo">' + cuerpo + '</div></div>';
+    return '<div class="turno turno-' + turno + '"><span class="turno-hora" title="' + esc(c.turnos[turno].nombre) + ', ' +
+      horario(turno) + '">' + icono(turno) + '<span class="solo-lector">' + esc(c.turnos[turno].nombre) + ', ' + horario(turno) +
+      '</span></span><div class="turno-cuerpo">' + cuerpo + '</div></div>';
   }
 
   /* Turno de conductor de una clave 'licencia|turno', o null. */
@@ -1240,12 +1253,15 @@
     const c = Libre.config;
     const modelo = lic.vehiculo ? c.vehiculos.modelos[lic.vehiculo].nombre : 'Sin coche';
     const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
+    // Candidatos de un turno vacío de esta licencia, a todo el ancho.
+    const eligiendo = ['dia', 'noche'].find(function (t) { return eligiendoConductor === lic.id + '|' + t; });
     return '<div class="licencia" data-licencia="' + lic.id + '">' +
       '<div class="licencia-cabecera">' + (lic.vehiculo ? dibujoTaxi() : '') +
-      '<div><span class="placa" title="Número de licencia y letra de libranza">' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
-      '<small>' + esc(modelo) + '</small></div></div>' +
+      '<span class="placa" title="Número de licencia y letra de libranza">' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
+      '<small>' + esc(modelo) + '</small></div>' +
       (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio, 'comprarVehiculo', [lic.id])) +
-      htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') + '</div>';
+      htmlTurno(estado, lic, 'dia') + htmlTurno(estado, lic, 'noche') +
+      (eligiendo ? htmlCandidatos(estado, lic, eligiendo) : '') + '</div>';
   }
 
   const seccionFlota = {
