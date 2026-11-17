@@ -147,9 +147,12 @@
    *              el taxímetro es el botón de buscar cliente.
    *   flota      el resto del tiempo: el display suma lo recaudado hoy por
    *              toda la flota y al tocarlo se abre el desglose de la caja.
+   *   libranza   libra tu licencia y nadie puede trabajar hoy
+   *              (`puedeSaltarDia()`): tocarlo salta al cierre.
    */
   function modoTaximetro(estado) {
     const s = Libre.sim;
+    if (s.puedeSaltarDia(estado)) return 'libranza';
     return s.conduce(estado) && (s.jugadorEnTurno(estado) || !s.hayConductores(estado)) ? 'conductor' : 'flota';
   }
   let modoAnterior = null;
@@ -177,6 +180,10 @@
         return '<button type="button" class="taximetro taximetro-flota' + clase + '" data-desglose ' +
           'aria-label="Recaudación de hoy de la flota: ver el desglose">' + htmlDisplay() + '</button>';
       }
+      if (modo === 'libranza') {
+        return '<button type="button" class="taximetro taximetro-boton' + clase + '" data-accion="saltarAlCierre" ' +
+          'aria-label="Hoy libras: saltar al cierre de caja">' + htmlDisplay() + '</button>';
+      }
       return '<button type="button" class="taximetro taximetro-boton' + clase + '" data-accion="buscarCliente" ' +
         'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() + '</button>';
     },
@@ -184,6 +191,12 @@
       const c = Libre.config;
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
 
+      if (modoTaximetro(estado) === 'libranza') {
+        pintarDisplay(0, 'HOY LIBRAS', 'Toca para saltar al cierre ›', 'libre', chipTarifa(info.tarifa));
+        $('tx-estado').classList.remove('latido');
+        $('carrera-barra').style.width = '0%';
+        return;
+      }
       if (modoTaximetro(estado) === 'flota') {
         // Debajo del piloto, la hora de tu turno (la tarifa ya está en la placa).
         const u = Libre.sim.ubicacionJugador(estado);

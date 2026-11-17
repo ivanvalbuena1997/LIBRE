@@ -1187,4 +1187,57 @@ prueba('Deflectores de viento: barata, abre Vehículo y baja las bajas, con tope
   cerca(sim.modificadores(e).baja, d.efecto.baja);
 });
 
+prueba('libranza sin nadie que trabaje: saltas al cierre y sale el ticket', function () {
+  config.licencias.libranza = true;
+  try {
+    const minutoDe = function (jornada) { return config.reloj.minutoCierreCaja + jornada * sim.MIN_DIA + 60; };
+    // Solo tú, en una licencia que libra los lunes (jornada 0).
+    const e = sim.crearEstadoInicial(0);
+    e.licencias[0].numero = 15288;
+    e.reloj.minutos = minutoDe(1);
+    assert.ok(!sim.puedeSaltarDia(e), 'el martes trabaja: no se salta');
+    e.reloj.minutos = minutoDe(0);
+    assert.ok(sim.puedeSaltarDia(e));
+    const dinero = e.dinero;
+    assert.ok(sim.saltarAlCierre(e).ok);
+    assert.ok(sim.enPausa(e), 'queda el ticket del día');
+    assert.strictEqual(e.reloj.minutos, minutoDe(1) - 60, 'el reloj se para en el cierre');
+    assert.ok(e.dinero < dinero, 'se cobran los costes fijos del día');
+    assert.ok(!sim.saltarAlCierre(e).ok, 'en pausa no se salta');
+
+    // Sin pausa al cierre, el reloj pasa al día siguiente y sigue.
+    const s = sim.crearEstadoInicial(0);
+    s.licencias[0].numero = 15288;
+    s.ajustes.pararAlCierre = false;
+    s.reloj.minutos = minutoDe(0) + 5 * 60;
+    assert.ok(sim.saltarAlCierre(s).ok);
+    assert.ok(!sim.enPausa(s));
+    assert.strictEqual(sim.jornadaDe(s.reloj.minutos), 1);
+    assert.ok(!sim.puedeSaltarDia(s));
+
+    // Con un conductor que trabaja hoy en otra licencia, el día corre normal.
+    const f = flotaDe(2);
+    f.licencias[0].turnos.dia = { quien: 'jugador', nombre: 'Tú', zona: config.zonaInicial };
+    f.licencias[0].numero = 15288;   // L: libra el lunes
+    f.licencias[1].numero = 15289;   // M: trabaja el lunes
+    f.reloj.minutos = minutoDe(0);
+    assert.ok(!sim.puedeSaltarDia(f), 'la flota trabaja');
+    // Si esa licencia también libra, o sus conductores están de baja, sí se salta.
+    f.licencias[1].turnos.dia.baja = { hasta: 1 };
+    f.licencias[1].turnos.noche.baja = { hasta: 1 };
+    assert.ok(sim.puedeSaltarDia(f), 'nadie puede trabajar hoy');
+
+    // Con la Oficina de gestión y un turno libre en una licencia que no libra,
+    // puedes pasarte a ella: no se salta.
+    f.licencias[1].turnos.noche = null;
+    assert.ok(sim.puedeSaltarDia(f), 'sin Oficina no puedes cambiar de licencia');
+    f.mejoras.oficina = 1;
+    f.mejoras.jornadaLarga = 1;
+    assert.ok(sim.modificadores(f).dejarVolante);
+    assert.ok(!sim.puedeSaltarDia(f), 'tienes otra licencia con un turno libre');
+  } finally {
+    config.licencias.libranza = false;
+  }
+});
+
 console.log(pasadas + ' pruebas correctas');

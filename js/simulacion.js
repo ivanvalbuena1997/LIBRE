@@ -1986,6 +1986,49 @@
     return resumen;
   }
 
+  /*
+   * ¿Puedes saltar al cierre? Solo el día que libra tu licencia, si ningún
+   * taxi de la flota puede trabajar en esa jornada (por libranza, baja o
+   * avería) y no tienes otra licencia a la que pasarte: con coche, que no
+   * libre y con un turno libre, y con la «Oficina de gestión» para dejar el
+   * tuyo (sin ella no puedes cambiar de licencia).
+   */
+  function puedeSaltarDia(estado) {
+    if (enPausa(estado) || estado.jugador.carrera) return false;
+    const u = ubicacionJugador(estado);
+    if (!u) return false;
+    const ahora = estado.reloj.minutos;
+    const suya = buscarLicencia(estado, u.licenciaId);
+    if (!libra(estado, suya, ahora)) return false;
+    if (turnosConCarrera(estado).length > 0) return false;
+    const alguienTrabaja = estado.licencias.some(function (lic) {
+      return lic.vehiculo && TURNOS.some(function (t) {
+        const x = lic.turnos[t];
+        return x && x.quien === 'conductor' && puedeTrabajar(estado, lic, Object.assign({}, x, { paradoHasta: 0 }), ahora);
+      });
+    });
+    if (alguienTrabaja) return false;
+    if (!modificadores(estado).dejarVolante) return true;
+    return !estado.licencias.some(function (lic) {
+      return lic !== suya && lic.vehiculo && !libra(estado, lic, ahora) &&
+        TURNOS.some(function (t) { return !lic.turnos[t]; });
+    });
+  }
+
+  /*
+   * Saltar al cierre: el reloj corre de golpe hasta las 7:00 con la misma
+   * avanzar() (cuesta lo mismo que dejarlo correr: costes fijos y lluvia
+   * incluidos). Con pausa al cierre queda el ticket de ese día.
+   */
+  function saltarAlCierre(estado) {
+    if (!puedeSaltarDia(estado)) return fallo('Hoy no puedes saltar al cierre.');
+    let minutos = (cfg().reloj.minutoCierreCaja - estado.reloj.minutos % MIN_DIA + MIN_DIA) % MIN_DIA;
+    if (minutos === 0) minutos = MIN_DIA;
+    // Una millonésima de más asegura cruzar el cierre pese al redondeo.
+    avanzar(estado, minutos * segundosPorDia(estado) / MIN_DIA + 1e-6);
+    return exito();
+  }
+
   /* Segundos reales que faltan para el último cierre de caja que cabe en `segundos`, o 0. */
   function segundosHastaUltimoCierre(estado, segundos) {
     const minutosPorSegundo = MIN_DIA / segundosPorDia(estado);
@@ -2078,6 +2121,8 @@
     importeDeCarrera,
     enPausa,
     arrancarDia,
+    puedeSaltarDia,
+    saltarAlCierre,
     cambiarAjuste,
     sumarCierres,
     azar,

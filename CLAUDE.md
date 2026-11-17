@@ -276,6 +276,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   con la del «Día N». `puedeTrabajar()` la tiene en cuenta (también sin
   conexión). `config.licencias.libranza = false` la apaga (las pruebas lo
   hacen; las de libranza la encienden).
+- Saltar al cierre (Iván, 17-11-2026): `puedeSaltarDia()` es cierto si libra
+  tu licencia, ningún conductor puede trabajar esa jornada (`puedeTrabajar()`)
+  y no tienes otra licencia a la que pasarte (con coche, que no libre y con
+  un turno libre, y solo si tienes `dejarVolante`). `saltarAlCierre()` llama
+  a `avanzar()` con el tiempo hasta las 7:00 (no es otra forma de mover el
+  reloj). El taxímetro tiene entonces un tercer modo, **libranza**, que es el
+  botón: «HOY LIBRAS · Toca para saltar al cierre ›».
 - Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén y
   Mejoras (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección;
   `body[data-vista]` la pestaña elegida). Una marca roja avisa de compras
@@ -317,8 +324,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sin scroll: piloto y tarifa a la izquierda y un display de LED con la
   letra DSEG7 (sin coma ni €: `textoLed()` da «1234.56» y el € va aparte;
   con más de 4 cifras se encoge). Encima de las cifras, la etiqueta y una
-  segunda línea con el estado (no hay pie). Tiene dos modos
-  que cambian solos (`modoTaximetro()`): **conductor** si conduces y es tu
+  segunda línea con el estado (no hay pie). Tiene tres modos
+  que cambian solos (`modoTaximetro()`; el tercero, **libranza**, arriba): **conductor** si conduces y es tu
   turno (o aún no tienes conductores), y es el botón de buscar cliente;
   **flota** el resto del tiempo: piloto «FLOTA» (amarillo), el display suma
   `caja.hoy.ingresos` (sube con cada cobro de cualquier taxi), la segunda
