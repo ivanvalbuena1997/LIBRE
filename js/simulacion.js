@@ -564,10 +564,10 @@
     if (!lic || TURNOS.indexOf(turno) === -1) return fallo('Ese turno no existe.');
     if (!lic.vehiculo) return fallo('Esa licencia aún no tiene coche.');
     if (lic.turnos[turno]) return fallo('Ese turno ya está cubierto.');
-    const precio = c.conductores.costeContratacion;
-    if (estado.dinero < precio) return fallo('No te llega el dinero.');
     const candidato = candidatos(estado)[Number(indice) || 0];
     if (!candidato) return fallo('Ese candidato no existe.');
+    const precio = precioCandidato(candidato);
+    if (estado.dinero < precio) return fallo('No te llega el dinero: ' + candidato.nombre + ' cuesta ' + Libre.ui_euros(precio) + '.');
 
     const otro = lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
     const nombre = candidato.nombre;
@@ -576,7 +576,8 @@
     estado.conductoresContratados++;
     lic.turnos[turno] = {
       quien: 'conductor', nombre, retrato: candidato.retrato, zona: otro ? otro.zona : c.zonaInicial,
-      cualidad: candidato.cualidad, defecto: candidato.defecto,
+      categoria: candidato.categoria, cualidad: candidato.cualidad, cualidad2: candidato.cualidad2 || null,
+      defecto: candidato.defecto,
       // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
       xp: 0, carreras: 0, facturado: 0,
       objetos: []   // ids de los objetos que lleva equipados
@@ -618,14 +619,32 @@
     return c.cualidades.concat(c.defectos).find(function (r) { return r.id === id; }) || null;
   }
 
-  /* Una cualidad y un defecto al azar que no sean opuestos (sin las cualidades `evitar`). */
-  function sortearRasgos(estado, evitar) {
+  /*
+   * Rasgos al azar según la categoría (B si no se dice): una cualidad (sin
+   * las de `evitar`), una segunda si la categoría tiene dos, y un defecto
+   * que no sea su opuesto con la probabilidad de la categoría.
+   */
+  function sortearRasgos(estado, evitar, categoriaId) {
     const c = cfg().conductores;
+    const cat = buscarCategoria(categoriaId) || cfg().categorias[0];
     const posibles = c.cualidades.filter(function (q) { return !(evitar && evitar[q.id]); });
     const cualidad = posibles[Math.floor(azar(estado) * posibles.length)];
-    const defectos = c.defectos.filter(function (d) { return d.id !== cualidad.opuesto; });
-    const defecto = defectos[Math.floor(azar(estado) * defectos.length)];
-    return { cualidad: cualidad.id, defecto: defecto.id };
+    let cualidad2 = null;
+    if (cat.cualidades > 1) {
+      const otras = c.cualidades.filter(function (q) { return q.id !== cualidad.id; });
+      cualidad2 = otras[Math.floor(azar(estado) * otras.length)].id;
+    }
+    let defecto = null;
+    if (cat.probDefecto > 0 && azar(estado) < cat.probDefecto) {
+      const defectos = c.defectos.filter(function (d) { return d.id !== cualidad.opuesto; });
+      defecto = defectos[Math.floor(azar(estado) * defectos.length)].id;
+    }
+    return { cualidad: cualidad.id, cualidad2, defecto };
+  }
+
+  /* Lo que cuesta contratar a un candidato (según su categoría). */
+  function precioCandidato(candidato) {
+    return (buscarCategoria(candidato.categoria) || cfg().categorias[0]).contratar;
   }
 
   /* Candidatos para el próximo contrato: personajes y cualidades distintos. */
@@ -636,9 +655,13 @@
     for (let i = 0; i < c.candidatos; i++) {
       const retrato = sortearPersonaje(estado, apartados);
       apartados[retrato] = true;
-      const r = sortearRasgos(estado, cualidades);
+      const categoria = sortearCategoria(estado);
+      const r = sortearRasgos(estado, cualidades, categoria);
       cualidades[r.cualidad] = true;
-      estado.candidatos.push({ retrato, nombre: c.personajes[retrato].nombre, cualidad: r.cualidad, defecto: r.defecto });
+      estado.candidatos.push({
+        retrato, nombre: c.personajes[retrato].nombre, categoria,
+        cualidad: r.cualidad, cualidad2: r.cualidad2, defecto: r.defecto
+      });
     }
     return estado.candidatos;
   }
@@ -764,7 +787,8 @@
    */
   function hallazgo(estado, resumen, t) {
     if (!t || t.quien !== 'conductor') return;
-    if (!toca(estado, 'hallazgo', cfg().objetos.probHallazgo)) return;
+    const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
+    if (!toca(estado, 'hallazgo', cfg().objetos.probHallazgo * cat.hallazgo)) return;
     const forzado = consumirForzado(estado, 'hallazgo');
     let objeto = forzado && forzado.arg ? buscarObjeto(forzado.arg) : null;
     if (!objeto) {
@@ -840,7 +864,8 @@
 
   /*
    * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
-   * su cualidad, su defecto, sus objetos y su nivel. Lo que depende del turno (esperaDia,
+   * sus cualidades y su defecto (con la fuerza de su categoría), sus
+   * objetos y su nivel. Lo que depende del turno (esperaDia,
    * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
    * trabaja. Para tu turno, todo 1. Sin tope: lo pone topeConductor().
    */
@@ -856,7 +881,19 @@
         else if (f[k] !== undefined) f[k] *= efecto[k];
       });
     }
-    [t.cualidad, t.defecto].forEach(function (id) { const r = buscarRasgo(id); if (r) aplicar(r.efecto); });
+    // La categoría refuerza las cualidades y suaviza el defecto.
+    const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
+    function reforzar(efecto, fuerza) {
+      const e = {};
+      Object.keys(efecto || {}).forEach(function (k) { e[k] = 1 + (efecto[k] - 1) * fuerza; });
+      return e;
+    }
+    [t.cualidad, t.cualidad2].forEach(function (id) {
+      const r = buscarRasgo(id);
+      if (r) aplicar(reforzar(r.efecto, cat.fuerzaCualidad));
+    });
+    const d = buscarRasgo(t.defecto);
+    if (d) aplicar(reforzar(d.efecto, cat.fuerzaDefecto));
     (t.objetos || []).forEach(function (id) { const o = buscarObjeto(id); if (o) aplicar(o.efecto); });
     // Cada nivel por encima del 1 espera un poco menos.
     f.espera *= 1 - cfg().conductores.niveles.esperaPorNivel * (nivelConductor(t) - 1);
@@ -1838,6 +1875,7 @@
     sortearRasgos,
     sortearCandidatos,
     candidatos,
+    precioCandidato,
     factoresConductor,
     nivelConductor,
     buscarObjeto,

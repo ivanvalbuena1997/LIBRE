@@ -142,6 +142,27 @@
     // para lo encontrado con el almacén lleno; lo que tenías se queda.
     14: function (estado) {
       estado.bandeja = estado.bandeja || [];
+    },
+    // Versión 16: categorías de conductores. Los ya contratados reciben una
+    // al azar; en las altas pierden el defecto (S, la mitad de las veces) y
+    // los LEGENDARIOS ganan una segunda cualidad. Candidatos nuevos.
+    15: function (estado) {
+      const sim = Libre.sim;
+      estado.licencias.forEach(function (l) {
+        ['dia', 'noche'].forEach(function (t) {
+          const x = l.turnos[t];
+          if (!x || x.quien !== 'conductor' || x.categoria) return;
+          x.categoria = sim.sortearCategoria(estado);
+          const cat = sim.buscarCategoria(x.categoria);
+          if (!(sim.azar(estado) < cat.probDefecto)) x.defecto = null;
+          x.cualidad2 = null;
+          if (cat.cualidades > 1) {
+            const otras = Libre.config.conductores.cualidades.filter(function (q) { return q.id !== x.cualidad; });
+            x.cualidad2 = otras[Math.floor(sim.azar(estado) * otras.length)].id;
+          }
+        });
+      });
+      sim.sortearCandidatos(estado);
     }
   };
 

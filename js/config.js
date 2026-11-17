@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 15,
+    versionGuardado: 16,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -114,17 +114,29 @@
     },
 
     /*
-     * Categorías (Equilibrio), de peor a mejor. Las comparten los objetos y,
-     * más adelante, los conductores.
-     *   peso   probabilidad de que salga esa categoría (suman 1)
-     *   venta  lo que te dan por vender un objeto de esa categoría
+     * Categorías (Equilibrio), de peor a mejor. Las comparten los objetos y
+     * los conductores.
+     *   peso           probabilidad de que salga esa categoría (suman 1),
+     *                  al encontrar un objeto y en cada candidato
+     *   venta          lo que te dan por vender un objeto de esa categoría
+     *   contratar      precio de un conductor de esa categoría
+     *   cualidades     cuántas cualidades tiene (distintas)
+     *   probDefecto    probabilidad de que tenga defecto
+     *   fuerzaCualidad / fuerzaDefecto  cuánto de su efecto aplican: con 1,4
+     *                  un +30 % pasa a +42 %; con 0,85 un +10 % pasa a +8,5 %
+     *   hallazgo       factor sobre la probabilidad de encontrar objetos
      */
     categorias: [
-      { id: 'B', nombre: 'B', peso: 0.65, venta: 40 },
-      { id: 'A', nombre: 'A', peso: 0.25, venta: 120 },
-      { id: 'S', nombre: 'S', peso: 0.075, venta: 400 },
-      { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200 },
-      { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000 }
+      { id: 'B', nombre: 'B', peso: 0.65, venta: 40, contratar: 400,
+        cualidades: 1, probDefecto: 1, fuerzaCualidad: 1, fuerzaDefecto: 1, hallazgo: 1 },
+      { id: 'A', nombre: 'A', peso: 0.25, venta: 120, contratar: 900,
+        cualidades: 1, probDefecto: 1, fuerzaCualidad: 1.2, fuerzaDefecto: 0.85, hallazgo: 1.15 },
+      { id: 'S', nombre: 'S', peso: 0.075, venta: 400, contratar: 2000,
+        cualidades: 1, probDefecto: 0.5, fuerzaCualidad: 1.4, fuerzaDefecto: 0.7, hallazgo: 1.3 },
+      { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200, contratar: 5000,
+        cualidades: 1, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5 },
+      { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000, contratar: 12000,
+        cualidades: 2, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2 }
     ],
 
     /*
@@ -225,7 +237,7 @@
     conductores: {
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,
-      costeContratacion: 400,      // Equilibrio: pago único al contratar.
+      // El precio de contratar depende de la categoría (config.categorias).
       candidatos: 3,               // Equilibrio: entre cuántos eliges al contratar.
       // Equilibrio: despedir cuesta base + porNivel × nivel del conductor
       // (160 € en el nivel 1, 700 € en el 10). Sin dinero no se puede.

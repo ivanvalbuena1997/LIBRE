@@ -1124,7 +1124,7 @@ button.zona-tarjeta { cursor: pointer; }
 .candidato .retrato { width: 44px; height: 44px; grid-row: 1 / span 2; align-self: start; }
 .candidato-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .candidato-datos small { color: var(--suave); font-size: 0.75rem; line-height: 1.3; }
-.candidato button { grid-column: 2; justify-self: start; }
+
 
 /* Etiqueta de categoría (los colores, en el punto siguiente) */
 .categoria {
@@ -1229,6 +1229,10 @@ button.zona-tarjeta { cursor: pointer; }
 .ficha-objeto.libre { border-style: dashed; }
 .ficha-objeto.bloqueado { border-style: dashed; opacity: 0.6; }
 .ficha-zona { margin: 0; font-size: 0.88rem; }
+.ficha-fuerza { margin: 6px 0 0; font-size: 0.8rem; color: var(--suave); }
+.candidato-pie { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.candidato-pie .falta { color: var(--rojo-taxi); font-size: 0.78rem; font-weight: 600; }
+.candidatos > .boton-venta { min-height: 44px; }
 .ficha-despedir { margin-top: 18px; }
 .ficha-despedir button { width: 100%; min-height: 44px; }
 

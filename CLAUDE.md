@@ -92,6 +92,13 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   pagar, objeto, baja, pinchazo y avería, y la limpieza de un vómito.
   `factoresConductor()` los multiplica y `topeConductor()` los recorta a
   `config.conductores.topes`. Tu turno no tiene rasgos.
+- Categoría del conductor (`turno.categoria`, de `config.categorias`):
+  sale al azar en cada candidato con los mismos pesos que los objetos y
+  fija su precio (`precioCandidato()`), cuántas cualidades tiene (los
+  LEGENDARIOS, dos: `cualidad2`), la probabilidad de tener defecto (S+ y
+  LEGENDARIO, ninguno; `defecto` puede ser null), la fuerza de sus rasgos y
+  cuánto encuentra. Los candidatos se quedan hasta que contratas a uno; si
+  no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí.
 - Experiencia (`turno.xp`): cada carrera terminada de un conductor da
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
   tabla `niveles.experiencia` (10 niveles) y cada nivel acorta la espera.

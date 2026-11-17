@@ -415,6 +415,16 @@ prueba('las carreras a mano salen de varios tipos y longitudes', function () {
 
 // --------------------------------------------------------------- Eventos
 
+/* Conductores de categoría B: las pruebas que miden valores exactos no dependen de la suerte. */
+function todosB(e) {
+  e.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) {
+      const x = l.turnos[t];
+      if (x && x.quien === 'conductor') { x.categoria = 'B'; x.cualidad2 = null; }
+    });
+  });
+}
+
 function flotaDe(n) {
   const e = sim.crearEstadoInicial(0, function () { return 0.5; });
   e.dinero = 1e6;
@@ -423,6 +433,7 @@ function flotaDe(n) {
     if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
     ['dia', 'noche'].forEach(function (t) { if (!l.turnos[t]) sim.contratarConductor(e, l.id, t); });
   });
+  todosB(e);
   e.ajustes.pararAlCierre = false;
   return e;
 }
@@ -671,9 +682,9 @@ prueba('rasgos: una cualidad y un defecto, nunca opuestos', function () {
   }
 });
 
-prueba('al contratar eliges entre tres candidatos distintos, al mismo precio', function () {
+prueba('al contratar eliges entre tres candidatos distintos; el precio depende de su categoría', function () {
   const e = sim.crearEstadoInicial(0);
-  e.dinero = 5000;
+  e.dinero = 50000;
   const lista = sim.candidatos(e);
   assert.strictEqual(lista.length, config.conductores.candidatos);
   assert.strictEqual(new Set(lista.map(function (x) { return x.retrato; })).size, lista.length, 'personajes distintos');
@@ -681,7 +692,9 @@ prueba('al contratar eliges entre tres candidatos distintos, al mismo precio', f
   const elegido = lista[2];
   const antes = e.dinero;
   assert.ok(sim.contratarConductor(e, 1, 'noche', 2).ok);
-  assert.strictEqual(antes - e.dinero, config.conductores.costeContratacion);
+  const cat = config.categorias.find(function (c) { return c.id === elegido.categoria; });
+  assert.strictEqual(antes - e.dinero, cat.contratar);
+  assert.strictEqual(e.licencias[0].turnos.noche.categoria, elegido.categoria);
   const t = e.licencias[0].turnos.noche;
   assert.strictEqual(t.retrato, elegido.retrato);
   assert.strictEqual(t.cualidad, elegido.cualidad);
@@ -715,6 +728,7 @@ prueba('un conductor Lento hace menos carreras que uno que Conoce la ciudad', fu
     e.mejoras.oficina = 1;
     sim.dejarDeConducir(e);
     sim.contratarConductor(e, 1, 'dia');
+    todosB(e);
     ['dia', 'noche'].forEach(function (n) {
       e.licencias[0].turnos[n].cualidad = cualidad;
       e.licencias[0].turnos[n].defecto = defecto;
@@ -723,7 +737,8 @@ prueba('un conductor Lento hace menos carreras que uno que Conoce la ciudad', fu
     return e.totales.carreras;
   }
   const rapido = carreras('conoceCiudad', 'antipatico'), lento = carreras('honrado', 'lento');
-  assert.ok(rapido > lento * 1.05, rapido + ' frente a ' + lento);
+  // La espera es solo una parte del ciclo (el viaje no cambia): unos puntos de diferencia.
+  assert.ok(rapido > lento * 1.02, rapido + ' frente a ' + lento);
 });
 
 prueba('las partidas de la versión 11 dan rasgos a sus conductores', function () {
@@ -923,6 +938,53 @@ prueba('despedir cuesta un finiquito según el nivel y devuelve los objetos', fu
   assert.deepStrictEqual(e.objetos, { gps: 2, cojin: 1 });
   assert.strictEqual(e.caja.hoy.incidencias.finiquito.veces, 1);
   cerca(e.caja.hoy.otros, coste);
+});
+
+prueba('categorías de conductor: más cualidad, menos defecto, más hallazgos', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 7;
+  const porCat = {};
+  config.categorias.forEach(function (c) { porCat[c.id] = c; });
+  for (let i = 0; i < 300; i++) {
+    const s = sim.sortearRasgos(e, null, 'S+');
+    assert.strictEqual(s.defecto, null, 'S+ sin defecto');
+    const l = sim.sortearRasgos(e, null, 'L');
+    assert.strictEqual(l.defecto, null, 'LEGENDARIO sin defecto');
+    assert.ok(l.cualidad2 && l.cualidad2 !== l.cualidad, 'LEGENDARIO con dos cualidades');
+    assert.ok(sim.sortearRasgos(e, null, 'B').defecto, 'B siempre con defecto');
+  }
+  const f = flotaDe(1);
+  const t = f.licencias[0].turnos.noche;
+  t.cualidad = 'simpatico'; t.defecto = 'antipatico';
+  t.categoria = 'A';
+  cerca(sim.factoresConductor(f, t).propina, (1 + 0.3 * porCat.A.fuerzaCualidad) * (1 - 0.3 * porCat.A.fuerzaDefecto), 1e-9);
+  t.categoria = 'L'; t.defecto = null; t.cualidad2 = 'conoceCiudad';
+  const fl = sim.factoresConductor(f, t);
+  cerca(fl.propina, 1 + 0.3 * porCat.L.fuerzaCualidad, 1e-9);
+  cerca(fl.espera, 1 - 0.1 * porCat.L.fuerzaCualidad, 1e-9);
+  assert.strictEqual(sim.precioCandidato({ categoria: 'L' }), porCat.L.contratar);
+  assert.ok(porCat.L.contratar > porCat.B.contratar * 10);
+});
+
+prueba('las partidas de la versión 15 dan categoría a sus conductores', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(3);
+  viejo.version = 15;
+  viejo.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) { if (l.turnos[t]) { delete l.turnos[t].categoria; delete l.turnos[t].cualidad2; } });
+  });
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  migrado.licencias.forEach(function (l) {
+    ['dia', 'noche'].forEach(function (t) {
+      const x = l.turnos[t];
+      if (!x || x.quien !== 'conductor') return;
+      const cat = sim.buscarCategoria(x.categoria);
+      assert.ok(cat, 'tiene categoría');
+      if (cat.probDefecto === 0) assert.strictEqual(x.defecto, null);
+      if (cat.cualidades > 1) assert.ok(x.cualidad2);
+    });
+  });
+  assert.ok(migrado.candidatos.every(function (c) { return sim.buscarCategoria(c.categoria); }));
 });
 
 console.log(pasadas + ' pruebas correctas');
