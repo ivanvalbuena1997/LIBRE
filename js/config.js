@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 16,
+    versionGuardado: 17,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -238,6 +238,7 @@
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,
       // El precio de contratar depende de la categoría (config.categorias).
+      reserva: 5,                  // Equilibrio: conductores en reserva (sin trabajar).
       candidatos: 3,               // Equilibrio: entre cuántos eliges al contratar.
       // Equilibrio: despedir cuesta base + porNivel × nivel del conductor
       // (160 € en el nivel 1, 700 € en el 10). Sin dinero no se puede.

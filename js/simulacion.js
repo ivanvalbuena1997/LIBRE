@@ -73,6 +73,8 @@
       objetos: {},
       // Objetos encontrados con el almacén lleno: esperan a que vendas algo.
       bandeja: [],
+      // Conductores contratados que no trabajan: esperan a que les des un turno.
+      reserva: [],
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
       // Pausa al cierre del día: mientras no sea null el reloj está parado y
@@ -574,14 +576,7 @@
     const primero = !hayConductores(estado);
     estado.dinero -= precio;
     estado.conductoresContratados++;
-    lic.turnos[turno] = {
-      quien: 'conductor', nombre, retrato: candidato.retrato, zona: otro ? otro.zona : c.zonaInicial,
-      categoria: candidato.categoria, cualidad: candidato.cualidad, cualidad2: candidato.cualidad2 || null,
-      defecto: candidato.defecto,
-      // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
-      xp: 0, carreras: 0, facturado: 0,
-      objetos: []   // ids de los objetos que lleva equipados
-    };
+    lic.turnos[turno] = nuevoConductor(candidato, otro ? otro.zona : c.zonaInicial);
     sortearCandidatos(estado);
 
     if (primero) {
@@ -589,6 +584,54 @@
         ': ahora tu taxi también trabaja cuando tú no conduces.');
     }
     return exito(nombre + ' empieza en el turno de ' + c.turnos[turno].nombre.toLowerCase() + '.');
+  }
+
+  /* Un conductor recién contratado a partir de su candidato. */
+  function nuevoConductor(candidato, zona) {
+    return {
+      quien: 'conductor', nombre: candidato.nombre, retrato: candidato.retrato, zona,
+      categoria: candidato.categoria, cualidad: candidato.cualidad, cualidad2: candidato.cualidad2 || null,
+      defecto: candidato.defecto,
+      // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
+      xp: 0, carreras: 0, facturado: 0,
+      objetos: []   // ids de los objetos que lleva equipados
+    };
+  }
+
+  /*
+   * Contratas a un candidato para la reserva: no trabaja hasta que le des un
+   * turno (entre jornadas). Mismo precio que para un turno.
+   */
+  function contratarAReserva(estado, indice) {
+    const c = cfg();
+    estado.reserva = estado.reserva || [];
+    if (estado.reserva.length >= c.conductores.reserva) return fallo('La reserva está llena (' + c.conductores.reserva + ').');
+    const candidato = candidatos(estado)[Number(indice) || 0];
+    if (!candidato) return fallo('Ese candidato no existe.');
+    const precio = precioCandidato(candidato);
+    if (estado.dinero < precio) return fallo('No te llega el dinero: ' + candidato.nombre + ' cuesta ' + Libre.ui_euros(precio) + '.');
+    estado.dinero -= precio;
+    estado.conductoresContratados++;
+    estado.reserva.push(nuevoConductor(candidato, c.zonaInicial));
+    sortearCandidatos(estado);
+    return exito(candidato.nombre + ' entra en la reserva. Dale un turno al cerrar el día.');
+  }
+
+  /*
+   * Todos tus conductores, trabajando o en la reserva:
+   * [{ t, licenciaId, turno }] (en la reserva, licenciaId 'reserva' y turno
+   * su posición).
+   */
+  function todosLosConductores(estado) {
+    const lista = [];
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const x = l.turnos[tn];
+        if (x && x.quien === 'conductor') lista.push({ t: x, licenciaId: l.id, turno: tn });
+      });
+    });
+    (estado.reserva || []).forEach(function (x, i) { lista.push({ t: x, licenciaId: 'reserva', turno: i }); });
+    return lista;
   }
 
   /*
@@ -599,12 +642,7 @@
   function sortearPersonaje(estado, apartados) {
     const total = cfg().conductores.personajes.length;
     const usados = Object.assign({}, apartados);
-    estado.licencias.forEach(function (l) {
-      TURNOS.forEach(function (t) {
-        const x = l.turnos[t];
-        if (x && x.quien === 'conductor' && x.retrato !== undefined) usados[x.retrato] = true;
-      });
-    });
+    todosLosConductores(estado).forEach(function (x) { if (x.t.retrato !== undefined) usados[x.t.retrato] = true; });
     const libres = [];
     for (let i = 0; i < total; i++) if (!usados[i]) libres.push(i);
     const lista = libres.length ? libres : Array.from({ length: total }, function (_, i) { return i; });
@@ -719,13 +757,10 @@
    * `nombre` (el primero que encuentre). Devuelve los avisos de nivel.
    */
   function darExperiencia(estado, nombre, puntos) {
-    let turno = null;
-    estado.licencias.forEach(function (l) {
-      TURNOS.forEach(function (t) {
-        const x = l.turnos[t];
-        if (!turno && x && x.quien === 'conductor' && x.nombre.toLowerCase() === String(nombre).toLowerCase()) turno = x;
-      });
+    const hallado = todosLosConductores(estado).find(function (x) {
+      return x.t.nombre.toLowerCase() === String(nombre).toLowerCase();
     });
+    const turno = hallado ? hallado.t : null;
     if (!turno) return { ok: false, mensaje: 'No tienes ningún conductor que se llame ' + nombre + '.', eventos: [] };
     const resumen = resumenVacio();
     ganarExperiencia(estado, resumen, turno, Number(puntos) || 0);
@@ -746,6 +781,7 @@
 
   /* Turno de conductor de esa licencia, o null. */
   function turnoConductor(estado, licenciaId, turno) {
+    if (licenciaId === 'reserva') return (estado.reserva || [])[Number(turno)] || null;
     const lic = buscarLicencia(estado, licenciaId);
     const t = lic && lic.turnos[turno];
     return t && t.quien === 'conductor' ? t : null;
@@ -940,9 +976,8 @@
    * como incidencia. Los objetos que llevaba vuelven al almacén.
    */
   function despedirConductor(estado, licenciaId, turno) {
-    const lic = buscarLicencia(estado, licenciaId);
-    const t = lic && lic.turnos[turno];
-    if (!t || t.quien !== 'conductor') return fallo('Ahí no hay ningún conductor.');
+    const t = turnoConductor(estado, licenciaId, turno);
+    if (!t) return fallo('Ahí no hay ningún conductor.');
     const coste = costeDespido(t);
     if (estado.dinero < coste) return fallo('No te llega para el finiquito de ' + t.nombre + ': ' + Libre.ui_euros(coste) + '.');
     estado.objetos = estado.objetos || {};
@@ -953,7 +988,8 @@
     });
     incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
     // Si estaba en una carrera, se pierde: se va con el cliente.
-    lic.turnos[turno] = null;
+    if (licenciaId === 'reserva') estado.reserva.splice(Number(turno), 1);
+    else buscarLicencia(estado, licenciaId).turnos[turno] = null;
     return exito(t.nombre + ' ya no trabaja para ti: finiquito de ' + Libre.ui_euros(coste) +
       ((t.objetos || []).length ? '. Sus objetos vuelven al almacén.' : '.'));
   }
@@ -1857,6 +1893,8 @@
     cambiarTurnoJugador,
     contratarConductor,
     despedirConductor,
+    contratarAReserva,
+    todosLosConductores,
     costeDespido,
     buscarCliente,
     importeEnCurso,

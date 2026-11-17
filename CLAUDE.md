@@ -99,6 +99,12 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   LEGENDARIO, ninguno; `defecto` puede ser null), la fuerza de sus rasgos y
   cuánto encuentra. Los candidatos se quedan hasta que contratas a uno; si
   no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí.
+- Reserva (`estado.reserva`, hasta `config.conductores.reserva`):
+  conductores contratados sin turno (`contratarAReserva()`). No trabajan,
+  no ganan experiencia ni cuestan nada; conservan objetos y nivel, y se
+  pueden despedir. En las acciones de conductor, la reserva se nombra con
+  licencia 'reserva' y turno = su posición (`turnoConductor()`,
+  `todosLosConductores()`).
 - Etiqueta de categoría (`etiquetaCategoria()` en la interfaz): el nombre
   (B, A, S, S+, LEGENDARIO) sobre su color (`--cat-*` en `:root`; gris,
   verde, azul, morado y oro). Sale en conductores, candidatos, objetos,

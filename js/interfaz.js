@@ -21,6 +21,8 @@
 
   function euros(n) { return formatoEuros.format(n); }
   function numero(n) { return formatoNumero.format(n); }
+  /* Factor con hasta dos decimales (×0,85). */
+  function factor(n) { return n.toLocaleString('es-ES', { maximumFractionDigits: 2 }); }
   function dos(n) { return String(n).padStart(2, '0'); }
   function esc(texto) {
     return String(texto).replace(/[&<>"']/g, function (ch) {
@@ -919,6 +921,7 @@
    */
   function htmlCandidatos(estado, lic, turno) {
     let falta = false;
+    const hayHuecoReserva = (estado.reserva || []).length < Libre.config.conductores.reserva;
     const lista = Libre.sim.candidatos(estado).map(function (x, i) {
       const precio = Libre.sim.precioCandidato(x);
       const textos = [x.cualidad, x.cualidad2, x.defecto].map(Libre.sim.buscarRasgo).filter(Boolean)
@@ -927,7 +930,10 @@
       return '<div class="candidato"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
         '<div class="candidato-datos"><strong>' + esc(x.nombre) + ' ' + etiquetaCategoria(x.categoria) + '</strong>' +
         htmlRasgos(x) + '<small>' + textos + '</small>' + htmlFuerzaCategoria(x) + '</div>' +
-        '<div class="candidato-pie">' + boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], '', precio) +
+        '<div class="candidato-pie">' +
+        (lic ? boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], '', precio) : '') +
+        (hayHuecoReserva ? boton(lic ? 'A la reserva' : 'A la reserva · ' + euros(precio), 'contratarAReserva', [i],
+          lic ? 'boton-secundario' : '', precio) : '') +
         (estado.dinero < precio ? '<small class="falta">Te faltan ' + euros(precio - estado.dinero) + '</small>' : '') +
         '</div></div>';
     }).join('');
@@ -943,7 +949,7 @@
   /* Baja, avería o parado, en una línea bajo el conductor. */
   function textoEstadoTurno(estado, lic, t) {
     const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
-    if (lic.averia && jornada < lic.averia.hasta) return 'Coche en el taller hasta el día ' + (lic.averia.hasta + 1);
+    if (lic && lic.averia && jornada < lic.averia.hasta) return 'Coche en el taller hasta el día ' + (lic.averia.hasta + 1);
     if (t.baja && jornada < t.baja.hasta) {
       const faltan = t.baja.hasta - jornada;
       return 'De baja: ' + (faltan === 1 ? 'falta 1 día' : 'faltan ' + faltan + ' días');
@@ -977,33 +983,63 @@
         // Dejar el volante es una mejora (Oficina de gestión).
         (Libre.sim.modificadores(estado).dejarVolante ? boton('Dejar de conducir', 'dejarDeConducir', []) : '') + '</div>';
     } else {
-      const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
-      const deBaja = t.baja && jornada < t.baja.hasta;
-      const p = nivelDe(t);
-      const aviso = textoEstadoTurno(estado, lic, t);
-      // Una fila: retrato, nombre con categoría y nivel, experiencia; debajo
-      // rasgos en icono y huecos. Lo demás, en su ficha.
-      cuerpo = '<button type="button" class="conductor" data-ficha-conductor="' + clave + '" aria-label="Ficha de ' + esc(t.nombre) + '">' +
-        '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
-        '<span class="conductor-datos">' +
-        '<span class="conductor-nombre"><strong>' + esc(t.nombre) + '</strong>' + etiquetaCategoria(t.categoria) +
-        '<span class="nivel-insignia" title="Nivel ' + p.nivel + '">' + p.nivel + '</span>' + htmlBarraXp(clave, p) + '</span>' +
-        '<span class="conductor-detalle">' + htmlRasgosMini(t) + htmlHuecosMini(t) + '</span>' +
-        (aviso ? '<span class="turno-estado">' + aviso + '</span>' : '') +
-        '</span><span class="conductor-flecha" aria-hidden="true">›</span></button>';
+      cuerpo = htmlFilaConductor(estado, clave, t, lic);
     }
     return '<div class="turno turno-' + turno + '"><span class="turno-hora" title="' + esc(c.turnos[turno].nombre) + ', ' +
       horario(turno) + '">' + icono(turno) + '<span class="solo-lector">' + esc(c.turnos[turno].nombre) + ', ' + horario(turno) +
       '</span></span><div class="turno-cuerpo">' + cuerpo + '</div></div>';
   }
 
+  /*
+   * Un conductor en una fila (en su licencia o en la reserva): retrato,
+   * nombre con categoría y nivel, experiencia; debajo rasgos en icono y
+   * huecos. Al tocarlo, su ficha.
+   */
+  function htmlFilaConductor(estado, clave, t, lic) {
+    const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+    const deBaja = t.baja && jornada < t.baja.hasta;
+    const p = nivelDe(t);
+    const aviso = textoEstadoTurno(estado, lic, t);
+    return '<button type="button" class="conductor" data-ficha-conductor="' + clave + '" aria-label="Ficha de ' + esc(t.nombre) + '">' +
+      '<span class="retrato' + (deBaja ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
+      '<span class="conductor-datos">' +
+      '<span class="conductor-nombre"><strong>' + esc(t.nombre) + '</strong>' + etiquetaCategoria(t.categoria) +
+      '<span class="nivel-insignia" title="Nivel ' + p.nivel + '">' + p.nivel + '</span>' + htmlBarraXp(clave, p) + '</span>' +
+      '<span class="conductor-detalle">' + htmlRasgosMini(t) + htmlHuecosMini(t) + '</span>' +
+      (aviso ? '<span class="turno-estado">' + aviso + '</span>' : '') +
+      '</span><span class="conductor-flecha" aria-hidden="true">›</span></button>';
+  }
+
+  /*
+   * Reserva: conductores contratados que no trabajan. Se contrata aquí
+   * directamente y, entre jornadas, se les da un turno.
+   */
+  function htmlReserva(estado) {
+    const max = Libre.config.conductores.reserva;
+    const reserva = estado.reserva || [];
+    const abierto = eligiendoConductor === 'reserva';
+    return '<div class="reserva"><h3 class="flota-titulo">Reserva <small>· ' + reserva.length + ' de ' + max + '</small></h3>' +
+      (reserva.length
+        ? reserva.map(function (t, i) { return '<div class="reserva-fila">' + htmlFilaConductor(estado, 'reserva|' + i, t, null) + '</div>'; }).join('')
+        : '<p class="ayuda">Conductores contratados que esperan turno. No trabajan ni cuestan nada mientras están aquí.</p>') +
+      (reserva.length < max
+        ? '<button type="button" class="reserva-contratar" data-elegir-conductor="reserva" aria-expanded="' + abierto + '">' +
+          (abierto ? 'Cerrar candidatos' : 'Contratar para la reserva · desde ' + euros(precioMasBarato(estado))) + '</button>'
+        : '') +
+      (abierto ? htmlCandidatos(estado, null, null) : '') + '</div>';
+  }
+
   /* Turno de conductor de una clave 'licencia|turno', o null. */
   function conductorDe(estado, clave) {
     if (!clave) return null;
     const partes = clave.split('|');
+    if (partes[0] === 'reserva') {
+      const r = (estado.reserva || [])[Number(partes[1])];
+      return r ? { lic: null, licId: 'reserva', turno: partes[1], t: r, enReserva: true } : null;
+    }
     const lic = estado.licencias.find(function (l) { return String(l.id) === partes[0]; });
     const t = lic && lic.turnos[partes[1]];
-    return t && t.quien === 'conductor' ? { lic, turno: partes[1], t } : null;
+    return t && t.quien === 'conductor' ? { lic, licId: lic.id, turno: partes[1], t, enReserva: false } : null;
   }
 
   /* Lo que cambia su categoría: cualidad reforzada y defecto suavizado. */
@@ -1011,8 +1047,8 @@
     const cat = Libre.sim.buscarCategoria(t.categoria);
     if (!cat || (cat.fuerzaCualidad === 1 && cat.fuerzaDefecto === 1)) return '';
     const partes = ['su categoría ' + cat.nombre + ' refuerza ' + (t.cualidad2 ? 'sus cualidades' : 'su cualidad') +
-      ' ×' + numero(cat.fuerzaCualidad)];
-    if (t.defecto) partes.push('deja su defecto en ×' + numero(cat.fuerzaDefecto));
+      ' ×' + factor(cat.fuerzaCualidad)];
+    if (t.defecto) partes.push('deja su defecto en ×' + factor(cat.fuerzaDefecto));
     return '<p class="ficha-fuerza">' + partes.join(' y ').replace(/^./, function (c) { return c.toUpperCase(); }) + '.</p>';
   }
 
@@ -1025,7 +1061,7 @@
     const x = conductorDe(estado, fichaConductor);
     if (!x) return '';
     const c = Libre.config;
-    const t = x.t, lic = x.lic, turno = x.turno;
+    const t = x.t, lic = x.lic, turno = x.turno, licId = x.licId;
     const p = nivelDe(t);
     const huecos = Libre.sim.huecosConductor(t);
     const llevados = t.objetos || [];
@@ -1036,13 +1072,13 @@
     let objetos = llevados.map(function (id) {
       const o = Libre.sim.buscarObjeto(id);
       return '<li class="ficha-objeto">' + icono(o.id) + '<span><strong>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) + '</strong><small>' +
-        esc(o.descripcion) + '</small></span>' + boton('Quitar', 'quitarObjeto', [lic.id, turno, o.id]) + '</li>';
+        esc(o.descripcion) + '</small></span>' + boton('Quitar', 'quitarObjeto', [licId, turno, o.id]) + '</li>';
     }).join('');
     for (let i = llevados.length; i < huecos; i++) {
       objetos += '<li class="ficha-objeto libre"><span class="hueco" aria-hidden="true"></span><span><strong>Hueco libre</strong>' +
         (disponibles.length ? '' : '<small>Tus conductores encuentran objetos al hacer carreras.</small>') + '</span>' +
         (disponibles.length
-          ? '<select data-cambio="equiparObjeto" data-args="' + lic.id + '|' + turno + '" aria-label="Equipar un objeto">' +
+          ? '<select data-cambio="equiparObjeto" data-args="' + licId + '|' + turno + '" aria-label="Equipar un objeto">' +
             '<option value="" selected disabled>Equipar…</option>' +
             disponibles.map(function (o) {
               return '<option value="' + o.id + '">' + esc(o.nombre) + ' (' + esc(Libre.sim.buscarCategoria(o.categoria).nombre) + ')</option>';
@@ -1065,7 +1101,9 @@
       '<button type="button" class="hoja-cerrar" data-cerrar-ficha aria-label="Cerrar la ficha">×</button>' +
       '<div class="ficha-cabecera"><span class="retrato">' + Libre.retratos.svg(t.retrato) + '</span><div>' +
       '<h3 id="ficha-nombre">' + esc(t.nombre) + ' ' + etiquetaCategoria(t.categoria) + '</h3>' +
-      '<p>Licencia ' + esc(Libre.sim.textoLicencia(lic)) + ' · ' + icono(turno) + esc(c.turnos[turno].nombre) + ' ' + horario(turno) + '</p>' +
+      (x.enReserva
+        ? '<p>En la reserva: no trabaja hasta que le des un turno.</p>'
+        : '<p>Licencia ' + esc(Libre.sim.textoLicencia(lic)) + ' · ' + icono(turno) + esc(c.turnos[turno].nombre) + ' ' + horario(turno) + '</p>') +
       (aviso ? '<p class="turno-estado">' + aviso + '</p>' : '') + '</div></div>' +
       '<div class="ficha-nivel"><span class="nivel-insignia grande">' + p.nivel + '</span><div>' +
       '<strong>Nivel ' + p.nivel + '</strong>' + htmlBarraXp(fichaConductor, p) +
@@ -1080,11 +1118,11 @@
       '<h4>Desde que trabaja para ti</h4><dl class="filas">' +
       '<div><dt>Carreras</dt><dd id="ficha-carreras"></dd></div>' +
       '<div><dt>Facturado</dt><dd id="ficha-facturado"></dd></div></dl>' +
-      '<h4>Zona</h4><p class="ficha-zona">Ahora trabaja en <strong>' + esc(zona) + '</strong>. ' +
-      (Libre.sim.modificadores(estado).gestionZonas
-        ? 'Con el Curso gestión de zonas va cada hora a la que más te deja.'
-        : 'Elige su propia zona, al azar entre las que tienen clientes.') + '</p>' +
-      '<div class="ficha-despedir">' + boton('Despedir · finiquito ' + euros(coste), 'despedirConductor', [lic.id, turno],
+      (x.enReserva ? '' : '<h4>Zona</h4><p class="ficha-zona">Ahora trabaja en <strong>' + esc(zona) + '</strong>. ' +
+        (Libre.sim.modificadores(estado).gestionZonas
+          ? 'Con el Curso gestión de zonas va cada hora a la que más te deja.'
+          : 'Elige su propia zona, al azar entre las que tienen clientes.') + '</p>') +
+      '<div class="ficha-despedir">' + boton('Despedir · finiquito ' + euros(coste), 'despedirConductor', [licId, turno],
         'boton-peligro', coste) + '</div>' +
       '</div>';
   }
@@ -1105,7 +1143,11 @@
             t.quien === 'conductor' ? Libre.sim.nivelConductor(t) : 0, t.objetos] : null;
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
-    eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario]);
+    eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario,
+    (estado.reserva || []).map(function (t) {
+      return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.defecto, Libre.sim.nivelConductor(t), t.objetos,
+        t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0];
+    })]);
   }
 
   /*
@@ -1258,7 +1300,7 @@
         ? 'Cada coche puede trabajar dos turnos. Tus conductores trabajan solos y se quedan el ' +
           Math.round(c.conductores.porcentaje * 100) + ' % de lo que recaudan. Toca uno para ver su ficha.'
         : 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.';
-      return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) +
+      return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
         estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         (estado.licencias.length < c.licencias.maximo
           ? botonCompra('Comprar licencia nueva', Libre.sim.precioLicencia(estado), 'comprarLicencia', [])
@@ -1663,8 +1705,8 @@
 
   /* Despedir siempre pide confirmación, con el nombre y el finiquito. */
   function confirmarDespido(args) {
-    const t = estadoActual && estadoActual.licencias.find(function (l) { return String(l.id) === args[0]; });
-    const x = t && t.turnos[args[1]];
+    const hallado = estadoActual && conductorDe(estadoActual, args[0] + '|' + args[1]);
+    const x = hallado && hallado.t;
     if (!x) return false;
     return confirm('¿Despedir a ' + x.nombre + '? El finiquito cuesta ' + euros(Libre.sim.costeDespido(x)) +
       ((x.objetos || []).length ? ' y sus objetos vuelven al almacén.' : '.'));
@@ -1787,7 +1829,7 @@
       const args = el.dataset.args ? el.dataset.args.split('|') : [];
       if (el.dataset.accion === 'despedirConductor' && !confirmarDespido(args)) return;
       const resultado = ejecutar(el.dataset.accion, args);
-      if (resultado && resultado.ok && el.dataset.accion === 'contratarConductor') {
+      if (resultado && resultado.ok && (el.dataset.accion === 'contratarConductor' || el.dataset.accion === 'contratarAReserva')) {
         eligiendoConductor = null;
         ventaParaContratar = false;
         opciones.redibujar();

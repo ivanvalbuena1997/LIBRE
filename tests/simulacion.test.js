@@ -201,8 +201,12 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
 
 function conConductor() {
   const e = sim.crearEstadoInicial(0);
-  e.dinero = 5000;
+  e.azar = 20261117;   // siempre el mismo conductor y la misma suerte
+  sim.sortearCandidatos(e);
+  e.dinero = 50000;
   sim.contratarConductor(e, 1, 'noche');
+  todosB(e);
+  e.dinero = 5000;
   return e;
 }
 const DIA = function () { return config.reloj.segundosPorDia; };
@@ -985,6 +989,34 @@ prueba('las partidas de la versión 15 dan categoría a sus conductores', functi
     });
   });
   assert.ok(migrado.candidatos.every(function (c) { return sim.buscarCategoria(c.categoria); }));
+});
+
+prueba('reserva: contratas sin turno, hasta el máximo; no trabajan; se puede despedir', function () {
+  const e = flotaDe(1);
+  e.dinero = 1e6;
+  const max = config.conductores.reserva;
+  for (let i = 0; i < max; i++) assert.ok(sim.contratarAReserva(e, 0).ok);
+  assert.strictEqual(e.reserva.length, max);
+  assert.ok(!sim.contratarAReserva(e, 0).ok, 'reserva llena');
+  const r = e.reserva[0];
+  e.objetos = { gps: 1 };
+  assert.ok(sim.equiparObjeto(e, 'reserva', 0, 'gps').ok, 'se equipa también en la reserva');
+  for (let i = 0; i < DIA() * 10; i++) sim.avanzar(e, 0.1);
+  assert.strictEqual(r.xp, 0, 'en la reserva no trabaja');
+  assert.ok(sim.despedirConductor(e, 'reserva', 0).ok);
+  assert.strictEqual(e.reserva.length, max - 1);
+  assert.strictEqual(e.objetos.gps, 1, 'su objeto vuelve al almacén');
+  const personajes = sim.todosLosConductores(e).map(function (x) { return x.t.retrato; });
+  assert.ok(e.candidatos.every(function (c) { return personajes.indexOf(c.retrato) === -1 || personajes.length >= config.conductores.personajes.length; }),
+    'los candidatos no repiten a nadie de la reserva');
+});
+
+prueba('las partidas de la versión 16 tienen la reserva vacía', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(1);
+  viejo.version = 16;
+  delete viejo.reserva;
+  assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).reserva, []);
 });
 
 console.log(pasadas + ' pruebas correctas');

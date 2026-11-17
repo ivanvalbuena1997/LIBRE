@@ -163,6 +163,10 @@
         });
       });
       sim.sortearCandidatos(estado);
+    },
+    // Versión 17: reserva de conductores (vacía).
+    16: function (estado) {
+      estado.reserva = estado.reserva || [];
     }
   };
 

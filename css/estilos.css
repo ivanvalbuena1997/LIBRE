@@ -976,6 +976,19 @@ button.zona-tarjeta { cursor: pointer; }
 .ficha-panel p { margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
 .ficha-panel .acciones button { min-height: 44px; }
 
+/* Reserva: conductores contratados que esperan turno */
+.reserva {
+  border: 1px dashed var(--borde);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.reserva-fila { border-top: 1px dashed var(--borde); }
+.reserva-fila:first-of-type { border-top: 0; }
+.reserva .ayuda { margin: 0 0 6px; font-size: 0.82rem; }
+.reserva-contratar { width: 100%; min-height: 44px; margin-top: 6px; }
+.boton-secundario { background: var(--fondo); }
+
 /* Licencia: tarjeta compacta con su placa y los dos turnos */
 .licencia {
   border: 1px solid var(--borde);
