@@ -303,6 +303,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   «Siguiente», «Tus taxis hoy» y zonas. Con hasta 5 taxis debe caber sin
   scroll en 390×844 y en 375×800 px (cabecera de 180) por encima del menú
   inferior. Cualquier texto nuevo ahí, a una línea y sin añadir alto.
+  Va justo (medido el 17-11-2026: 0 px de scroll en las dos): el relleno de
+  abajo de `main` es el alto del menú más su borde y 4 px, menos el margen de
+  la última sección, y Calle empieza con `--esp-1` arriba.
 - No hay línea «Hoy»: el desglose de la caja de hoy sale bajo el taxímetro
   al tocar el display en modo flota o el total de «Tus taxis hoy»
   (`cajaAbierta`), y se cierra con su ×.
@@ -318,8 +321,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Zonas: las abiertas, en una fila de chips (`ui-chip-zona`, se desliza de
   lado si no caben) con nombre y viajes/h (o cuándo abre); en azul las que
   tienen clientes ahora, y la tuya rellena cuando conduces (sirven para
-  elegir zona a mano). Las cerradas, en una sola línea debajo con la mejora
-  que las abre.
+  elegir zona a mano). Las cerradas, en un último chip discontinuo
+  (`zona-cerradas`, «2 cerradas · Qué las abre ›»); tocarlo saca un aviso
+  con la mejora que abre cada una (`textoZonasCerradas()`). Antes eran una
+  línea debajo, que con 5 taxis quedaba tapada por el menú.
 - El taxímetro (132 px, maqueta calle.html) debe verse entero en el móvil
   sin scroll: piloto y tarifa a la izquierda y un display de LED con la
   letra DSEG7 (sin coma ni €: `textoLed()` da «1234.56» y el € va aparte;

@@ -743,6 +743,16 @@
     return texto;
   }
 
+  /* «Aeropuerto: Acreditación de Barajas · Estaciones: …»: cada zona cerrada y la mejora que la abre. */
+  function textoZonasCerradas(estado) {
+    const c = Libre.config;
+    return Object.keys(c.zonas).filter(function (id) { return !Libre.sim.zonaDesbloqueada(estado, id); }).map(function (id) {
+      const zona = c.zonas[id];
+      const mejora = c.mejoras.find(function (m) { return m.id === zona.requiere; });
+      return zona.nombre + ': ' + (mejora ? mejora.nombre : zona.requiere);
+    }).join(' · ');
+  }
+
   const seccionZonas = {
     id: 'sec-zonas',
     firma: function (estado) {
@@ -755,13 +765,13 @@
       const u = Libre.sim.ubicacionJugador(estado);
       const ids = Object.keys(c.zonas);
       const cerradas = ids.filter(function (id) { return !Libre.sim.zonaDesbloqueada(estado, id); });
-      const lineaCerradas = cerradas.length === 0 ? '' :
-        '<p class="zonas-cerradas">Cerradas: ' + cerradas.map(function (id) {
-          const zona = c.zonas[id];
-          const mejora = c.mejoras.find(function (m) { return m.id === zona.requiere; });
-          return '<span title="' + esc(zona.descripcion) + '">' + esc(zona.nombre) +
-            ' <small>(' + esc(mejora ? mejora.nombre : zona.requiere) + ')</small></span>';
-        }).join(' · ') + '</p>';
+      // Las cerradas, en un último chip («2 cerradas»): al tocarlo dice qué
+      // mejora abre cada una (antes era una línea debajo, que no cabía).
+      const chipCerradas = cerradas.length === 0 ? '' :
+        '<button type="button" class="zona-tarjeta ui-chip-zona zona-cerradas" data-zonas-cerradas' +
+        ' aria-label="Zonas cerradas: ' + esc(textoZonasCerradas(estado)) + '">' +
+        '<span class="ui-chip-zona-nombre">' + cerradas.length + (cerradas.length === 1 ? ' cerrada' : ' cerradas') + '</span>' +
+        '<span class="ui-chip-zona-detalle">Qué las abre ›</span></button>';
       return '<div class="zonas-fila" role="group" aria-label="Zonas">' + ids.filter(function (id) {
         return cerradas.indexOf(id) === -1;
       }).map(function (id) {
@@ -775,14 +785,14 @@
             ' aria-pressed="' + mia + '">' + cuerpo + '</button>';
         }
         return '<div class="zona-tarjeta ui-chip-zona" id="zona-' + id + '" title="' + esc(zona.descripcion) + '">' + cuerpo + '</div>';
-      }).join('') + '</div>' + lineaCerradas;
+      }).join('') + chipCerradas + '</div>';
     },
     actualizar: function (estado) {
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
       const grupos = Libre.sim.cochesPorZona(estado, info);
       const umbral = Libre.config.economia.demandaMinimaManual;
       const pausa = Libre.sim.enPausa(estado);
-      document.querySelectorAll('button.zona-tarjeta').forEach(function (b) { b.disabled = pausa; });
+      document.querySelectorAll('button.zona-tarjeta[data-accion]').forEach(function (b) { b.disabled = pausa; });
       Libre.sim.zonasDisponibles(estado).forEach(function (id) {
         const coches = grupos[id] ? grupos[id].length : 0;
         const r = Libre.sim.rendimientoZona(estado, id, coches, info);
@@ -2127,6 +2137,10 @@
         cajaAbierta = !cajaAbierta;
         opciones.redibujar();
         if (cajaAbierta) $('sec-caja').scrollIntoView({ block: 'nearest' });
+        return;
+      }
+      if (ev.target.closest('[data-zonas-cerradas]')) {
+        mostrarMensaje('Zonas cerradas. ' + textoZonasCerradas(estadoActual) + '.');
         return;
       }
       if (ev.target.closest('[data-taxis-mas]')) {

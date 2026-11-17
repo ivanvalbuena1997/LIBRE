@@ -433,8 +433,9 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 main {
   max-width: 560px;
   margin: 0 auto;
-  /* abajo deja sitio para el menú inferior */
-  padding: 10px 16px calc(var(--alto-menu) + 16px + env(safe-area-inset-bottom));
+  /* abajo deja sitio para el menú inferior (su alto más el borde de 1 px)
+     y 4 px de aire; la última sección ya trae su margen (--esp-3). */
+  padding: 10px 16px calc(var(--alto-menu) + 1px + 4px - var(--esp-3) + env(safe-area-inset-bottom));
 }
 
 .fuera-de-vista { display: none !important; }
@@ -600,7 +601,7 @@ textarea {
  * taxímetro, «Siguiente» y las zonas no van en tarjeta; «Tus taxis hoy» y
  * el desglose de la caja, sí (con el estilo nuevo).
  */
-body[data-vista="calle"] main { padding-top: var(--esp-2); }
+body[data-vista="calle"] main { padding-top: var(--esp-1); }
 #sec-taximetro, #sec-objetivo, #sec-zonas, #sec-caja, #sec-ticket {
   padding: 0;
   border: 0;
@@ -974,14 +975,14 @@ body[data-vista="calle"] main { padding-top: var(--esp-2); }
 .ajuste-volumen input:disabled { opacity: 0.4; }
 
 /* Zonas: una fila de chips que se desliza de lado si no caben; las
-   cerradas, en una línea debajo. Con clientes, en azul (ui-chip-zona--activa);
+   cerradas, en un último chip discontinuo. Con clientes, en azul (ui-chip-zona--activa);
    la tuya, cuando conduces, rellena de azul. */
 .zonas-fila {
   display: flex;
   gap: var(--esp-3);
   overflow-x: auto;
   scrollbar-width: none;
-  margin: 2px calc(-1 * var(--margen)) 0;
+  margin: 0 calc(-1 * var(--margen));
   padding: 0 var(--margen);
 }
 .zonas-fila::-webkit-scrollbar { display: none; }
@@ -991,16 +992,8 @@ body[data-vista="calle"] main { padding-top: var(--esp-2); }
 .zona-tarjeta.mia .ui-chip-zona-detalle { color: var(--sobre-color); }
 button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .ui-chip-zona-detalle { font-variant-numeric: tabular-nums; }
-.zonas-cerradas {
-  margin: var(--esp-2) 2px 0;
-  font-family: var(--letra-cuerpo);
-  font-size: var(--t-mini);
-  line-height: 1.35;
-  color: var(--tinta-suave);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* Último chip: las zonas cerradas, en gris y discontinuo. */
+.zona-cerradas { border-style: dashed; background: transparent; }
 
 /* Flota */
 .icono {
