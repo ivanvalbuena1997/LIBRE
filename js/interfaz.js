@@ -860,13 +860,6 @@
     return p.hasta === null ? 'Nivel máximo' : Math.floor(p.xp) + ' de ' + p.hasta + ' de experiencia';
   }
 
-  /* Barra de experiencia; data-xp permite moverla sin rehacer la tarjeta. */
-  function htmlBarraXp(clave, p) {
-    return '<span class="xp-barra" role="progressbar" aria-label="' + textoExperiencia(p) + '" aria-valuemin="0" ' +
-      'aria-valuemax="100" aria-valuenow="' + Math.round(p.avance * 100) + '" data-xp="' + clave + '">' +
-      '<span style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span>';
-  }
-
   // Turno en el que estás eligiendo conductor ('licencia|turno') o null.
   let eligiendoConductor = null;
   // Conductor con la ficha abierta ('licencia|turno') o null.
@@ -930,10 +923,15 @@
    * arrastrar y soltar sobre otro sitio. Si está parado (baja, avería,
    * libranza…) sale atenuada con un aviso.
    */
+  /* Clase de la insignia de rareza (ui-rareza) de una categoría. */
+  function claseRareza(id) {
+    return 'ui-rareza ui-rareza--' + (id === 'S+' ? 'Smas' : id);
+  }
+
   function htmlCirculos(t) {
     const cat = Libre.sim.buscarCategoria(t.categoria);
     const letra = cat ? (cat.id === 'L' ? 'L' : cat.nombre) : '';
-    return (cat ? '<span class="cara-categoria cat-' + (cat.id === 'S+' ? 'Smas' : cat.id) + '" aria-hidden="true">' + esc(letra) + '</span>' : '') +
+    return (cat ? '<span class="cara-categoria ' + claseRareza(cat.id) + '" aria-hidden="true">' + esc(letra) + '</span>' : '') +
       '<span class="cara-nivel" aria-hidden="true">' + Libre.sim.nivelConductor(t) + '</span>';
   }
 
@@ -950,6 +948,9 @@
       '<span class="cara-nombre">' + esc(t.nombre) + '</span></button>';
   }
 
+  /* Icono «+» de los huecos para contratar. */
+  const ICONO_MAS = '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+
   // Panel abierto bajo una licencia para tu turno ('licencia|turno') o null.
   let panelTu = null;
 
@@ -965,7 +966,7 @@
       cara = '<button type="button" class="cara cara-vacia" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
         (pausa ? ' data-destino="' + clave + '"' : '') + ' data-precio="' + precioMasBarato(estado) + '"' +
         ' aria-label="Turno de ' + esc(c.turnos[turno].nombre.toLowerCase()) + ' libre: contratar">' +
-        '<span class="cara-foto"><span class="retrato retrato-texto">+</span></span><span class="cara-nombre">Libre</span></button>';
+        '<span class="cara-foto"><span class="retrato retrato-texto">' + ICONO_MAS + '</span></span><span class="cara-nombre">Libre</span></button>';
     } else if (t.quien === 'jugador') {
       cara = '<button type="button" class="cara" data-panel-tu="' + clave + '" aria-expanded="' + (panelTu === clave) + '"' +
         ' aria-label="Tu turno: zona y opciones">' +
@@ -974,7 +975,7 @@
       cara = htmlCara(estado, clave, t, lic);
     }
     return '<div class="hueco-turno turno-' + turno + '" title="' + esc(c.turnos[turno].nombre + ', ' + horario(turno)) + '">' +
-      icono(turno) + cara + '</div>';
+      icono(turno, 'icono-turno') + cara + '</div>';
   }
 
   /* Tu turno, desplegado bajo la licencia: zona, cambiar de turno, dejar de conducir. */
@@ -997,15 +998,22 @@
     const max = Libre.config.conductores.reserva;
     const reserva = estado.reserva || [];
     const abierto = eligiendoConductor === 'reserva';
-    const destino = Libre.sim.enPausa(estado) && reserva.length < max ? ' data-destino="reserva"' : '';
-    return '<div class="reserva"' + destino + '><h3 class="flota-titulo">Reserva <small>· ' + reserva.length + ' de ' + max + '</small></h3>' +
-      (reserva.length
-        ? '<div class="reserva-caras">' + reserva.map(function (t, i) { return htmlCara(estado, 'reserva|' + i, t, null); }).join('') + '</div>'
-        : '<p class="ayuda">Conductores contratados que esperan turno. No trabajan ni cuestan nada mientras están aquí.</p>') +
-      (reserva.length < max
-        ? '<button type="button" class="reserva-contratar" data-elegir-conductor="reserva" aria-expanded="' + abierto + '">' +
-          (abierto ? 'Cerrar candidatos' : 'Contratar para la reserva · desde ' + euros(precioMasBarato(estado))) + '</button>'
-        : '') +
+    const pausa = Libre.sim.enPausa(estado);
+    const huecos = [];
+    reserva.forEach(function (t, i) { huecos.push(htmlCara(estado, 'reserva|' + i, t, null)); });
+    // Los huecos libres: tocarlos abre los candidatos; entre jornadas, se puede soltar ahí.
+    for (let i = reserva.length; i < max; i++) {
+      huecos.push('<button type="button" class="cara cara-vacia" data-elegir-conductor="reserva" aria-expanded="' + abierto + '"' +
+        (pausa ? ' data-destino="reserva"' : '') +
+        ' aria-label="Hueco libre en la reserva: contratar desde ' + euros(precioMasBarato(estado)) + '">' +
+        '<span class="cara-foto"><span class="retrato retrato-texto">' + ICONO_MAS + '</span></span>' +
+        '<span class="cara-nombre">Libre</span></button>');
+    }
+    return '<div class="reserva ui-tarjeta ui-tarjeta--hueco">' +
+      '<div class="reserva-cabecera"><strong>Reserva</strong><span>' + reserva.length + ' de ' + max + '</span></div>' +
+      '<div class="reserva-caras">' + huecos.join('') + '</div>' +
+      (reserva.length === 0 && !abierto
+        ? '<p class="reserva-ayuda">Contratados que esperan turno: no trabajan ni cuestan nada.</p>' : '') +
       (abierto ? htmlCandidatos(estado, null, null) : '') + '</div>';
   }
 
@@ -1029,7 +1037,7 @@
    */
   function htmlMoverConductor(estado, x) {
     if (!Libre.sim.enPausa(estado)) {
-      return '<p class="ficha-zona">Podrás cambiarlo de licencia o de turno al cerrar el día, con el ticket en pantalla.</p>';
+      return '<button type="button" class="ui-boton ui-boton--secundario" disabled>Cambiar de sitio</button>';
     }
     const c = Libre.config;
     const opciones = [];
@@ -1049,20 +1057,22 @@
         opciones.push('<option value="reserva|' + i + '">Reserva (cambiar con ' + esc(r.nombre) + ')</option>');
       });
     }
-    return '<p class="ficha-zona">También puedes arrastrarlo sobre otro conductor, un turno libre o la reserva.</p>' +
-      '<select data-cambio="moverConductor" data-args="' + x.licId + '|' + x.turno + '" aria-label="Mover a">' +
-      '<option value="" selected disabled>Mover a…</option>' + opciones.join('') + '</select>';
+    // El botón lleva encima el selector nativo, invisible: al tocarlo se abre la lista.
+    return '<span class="ui-boton ui-boton--secundario con-selector">Cambiar de sitio' +
+      '<select data-cambio="moverConductor" data-args="' + x.licId + '|' + x.turno + '" aria-label="Cambiar de sitio">' +
+      '<option value="" selected disabled>Mover a…</option>' + opciones.join('') + '</select></span>';
   }
 
   /* Lo que cambia su categoría: cualidad reforzada y defecto suavizado. */
   function htmlFuerzaCategoria(t) {
     const cat = Libre.sim.buscarCategoria(t.categoria);
     if (!cat || (cat.fuerzaCualidad === 1 && cat.fuerzaDefecto === 1)) return '';
+    const nCualidades = Libre.sim.cualidadesDe(t).length;
     const nDefectos = Libre.sim.defectosDe(t).length;
-    const partes = ['su categoría ' + cat.nombre + ' refuerza ' + (Libre.sim.cualidadesDe(t).length > 1 ? 'sus cualidades' : 'su cualidad') +
-      ' ×' + factor(cat.fuerzaCualidad)];
-    if (nDefectos) partes.push('deja ' + (nDefectos > 1 ? 'sus defectos' : 'su defecto') + ' en ×' + factor(cat.fuerzaDefecto));
-    return '<p class="ficha-fuerza">' + partes.join(' y ').replace(/^./, function (c) { return c.toUpperCase(); }) + '.</p>';
+    // «Categoría A: cualidad ×1,2 · defecto ×0,85» (maqueta).
+    const partes = [(nCualidades > 1 ? 'cualidades' : 'cualidad') + ' ×' + factor(cat.fuerzaCualidad)];
+    if (nDefectos) partes.push((nDefectos > 1 ? 'defectos' : 'defecto') + ' ×' + factor(cat.fuerzaDefecto));
+    return '<p class="ficha-fuerza">Categoría ' + esc(cat.nombre) + ': ' + partes.join(' · ') + '</p>';
   }
 
   /*
@@ -1082,67 +1092,97 @@
       return ((estado.objetos || {})[o.id] || 0) > 0 && llevados.indexOf(o.id) === -1;
     });
     const tabla = c.conductores.niveles.huecos;
-    let objetos = llevados.map(function (id) {
+    const cat = Libre.sim.buscarCategoria(t.categoria);
+
+    // Mosaico de 3 huecos: objetos puestos, «Equipar» y los que llegan con el nivel.
+    const casillas = llevados.map(function (id) {
       const o = Libre.sim.buscarObjeto(id);
-      return '<li class="ficha-objeto">' + icono(o.id) + '<span><strong>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) + '</strong><small>' +
-        esc(o.descripcion) + '</small></span>' + boton('Quitar', 'quitarObjeto', [licId, turno, o.id]) + '</li>';
-    }).join('');
+      return '<div class="ficha-objeto" title="' + esc(o.descripcion) + '">' +
+        '<span class="ficha-objeto-rareza ' + claseRareza(o.categoria) + '">' + esc(o.categoria === 'L' ? 'L' : o.categoria) + '</span>' +
+        boton('<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>', 'quitarObjeto',
+          [licId, turno, o.id], 'ficha-objeto-quitar').replace('<button ', '<button aria-label="Quitar ' + esc(o.nombre) + '" ') +
+        '<span class="ficha-objeto-icono fondo-' + (o.categoria === 'S+' ? 'Smas' : o.categoria) + '">' + icono(o.id) + '</span>' +
+        '<strong>' + esc(o.nombre) + '</strong><small>' + esc(textoEfecto(o.efecto)) + '</small></div>';
+    });
     for (let i = llevados.length; i < huecos; i++) {
-      objetos += '<li class="ficha-objeto libre"><span class="hueco" aria-hidden="true"></span><span><strong>Hueco libre</strong>' +
-        (disponibles.length ? '' : '<small>Tus conductores encuentran objetos al hacer carreras.</small>') + '</span>' +
-        (disponibles.length
-          ? '<select data-cambio="equiparObjeto" data-args="' + licId + '|' + turno + '" aria-label="Equipar un objeto">' +
-            '<option value="" selected disabled>Equipar…</option>' +
-            disponibles.map(function (o) {
-              return '<option value="' + o.id + '">' + esc(o.nombre) + ' (' + esc(Libre.sim.buscarCategoria(o.categoria).nombre) + ')</option>';
-            }).join('') +
-            '</select>'
-          : '') + '</li>';
+      casillas.push(disponibles.length
+        ? '<span class="ficha-objeto ficha-objeto--equipar con-selector">' + ICONO_MAS + 'Equipar' +
+          '<select data-cambio="equiparObjeto" data-args="' + licId + '|' + turno + '" aria-label="Equipar un objeto">' +
+          '<option value="" selected disabled>Equipar…</option>' +
+          disponibles.map(function (o) {
+            return '<option value="' + o.id + '">' + esc(o.nombre) + ' (' + esc(Libre.sim.buscarCategoria(o.categoria).nombre) + ')</option>';
+          }).join('') + '</select></span>'
+        : '<span class="ficha-objeto ficha-objeto--vacio">Hueco libre<small>Sin objetos en el almacén</small></span>');
     }
-    // Huecos que aún no tiene: a qué nivel llegan.
-    for (let n = p.nivel + 1; n <= tabla.length; n++) {
-      if (tabla[n - 1] > tabla[n - 2]) {
-        objetos += '<li class="ficha-objeto bloqueado"><span class="hueco" aria-hidden="true"></span><span><small>Otro hueco en el nivel ' +
-          n + '</small></span></li>';
-      }
+    for (let n = p.nivel + 1; n <= tabla.length && casillas.length < tabla[tabla.length - 1]; n++) {
+      if (tabla[n - 1] > tabla[n - 2]) casillas.push('<span class="ficha-objeto ficha-objeto--bloqueado">Nivel ' + n + '</span>');
     }
-    const zona = c.zonas[t.zona] ? c.zonas[t.zona].nombre : t.zona;
+
+    const zona = x.enReserva ? 'Reserva' : c.zonas[t.zona] ? c.zonas[t.zona].nombre : t.zona;
     const coste = Libre.sim.costeDespido(t);
     const aviso = textoEstadoTurno(estado, lic, t);
+    const rasgos = Libre.sim.cualidadesDe(t).map(function (id) { return ['cualidad', id]; })
+      .concat(Libre.sim.defectosDe(t).map(function (id) { return ['defecto', id]; }));
+    const pausa = Libre.sim.enPausa(estado);
     return '<div class="hoja-fondo" data-cerrar-ficha></div>' +
-      '<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="ficha-nombre">' +
-      '<button type="button" class="hoja-cerrar" data-cerrar-ficha aria-label="Cerrar la ficha">×</button>' +
+      '<div class="hoja hoja-ficha" role="dialog" aria-modal="true" aria-labelledby="ficha-nombre">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
       '<div class="ficha-cabecera"><span class="cara-foto grande"><span class="retrato">' + Libre.retratos.svg(t.retrato) + '</span>' +
-      htmlCirculos(t) + '</span><div>' +
-      '<h3 id="ficha-nombre">' + esc(t.nombre) + ' ' + etiquetaCategoria(t.categoria) + '</h3>' +
-      (x.enReserva
-        ? '<p>En la reserva: no trabaja hasta que le des un turno.</p>'
-        : '<p>Licencia ' + esc(Libre.sim.textoLicencia(lic)) + ' · ' + icono(turno) + esc(c.turnos[turno].nombre) + ' ' + horario(turno) + '</p>') +
-      (aviso ? '<p class="turno-estado">' + aviso + '</p>' : '') + '</div></div>' +
-      '<div class="ficha-nivel"><span class="nivel-insignia grande">' + p.nivel + '</span><div>' +
-      '<strong>Nivel ' + p.nivel + '</strong>' + htmlBarraXp(fichaConductor, p) +
-      '<small id="ficha-xp">' + textoExperiencia(p) + '</small></div></div>' +
-      '<h4>' + (Libre.sim.cualidadesDe(t).length > 1 ? 'Cualidades' : 'Cualidad') +
-        (Libre.sim.defectosDe(t).length > 1 ? ' y defectos' : Libre.sim.defectosDe(t).length ? ' y defecto' : '') +
-        '</h4><ul class="ficha-rasgos">' +
-      Libre.sim.cualidadesDe(t).map(function (id) { return ['cualidad', id]; })
-        .concat(Libre.sim.defectosDe(t).map(function (id) { return ['defecto', id]; })).map(function (r) {
+      htmlCirculos(t) + '</span><div class="ficha-quien">' +
+      '<h3 id="ficha-nombre">' + esc(t.nombre) + '</h3>' +
+      '<p>' + (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') +
+      (x.enReserva ? 'En la reserva'
+        : 'Licencia ' + esc(Libre.sim.textoLicencia(lic)) + ' · ' + esc(c.turnos[turno].nombre) + ' ' +
+          dos(c.turnos[turno].horaInicio) + '–' + dos(c.turnos[turno].horaFin)) + '</p>' +
+      (aviso ? '<p class="turno-estado">' + aviso + '</p>' : '') + '</div>' +
+      '<button type="button" class="hoja-cerrar" data-cerrar-ficha aria-label="Cerrar la ficha">' +
+      '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
+      '<div class="ficha-nivel"><strong>Nivel ' + p.nivel + '</strong>' +
+      '<span class="ui-barra ui-barra--marca xp-barra" role="progressbar" aria-label="' + textoExperiencia(p) + '" aria-valuemin="0" ' +
+      'aria-valuemax="100" aria-valuenow="' + Math.round(p.avance * 100) + '" data-xp="' + fichaConductor + '">' +
+      '<span class="ui-barra-relleno" style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span>' +
+      '<small id="ficha-xp">' + textoXpCorto(p) + '</small></div>' +
+      '<div class="ficha-rasgos">' + rasgos.map(function (r) {
         const rasgo = Libre.sim.buscarRasgo(r[1]);
-        return rasgo ? '<li>' + htmlRasgo(r[1], r[0]) + '<span>' + esc(rasgo.descripcion) + '</span></li>' : '';
-      }).join('') + '</ul>' + htmlFuerzaCategoria(t) +
-      '<h4>Objetos · ' + llevados.length + ' de ' + huecos + (huecos === 1 ? ' hueco' : ' huecos') + '</h4>' +
-      '<ul class="ficha-objetos">' + objetos + '</ul>' +
-      '<h4>Desde que trabaja para ti</h4><dl class="filas">' +
-      '<div><dt>Carreras</dt><dd id="ficha-carreras"></dd></div>' +
-      '<div><dt>Facturado</dt><dd id="ficha-facturado"></dd></div></dl>' +
-      (x.enReserva ? '' : '<h4>Zona</h4><p class="ficha-zona">Ahora trabaja en <strong>' + esc(zona) + '</strong>. ' +
-        (Libre.sim.modificadores(estado).gestionZonas
-          ? 'Con el Curso gestión de zonas va cada hora a la que más te deja.'
-          : 'Elige su propia zona, al azar entre las que tienen clientes.') + '</p>') +
-      '<h4>Cambiar de sitio</h4>' + htmlMoverConductor(estado, x) +
-      '<div class="ficha-despedir">' + boton('Despedir · finiquito ' + euros(coste), 'despedirConductor', [licId, turno],
-        'boton-peligro', coste) + '</div>' +
+        return rasgo ? '<div class="ficha-rasgo ' + r[0] + '"><span class="ficha-rasgo-icono">' + icono(r[1]) + '</span>' +
+          '<span><strong>' + (r[0] === 'cualidad' ? '' : '<span class="solo-lector">Defecto: </span>') + esc(rasgo.nombre) + '</strong>' +
+          '<small>' + esc(rasgo.descripcion) + '</small></span></div>' : '';
+      }).join('') + htmlFuerzaCategoria(t) + '</div>' +
+      '<div class="ficha-objetos-bloque"><strong>Objetos <span>· ' + llevados.length + ' de ' + huecos +
+      (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
+      '<div class="ficha-objetos">' + casillas.join('') + '</div></div>' +
+      '<div class="ficha-datos">' +
+      '<div><span>Carreras</span><strong id="ficha-carreras"></strong></div>' +
+      '<div><span>Facturado</span><strong id="ficha-facturado"></strong></div>' +
+      '<div title="' + esc(Libre.sim.modificadores(estado).gestionZonas
+        ? 'Con el Curso gestión de zonas va cada hora a la que más te deja.'
+        : 'Elige su propia zona, al azar entre las que tienen clientes.') + '"><span>Ahora en</span><strong>' + esc(zona) + '</strong></div>' +
+      '</div>' +
+      '<div class="ficha-acciones">' + htmlMoverConductor(estado, x) +
+      boton('Despedir · ' + euros(coste), 'despedirConductor', [licId, turno], 'ui-boton ui-boton--peligro', coste) + '</div>' +
+      (pausa ? '' : '<p class="ficha-nota">Cambiar de sitio solo entre días: cuando se cierre la caja.</p>') +
       '</div>';
+  }
+
+  /*
+   * Efecto de un objeto en corto, para su casilla: «−22 % espera de noche,
+   * −20 % bajas». La descripción larga va en el título.
+   */
+  const NOMBRE_EFECTO = {
+    espera: 'espera', esperaDia: 'espera de día', esperaNoche: 'espera de noche', propina: 'propinas',
+    sinPagar: 'sin pagar', objeto: 'objetos devueltos', baja: 'bajas', pinchazo: 'pinchazos',
+    averia: 'averías', limpieza: 'limpieza'
+  };
+  function textoEfecto(efecto) {
+    return Object.keys(efecto || {}).filter(function (k) { return NOMBRE_EFECTO[k]; }).map(function (k) {
+      const v = efecto[k];
+      return (v < 1 ? '−' : '+') + Math.round(Math.abs(1 - v) * 100) + ' % ' + NOMBRE_EFECTO[k];
+    }).join(', ');
+  }
+
+  /* «168 / 219 XP» o «Máximo» (al lado de la barra de la ficha). */
+  function textoXpCorto(p) {
+    return p.hasta === null ? 'Máximo' : Math.floor(p.xp) + ' / ' + p.hasta + ' XP';
   }
 
   /*
@@ -1315,8 +1355,8 @@
     if (estado.licencias.length >= c.licencias.maximo) return '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>';
     const precio = Libre.sim.precioLicencia(estado);
     if (!eligiendoPlaca) {
-      return '<button type="button" class="boton-compra" data-elegir-placa data-precio="' + precio + '">' +
-        '<span>Comprar licencia nueva</span><span class="precio">' + euros(precio) + '</span></button>';
+      return '<button type="button" class="licencia-comprar" data-elegir-placa data-precio="' + precio + '">' + ICONO_MAS +
+        '<span>Comprar licencia</span><small>' + euros(precio) + '</small></button>';
     }
     return '<div class="placas-venta"><div class="placas-titulo"><strong>Elige la placa</strong>' +
       '<button type="button" data-elegir-placa>Cerrar</button></div>' +
@@ -1339,10 +1379,10 @@
       return panelTu === lic.id + '|' + t && lic.turnos[t] && lic.turnos[t].quien === 'jugador';
     });
     const abierta = eligiendo || tuAbierto;
-    return '<div class="licencia' + (abierta ? ' abierta' : '') + '" data-licencia="' + lic.id + '">' +
+    return '<div class="licencia ui-tarjeta' + (abierta ? ' abierta' : '') + '" data-licencia="' + lic.id + '">' +
       '<div class="licencia-placa"><span class="placa" title="' + esc(textoLibranza(lic.numero)) + '">' +
       esc(Libre.sim.textoLicencia(lic)) + '</span>' +
-      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') + '</div>' +
+      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Libra</span>' : '') + '</div>' +
       (lic.vehiculo
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
         : '<div class="licencia-sin-coche">' + botonCompra('Coche', modeloCompra.precio, 'comprarVehiculo', [lic.id]) + '</div>') +
@@ -1377,10 +1417,12 @@
             '(en el móvil, mantén pulsado su retrato). También desde su ficha.'
           : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
-      return '<h2>Conductores</h2><p class="ayuda">' + ayuda + '</p>' + htmlReserva(estado) +
-        '<h3 class="flota-titulo">Licencias <small>· ' + estado.licencias.length + '</small></h3>' +
-        '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') + '</div>' +
-        htmlComprarLicencia(estado) +
+      const n = estado.licencias.length;
+      return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Conductores</h2>' +
+        '<span>' + n + (n === 1 ? ' licencia' : ' licencias') + '</span></div>' +
+        '<p class="ayuda">' + ayuda + '</p>' + htmlReserva(estado) +
+        '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
+        htmlComprarLicencia(estado) + '</div>' +
         htmlFichaConductor(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
@@ -1389,13 +1431,13 @@
         const x = conductorDe(estado, barra.dataset.xp);
         if (!x) return;
         const p = nivelDe(x.t);
-        barra.firstChild.style.width = (p.avance * 100).toFixed(0) + '%';
+        barra.firstElementChild.style.width = (p.avance * 100).toFixed(0) + '%';
         barra.setAttribute('aria-valuenow', Math.round(p.avance * 100));
         barra.setAttribute('aria-label', textoExperiencia(p));
       });
       const x = conductorDe(estado, fichaConductor);
       if (x && $('ficha-xp')) {
-        $('ficha-xp').textContent = textoExperiencia(nivelDe(x.t));
+        $('ficha-xp').textContent = textoXpCorto(nivelDe(x.t));
         $('ficha-carreras').textContent = numero(Math.floor(x.t.carreras || 0));
         $('ficha-facturado').textContent = euros(x.t.facturado || 0);
       }

@@ -166,18 +166,26 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (consumibles). Solo los objetos que tienes sin equipar, de mejor a peor
   categoría; al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
-  que espera y la lista para vender. En Conductores (`seccionConductores`),
-  las licencias van de dos en
-  dos (rejilla `.licencias`): cada una, su placa a la izquierda (libranza
-  en el título, «Hoy libra» debajo si toca) y los dos turnos, cada uno con un sol
-  o una luna pequeños sobre una cara (`htmlCara()`); la que tiene candidatos
-  o tu panel abiertos ocupa la fila entera. Cara:
-  retrato con un círculo de categoría (color y letra, abajo a la izquierda)
-  y otro con el nivel (abajo a la derecha) y el nombre debajo. Tocar un
-  conductor abre su ficha (hoja que sube desde abajo; se cierra con ×, el
-  fondo o Escape) con experiencia, rasgos, objetos, despedir y mover. Tocar
-  un turno libre («+») abre los candidatos debajo de la licencia; tocar
-  «TÚ», tu zona y opciones. La reserva es una fila de caras.
+  que espera y la lista para vender. En Conductores (`seccionConductores`,
+  maquetas conductores.html y ficha-conductor.html): título y número de
+  licencias, la reserva (tarjeta discontinua con sus 5 huecos: caras de 44
+  px y huecos «+» que abren los candidatos) y las licencias de dos en dos
+  (rejilla `.licencias`; la última casilla es «Comprar licencia»). Cada
+  licencia: su placa (libranza en el título, chip «Libra» si toca) y dos
+  casillas de turno con un sol o una luna, la cara (`htmlCara()`) y el
+  nombre; la que tiene candidatos o tu panel abiertos ocupa la fila entera.
+  Cara: retrato con la rareza (`ui-rareza`, abajo a la izquierda), el nivel
+  (abajo a la derecha) y un «!» rojo si está parado. Tocar un conductor
+  abre su ficha (hoja que sube desde abajo, sin scroll en 390×844; se
+  cierra con ×, el fondo o Escape): cabecera, nivel con barra, rasgos,
+  mosaico de 3 casillas de objetos (puesto con su «×» para quitar,
+  «Equipar» o el nivel que abre el hueco; el efecto en corto con
+  `textoEfecto()`), carreras, facturado y zona (solo lectura), y los
+  botones «Cambiar de sitio» (desactivado durante la jornada, con una línea
+  que lo explica) y «Despedir · finiquito». «Equipar» y «Cambiar de sitio»
+  llevan encima el selector nativo invisible (`.con-selector`). Tocar un
+  turno libre («+») abre los candidatos debajo de la licencia; tocar «TÚ»,
+  tu zona y opciones.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al
