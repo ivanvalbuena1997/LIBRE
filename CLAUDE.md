@@ -180,12 +180,18 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   cierra con ×, el fondo o Escape): cabecera, nivel con barra, rasgos,
   mosaico de 3 casillas de objetos (puesto con su «×» para quitar,
   «Equipar» o el nivel que abre el hueco; el efecto en corto con
-  `textoEfecto()`), carreras, facturado y zona (solo lectura), y los
+  `textoEfecto()`). «Equipar» abre encima otra hoja (`equipando`,
+  `htmlHojaEquipar()`) con los objetos del almacén en casillas iguales, de
+  mejor a peor; los que ya lleva, atenuados; tocar uno lo equipa y vuelve a
+  la ficha, carreras, facturado y zona (solo lectura), y los
   botones «Cambiar de sitio» (desactivado durante la jornada, con una línea
-  que lo explica) y «Despedir · finiquito». «Equipar» y «Cambiar de sitio»
-  llevan encima el selector nativo invisible (`.con-selector`). Tocar un
-  turno libre («+») abre los candidatos debajo de la licencia; tocar «TÚ»,
-  tu zona y opciones.
+  que lo explica) y «Despedir · finiquito». «Cambiar de sitio» lleva
+  encima el selector nativo invisible (`.con-selector`). Tocar un turno
+  libre o un hueco de la reserva («+») abre los candidatos en una hoja
+  (`htmlHojaCandidatos()`): una tarjeta por candidato con retrato, rareza,
+  rasgos (las mismas filas que la ficha, `htmlFilasRasgos()`), «Contratar»
+  y «A la reserva», «Te faltan…» y, al pie, vender objetos para contratar.
+  Escape cierra la hoja de encima. Tocar «TÚ», tu zona y opciones.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al

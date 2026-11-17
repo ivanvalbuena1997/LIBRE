@@ -1308,51 +1308,6 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .panel-tu > span { flex-basis: 100%; font-size: 0.8rem; color: var(--tinta-suave); }
 .panel-tu select, .panel-tu button { min-height: 44px; }
 
-/* Rasgos: icono y «+» o «−», además del color */
-.rasgos { display: flex; flex-wrap: wrap; gap: 4px; }
-.rasgo {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 1px 7px 1px 5px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.rasgo .icono { width: 14px; height: 14px; }
-.rasgo.cualidad { background: var(--verde-claro); color: var(--verde-texto); }
-.rasgo.defecto { background: var(--rojo-claro); color: var(--rojo-taxi); }
-
-/* Huecos de objeto en pequeño */
-.hueco {
-  display: inline-grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  border: 1.5px dashed var(--borde);
-  border-radius: 6px;
-  flex: none;
-}
-.hueco.lleno { border: 1px solid var(--texto); }
-.hueco .icono { width: 13px; height: 13px; }
-
-/* Candidatos al contratar */
-.candidatos { display: grid; gap: 6px; margin: 4px 0 4px; }
-.candidato {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 4px 8px;
-  align-items: center;
-  padding: 8px;
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-  background: var(--tarjeta);
-}
-.candidato .retrato { width: 44px; height: 44px; grid-row: 1 / span 2; align-self: start; }
-.candidato-datos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.candidato-datos small { color: var(--suave); font-size: 0.75rem; line-height: 1.3; }
-
 
 /* Etiqueta de categoría (los colores, en el punto siguiente) */
 .categoria {
@@ -1609,6 +1564,45 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .ficha-acciones > * { flex: 1; min-width: 0; }
 .ficha-nota { margin: calc(-1 * var(--esp-2)) 0 0; font-size: var(--t-mini); color: var(--tinta-suave); text-align: center; }
 
+/* Cabecera de las hojas con título (candidatos, equipar) */
+.hoja-candidatos, .hoja-equipar { display: flex; flex-direction: column; gap: var(--esp-5); }
+.hoja-cabecera { display: flex; align-items: center; gap: var(--esp-4); }
+.hoja-cabecera h3 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--letra-titulo);
+  font-weight: 800;
+  font-size: var(--t-seccion);
+  line-height: 1.2;
+}
+.hoja-cabecera .hoja-cerrar { position: static; flex: none; }
+/* El selector de objetos va encima de la ficha */
+.hoja-fondo.hoja-encima { z-index: 41; }
+.hoja.hoja-encima { z-index: 42; }
+
+/* Candidatos: una tarjeta por candidato */
+.candidato { display: flex; flex-direction: column; gap: var(--esp-4); padding: var(--esp-5) var(--esp-6); }
+.candidato-cabecera { display: flex; align-items: center; gap: var(--esp-5); }
+.candidato-cabecera .cara-foto .retrato { width: 52px; height: 52px; }
+.candidato-cabecera > div { display: flex; flex-direction: column; align-items: flex-start; gap: var(--esp-1); min-width: 0; }
+.candidato-cabecera strong { font-family: var(--letra-titulo); font-weight: 800; font-size: var(--t-seccion); line-height: 1.1; }
+.candidato-pie { display: flex; gap: var(--esp-3); }
+.candidato-pie > * { flex: 1; min-width: 0; padding: 0 var(--esp-4); font-size: var(--t-normal); white-space: nowrap; }
+.candidato-pie > .ui-boton--principal { flex: 1.5; }
+.candidato-falta { margin: calc(-1 * var(--esp-1)) 0 0; font-size: var(--t-mini); font-weight: 800; color: var(--peligro); }
+
+/* Selector de objetos: casillas como las del mosaico de la ficha */
+button.ficha-objeto {
+  font: inherit;
+  color: var(--tinta);
+  cursor: pointer;
+}
+button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
+.ficha-objeto--puesto { opacity: 0.5; }
+.ficha-objeto-cantidad { position: absolute; top: 6px; right: 8px; font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); }
+.hoja-equipar .ficha-objetos { align-content: start; }
+
 /* Selector nativo invisible encima de un botón o casilla: al tocar se abre la lista */
 .con-selector { position: relative; cursor: pointer; }
 .con-selector select {
@@ -1622,9 +1616,6 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 }
 .con-selector:focus-within { outline: 3px solid var(--marca); outline-offset: 2px; }
 
-.candidato-pie { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
-.candidato-pie .falta { color: var(--rojo-taxi); font-size: 0.78rem; font-weight: 600; }
-.candidatos > .boton-venta { min-height: 44px; }
 
 /* Retratos */
 .retrato { display: inline-flex; width: 36px; height: 36px; flex: none; }

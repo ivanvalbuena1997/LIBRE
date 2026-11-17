@@ -834,22 +834,6 @@
     return '<svg class="icono ' + (clase || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
   }
 
-  /*
-   * Rasgos como etiquetas con su icono y «+» o «−»: no se distinguen solo por
-   * el color. El título explica qué hacen.
-   */
-  function htmlRasgo(id, clase) {
-    const r = Libre.sim.buscarRasgo(id);
-    if (!r) return '';
-    return '<span class="rasgo ' + clase + '" title="' + esc(r.descripcion) + '">' + icono(id) +
-      (clase === 'cualidad' ? '+ ' : '− ') + esc(r.nombre) + '</span>';
-  }
-  /* Cualidades (una o dos) y defecto (si tiene) de un conductor o candidato. */
-  function htmlRasgos(x) {
-    return '<span class="rasgos">' + Libre.sim.cualidadesDe(x).map(function (id) { return htmlRasgo(id, 'cualidad'); }).join('') +
-      Libre.sim.defectosDe(x).map(function (id) { return htmlRasgo(id, 'defecto'); }).join('') + '</span>';
-  }
-
   /* Lo menos que cuesta contratar ahora (el candidato más barato). */
   function precioMasBarato(estado) {
     return Math.min.apply(null, Libre.sim.candidatos(estado).map(Libre.sim.precioCandidato));
@@ -864,43 +848,95 @@
   let eligiendoConductor = null;
   // Conductor con la ficha abierta ('licencia|turno') o null.
   let fichaConductor = null;
-  let enfocarFicha = false;
   // Ficha del inventario abierta (id de consumible u objeto) o null.
   let fichaInventario = null;
 
   // ¿Está abierta la lista para vender objetos mientras contratas?
   let ventaParaContratar = false;
+  // Conductor ('licencia|turno') al que estás eligiendo qué objeto equipar, o null.
+  let equipando = null;
+  // Qué hoja hay que enfocar al dibujarla (su botón de cerrar): 'ficha', 'candidatos', 'equipar'.
+  let enfocarHoja = null;
 
   /*
-   * Los candidatos para un turno vacío: retrato, categoría, rasgos y su
-   * precio (según la categoría). Si no te llega, cuánto falta y la opción
-   * de vender objetos ahí mismo.
+   * Fila de un rasgo (ficha y candidatos): icono redondo verde o rojo, el
+   * nombre y lo que hace.
    */
-  function htmlCandidatos(estado, lic, turno) {
+  function htmlFilaRasgo(tipo, id) {
+    const rasgo = Libre.sim.buscarRasgo(id);
+    if (!rasgo) return '';
+    return '<div class="ficha-rasgo ' + tipo + '"><span class="ficha-rasgo-icono">' + icono(id) + '</span>' +
+      '<span><strong>' + (tipo === 'cualidad' ? '' : '<span class="solo-lector">Defecto: </span>') + esc(rasgo.nombre) + '</strong>' +
+      '<small>' + esc(rasgo.descripcion) + '</small></span></div>';
+  }
+  function htmlFilasRasgos(t) {
+    return Libre.sim.cualidadesDe(t).map(function (id) { return htmlFilaRasgo('cualidad', id); }).join('') +
+      Libre.sim.defectosDe(t).map(function (id) { return htmlFilaRasgo('defecto', id); }).join('');
+  }
+
+  /* Botón de cerrar de las hojas (×). */
+  function botonCerrarHoja(atributo, etiqueta) {
+    return '<button type="button" class="hoja-cerrar" ' + atributo + ' aria-label="' + etiqueta + '">' +
+      '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+  }
+
+  /*
+   * Hoja de candidatos para un turno vacío (o para la reserva): una tarjeta
+   * por candidato con su retrato, rareza, rasgos y su precio (según la
+   * categoría). Si no te llega, cuánto falta, y al pie la opción de vender
+   * objetos ahí mismo.
+   */
+  function htmlHojaCandidatos(estado) {
+    if (!eligiendoConductor) return '';
+    const c = Libre.config;
+    const reserva = eligiendoConductor === 'reserva';
+    let lic = null, turno = null;
+    if (!reserva) {
+      const partes = eligiendoConductor.split('|');
+      lic = estado.licencias.find(function (l) { return String(l.id) === partes[0]; });
+      turno = partes[1];
+      if (!lic || lic.turnos[turno]) { eligiendoConductor = null; return ''; }
+    }
     let falta = false;
-    const hayHuecoReserva = (estado.reserva || []).length < Libre.config.conductores.reserva;
-    const lista = Libre.sim.candidatos(estado).map(function (x, i) {
+    const hayHuecoReserva = (estado.reserva || []).length < c.conductores.reserva;
+    const tarjetas = Libre.sim.candidatos(estado).map(function (x, i) {
       const precio = Libre.sim.precioCandidato(x);
-      const textos = Libre.sim.cualidadesDe(x).concat(Libre.sim.defectosDe(x)).map(Libre.sim.buscarRasgo).filter(Boolean)
-        .map(function (r) { return esc(r.descripcion); }).join(' ');
+      const cat = Libre.sim.buscarCategoria(x.categoria);
       if (estado.dinero < precio) falta = true;
-      return '<div class="candidato"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
-        '<div class="candidato-datos"><strong>' + esc(x.nombre) + ' ' + etiquetaCategoria(x.categoria) + '</strong>' +
-        htmlRasgos(x) + '<small>' + textos + '</small>' + htmlFuerzaCategoria(x) + '</div>' +
+      return '<div class="candidato ui-tarjeta">' +
+        '<div class="candidato-cabecera"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
+        (cat ? '<span class="cara-categoria ' + claseRareza(cat.id) + '" aria-hidden="true">' + esc(cat.id === 'L' ? 'L' : cat.nombre) + '</span>' : '') +
+        '</span><div><strong>' + esc(x.nombre) + '</strong>' +
+        (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') + '</div></div>' +
+        '<div class="ficha-rasgos">' + htmlFilasRasgos(x) + htmlFuerzaCategoria(x) + '</div>' +
         '<div class="candidato-pie">' +
-        (lic ? boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], '', precio) : '') +
-        (hayHuecoReserva ? boton(lic ? 'A la reserva' : 'A la reserva · ' + euros(precio), 'contratarAReserva', [i],
-          lic ? 'boton-secundario' : '', precio) : '') +
-        (estado.dinero < precio ? '<small class="falta">Te faltan ' + euros(precio - estado.dinero) + '</small>' : '') +
-        '</div></div>';
+        (lic ? boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], 'ui-boton ui-boton--principal', precio) : '') +
+        (hayHuecoReserva
+          ? boton(lic ? 'A la reserva' : 'A la reserva · ' + euros(precio), 'contratarAReserva', [i],
+            'ui-boton ' + (lic ? 'ui-boton--secundario' : 'ui-boton--principal'), precio)
+          : '') +
+        '</div>' +
+        (estado.dinero < precio ? '<p class="candidato-falta">Te faltan ' + euros(precio - estado.dinero) + '</p>' : '') +
+        '</div>';
     }).join('');
     const hayObjetos = Libre.sim.objetosEnAlmacen(estado) > 0;
-    return '<div class="candidatos">' + lista +
+    const titulo = reserva ? 'Contratar · Reserva'
+      : 'Contratar · Licencia ' + Libre.sim.textoLicencia(lic) + ' · ' + c.turnos[turno].nombre;
+    return '<div class="hoja-fondo" data-cerrar-candidatos></div>' +
+      '<div class="hoja hoja-candidatos" role="dialog" aria-modal="true" aria-labelledby="candidatos-titulo">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="hoja-cabecera"><h3 id="candidatos-titulo">' + esc(titulo) + '</h3>' +
+      botonCerrarHoja('data-cerrar-candidatos', 'Cerrar los candidatos') + '</div>' +
+      // Sin conductor en el turno y sin conducir tú: puedes cogerlo tú.
+      (!reserva && !Libre.sim.conduce(estado)
+        ? boton('Conducir yo este turno', 'conducir', [lic.id, turno], 'ui-boton ui-boton--secundario ui-boton--ancho') : '') +
+      tarjetas +
       (falta && hayObjetos
-        ? '<button type="button" class="boton-venta" data-venta-contratar aria-expanded="' + ventaParaContratar + '">' +
-          (ventaParaContratar ? 'Cerrar la venta' : 'Vender objetos para contratar') + '</button>' +
+        ? '<button type="button" class="ui-boton ui-boton--secundario ui-boton--ancho" data-venta-contratar aria-expanded="' +
+          ventaParaContratar + '">' + (ventaParaContratar ? 'Cerrar la venta' : 'Vender objetos para contratar') + '</button>' +
           (ventaParaContratar ? htmlListaVenta(estado) : '')
-        : '') + '</div>';
+        : '') +
+      '</div>';
   }
 
   /* Baja, avería o parado, en una línea bajo el conductor. */
@@ -1012,9 +1048,8 @@
     return '<div class="reserva ui-tarjeta ui-tarjeta--hueco">' +
       '<div class="reserva-cabecera"><strong>Reserva</strong><span>' + reserva.length + ' de ' + max + '</span></div>' +
       '<div class="reserva-caras">' + huecos.join('') + '</div>' +
-      (reserva.length === 0 && !abierto
-        ? '<p class="reserva-ayuda">Contratados que esperan turno: no trabajan ni cuestan nada.</p>' : '') +
-      (abierto ? htmlCandidatos(estado, null, null) : '') + '</div>';
+      (reserva.length === 0
+        ? '<p class="reserva-ayuda">Contratados que esperan turno: no trabajan ni cuestan nada.</p>' : '') + '</div>';
   }
 
   /* Turno de conductor de una clave 'licencia|turno', o null. */
@@ -1106,12 +1141,8 @@
     });
     for (let i = llevados.length; i < huecos; i++) {
       casillas.push(disponibles.length
-        ? '<span class="ficha-objeto ficha-objeto--equipar con-selector">' + ICONO_MAS + 'Equipar' +
-          '<select data-cambio="equiparObjeto" data-args="' + licId + '|' + turno + '" aria-label="Equipar un objeto">' +
-          '<option value="" selected disabled>Equipar…</option>' +
-          disponibles.map(function (o) {
-            return '<option value="' + o.id + '">' + esc(o.nombre) + ' (' + esc(Libre.sim.buscarCategoria(o.categoria).nombre) + ')</option>';
-          }).join('') + '</select></span>'
+        ? '<button type="button" class="ficha-objeto ficha-objeto--equipar" data-equipar="' + fichaConductor + '">' +
+          ICONO_MAS + 'Equipar</button>'
         : '<span class="ficha-objeto ficha-objeto--vacio">Hueco libre<small>Sin objetos en el almacén</small></span>');
     }
     for (let n = p.nivel + 1; n <= tabla.length && casillas.length < tabla[tabla.length - 1]; n++) {
@@ -1121,8 +1152,6 @@
     const zona = x.enReserva ? 'Reserva' : c.zonas[t.zona] ? c.zonas[t.zona].nombre : t.zona;
     const coste = Libre.sim.costeDespido(t);
     const aviso = textoEstadoTurno(estado, lic, t);
-    const rasgos = Libre.sim.cualidadesDe(t).map(function (id) { return ['cualidad', id]; })
-      .concat(Libre.sim.defectosDe(t).map(function (id) { return ['defecto', id]; }));
     const pausa = Libre.sim.enPausa(estado);
     return '<div class="hoja-fondo" data-cerrar-ficha></div>' +
       '<div class="hoja hoja-ficha" role="dialog" aria-modal="true" aria-labelledby="ficha-nombre">' +
@@ -1135,19 +1164,13 @@
         : 'Licencia ' + esc(Libre.sim.textoLicencia(lic)) + ' · ' + esc(c.turnos[turno].nombre) + ' ' +
           dos(c.turnos[turno].horaInicio) + '–' + dos(c.turnos[turno].horaFin)) + '</p>' +
       (aviso ? '<p class="turno-estado">' + aviso + '</p>' : '') + '</div>' +
-      '<button type="button" class="hoja-cerrar" data-cerrar-ficha aria-label="Cerrar la ficha">' +
-      '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
+      botonCerrarHoja('data-cerrar-ficha', 'Cerrar la ficha') + '</div>' +
       '<div class="ficha-nivel"><strong>Nivel ' + p.nivel + '</strong>' +
       '<span class="ui-barra ui-barra--marca xp-barra" role="progressbar" aria-label="' + textoExperiencia(p) + '" aria-valuemin="0" ' +
       'aria-valuemax="100" aria-valuenow="' + Math.round(p.avance * 100) + '" data-xp="' + fichaConductor + '">' +
       '<span class="ui-barra-relleno" style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span>' +
       '<small id="ficha-xp">' + textoXpCorto(p) + '</small></div>' +
-      '<div class="ficha-rasgos">' + rasgos.map(function (r) {
-        const rasgo = Libre.sim.buscarRasgo(r[1]);
-        return rasgo ? '<div class="ficha-rasgo ' + r[0] + '"><span class="ficha-rasgo-icono">' + icono(r[1]) + '</span>' +
-          '<span><strong>' + (r[0] === 'cualidad' ? '' : '<span class="solo-lector">Defecto: </span>') + esc(rasgo.nombre) + '</strong>' +
-          '<small>' + esc(rasgo.descripcion) + '</small></span></div>' : '';
-      }).join('') + htmlFuerzaCategoria(t) + '</div>' +
+      '<div class="ficha-rasgos">' + htmlFilasRasgos(t) + htmlFuerzaCategoria(t) + '</div>' +
       '<div class="ficha-objetos-bloque"><strong>Objetos <span>· ' + llevados.length + ' de ' + huecos +
       (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
       '<div class="ficha-objetos">' + casillas.join('') + '</div></div>' +
@@ -1162,6 +1185,35 @@
       boton('Despedir · ' + euros(coste), 'despedirConductor', [licId, turno], 'ui-boton ui-boton--peligro', coste) + '</div>' +
       (pausa ? '' : '<p class="ficha-nota">Cambiar de sitio solo entre días: cuando se cierre la caja.</p>') +
       '</div>';
+  }
+
+  /*
+   * Selector de objetos: hoja encima de la ficha con los objetos sin equipar
+   * del almacén en casillas como las del mosaico, de mejor a peor categoría.
+   * Los que ya lleva salen atenuados. Tocar uno lo equipa y vuelve a la ficha.
+   */
+  function htmlHojaEquipar(estado) {
+    const x = equipando && conductorDe(estado, equipando);
+    if (!x || fichaConductor !== equipando) { equipando = null; return ''; }
+    const llevados = x.t.objetos || [];
+    const lista = objetosDelAlmacen(estado).map(function (o) {
+      const lleva = llevados.indexOf(o.id) !== -1;
+      const contenido = '<span class="ficha-objeto-rareza ' + claseRareza(o.categoria) + '">' + esc(o.categoria === 'L' ? 'L' : o.categoria) + '</span>' +
+        '<span class="ficha-objeto-cantidad">×' + estado.objetos[o.id] + '</span>' +
+        '<span class="ficha-objeto-icono fondo-' + (o.categoria === 'S+' ? 'Smas' : o.categoria) + '">' + icono(o.id) + '</span>' +
+        '<strong>' + esc(o.nombre) + '</strong><small>' + esc(lleva ? 'Ya lo lleva' : textoEfecto(o.efecto)) + '</small>';
+      return lleva
+        ? '<span class="ficha-objeto ficha-objeto--puesto" title="' + esc(o.descripcion) + '">' + contenido + '</span>'
+        : '<button type="button" class="ficha-objeto" data-accion="equiparObjeto" data-args="' + x.licId + '|' + x.turno + '|' + o.id + '"' +
+          ' title="' + esc(o.descripcion) + '" aria-label="Equipar ' + esc(o.nombre) + ': ' + esc(textoEfecto(o.efecto)) + '">' +
+          contenido + '</button>';
+    }).join('');
+    return '<div class="hoja-fondo hoja-encima" data-cerrar-equipar></div>' +
+      '<div class="hoja hoja-encima hoja-equipar" role="dialog" aria-modal="true" aria-labelledby="equipar-titulo">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="hoja-cabecera"><h3 id="equipar-titulo">Equipar a ' + esc(x.t.nombre) + '</h3>' +
+      botonCerrarHoja('data-cerrar-equipar', 'Volver a la ficha') + '</div>' +
+      '<div class="ficha-objetos">' + lista + '</div></div>';
   }
 
   /*
@@ -1201,7 +1253,7 @@
             t.quien === 'conductor' ? Libre.sim.nivelConductor(t) : 0, t.objetos] : null;
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
-    eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario,
+    eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando,
     eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu,
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2,
@@ -1374,11 +1426,10 @@
   function htmlLicencia(estado, lic) {
     const c = Libre.config;
     const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
-    const eligiendo = ['dia', 'noche'].find(function (t) { return eligiendoConductor === lic.id + '|' + t; });
     const tuAbierto = ['dia', 'noche'].find(function (t) {
       return panelTu === lic.id + '|' + t && lic.turnos[t] && lic.turnos[t].quien === 'jugador';
     });
-    const abierta = eligiendo || tuAbierto;
+    const abierta = tuAbierto;
     return '<div class="licencia ui-tarjeta' + (abierta ? ' abierta' : '') + '" data-licencia="' + lic.id + '">' +
       '<div class="licencia-placa"><span class="placa" title="' + esc(textoLibranza(lic.numero)) + '">' +
       esc(Libre.sim.textoLicencia(lic)) + '</span>' +
@@ -1386,10 +1437,6 @@
       (lic.vehiculo
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
         : '<div class="licencia-sin-coche">' + botonCompra('Coche', modeloCompra.precio, 'comprarVehiculo', [lic.id]) + '</div>') +
-      (eligiendo
-        ? (Libre.sim.conduce(estado) ? '' : '<div class="acciones">' + boton('Conducir yo este turno', 'conducir', [lic.id, eligiendo]) + '</div>') +
-          htmlCandidatos(estado, lic, eligiendo)
-        : '') +
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
 
@@ -1423,7 +1470,7 @@
         '<p class="ayuda">' + ayuda + '</p>' + htmlReserva(estado) +
         '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) + '</div>' +
-        htmlFichaConductor(estado);
+        htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
@@ -1441,9 +1488,11 @@
         $('ficha-carreras').textContent = numero(Math.floor(x.t.carreras || 0));
         $('ficha-facturado').textContent = euros(x.t.facturado || 0);
       }
-      if (enfocarFicha) {
-        enfocarFicha = false;
-        const cerrar = document.querySelector('.hoja-cerrar');
+      if (enfocarHoja) {
+        // El botón de cerrar de la hoja recién abierta (la de encima).
+        const sel = { ficha: '.hoja-ficha', candidatos: '.hoja-candidatos', equipar: '.hoja-equipar' }[enfocarHoja];
+        enfocarHoja = null;
+        const cerrar = document.querySelector(sel + ' .hoja-cerrar');
         if (cerrar) cerrar.focus({ preventScroll: true });
       }
     }
@@ -1838,6 +1887,7 @@
     ticketAviso = null;
     objetivoId = null;
     eligiendoConductor = null;
+    equipando = null;
     fichaConductor = null;
     fichaInventario = null;
     ajustesAbiertos = false;
@@ -2057,15 +2107,32 @@
         }
         return;
       }
+      if (ev.target.closest('[data-cerrar-equipar]')) {
+        equipando = null;
+        enfocarHoja = 'ficha';
+        opciones.redibujar();
+        return;
+      }
       if (ev.target.closest('[data-cerrar-ficha]')) {
         fichaConductor = null;
+        opciones.redibujar();
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-candidatos]')) {
+        cerrarCandidatos();
+        return;
+      }
+      const abrirEquipar = ev.target.closest('[data-equipar]');
+      if (abrirEquipar) {
+        equipando = abrirEquipar.dataset.equipar;
+        enfocarHoja = 'equipar';
         opciones.redibujar();
         return;
       }
       const abrirFicha = ev.target.closest('[data-ficha-conductor]');
       if (abrirFicha) {
         fichaConductor = abrirFicha.dataset.fichaConductor;
-        enfocarFicha = true;
+        enfocarHoja = 'ficha';
         opciones.redibujar();
         return;
       }
@@ -2094,8 +2161,9 @@
       }
       const elegir = ev.target.closest('[data-elegir-conductor]');
       if (elegir) {
-        const clave = elegir.dataset.elegirConductor;
-        eligiendoConductor = eligiendoConductor === clave ? null : clave;
+        eligiendoConductor = elegir.dataset.elegirConductor;
+        ventaParaContratar = false;
+        enfocarHoja = 'candidatos';
         opciones.redibujar();
         return;
       }
@@ -2108,9 +2176,15 @@
         eligiendoPlaca = false;
         opciones.redibujar();
       }
-      if (resultado && resultado.ok && (el.dataset.accion === 'contratarConductor' || el.dataset.accion === 'contratarAReserva')) {
+      if (resultado && resultado.ok && (el.dataset.accion === 'contratarConductor' || el.dataset.accion === 'contratarAReserva' ||
+          el.dataset.accion === 'conducir')) {
         eligiendoConductor = null;
         ventaParaContratar = false;
+        opciones.redibujar();
+      }
+      if (resultado && resultado.ok && el.dataset.accion === 'equiparObjeto') {
+        equipando = null;
+        enfocarHoja = 'ficha';
         opciones.redibujar();
       }
       if (resultado && resultado.ok) destelloTrasCompra(el.dataset.accion, args);
@@ -2118,9 +2192,30 @@
 
     iniciarArrastre(opciones);
 
+    // Al cerrar los candidatos, el foco vuelve al hueco que los abrió.
+    function cerrarCandidatos() {
+      const clave = eligiendoConductor;
+      eligiendoConductor = null;
+      ventaParaContratar = false;
+      opciones.redibujar();
+      const origen = document.querySelector('[data-elegir-conductor="' + clave + '"]');
+      if (origen) origen.focus({ preventScroll: true });
+    }
+
     document.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape' && ajustesAbiertos) {
         abrirAjustes(false);
+        return;
+      }
+      // Escape cierra la hoja de encima: el selector de objetos, luego los candidatos o la ficha.
+      if (ev.key === 'Escape' && equipando) {
+        equipando = null;
+        enfocarHoja = 'ficha';
+        opciones.redibujar();
+        return;
+      }
+      if (ev.key === 'Escape' && eligiendoConductor) {
+        cerrarCandidatos();
         return;
       }
       if (ev.key === 'Escape' && fichaConductor) {
