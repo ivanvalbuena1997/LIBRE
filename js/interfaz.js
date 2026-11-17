@@ -852,9 +852,11 @@
   };
 
   /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
-  function etiquetaCategoria(id) {
+  function etiquetaCategoria(id, corta) {
     const c = Libre.sim.buscarCategoria(id);
-    return c ? '<span class="categoria cat-' + (id === 'S+' ? 'Smas' : id) + '">' + esc(c.nombre) + '</span>' : '';
+    // Corta (fichas pequeñas): «L» en vez de LEGENDARIO; el color es el mismo.
+    const texto = corta && id === 'L' ? 'L' : c && c.nombre;
+    return c ? '<span class="categoria cat-' + (id === 'S+' ? 'Smas' : id) + '" title="' + esc(c.nombre) + '">' + esc(texto) + '</span>' : '';
   }
 
   function icono(nombre, clase) {
@@ -1228,7 +1230,7 @@
         (categoria ? ', categoría ' + Libre.sim.buscarCategoria(categoria).nombre : '')) + '">' +
       icono(id) +
       '<span class="ficha-inv-cantidad">' + hay + (conBarra ? '<small>/' + maximo + '</small>' : '') + '</span>' +
-      (categoria ? '<span class="ficha-inv-categoria">' + etiquetaCategoria(categoria) + '</span>' : '') +
+      (categoria ? '<span class="ficha-inv-categoria">' + etiquetaCategoria(categoria, true) + '</span>' : '') +
       (conBarra ? '<span class="ficha-inv-barra"><span style="width:' + Math.min(100, hay / maximo * 100).toFixed(0) + '%"></span></span>' : '') +
       '</button>';
   }

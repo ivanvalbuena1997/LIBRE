@@ -996,12 +996,13 @@ button.zona-tarjeta { cursor: pointer; }
 
 /* Libranza y elección de placa */
 .hoy-libra {
-  padding: 0 6px;
+  padding: 0 4px;
+  white-space: nowrap;
   border-radius: 999px;
   background: var(--fondo);
   border: 1px solid var(--ambar);
   color: var(--ambar);
-  font-size: 0.72rem;
+  font-size: 0.56rem;
   font-weight: 700;
 }
 .placas-venta { border: 1px solid var(--borde); border-radius: 12px; padding: 8px; display: grid; gap: 6px; }
@@ -1108,7 +1109,7 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .licencia {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 2px;
@@ -1118,7 +1119,7 @@ button.zona-tarjeta { cursor: pointer; }
   border-radius: 12px;
 }
 /* Con candidatos o tu panel abiertos, la licencia ocupa la fila entera. */
-.licencia.abierta { grid-column: 1 / -1; }
+.licencia.abierta { grid-column: 1 / -1; flex-wrap: wrap; }
 .licencia.abierta .candidatos, .licencia.abierta .panel-tu, .licencia.abierta > .acciones { width: 100%; }
 .licencia-placa { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
 .licencia-turnos { display: flex; gap: 0; }
