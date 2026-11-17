@@ -35,7 +35,8 @@
   function cajaVacia(dia) {
     return {
       dia, carreras: 0, km: 0, ingresos: 0, extras: 0,
-      combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {}
+      combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {},
+      licencias: []   // números de las licencias que han facturado (para el ticket)
     };
   }
 
@@ -474,7 +475,12 @@
 
   /* Suma varias cajas cerradas en un solo ticket { desdeDia, hastaDia, ... }. */
   function sumarCierres(cajas) {
-    const ticket = { desdeDia: cajas[0].dia, hastaDia: cajas[cajas.length - 1].dia, incidencias: {} };
+    const ticket = { desdeDia: cajas[0].dia, hastaDia: cajas[cajas.length - 1].dia, incidencias: {}, licencias: [] };
+    // Las licencias que trabajaron en alguno de esos días, de menor a mayor.
+    cajas.forEach(function (caja) {
+      (caja.licencias || []).forEach(function (n) { if (ticket.licencias.indexOf(n) === -1) ticket.licencias.push(n); });
+    });
+    ticket.licencias.sort(function (a, b) { return a - b; });
     CAMPOS_CAJA.forEach(function (campo) {
       ticket[campo] = cajas.reduce(function (s, caja) { return s + (caja[campo] || 0); }, 0);
     });
@@ -1339,12 +1345,16 @@
     const antes = estado.totales.ingresos;
     eventosDeCarrera(estado, resumen, carrera, { quien: 'jugador', nombre: 'Tú' });
     const u = ubicacionJugador(estado);
-    if (u) sumarFacturado(buscarLicencia(estado, u.licenciaId), estado.totales.ingresos - antes);
+    if (u) sumarFacturado(estado, buscarLicencia(estado, u.licenciaId), estado.totales.ingresos - antes);
   }
 
   /* Lo que lleva facturado cada taxi en la jornada (para la lista de taxis). */
-  function sumarFacturado(lic, importe) {
-    if (lic && importe > 0) lic.facturadoJornada = (lic.facturadoJornada || 0) + importe;
+  function sumarFacturado(estado, lic, importe) {
+    if (!lic || !(importe > 0)) return;
+    lic.facturadoJornada = (lic.facturadoJornada || 0) + importe;
+    // La caja de hoy apunta qué licencias han trabajado (salen en el ticket).
+    const lista = estado.caja.hoy.licencias = estado.caja.hoy.licencias || [];
+    if (lista.indexOf(lic.numero) === -1) lista.push(lic.numero);
   }
 
   function cobrar(estado, resumen, importe, carreras) {
@@ -1462,7 +1472,7 @@
     const antes = estado.totales.ingresos;
     eventosDeCarrera(estado, resumen, carrera, turno);
     const cobrado = estado.totales.ingresos - antes;
-    sumarFacturado(estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }), cobrado);
+    sumarFacturado(estado, estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }), cobrado);
     turno.carreras = (turno.carreras || 0) + 1;
     turno.facturado = (turno.facturado || 0) + cobrado;
     ganarExperiencia(estado, resumen, turno, cfg().conductores.niveles.porCarrera);
@@ -1855,7 +1865,7 @@
       if (viajes > 0) cobrar(estado, resumen, ingresos, viajes);
       coches.forEach(function (x, i) {
         const parte = pesos[i] / (k * coches.length);
-        sumarFacturado(x.licencia, ingresos * parte);
+        sumarFacturado(estado, x.licencia, ingresos * parte);
         if (x.turno.quien !== 'conductor') return;
         x.turno.carreras = (x.turno.carreras || 0) + viajes * parte;
         x.turno.facturado = (x.turno.facturado || 0) + ingresos * parte;

@@ -208,7 +208,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   desaparece al arrancar el día (no tapa la página: en pausa se compra).
   Aspecto de papel térmico; sus líneas son carreras, kilómetros, recaudación,
   combustible, conductores, costes fijos y neto, en ese orden (Iván), y debajo
-  el bloque de incidencias. No añadir líneas de ticket inventadas.
+  el bloque de incidencias. No añadir líneas de ticket inventadas. En la
+  cabecera, las licencias que trabajaron (facturaron) esos días: la caja
+  las apunta en `caja.licencias` (`sumarFacturado()`) y `sumarCierres()`
+  junta las de varios días.
 - Licencias: `numero` al azar entre 1 y el máximo de Madrid, sin repetir. La
   letra (día de libranza) sale de la última cifra (`config.licencias.letraPorCifra`)
   y se muestra como `15288-L` con `textoLicencia()`. Al comprar eliges entre

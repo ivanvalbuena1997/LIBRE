@@ -1125,4 +1125,27 @@ prueba('las partidas de la versión 18 dan un segundo defecto a sus conductores 
   assert.strictEqual(m.turnos.noche.defecto, null, 'A en el nivel 10: pierde el defecto');
 });
 
+prueba('el ticket lleva las licencias que trabajaron ese día', function () {
+  const e = flotaDe(3);
+  sim.dejarDeConducir(Object.assign(e, { mejoras: { oficina: 1 } }));
+  // La tercera no trabaja: sin coche.
+  e.licencias[2].vehiculo = null;
+  e.ajustes.pararAlCierre = true;
+  for (let i = 0; i < 2 * DIA() * 10 && !sim.enPausa(e); i++) sim.avanzar(e, 0.1);
+  assert.ok(sim.enPausa(e), 'se ha cerrado el día');
+  const esperadas = [e.licencias[0].numero, e.licencias[1].numero].sort(function (a, b) { return a - b; });
+  assert.deepStrictEqual(e.cierrePendiente.licencias, esperadas);
+  // Varios días sin conexión: la unión de todos.
+  const t = sim.sumarCierres([{ dia: 0, licencias: [5, 3], incidencias: {} }, { dia: 1, licencias: [3, 9], incidencias: {} }]);
+  assert.deepStrictEqual(t.licencias, [3, 5, 9]);
+});
+
+prueba('las partidas de la versión 19 empiezan la lista de licencias del ticket vacía', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(1);
+  viejo.version = 19;
+  delete viejo.caja.hoy.licencias;
+  assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).caja.hoy.licencias, []);
+});
+
 console.log(pasadas + ' pruebas correctas');

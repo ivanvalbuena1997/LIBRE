@@ -192,6 +192,13 @@
         if (sim.nivelConductor(t) === c.conductores.niveles.experiencia.length) sim.premioNivelMaximo(estado, t);
       });
       sim.sortearCandidatos(estado);
+    },
+    // Versión 20: la caja apunta qué licencias trabajaron (para el ticket).
+    // En lo ya guardado no se sabe: hoy cuenta desde ahora.
+    19: function (estado) {
+      [estado.caja.hoy, estado.caja.ayer, estado.cierrePendiente].forEach(function (caja) {
+        if (caja && !caja.licencias) caja.licencias = [];
+      });
     }
   };
 

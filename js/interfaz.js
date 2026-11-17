@@ -561,9 +561,6 @@
     html: function (estado) {
       const t = ticketEnPantalla(estado);
       if (!t) return '';
-      const u = Libre.sim.ubicacionJugador(estado);
-      // Tu licencia si conduces; si solo gestionas (Oficina), la primera de la flota.
-      const licencia = (u && estado.licencias.find(function (l) { return l.id === u.licenciaId; })) || estado.licencias[0];
       const lineas = lineasTicket(t.datos);
       let i = 0;
       const linea = function (l) {
@@ -573,7 +570,7 @@
       return '<div class="ticket-ranura"><div class="ticket" role="group" aria-label="Ticket de cierre de caja">' +
         '<div class="ticket-cabecera">' +
         '<div class="ticket-linea ticket-nombre" style="--i:' + (i++) + '">Libre</div>' +
-        '<div class="ticket-linea" style="--i:' + (i++) + '">Taxi · licencia ' + esc(Libre.sim.textoLicencia(licencia)) + '</div>' +
+        htmlLicenciasTicket(t.datos, function () { return i++; }) +
         '<div class="ticket-linea" style="--i:' + (i++) + '">' + esc(fechaTicket(t.datos)) + '</div>' +
         '</div>' +
         '<div class="ticket-separador"></div>' +
@@ -589,6 +586,20 @@
         '</div>';
     }
   };
+
+  /*
+   * Cabecera del ticket: las licencias que trabajaron (facturaron) en los
+   * días que cubre. Una: «Taxi · licencia 15288-L»; varias: cuántas y la
+   * lista. Ninguna (día sin servicio, o ticket guardado antes de apuntarlas):
+   * sin línea.
+   */
+  function htmlLicenciasTicket(datos, siguiente) {
+    const lista = (datos.licencias || []).map(function (n) { return Libre.sim.textoLicencia({ numero: n }); });
+    if (lista.length === 0) return '';
+    if (lista.length === 1) return '<div class="ticket-linea" style="--i:' + siguiente() + '">Taxi · licencia ' + esc(lista[0]) + '</div>';
+    return '<div class="ticket-linea" style="--i:' + siguiente() + '">' + lista.length + ' taxis · licencias</div>' +
+      '<div class="ticket-linea ticket-licencias" style="--i:' + siguiente() + '">' + esc(lista.join(' · ')) + '</div>';
+  }
 
   /* Sin pausa al cierre, cada día cerrado se enseña como aviso. */
   let ultimoCierreVisto = null;

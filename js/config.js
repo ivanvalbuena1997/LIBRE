@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 19,
+    versionGuardado: 20,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
