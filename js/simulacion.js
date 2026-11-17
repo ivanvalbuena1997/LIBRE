@@ -1064,9 +1064,10 @@
   /*
    * De dónde salen los factores de un conductor: una lista de aportes
    * { tipo ('cualidad', 'defecto', 'objeto' o 'nivel'), id, nombre, efecto },
-   * en este orden. Cualidades y defectos ya llevan la fuerza de su categoría
-   * (la categoría refuerza las cualidades y suaviza los defectos); el nivel
-   * acorta la espera (cada nivel por encima del 1, un poco).
+   * en este orden, y al final 'categoria' (su plus de espera de serie).
+   * Cualidades y defectos ya llevan la fuerza de su categoría (la categoría
+   * refuerza las cualidades y suaviza los defectos); el nivel acorta la
+   * espera (cada nivel por encima del 1, un poco).
    */
   function aportesConductor(t) {
     const lista = [];
@@ -1092,6 +1093,10 @@
     const nivel = nivelConductor(t);
     lista.push({ tipo: 'nivel', id: 'nivel', nombre: 'Nivel ' + nivel,
       efecto: { espera: 1 - cfg().conductores.niveles.esperaPorNivel * (nivel - 1) } });
+    // El plus de serie de su categoría (los B no tienen).
+    if (cat.esperaBase && cat.esperaBase !== 1) {
+      lista.push({ tipo: 'categoria', id: cat.id, nombre: 'Categoría ' + cat.nombre, efecto: { espera: cat.esperaBase } });
+    }
     return lista;
   }
 
@@ -1195,7 +1200,7 @@
 
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
     stats.push({ clave: 'hallazgo', valor: cfg().objetos.probHallazgo * cat.hallazgo, factor: cat.hallazgo, tope: false,
-      fuentes: cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo }] });
+      fuentes: cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo, multiplica: true }] });
 
     stats.push(probabilidad('baja', ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
       return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.baja };

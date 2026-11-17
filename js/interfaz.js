@@ -1310,7 +1310,7 @@
     const tipo = NOMBRE_TIPO_FUENTE[f.tipo];
     const quien = (tipo ? tipo + ' ' : '') + f.nombre;
     if (f.anula) return quien + ': lo evita del todo';
-    return quien + ' ' + (f.tipo === 'categoria' ? '×' + f.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : cambio(f.factor)) +
+    return quien + ' ' + (f.multiplica ? '×' + f.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : cambio(f.factor)) +
       (f.soloTurno ? ' (solo de ' + (f.soloTurno === 'dia' ? 'día' : 'noche') + (f.cuenta ? '' : ', no cuenta') + ')' : '');
   }
 

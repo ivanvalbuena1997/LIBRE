@@ -213,6 +213,8 @@ prueba('las partidas de la versión 20 juntan las cuatro jornadas largas en nive
 prueba('un día más largo da más carreras con el mismo coste fijo', function () {
   function unDia(conMejora) {
     const e = sim.crearEstadoInicial(0);
+    e.azar = 2026;   // el mismo conductor en las dos (si no, uno mejor que otro falsea la comparación)
+    sim.sortearCandidatos(e);
     e.dinero = 100000;
     sim.contratarConductor(e, 1, 'noche');
     if (conMejora) comprarConRequisitos(e, 'jornadaLarga');
@@ -760,6 +762,11 @@ prueba('los rasgos cambian los valores, con tope', function () {
 });
 
 prueba('un conductor Lento hace menos carreras que uno que Conoce la ciudad', function () {
+  // Sin sucesos: una baja de varios días mueve más que la espera en 20 días.
+  const eventos = JSON.parse(JSON.stringify(config.eventos));
+  Object.keys(config.eventos).forEach(function (k) {
+    ['probCarrera', 'probTurno', 'probJornada'].forEach(function (p) { if (p in config.eventos[k]) config.eventos[k][p] = 0; });
+  });
   function carreras(cualidad, defecto) {
     const e = flotaDe(1);
     e.azar = 4242;
@@ -777,6 +784,7 @@ prueba('un conductor Lento hace menos carreras que uno que Conoce la ciudad', fu
     return e.totales.carreras;
   }
   const rapido = carreras('conoceCiudad', 'antipatico'), lento = carreras('honrado', 'lento');
+  config.eventos = eventos;
   // La espera es solo una parte del ciclo (el viaje no cambia): unos puntos de diferencia.
   assert.ok(rapido > lento * 1.02, rapido + ' frente a ' + lento);
 });
@@ -1002,7 +1010,9 @@ prueba('categorías de conductor: más cualidad, menos defecto, más hallazgos',
   t.categoria = 'L'; t.defecto = null; t.cualidad2 = 'conoceCiudad';
   const fl = sim.factoresConductor(f, t);
   cerca(fl.propina, 1 + q * porCat.L.fuerzaCualidad, 1e-9);
-  cerca(fl.espera, 1 + (rasgo('conoceCiudad', 'espera') - 1) * porCat.L.fuerzaCualidad, 1e-9);
+  cerca(fl.espera, (1 + (rasgo('conoceCiudad', 'espera') - 1) * porCat.L.fuerzaCualidad) * porCat.L.esperaBase, 1e-9);
+  assert.ok(porCat.L.esperaBase < porCat['S+'].esperaBase && porCat['S+'].esperaBase < porCat.B.esperaBase,
+    'el plus de espera crece con la categoría');
   assert.strictEqual(sim.precioCandidato({ categoria: 'L' }), porCat.L.contratar);
   assert.ok(porCat.L.contratar > porCat.B.contratar * 10);
 });

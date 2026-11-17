@@ -127,18 +127,21 @@
      *                  un +30 % pasa a +42 %; con 0,85 un +10 % pasa a +8,5 %
      *   hallazgo       factor sobre la probabilidad de encontrar objetos
      *   aperturaTope   cuánto abre los topes de sus stats (ver topesAbiertos)
+     *   esperaBase     factor de serie sobre su espera, le toquen los rasgos
+     *                  que le toquen (Iván, 17-11-2026: que la categoría se
+     *                  note más que el nivel)
      */
     categorias: [
       { id: 'B', nombre: 'B', peso: 0.65, venta: 40, contratar: 400,
-        cualidades: 1, defectos: 2, probDefecto: 1, fuerzaCualidad: 1, fuerzaDefecto: 1, hallazgo: 1, aperturaTope: 0 },
+        cualidades: 1, defectos: 2, probDefecto: 1, fuerzaCualidad: 1, fuerzaDefecto: 1, hallazgo: 1, aperturaTope: 0, esperaBase: 1 },
       { id: 'A', nombre: 'A', peso: 0.25, venta: 120, contratar: 900,
-        cualidades: 1, defectos: 1, probDefecto: 1, fuerzaCualidad: 1.2, fuerzaDefecto: 0.85, hallazgo: 1.15, aperturaTope: 0.1 },
+        cualidades: 1, defectos: 1, probDefecto: 1, fuerzaCualidad: 1.2, fuerzaDefecto: 0.85, hallazgo: 1.15, aperturaTope: 0.1, esperaBase: 0.95 },
       { id: 'S', nombre: 'S', peso: 0.075, venta: 400, contratar: 2000,
-        cualidades: 1, defectos: 1, probDefecto: 0.5, fuerzaCualidad: 1.4, fuerzaDefecto: 0.7, hallazgo: 1.3, aperturaTope: 0.2 },
+        cualidades: 1, defectos: 1, probDefecto: 0.5, fuerzaCualidad: 1.4, fuerzaDefecto: 0.7, hallazgo: 1.3, aperturaTope: 0.2, esperaBase: 0.88 },
       { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200, contratar: 5000,
-        cualidades: 1, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5, aperturaTope: 0.3 },
+        cualidades: 1, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5, aperturaTope: 0.3, esperaBase: 0.8 },
       { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000, contratar: 12000,
-        cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2, aperturaTope: 0.5 }
+        cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2, aperturaTope: 0.75, esperaBase: 0.7 }
     ],
 
     /*
@@ -317,7 +320,7 @@
         porCarrera: 1,
         // Al llegar al último nivel pierde un defecto o, si no tiene, gana una cualidad.
         experiencia: [0, 20, 48, 87, 142, 219, 326, 477, 688, 983],
-        esperaPorNivel: 0.025,
+        esperaPorNivel: 0.015,
         // Huecos de objeto por nivel (1 a 10): uno más en el 4 y otro en el 8.
         huecos: [1, 1, 1, 2, 2, 2, 2, 3, 3, 3]
       },
@@ -349,8 +352,8 @@
        * proporción (media geométrica): tope ^ (1 − a) × extremo ^ a.
        */
       topesAbiertos: {
-        porNivel: 0.5,
-        extremo: { espera: 0.3, propina: 5, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15 }
+        porNivel: 0.25,
+        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15 }
       },
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).
