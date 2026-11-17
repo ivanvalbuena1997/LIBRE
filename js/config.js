@@ -126,18 +126,19 @@
      *   fuerzaCualidad / fuerzaDefecto  cuánto de su efecto aplican: con 1,4
      *                  un +30 % pasa a +42 %; con 0,85 un +10 % pasa a +8,5 %
      *   hallazgo       factor sobre la probabilidad de encontrar objetos
+     *   aperturaTope   cuánto abre los topes de sus stats (ver topesAbiertos)
      */
     categorias: [
       { id: 'B', nombre: 'B', peso: 0.65, venta: 40, contratar: 400,
-        cualidades: 1, defectos: 2, probDefecto: 1, fuerzaCualidad: 1, fuerzaDefecto: 1, hallazgo: 1 },
+        cualidades: 1, defectos: 2, probDefecto: 1, fuerzaCualidad: 1, fuerzaDefecto: 1, hallazgo: 1, aperturaTope: 0 },
       { id: 'A', nombre: 'A', peso: 0.25, venta: 120, contratar: 900,
-        cualidades: 1, defectos: 1, probDefecto: 1, fuerzaCualidad: 1.2, fuerzaDefecto: 0.85, hallazgo: 1.15 },
+        cualidades: 1, defectos: 1, probDefecto: 1, fuerzaCualidad: 1.2, fuerzaDefecto: 0.85, hallazgo: 1.15, aperturaTope: 0.1 },
       { id: 'S', nombre: 'S', peso: 0.075, venta: 400, contratar: 2000,
-        cualidades: 1, defectos: 1, probDefecto: 0.5, fuerzaCualidad: 1.4, fuerzaDefecto: 0.7, hallazgo: 1.3 },
+        cualidades: 1, defectos: 1, probDefecto: 0.5, fuerzaCualidad: 1.4, fuerzaDefecto: 0.7, hallazgo: 1.3, aperturaTope: 0.2 },
       { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200, contratar: 5000,
-        cualidades: 1, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5 },
+        cualidades: 1, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5, aperturaTope: 0.3 },
       { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000, contratar: 12000,
-        cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2 }
+        cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2, aperturaTope: 0.5 }
     ],
 
     /*
@@ -338,6 +339,18 @@
         pinchazo: [0.3, 2],
         averia: [0.3, 2],
         limpieza: [0.4, 1.5]
+      },
+      /*
+       * Topes que crecen (Equilibrio, Iván 17-11-2026): los de arriba son los
+       * de un B de nivel 1. Solo se abre el lado bueno de cada tope (lo malo
+       * sigue frenado), según una apertura de 0 a 1:
+       *   apertura = aperturaTope de su categoría + porNivel × (nivel − 1) / 9
+       * Con apertura 1 se llega a `extremo`; entre medias, a medio camino en
+       * proporción (media geométrica): tope ^ (1 − a) × extremo ^ a.
+       */
+      topesAbiertos: {
+        porNivel: 0.5,
+        extremo: { espera: 0.3, propina: 5, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15 }
       },
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).

@@ -1161,15 +1161,15 @@
     function probabilidad(clave, base, extra) {
       const fuentes = fuentesDe(clave).concat(extra || []);
       const bruto = producto(fuentes);
-      const factor = topeConductor(clave, bruto);
+      const factor = topeConductor(clave, bruto, t);
       return { clave, valor: base * factor, factor, tope: factor !== bruto, fuentes };
     }
     const stats = [];
 
     const espera = fuentesDe('espera');
     const brutoEspera = producto(espera);
-    stats.push({ clave: 'espera', valor: topeConductor('espera', brutoEspera), factor: topeConductor('espera', brutoEspera),
-      tope: topeConductor('espera', brutoEspera) !== brutoEspera, fuentes: espera });
+    const factorEspera = topeConductor('espera', brutoEspera, t);
+    stats.push({ clave: 'espera', valor: factorEspera, factor: factorEspera, tope: factorEspera !== brutoEspera, fuentes: espera });
 
     // Propinas: las mejoras suman probabilidad, y el tope va sobre el total.
     const extrasPropina = mejoras.filter(function (x) { return x.efecto.propinaProb; }).map(function (x) {
@@ -1178,7 +1178,7 @@
     const propina = fuentesDe('propina').concat(extrasPropina);
     const brutoPropina = (ev.propina.probCarrera + m.propinaProb) / ev.propina.probCarrera *
       producto(fuentesDe('propina'));
-    const factorPropina = topeConductor('propina', brutoPropina);
+    const factorPropina = topeConductor('propina', brutoPropina, t);
     stats.push({ clave: 'propina', valor: ev.propina.probCarrera * factorPropina, factor: factorPropina, tope: factorPropina !== brutoPropina, fuentes: propina });
 
     const sinPagar = probabilidad('sinPagar', ev.sinPagar.probCarrera);
@@ -1205,16 +1205,41 @@
 
     const limpieza = fuentesDe('limpieza');
     const brutoLimpieza = producto(limpieza);
-    const l = topeConductor('limpieza', brutoLimpieza);
+    const l = topeConductor('limpieza', brutoLimpieza, t);
     stats.push({ clave: 'limpieza', factor: l, tope: l !== brutoLimpieza, fuentes: limpieza,
       valor: { costeMin: ev.vomito.costeMin * l, costeMax: ev.vomito.costeMax * l, minutos: ev.vomito.horasParado * 60 * l } });
     return stats;
   }
 
-  /* El factor recortado a los topes de la config: nada llega a cero ni se dispara. */
-  function topeConductor(valor, factor) {
-    const t = cfg().conductores.topes[valor];
-    return Math.min(t[1], Math.max(t[0], factor));
+  /* Lo que conviene que sea alto (el resto, cuanto más bajo, mejor). */
+  const MAS_ES_MEJOR = { propina: true, objeto: true };
+
+  /* Apertura de los topes de un conductor (0 a 1): categoría y nivel. */
+  function aperturaTopes(t) {
+    if (!t || t.quien !== 'conductor') return 0;
+    const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
+    return Math.min(1, (cat.aperturaTope || 0) + cfg().conductores.topesAbiertos.porNivel * (nivelConductor(t) - 1) / 9);
+  }
+
+  /*
+   * Topes [mínimo, máximo] de un valor para un conductor: los de la config
+   * con el lado bueno abierto según su apertura (topesAbiertos). Sin
+   * conductor (o sin `t`), los de la config tal cual.
+   */
+  function topesDe(valor, t) {
+    const base = cfg().conductores.topes[valor];
+    const a = aperturaTopes(t);
+    if (!a) return base;
+    const extremo = cfg().conductores.topesAbiertos.extremo[valor];
+    const lado = MAS_ES_MEJOR[valor] ? 1 : 0;
+    const abierto = Math.pow(base[lado], 1 - a) * Math.pow(extremo, a);
+    return lado ? [base[0], abierto] : [abierto, base[1]];
+  }
+
+  /* El factor recortado a los topes del conductor: nada llega a cero ni se dispara. */
+  function topeConductor(valor, factor, t) {
+    const tope = topesDe(valor, t);
+    return Math.min(tope[1], Math.max(tope[0], factor));
   }
 
   /* Dejas tu turno: queda libre para un conductor. Tu flota sigue trabajando. */
@@ -1558,7 +1583,7 @@
           x.turno.carrera = tramoEnVacio(estado, zonaId, x.licencia.vehiculo, finHora);
           return;
         }
-        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera);
+        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera, x.turno);
         const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar', fe);
         // En una parada con cola (Barajas: 1–2 h) se guarda el turno aunque pase
         // de la hora; sin cola, la espera se corta en la hora (no tiene memoria).
@@ -1649,8 +1674,8 @@
     // Rasgos del conductor (todo 1 en tu turno), con sus topes.
     const f = factoresConductor(estado, quien);
     const baseProp = ev.propina.probCarrera;
-    const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina);
-    if (!m.sinImpagos && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar))) {
+    const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina, quien);
+    if (!m.sinImpagos && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien))) {
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
@@ -1666,7 +1691,7 @@
       incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras', quien);
     }
 
-    if (toca(estado, 'objeto', ev.objeto.probCarrera * topeConductor('objeto', f.objeto))) {
+    if (toca(estado, 'objeto', ev.objeto.probCarrera * topeConductor('objeto', f.objeto, quien))) {
       const forzado = consumirForzado(estado, 'objeto');
       const objeto = forzado && forzado.arg ? ev.objeto.objetos[Number(forzado.arg) - 1] : elegirObjeto(estado);
       incidencia(estado, resumen, 'objeto',
@@ -1683,7 +1708,7 @@
         incidencia(estado, resumen, 'bolsa', 'Un cliente se marea, pero había bolsa: el coche queda limpio.', 0, null, quien);
         return;
       }
-      const limpieza = topeConductor('limpieza', f.limpieza);
+      const limpieza = topeConductor('limpieza', f.limpieza, quien);
       const coste = entre(estado, ev.vomito.costeMin, ev.vomito.costeMax) * limpieza;
       const minutos = ev.vomito.horasParado * 60 * limpieza;
       pararUnRato(estado, quien, minutos, 'vomito');
@@ -1775,16 +1800,16 @@
       if (!puedeTrabajar(estado, lic, t, ahora)) return;
       const f = factoresConductor(estado, t);
       // Bajas: rasgo y objetos del conductor y las mejoras (Deflectores), con tope.
-      if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja * modificadores(estado).baja)) {
+      if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja * modificadores(estado).baja, t)) {
         const jornadas = enteroEntre(estado, ev.baja.jornadasMin, ev.baja.jornadasMax);
         t.baja = { hasta: jornada + jornadas };
         incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +
           (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null, t);
         return;
       }
-      if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo)) {
+      if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo, t)) {
         t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
-      } else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia)) {
+      } else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia, t)) {
         t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
       }
     });
@@ -1976,7 +2001,7 @@
       const espera = Math.max(0, ciclo - viaje);
       const pesos = coches.map(function (x) {
         if (ciclo === 0) return 1;
-        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera);
+        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera, x.turno);
         return ciclo / (espera * fe + viaje);
       });
       const k = pesos.reduce(function (a, b) { return a + b; }, 0) / coches.length;
@@ -2267,6 +2292,8 @@
     progresoConductor,
     darExperiencia,
     topeConductor,
+    topesDe,
+    aperturaTopes,
     avanzar,
     progresoSinConexion
   };
