@@ -1,9 +1,11 @@
 # Libre · convenciones del proyecto
 
 Juego incremental de gestión de taxis en Madrid. El diseño completo está en
-`DISENO.md`; la versión actual cubre solo la sección "Primera versión jugable"
-(etapas 1 y 2). No añadir nada de lo que esa sección deja fuera (VTC,
-gerentes, otras ciudades, prestigio). Las averías y bajas entran como eventos
+`DISENO.md` (pensado para leerlo como diseñador, con capturas en
+`docs/capturas/`); la versión actual cubre solo las etapas 1 y 2 (apartado
+«Alcance de la versión actual»). No añadir nada de lo que ese apartado
+deja fuera (VTC, gerentes, otras ciudades, prestigio). Si cambia una regla o
+un número, se actualiza también DISENO.md. Las averías y bajas entran como eventos
 aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 
 ## Técnica
