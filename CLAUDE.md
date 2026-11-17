@@ -95,9 +95,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Categoría del conductor (`turno.categoria`, de `config.categorias`):
   sale al azar en cada candidato con los mismos pesos que los objetos y
   fija su precio (`precioCandidato()`), cuántas cualidades tiene (los
-  LEGENDARIOS, dos: `cualidad2`), la probabilidad de tener defecto (S+ y
-  LEGENDARIO, ninguno; `defecto` puede ser null), la fuerza de sus rasgos y
-  cuánto encuentra. Los candidatos se quedan hasta que contratas a uno; si
+  LEGENDARIOS, dos), cuántos defectos (B, dos; A, uno; S, uno la mitad de
+  las veces; S+ y LEGENDARIO, ninguno), la fuerza de sus rasgos y cuánto
+  encuentra. Campos: `cualidad`, `cualidad2`, `cualidad3`, `defecto`,
+  `defecto2` (null si no los tiene); léelos con `cualidadesDe()` y
+  `defectosDe()`. Al llegar al nivel 10 (`premioNivelMaximo()`) pierde un
+  defecto (el segundo primero) o, si no tiene, gana una cualidad nueva. Los candidatos se quedan hasta que contratas a uno; si
   no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí.
 - Reserva (`estado.reserva`, hasta `config.conductores.reserva`):
   conductores contratados sin turno (`contratarAReserva()`). No trabajan,

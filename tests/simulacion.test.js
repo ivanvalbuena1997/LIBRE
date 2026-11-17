@@ -426,7 +426,8 @@ function todosB(e) {
   e.licencias.forEach(function (l) {
     ['dia', 'noche'].forEach(function (t) {
       const x = l.turnos[t];
-      if (x && x.quien === 'conductor') { x.categoria = 'B'; x.cualidad2 = null; }
+      // Un solo defecto: las pruebas fijan los rasgos a mano.
+      if (x && x.quien === 'conductor') { x.categoria = 'B'; x.cualidad2 = null; x.cualidad3 = null; x.defecto2 = null; }
     });
   });
 }
@@ -1005,9 +1006,10 @@ prueba('reserva: contratas sin turno, hasta el máximo; no trabajan; se puede de
   assert.ok(sim.equiparObjeto(e, 'reserva', 0, 'gps').ok, 'se equipa también en la reserva');
   for (let i = 0; i < DIA() * 10; i++) sim.avanzar(e, 0.1);
   assert.strictEqual(r.xp, 0, 'en la reserva no trabaja');
+  const gpsAntes = e.objetos.gps || 0;   // otros conductores pueden haber encontrado alguno
   assert.ok(sim.despedirConductor(e, 'reserva', 0).ok);
   assert.strictEqual(e.reserva.length, max - 1);
-  assert.strictEqual(e.objetos.gps, 1, 'su objeto vuelve al almacén');
+  assert.strictEqual(e.objetos.gps, gpsAntes + 1, 'su objeto vuelve al almacén');
   const personajes = sim.todosLosConductores(e).map(function (x) { return x.t.retrato; });
   assert.ok(e.candidatos.every(function (c) { return personajes.indexOf(c.retrato) === -1 || personajes.length >= config.conductores.personajes.length; }),
     'los candidatos no repiten a nadie de la reserva');
@@ -1080,6 +1082,47 @@ prueba('al comprar licencia eliges entre dos placas con letras distintas', funct
   assert.ok(sim.comprarLicencia(e, null, 1).ok);
   assert.strictEqual(e.licencias[1].numero, placas[1]);
   assert.notDeepStrictEqual(sim.placasEnVenta(e), placas, 'después, otras');
+});
+
+prueba('los conductores B tienen dos defectos; el nivel 10 quita uno o da una cualidad', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 5;
+  for (let i = 0; i < 200; i++) {
+    const r = sim.sortearRasgos(e, null, 'B');
+    assert.ok(r.defecto && r.defecto2 && r.defecto !== r.defecto2, 'B: dos defectos distintos');
+    const q = sim.buscarRasgo(r.cualidad);
+    assert.ok(r.defecto !== q.opuesto && r.defecto2 !== q.opuesto, 'ninguno opuesto a su cualidad');
+    assert.strictEqual(sim.sortearRasgos(e, null, 'A').defecto2, null, 'A: uno');
+  }
+  const f = flotaDe(1);
+  const t = f.licencias[0].turnos.noche;
+  const max = config.conductores.niveles.experiencia;
+  t.cualidad = 'simpatico'; t.defecto = 'lento'; t.defecto2 = 'despistado';
+  const r = sim.darExperiencia(f, t.nombre, max[max.length - 1]);
+  assert.strictEqual(sim.nivelConductor(t), max.length);
+  assert.strictEqual(t.defecto2, null, 'pierde el segundo defecto');
+  assert.strictEqual(t.defecto, 'lento');
+  assert.ok(/pierde su defecto/.test(r.eventos[0].texto));
+  // Sin defectos: gana una cualidad nueva.
+  t.xp = 0; t.defecto = null;
+  sim.darExperiencia(f, t.nombre, max[max.length - 1]);
+  assert.ok(t.cualidad2 && t.cualidad2 !== t.cualidad, 'gana una cualidad');
+  cerca(sim.factoresConductor(f, t).propina >= 1.3 ? 1 : 0, 1);
+});
+
+prueba('las partidas de la versión 18 dan un segundo defecto a sus conductores B', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(2);
+  viejo.version = 18;
+  const max = config.conductores.niveles.experiencia;
+  const lic = viejo.licencias[1];
+  lic.turnos.dia.categoria = 'B'; lic.turnos.dia.defecto = 'lento'; delete lic.turnos.dia.defecto2;
+  lic.turnos.noche.categoria = 'A'; lic.turnos.noche.defecto = 'lento'; delete lic.turnos.noche.defecto2;
+  lic.turnos.noche.xp = max[max.length - 1];
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  const m = migrado.licencias[1];
+  assert.ok(m.turnos.dia.defecto2 && m.turnos.dia.defecto2 !== 'lento', 'B: segundo defecto');
+  assert.strictEqual(m.turnos.noche.defecto, null, 'A en el nivel 10: pierde el defecto');
 });
 
 console.log(pasadas + ' pruebas correctas');

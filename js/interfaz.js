@@ -868,13 +868,14 @@
       (clase === 'cualidad' ? 'Cualidad: ' : 'Defecto: ') + esc(r.nombre) + '">' + (clase === 'cualidad' ? '+' : '−') + icono(id) + '</span>';
   }
   function htmlRasgosMini(t) {
-    return htmlRasgoMini(t.cualidad, 'cualidad') + htmlRasgoMini(t.cualidad2, 'cualidad') + htmlRasgoMini(t.defecto, 'defecto');
+    return Libre.sim.cualidadesDe(t).map(function (id) { return htmlRasgoMini(id, 'cualidad'); }).join('') +
+      Libre.sim.defectosDe(t).map(function (id) { return htmlRasgoMini(id, 'defecto'); }).join('');
   }
 
   /* Cualidades (una o dos) y defecto (si tiene) de un conductor o candidato. */
   function htmlRasgos(x) {
-    return '<span class="rasgos">' + htmlRasgo(x.cualidad, 'cualidad') + htmlRasgo(x.cualidad2, 'cualidad') +
-      htmlRasgo(x.defecto, 'defecto') + '</span>';
+    return '<span class="rasgos">' + Libre.sim.cualidadesDe(x).map(function (id) { return htmlRasgo(id, 'cualidad'); }).join('') +
+      Libre.sim.defectosDe(x).map(function (id) { return htmlRasgo(id, 'defecto'); }).join('') + '</span>';
   }
 
   /* Lo menos que cuesta contratar ahora (el candidato más barato). */
@@ -929,7 +930,7 @@
     const hayHuecoReserva = (estado.reserva || []).length < Libre.config.conductores.reserva;
     const lista = Libre.sim.candidatos(estado).map(function (x, i) {
       const precio = Libre.sim.precioCandidato(x);
-      const textos = [x.cualidad, x.cualidad2, x.defecto].map(Libre.sim.buscarRasgo).filter(Boolean)
+      const textos = Libre.sim.cualidadesDe(x).concat(Libre.sim.defectosDe(x)).map(Libre.sim.buscarRasgo).filter(Boolean)
         .map(function (r) { return esc(r.descripcion); }).join(' ');
       if (estado.dinero < precio) falta = true;
       return '<div class="candidato"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
@@ -1089,9 +1090,10 @@
   function htmlFuerzaCategoria(t) {
     const cat = Libre.sim.buscarCategoria(t.categoria);
     if (!cat || (cat.fuerzaCualidad === 1 && cat.fuerzaDefecto === 1)) return '';
-    const partes = ['su categoría ' + cat.nombre + ' refuerza ' + (t.cualidad2 ? 'sus cualidades' : 'su cualidad') +
+    const nDefectos = Libre.sim.defectosDe(t).length;
+    const partes = ['su categoría ' + cat.nombre + ' refuerza ' + (Libre.sim.cualidadesDe(t).length > 1 ? 'sus cualidades' : 'su cualidad') +
       ' ×' + factor(cat.fuerzaCualidad)];
-    if (t.defecto) partes.push('deja su defecto en ×' + factor(cat.fuerzaDefecto));
+    if (nDefectos) partes.push('deja ' + (nDefectos > 1 ? 'sus defectos' : 'su defecto') + ' en ×' + factor(cat.fuerzaDefecto));
     return '<p class="ficha-fuerza">' + partes.join(' y ').replace(/^./, function (c) { return c.toUpperCase(); }) + '.</p>';
   }
 
@@ -1151,8 +1153,11 @@
       '<div class="ficha-nivel"><span class="nivel-insignia grande">' + p.nivel + '</span><div>' +
       '<strong>Nivel ' + p.nivel + '</strong>' + htmlBarraXp(fichaConductor, p) +
       '<small id="ficha-xp">' + textoExperiencia(p) + '</small></div></div>' +
-      '<h4>' + (t.cualidad2 ? 'Cualidades' : 'Cualidad') + (t.defecto ? ' y defecto' : '') + '</h4><ul class="ficha-rasgos">' +
-      [['cualidad', t.cualidad], ['cualidad', t.cualidad2], ['defecto', t.defecto]].map(function (r) {
+      '<h4>' + (Libre.sim.cualidadesDe(t).length > 1 ? 'Cualidades' : 'Cualidad') +
+        (Libre.sim.defectosDe(t).length > 1 ? ' y defectos' : Libre.sim.defectosDe(t).length ? ' y defecto' : '') +
+        '</h4><ul class="ficha-rasgos">' +
+      Libre.sim.cualidadesDe(t).map(function (id) { return ['cualidad', id]; })
+        .concat(Libre.sim.defectosDe(t).map(function (id) { return ['defecto', id]; })).map(function (r) {
         const rasgo = Libre.sim.buscarRasgo(r[1]);
         return rasgo ? '<li>' + htmlRasgo(r[1], r[0]) + '<span>' + esc(rasgo.descripcion) + '</span></li>' : '';
       }).join('') + '</ul>' + htmlFuerzaCategoria(t) +
@@ -1183,14 +1188,15 @@
         ['dia', 'noche'].map(function (tn) {
           const t = l.turnos[tn];
           return t ? [t.quien, t.nombre, t.retrato, t.zona, t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0,
-            t.paradoHasta > estado.reloj.minutos, t.cualidad, t.cualidad2, t.defecto, t.categoria,
+            t.paradoHasta > estado.reloj.minutos, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2, t.categoria,
             t.quien === 'conductor' ? Libre.sim.nivelConductor(t) : 0, t.objetos] : null;
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario,
     eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, plegadas,
     (estado.reserva || []).map(function (t) {
-      return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.defecto, Libre.sim.nivelConductor(t), t.objetos,
+      return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2,
+        Libre.sim.nivelConductor(t), t.objetos,
         t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0];
     })]);
   }

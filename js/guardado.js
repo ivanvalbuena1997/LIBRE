@@ -171,6 +171,27 @@
     // Versión 18: libranzas. Las placas para elegir se sortean al comprar.
     17: function (estado) {
       estado.placasEnVenta = null;
+    },
+    // Versión 19: los conductores B tienen dos defectos; los que ya están en
+    // el último nivel reciben su premio (un defecto menos o una cualidad más).
+    18: function (estado) {
+      const sim = Libre.sim;
+      const c = Libre.config;
+      sim.todosLosConductores(estado).forEach(function (x) {
+        const t = x.t;
+        t.cualidad3 = t.cualidad3 || null;
+        t.defecto2 = t.defecto2 || null;
+        const cat = sim.buscarCategoria(t.categoria);
+        if (cat && cat.defectos > 1 && t.defecto && !t.defecto2) {
+          const cualidad = sim.buscarRasgo(t.cualidad);
+          const otros = c.conductores.defectos.filter(function (d) {
+            return d.id !== t.defecto && (!cualidad || d.id !== cualidad.opuesto);
+          });
+          t.defecto2 = otros[Math.floor(sim.azar(estado) * otros.length)].id;
+        }
+        if (sim.nivelConductor(t) === c.conductores.niveles.experiencia.length) sim.premioNivelMaximo(estado, t);
+      });
+      sim.sortearCandidatos(estado);
     }
   };
 

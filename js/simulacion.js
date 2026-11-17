@@ -636,7 +636,7 @@
     return {
       quien: 'conductor', nombre: candidato.nombre, retrato: candidato.retrato, zona,
       categoria: candidato.categoria, cualidad: candidato.cualidad, cualidad2: candidato.cualidad2 || null,
-      defecto: candidato.defecto,
+      cualidad3: null, defecto: candidato.defecto, defecto2: candidato.defecto2 || null,
       // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
       xp: 0, carreras: 0, facturado: 0,
       objetos: []   // ids de los objetos que lleva equipados
@@ -781,12 +781,16 @@
       const otras = c.cualidades.filter(function (q) { return q.id !== cualidad.id; });
       cualidad2 = otras[Math.floor(azar(estado) * otras.length)].id;
     }
-    let defecto = null;
+    let defecto = null, defecto2 = null;
     if (cat.probDefecto > 0 && azar(estado) < cat.probDefecto) {
       const defectos = c.defectos.filter(function (d) { return d.id !== cualidad.opuesto; });
       defecto = defectos[Math.floor(azar(estado) * defectos.length)].id;
+      if (cat.defectos > 1) {
+        const otros = defectos.filter(function (d) { return d.id !== defecto; });
+        defecto2 = otros[Math.floor(azar(estado) * otros.length)].id;
+      }
     }
-    return { cualidad: cualidad.id, cualidad2, defecto };
+    return { cualidad: cualidad.id, cualidad2, defecto, defecto2 };
   }
 
   /* Lo que cuesta contratar a un candidato (según su categoría). */
@@ -807,7 +811,7 @@
       cualidades[r.cualidad] = true;
       estado.candidatos.push({
         retrato, nombre: c.personajes[retrato].nombre, categoria,
-        cualidad: r.cualidad, cualidad2: r.cualidad2, defecto: r.defecto
+        cualidad: r.cualidad, cualidad2: r.cualidad2, defecto: r.defecto, defecto2: r.defecto2
       });
     }
     return estado.candidatos;
@@ -841,6 +845,38 @@
     return { nivel, xp, desde, hasta, avance: hasta === null ? 1 : (xp - desde) / (hasta - desde) };
   }
 
+  /* Ids de las cualidades (1 a 3) y de los defectos (0 a 2) de un conductor. */
+  function cualidadesDe(t) {
+    return [t.cualidad, t.cualidad2, t.cualidad3].filter(Boolean);
+  }
+  function defectosDe(t) {
+    return [t.defecto, t.defecto2].filter(Boolean);
+  }
+
+  /*
+   * Al llegar al último nivel: pierde un defecto (el segundo, si tiene dos)
+   * o, si no tiene ninguno, gana una cualidad nueva. Devuelve el texto.
+   */
+  function premioNivelMaximo(estado, t) {
+    if (t.defecto2) {
+      const d = buscarRasgo(t.defecto2);
+      t.defecto2 = null;
+      return 'pierde su defecto «' + d.nombre + '»';
+    }
+    if (t.defecto) {
+      const d = buscarRasgo(t.defecto);
+      t.defecto = null;
+      return 'pierde su defecto «' + d.nombre + '»';
+    }
+    const tiene = cualidadesDe(t);
+    const nuevas = cfg().conductores.cualidades.filter(function (q) { return tiene.indexOf(q.id) === -1; });
+    if (!nuevas.length) return '';
+    const q = nuevas[Math.floor(azar(estado) * nuevas.length)];
+    if (!t.cualidad2) t.cualidad2 = q.id;
+    else t.cualidad3 = q.id;
+    return 'gana la cualidad «' + q.nombre + '»';
+  }
+
   /*
    * Suma experiencia y, si sube de nivel, lo avisa con su retrato (salvo
    * sinAviso: sin conexión no hay avisos nuevos).
@@ -850,13 +886,16 @@
     const antes = nivelConductor(t);
     t.xp = (t.xp || 0) + puntos;
     const despues = nivelConductor(t);
+    const maximo = cfg().conductores.niveles.experiencia.length;
+    // El premio del último nivel se aplica siempre, también sin conexión.
+    const premio = despues === maximo && antes < maximo ? premioNivelMaximo(estado, t) : '';
     if (despues > antes && !sinAviso) {
       const huecos = cfg().conductores.niveles.huecos;
       const hueco = huecos[despues - 1] > huecos[antes - 1];
       resumen.eventos.push({
         tipo: 'nivel', conductor: t.nombre, retrato: t.retrato, nivel: despues,
         texto: t.nombre + ' sube a nivel ' + despues + ': espera menos entre carreras' +
-          (hueco ? ' y tiene un hueco más para objetos.' : '.')
+          (hueco ? ' y tiene un hueco más para objetos' : '') + (premio ? '; además, ' + premio : '') + '.'
       });
     }
   }
@@ -1033,12 +1072,14 @@
       Object.keys(efecto || {}).forEach(function (k) { e[k] = 1 + (efecto[k] - 1) * fuerza; });
       return e;
     }
-    [t.cualidad, t.cualidad2].forEach(function (id) {
+    cualidadesDe(t).forEach(function (id) {
       const r = buscarRasgo(id);
       if (r) aplicar(reforzar(r.efecto, cat.fuerzaCualidad));
     });
-    const d = buscarRasgo(t.defecto);
-    if (d) aplicar(reforzar(d.efecto, cat.fuerzaDefecto));
+    defectosDe(t).forEach(function (id) {
+      const d = buscarRasgo(id);
+      if (d) aplicar(reforzar(d.efecto, cat.fuerzaDefecto));
+    });
     (t.objetos || []).forEach(function (id) { const o = buscarObjeto(id); if (o) aplicar(o.efecto); });
     // Cada nivel por encima del 1 espera un poco menos.
     f.espera *= 1 - cfg().conductores.niveles.esperaPorNivel * (nivelConductor(t) - 1);
@@ -2034,6 +2075,9 @@
     precioCandidato,
     factoresConductor,
     nivelConductor,
+    cualidadesDe,
+    defectosDe,
+    premioNivelMaximo,
     buscarObjeto,
     huecosConductor,
     buscarCategoria,
