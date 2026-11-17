@@ -164,7 +164,7 @@ Estilo ilustrado y cálido, tema claro. La referencia completa (maquetas, iconos
 - **Turnos:** día de 7:00 a 19:00 y noche de 19:00 a 7:00.
 - **Jornada de 7:00 a 7:00.** A las 7:00 se cierra la caja, se cobran los costes fijos y sale el ticket. La madrugada cuenta como la noche del día anterior.
 - **Fin de semana:** sábado y domingo, tarifa 2 todo el día.
-- **Sin conexión:** el juego cuenta hasta 8 horas reales fuera, con la media de cada zona y hora (sin eventos nuevos). Si había pausa al cierre, resuelve los días seguidos y deja un único ticket con la suma. Da entre un 1 % y un 2 % más que jugando. Tu turno no produce mientras estás fuera.
+- **Sin conexión:** el juego cuenta hasta 8 horas reales fuera, con la media de cada zona y hora (sin eventos nuevos). Si había pausa al cierre, resuelve los días seguidos y deja un único ticket con la suma. Da entre un 2 % y un 4 % más que jugando (medido el 17-11-2026 con varias flotas; con conductores de mucha o poca espera, algo más). Tu turno no produce mientras estás fuera.
 
 ### 5.2 Zonas
 
@@ -219,18 +219,23 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 Con tres candidatos, una de cada 65 tandas más o menos ofrece un LEGENDARIO (y ahora sale una tanda nueva cada día, además de una tras cada contrato); al principio no te lo puedes permitir, y esa es la gracia.
 
-**Rasgos.** Una cualidad nunca sale con su defecto opuesto. La fuerza de la categoría escala el efecto («+30 %» con fuerza ×1,8 es «+54 %»).
+**Rasgos.** Una cualidad nunca sale con su defecto opuesto. La fuerza de la categoría escala el efecto («+45 %» con fuerza ×1,8 es «+81 %»).
+
+Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que deja un conductor B y cada defecto cerca de **−5 %**, medido con un bot (480 partidas de 120 jornadas por rasgo, sin mejoras ni bolsas; los de solo día o solo noche, sobre los conductores de ese turno). La curva sale de ahí: al nivel 10 se pierde un defecto, y con mejoras algunos efectos se anulan (bolsas: la limpieza; la mejora contra impagos: los sin pagar). Por eso los rasgos que dependen de esos sucesos llevan un segundo efecto.
 
 | Cualidad | Efecto | Defecto opuesto | Efecto |
 | --- | --- | --- | --- |
-| Simpático | +30 % de propinas | Antipático | −30 % de propinas |
-| Cuidadoso | −40 % de pinchazos y averías | Manazas | +50 % de pinchazos y averías |
-| Conoce la ciudad | −10 % de espera entre carreras | Lento | +10 % de espera |
-| De hierro | La mitad de bajas | Enfermizo | +60 % de bajas |
-| Ojo avizor | La mitad de clientes sin pagar | Despistado | +60 % de clientes sin pagar |
-| Honrado | +50 % de objetos devueltos | — | |
-| Búho | −12 % de espera de noche | Trasnochador flojo | +12 % de espera de noche |
-| Madrugador | −12 % de espera de día | Dormilón | +12 % de espera de día |
+| Simpático | el doble de propinas | Antipático | −75 % de propinas y +8 % de espera |
+| Cuidadoso | −75 % de pinchazos y averías, −38 % de limpieza | Manazas | +75 % de pinchazos y averías, +50 % de limpieza |
+| Conoce la ciudad | −12 % de espera | Lento | +14 % de espera |
+| De hierro | −80 % de bajas y −9 % de espera | Enfermizo | el doble de bajas y +8,5 % de espera |
+| Ojo avizor | −80 % de clientes sin pagar y −10 % de espera | Despistado | el doble de clientes sin pagar y +11 % de espera |
+| Honrado | el doble de objetos devueltos y +35 % de propinas | Aprovechado | −70 % de objetos devueltos y −60 % de propinas |
+| Búho | −12 % de espera de noche | Trasnochador flojo | +18 % de espera de noche |
+| Madrugador | −12 % de espera de día | Dormilón | +16 % de espera de día |
+| Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
+
+«Limpieza» es el coste y el tiempo parado al limpiar un vómito (solo cuenta si no quedan bolsas).
 
 **Experiencia y niveles.** Cada carrera da 1 punto (un conductor hace unas 25–30 por jornada). Cada nivel acorta la espera un 2,5 %; los niveles 4 y 8 abren un hueco más de objeto. **Al llegar al nivel 10** pierde un defecto o, si no tiene ninguno, gana una cualidad nueva.
 

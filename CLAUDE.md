@@ -259,7 +259,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   pocas unidades, la pestaña avisa.
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
-  entre un 1 % y un 2 % más que jugando.
+  entre un 2 % y un 4 % más que jugando (medido el 17-11-2026 con varias
+  flotas; la prueba hace la media de tres, con tope de ±5 %).
 - Tu turno siempre es a clic, también con conductores contratados: solo
   producen solos los turnos de conductores. Solo se trabaja dentro de la
   franja de tu turno (`jugadorEnTurno()`). Dejar el volante y quedarte solo

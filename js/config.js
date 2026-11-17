@@ -258,39 +258,50 @@
        *   limpieza     coste de limpiar un vómito y tiempo parado
        * Solo afectan a los conductores contratados, nunca a tu turno.
        */
+      // Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de un +5 % de
+      // lo que deja un conductor B, y cada defecto un −5 % (medido con un bot,
+      // sin mejoras ni bolsas). Los de solo día o solo noche, sobre los
+      // conductores de ese turno. Algunos llevan un segundo efecto para que
+      // no dependan de sucesos raros, ni se anulen del todo con las mejoras.
       cualidades: [
-        { id: 'simpatico', nombre: 'Simpático', opuesto: 'antipatico', efecto: { propina: 1.3 },
-          descripcion: 'Cae bien a los clientes: un 30 % más de propinas.' },
-        { id: 'cuidadoso', nombre: 'Cuidadoso', opuesto: 'manazas', efecto: { pinchazo: 0.6, averia: 0.6 },
-          descripcion: 'Trata bien el coche: un 40 % menos de pinchazos y averías.' },
-        { id: 'conoceCiudad', nombre: 'Conoce la ciudad', opuesto: 'lento', efecto: { espera: 0.9 },
-          descripcion: 'Sabe dónde están los clientes: un 10 % menos de espera entre carreras.' },
-        { id: 'deHierro', nombre: 'De hierro', opuesto: 'enfermizo', efecto: { baja: 0.5 },
-          descripcion: 'Nunca se pone malo: la mitad de bajas.' },
-        { id: 'ojoAvizor', nombre: 'Ojo avizor', opuesto: 'despistado', efecto: { sinPagar: 0.5 },
-          descripcion: 'No se le escapa nadie: la mitad de clientes sin pagar.' },
-        { id: 'honrado', nombre: 'Honrado', opuesto: null, efecto: { objeto: 1.5 },
-          descripcion: 'Devuelve todo lo que se olvidan: un 50 % más de objetos devueltos.' },
+        { id: 'simpatico', nombre: 'Simpático', opuesto: 'antipatico', efecto: { propina: 2 },
+          descripcion: 'Cae bien a los clientes: el doble de propinas.' },
+        { id: 'cuidadoso', nombre: 'Cuidadoso', opuesto: 'manazas', efecto: { pinchazo: 0.25, averia: 0.25, limpieza: 0.62 },
+          descripcion: 'Trata bien el coche: un 75 % menos de pinchazos y averías, y limpiar un vómito le cuesta un 38 % menos.' },
+        { id: 'conoceCiudad', nombre: 'Conoce la ciudad', opuesto: 'lento', efecto: { espera: 0.88 },
+          descripcion: 'Sabe dónde están los clientes: un 12 % menos de espera entre carreras.' },
+        { id: 'deHierro', nombre: 'De hierro', opuesto: 'enfermizo', efecto: { baja: 0.2, espera: 0.91 },
+          descripcion: 'Nunca se pone malo y no para: un 80 % menos de bajas y un 9 % menos de espera.' },
+        { id: 'ojoAvizor', nombre: 'Ojo avizor', opuesto: 'despistado', efecto: { sinPagar: 0.2, espera: 0.9 },
+          descripcion: 'Ve antes que nadie a los clientes: un 80 % menos de clientes sin pagar y un 10 % menos de espera.' },
+        { id: 'honrado', nombre: 'Honrado', opuesto: 'aprovechado', efecto: { objeto: 2, propina: 1.35 },
+          descripcion: 'Devuelve todo y los clientes lo saben: el doble de objetos devueltos y un 35 % más de propinas.' },
         { id: 'buho', nombre: 'Búho', opuesto: 'trasnochador', efecto: { esperaNoche: 0.88 },
           descripcion: 'Rinde de noche: un 12 % menos de espera en el turno de noche.' },
         { id: 'madrugador', nombre: 'Madrugador', opuesto: 'dormilon', efecto: { esperaDia: 0.88 },
-          descripcion: 'Rinde de día: un 12 % menos de espera en el turno de día.' }
+          descripcion: 'Rinde de día: un 12 % menos de espera en el turno de día.' },
+        { id: 'pulcro', nombre: 'Pulcro', opuesto: 'guarro', efecto: { limpieza: 0.5, propina: 1.45 },
+          descripcion: 'Taxi siempre impecable: limpiar un vómito le cuesta la mitad y un 45 % más de propinas.' }
       ],
       defectos: [
-        { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.7 },
-          descripcion: 'Seco con los clientes: un 30 % menos de propinas.' },
-        { id: 'manazas', nombre: 'Manazas', efecto: { pinchazo: 1.5, averia: 1.5 },
-          descripcion: 'Maltrata el coche: un 50 % más de pinchazos y averías.' },
-        { id: 'lento', nombre: 'Lento', efecto: { espera: 1.1 },
-          descripcion: 'Tarda en encontrar clientes: un 10 % más de espera entre carreras.' },
-        { id: 'enfermizo', nombre: 'Enfermizo', efecto: { baja: 1.6 },
-          descripcion: 'Siempre está pachucho: un 60 % más de bajas.' },
-        { id: 'despistado', nombre: 'Despistado', efecto: { sinPagar: 1.6 },
-          descripcion: 'Se le escapan: un 60 % más de clientes sin pagar.' },
-        { id: 'dormilon', nombre: 'Dormilón', efecto: { esperaDia: 1.12 },
-          descripcion: 'Le cuesta arrancar: un 12 % más de espera en el turno de día.' },
-        { id: 'trasnochador', nombre: 'Trasnochador flojo', efecto: { esperaNoche: 1.12 },
-          descripcion: 'De noche se apaga: un 12 % más de espera en el turno de noche.' }
+        { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.25, espera: 1.08 },
+          descripcion: 'Seco con los clientes: un 75 % menos de propinas y un 8 % más de espera (no le paran).' },
+        { id: 'manazas', nombre: 'Manazas', efecto: { pinchazo: 1.75, averia: 1.75, limpieza: 1.5 },
+          descripcion: 'Maltrata el coche: un 75 % más de pinchazos y averías, y limpiar un vómito le cuesta un 50 % más.' },
+        { id: 'lento', nombre: 'Lento', efecto: { espera: 1.14 },
+          descripcion: 'Tarda en encontrar clientes: un 14 % más de espera entre carreras.' },
+        { id: 'enfermizo', nombre: 'Enfermizo', efecto: { baja: 2, espera: 1.085 },
+          descripcion: 'Siempre está pachucho: el doble de bajas y un 8,5 % más de espera.' },
+        { id: 'despistado', nombre: 'Despistado', efecto: { sinPagar: 2, espera: 1.11 },
+          descripcion: 'Va en las nubes: el doble de clientes sin pagar y un 11 % más de espera.' },
+        { id: 'dormilon', nombre: 'Dormilón', efecto: { esperaDia: 1.16 },
+          descripcion: 'Le cuesta arrancar: un 16 % más de espera en el turno de día.' },
+        { id: 'trasnochador', nombre: 'Trasnochador flojo', efecto: { esperaNoche: 1.18 },
+          descripcion: 'De noche se apaga: un 18 % más de espera en el turno de noche.' },
+        { id: 'guarro', nombre: 'Guarro', efecto: { limpieza: 1.7, propina: 0.55 },
+          descripcion: 'El taxi da pena: limpiar un vómito le cuesta un 70 % más y un 45 % menos de propinas.' },
+        { id: 'aprovechado', nombre: 'Aprovechado', efecto: { objeto: 0.3, propina: 0.4 },
+          descripcion: 'Lo que se olvidan, se lo queda: un 70 % menos de objetos devueltos y un 60 % menos de propinas.' }
       ],
 
       /*

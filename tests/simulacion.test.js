@@ -41,6 +41,13 @@ function comprarConRequisitos(e, id) {
 /* Generador de azar fijo para que las pruebas den siempre lo mismo. */
 function azarFijo(valor) { return function () { return valor; }; }
 
+/* Efecto de un rasgo en la config (1 si no toca esa clave): las pruebas no
+   copian los números, que se reequilibran. */
+function rasgo(id, clave) {
+  const r = config.conductores.cualidades.concat(config.conductores.defectos).find(function (x) { return x.id === id; });
+  return r.efecto[clave] === undefined ? 1 : r.efecto[clave];
+}
+
 console.log('Simulación');
 
 prueba('el taxímetro usa la fórmula real', function () {
@@ -239,9 +246,9 @@ prueba('sin conexión solo avanza con el taxi automatizado y con tope', function
 });
 
 prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function () {
-  function flota() {
+  function flota(semilla) {
     const e = sim.crearEstadoInicial(0);
-    e.azar = 777;   // los mismos conductores (y rasgos) en las dos flotas
+    e.azar = semilla;   // los mismos conductores (y rasgos) en las dos flotas
     sim.sortearCandidatos(e);
     e.dinero = 1e6;
     e.ajustes.pararAlCierre = false;
@@ -259,14 +266,20 @@ prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function 
   Object.keys(config.eventos).forEach(function (k) {
     ['probCarrera', 'probTurno', 'probJornada'].forEach(function (p) { if (p in config.eventos[k]) config.eventos[k][p] = 0; });
   });
-  const fuera = flota(), jugando = flota();
-  jugando.azar = 20261116;
-  const inicio = fuera.dinero;
-  const r = sim.avanzar(fuera, 30 * DIA(), { sinPausa: true, agregado: true });
-  for (let i = 0; i < 300 * DIA(); i++) sim.avanzar(jugando, 0.1);
+  // Media de tres flotas: con una sola, unos rasgos de espera fuertes
+  // alejan más el cálculo aproximado (medido: del +2 % al +7 %).
+  let a = 0, b = 0, carreras = 0;
+  [777, 101, 202].forEach(function (semilla) {
+    const fuera = flota(semilla), jugando = flota(semilla);
+    jugando.azar = 20261116;
+    const inicio = fuera.dinero;
+    carreras += sim.avanzar(fuera, 30 * DIA(), { sinPausa: true, agregado: true }).carreras;
+    for (let i = 0; i < 300 * DIA(); i++) sim.avanzar(jugando, 0.1);
+    a += fuera.dinero - inicio;
+    b += jugando.dinero - inicio;
+  });
   config.eventos = eventos;
-  const a = fuera.dinero - inicio, b = jugando.dinero - inicio;
-  assert.ok(r.carreras > 0);
+  assert.ok(carreras > 0);
   assert.ok(Math.abs(b / a - 1) < 0.05, 'jugando ' + b.toFixed(0) + ' frente a sin conexión ' + a.toFixed(0));
 });
 
@@ -463,6 +476,8 @@ function flotaDe(n) {
 prueba('los eventos forzados de carrera salen en la próxima carrera y van a la caja', function () {
   const e = flotaDe(1);
   e.reloj.minutos = 22 * 60;                     // noche: trabaja el conductor
+  const t = e.licencias[0].turnos.noche;
+  t.cualidad = null; t.defecto = null;           // sin rasgos: limpieza normal
   sim.forzarEvento(e, 'objeto', 10);             // el maletín: 300 €
   sim.forzarEvento(e, 'vomito');
   let eventos = [];
@@ -670,6 +685,8 @@ prueba('el vómito depende de la zona y la hora, y deja una hora parado', functi
   e.reloj.minutos = 23 * 60;
   assert.strictEqual(sim.probVomito(e, { zona: 'centro' }), v.probNoche, 'de noche');
   assert.strictEqual(sim.probVomito(e, { zona: 'ocio' }), v.probPorZona.ocio, 'a la salida del ocio');
+  e.licencias[0].turnos.noche.cualidad = null;   // sin rasgos: una hora justa
+  e.licencias[0].turnos.noche.defecto = null;
   sim.forzarEvento(e, 'vomito');
   for (let i = 0; i < 400 && !e.caja.hoy.incidencias.vomito; i++) sim.avanzar(e, 0.1);
   const parado = e.licencias[0].turnos.noche.paradoHasta - e.reloj.minutos;
@@ -729,12 +746,13 @@ prueba('los rasgos cambian los valores, con tope', function () {
   const t = e.licencias[0].turnos.noche;
   t.cualidad = 'simpatico'; t.defecto = 'manazas';
   let f = sim.factoresConductor(e, t);
-  cerca(f.propina, 1.3); cerca(f.pinchazo, 1.5); cerca(f.averia, 1.5); cerca(f.espera, 1);
+  cerca(f.propina, rasgo('simpatico', 'propina')); cerca(f.pinchazo, rasgo('manazas', 'pinchazo'));
+  cerca(f.averia, rasgo('manazas', 'averia')); cerca(f.limpieza, rasgo('manazas', 'limpieza')); cerca(f.espera, 1);
   t.cualidad = 'buho'; t.defecto = 'dormilon';
   e.reloj.minutos = 23 * 60;
-  cerca(sim.factoresConductor(e, t).espera, 0.88, 1e-9);
+  cerca(sim.factoresConductor(e, t).espera, rasgo('buho', 'esperaNoche'), 1e-9);
   e.reloj.minutos = 12 * 60;
-  cerca(sim.factoresConductor(e, t).espera, 1.12, 1e-9);
+  cerca(sim.factoresConductor(e, t).espera, rasgo('dormilon', 'esperaDia'), 1e-9);
   assert.strictEqual(sim.factoresConductor(e, e.licencias[0].turnos.dia).propina, 1, 'tú no tienes rasgos');
   const tope = config.conductores.topes.espera;
   assert.strictEqual(sim.topeConductor('espera', 0.01), tope[0]);
@@ -784,7 +802,7 @@ prueba('las partidas de la versión 11 dan rasgos a sus conductores', function (
 prueba('cada carrera da experiencia; el nivel sube con la curva y acorta la espera', function () {
   const e = flotaDe(1);
   const t = e.licencias[0].turnos.noche;
-  t.cualidad = 'honrado'; t.defecto = 'antipatico';
+  t.cualidad = 'honrado'; t.defecto = 'guarro';   // ninguno toca la espera
   const umbrales = config.conductores.niveles.experiencia;
   assert.strictEqual(sim.nivelConductor(t), 1);
   t.xp = umbrales[4];
@@ -844,7 +862,7 @@ function efectoDe(id, clave) {
 prueba('objetos: los encuentran los conductores, se equipan sin repetir y según los huecos', function () {
   const e = flotaDe(1);
   const t = e.licencias[0].turnos.noche;
-  t.cualidad = 'honrado'; t.defecto = 'antipatico';
+  t.cualidad = 'honrado'; t.defecto = 'guarro';   // ninguno toca la espera
   // Forzado desde la consola: con un id o con una categoría.
   sim.forzarEvento(e, 'hallazgo', 'gps');
   sim.forzarEvento(e, 'hallazgo', 'B');
@@ -912,11 +930,11 @@ prueba('rasgo, nivel y objetos se combinan con tope', function () {
   const e = flotaDe(1);
   const t = e.licencias[0].turnos.noche;
   e.reloj.minutos = 23 * 60;
-  t.cualidad = 'buho'; t.defecto = 'antipatico';
+  t.cualidad = 'buho'; t.defecto = 'guarro';
   t.xp = 1e6;
   t.objetos = ['navegador', 'bidon'];
   const f = sim.factoresConductor(e, t);
-  const sinTope = 0.88 * efectoDe('navegador', 'espera') * efectoDe('bidon', 'esperaNoche') *
+  const sinTope = rasgo('buho', 'esperaNoche') * efectoDe('navegador', 'espera') * efectoDe('bidon', 'esperaNoche') *
     (1 - 9 * config.conductores.niveles.esperaPorNivel);
   cerca(f.espera, sinTope, 1e-9);
   assert.strictEqual(sim.topeConductor('espera', f.espera), config.conductores.topes.espera[0], 'se queda en el tope');
@@ -979,11 +997,12 @@ prueba('categorías de conductor: más cualidad, menos defecto, más hallazgos',
   const t = f.licencias[0].turnos.noche;
   t.cualidad = 'simpatico'; t.defecto = 'antipatico';
   t.categoria = 'A';
-  cerca(sim.factoresConductor(f, t).propina, (1 + 0.3 * porCat.A.fuerzaCualidad) * (1 - 0.3 * porCat.A.fuerzaDefecto), 1e-9);
+  const q = rasgo('simpatico', 'propina') - 1, d = rasgo('antipatico', 'propina') - 1;
+  cerca(sim.factoresConductor(f, t).propina, (1 + q * porCat.A.fuerzaCualidad) * (1 + d * porCat.A.fuerzaDefecto), 1e-9);
   t.categoria = 'L'; t.defecto = null; t.cualidad2 = 'conoceCiudad';
   const fl = sim.factoresConductor(f, t);
-  cerca(fl.propina, 1 + 0.3 * porCat.L.fuerzaCualidad, 1e-9);
-  cerca(fl.espera, 1 - 0.1 * porCat.L.fuerzaCualidad, 1e-9);
+  cerca(fl.propina, 1 + q * porCat.L.fuerzaCualidad, 1e-9);
+  cerca(fl.espera, 1 + (rasgo('conoceCiudad', 'espera') - 1) * porCat.L.fuerzaCualidad, 1e-9);
   assert.strictEqual(sim.precioCandidato({ categoria: 'L' }), porCat.L.contratar);
   assert.ok(porCat.L.contratar > porCat.B.contratar * 10);
 });
@@ -1293,6 +1312,22 @@ prueba('los candidatos cambian cada día, al cerrar la caja', function () {
   assert.ok(sim.enPausa(e));
   assert.notStrictEqual(JSON.stringify(e.candidatos), antes, 'al cerrar, otros');
   assert.strictEqual(e.candidatos.length, config.conductores.candidatos);
+});
+
+prueba('rasgos: cada opuesto existe y nunca salen juntos (Pulcro/Guarro, Honrado/Aprovechado)', function () {
+  const c = config.conductores;
+  c.cualidades.forEach(function (q) {
+    if (q.opuesto) assert.ok(c.defectos.some(function (d) { return d.id === q.opuesto; }), q.id + ': su opuesto existe');
+  });
+  assert.strictEqual(c.cualidades.find(function (q) { return q.id === 'pulcro'; }).opuesto, 'guarro');
+  assert.strictEqual(c.cualidades.find(function (q) { return q.id === 'honrado'; }).opuesto, 'aprovechado');
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 99;
+  for (let i = 0; i < 2000; i++) {
+    const r = sim.sortearRasgos(e, null, 'B');
+    const q = c.cualidades.find(function (x) { return x.id === r.cualidad; });
+    assert.ok(r.defecto !== q.opuesto && r.defecto2 !== q.opuesto, q.nombre + ' con su opuesto');
+  }
 });
 
 console.log(pasadas + ' pruebas correctas');
