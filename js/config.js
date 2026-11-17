@@ -141,7 +141,7 @@
       { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200, contratar: 5000,
         cualidades: 1, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5, aperturaTope: 0.3, esperaBase: 0.75 },
       { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000, contratar: 12000,
-        cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2, aperturaTope: 0.75, esperaBase: 0.52 }
+        cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2, aperturaTope: 0.75, esperaBase: 0.45 }
     ],
 
     /*
