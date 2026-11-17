@@ -811,9 +811,33 @@
     termo: '<path d="M5 8h11v6a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/>',
     gafas: '<circle cx="7" cy="14" r="3.5"/><circle cx="17" cy="14" r="3.5"/><path d="M10.5 14h3M3.5 14L5 7M20.5 14L19 7"/>',
     funda: '<path d="M7 3h7a2 2 0 0 1 2 2v9H7zM5 14h14v3H5zM8 17v4M16 17v4"/>',
+    callejero: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>',
+    manometro: '<circle cx="12" cy="13" r="8"/><path d="M12 13l4-4M8 18h8"/>',
+    caramelos: '<circle cx="12" cy="12" r="4"/><path d="M8.5 10L4 7v10l4.5-3M15.5 10L20 7v10l-4.5-3"/>',
+    espejo: '<rect x="3" y="8" width="18" height="7" rx="3.5"/><path d="M12 8V5"/>',
+    vitaminas: '<path d="M7 17L17 7a3.5 3.5 0 0 0-5-5L2 12a3.5 3.5 0 0 0 5 5zM7 7l5 5"/>',
+    alfombrillas: '<rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h8"/>',
+    escaner: '<path d="M12 12v9M8 21h8"/><circle cx="12" cy="10" r="2"/><path d="M7.8 5.8a6 6 0 0 0 0 8.4M16.2 5.8a6 6 0 0 1 0 8.4"/>',
+    herramientas: '<path d="M14.7 6.3a4 4 0 0 0 5 5L12 19l-3 1-1-1 1-3z"/>',
+    cargador: '<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/>',
+    botiquin: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M12 10v7M8.5 13.5h7"/>',
+    datafono: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 6h6M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 15h.01"/>',
+    navegador: '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4M8 13l3-5 2 3 3-4"/>',
+    silla: '<path d="M7 3h10v9H7zM5 12h14v3H5zM8 15l-1 6M16 15l1 6"/>',
+    nevera: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 9h14M8 5v2M8 12v3"/>',
+    baches: '<path d="M2 18h5l2-3 3 3h10M6 10a6 6 0 0 1 12 0M9 10a3 3 0 0 1 6 0"/>',
+    paconi: '<path d="M8 21h8l1-6H7zM12 15V9M12 9c0-3-2-5-5-5 0 3 2 5 5 5zM12 11c0-3 2-5 5-5 0 3-2 5-5 5z"/>',
+    bocata: '<path d="M3 12c0-3 4-5 9-5s9 2 9 5zM3 12h18M4 15h16c0 2-3.5 3-8 3s-8-1-8-3z"/>',
+    bidon: '<path d="M7 5h10v15a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1zM9 2h6l2 3H7zM12 9l-2 4h4l-2 4"/>',
     ruedas: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/>',
     bolsas: '<path d="M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2"/>'
   };
+
+  /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
+  function etiquetaCategoria(id) {
+    const c = Libre.sim.buscarCategoria(id);
+    return c ? '<span class="categoria cat-' + (id === 'S+' ? 'Smas' : id) + '">' + esc(c.nombre) + '</span>' : '';
+  }
 
   function icono(nombre, clase) {
     return '<svg class="icono ' + (clase || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
@@ -978,16 +1002,18 @@
     const tabla = c.conductores.niveles.huecos;
     let objetos = llevados.map(function (id) {
       const o = Libre.sim.buscarObjeto(id);
-      return '<li class="ficha-objeto">' + icono(o.id) + '<span><strong>' + esc(o.nombre) + '</strong><small>' +
+      return '<li class="ficha-objeto">' + icono(o.id) + '<span><strong>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) + '</strong><small>' +
         esc(o.descripcion) + '</small></span>' + boton('Quitar', 'quitarObjeto', [lic.id, turno, o.id]) + '</li>';
     }).join('');
     for (let i = llevados.length; i < huecos; i++) {
       objetos += '<li class="ficha-objeto libre"><span class="hueco" aria-hidden="true"></span><span><strong>Hueco libre</strong>' +
-        (disponibles.length ? '' : '<small>Compra objetos en el inventario de la flota.</small>') + '</span>' +
+        (disponibles.length ? '' : '<small>Tus conductores encuentran objetos al hacer carreras.</small>') + '</span>' +
         (disponibles.length
           ? '<select data-cambio="equiparObjeto" data-args="' + lic.id + '|' + turno + '" aria-label="Equipar un objeto">' +
             '<option value="" selected disabled>Equipar…</option>' +
-            disponibles.map(function (o) { return '<option value="' + o.id + '">' + esc(o.nombre) + '</option>'; }).join('') +
+            disponibles.map(function (o) {
+              return '<option value="' + o.id + '">' + esc(o.nombre) + ' (' + esc(Libre.sim.buscarCategoria(o.categoria).nombre) + ')</option>';
+            }).join('') +
             '</select>'
           : '') + '</li>';
     }
@@ -1045,7 +1071,7 @@
             t.paradoHasta > estado.reloj.minutos, t.cualidad, t.defecto,
             t.quien === 'conductor' ? Libre.sim.nivelConductor(t) : 0, t.objetos] : null;
         })];
-    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, eligiendoConductor,
+    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, fichaConductor, fichaInventario]);
   }
 
@@ -1070,11 +1096,12 @@
     return n;
   }
 
-  function htmlFichaInventario(id, nombre, hay, maximo, bajo, conBarra) {
+  function htmlFichaInventario(id, nombre, hay, maximo, bajo, conBarra, categoria) {
     const abierta = fichaInventario === id;
-    return '<button type="button" class="ficha-inv' + (bajo ? ' bajo' : '') + (abierta ? ' abierta' : '') + '" ' +
+    return '<button type="button" class="ficha-inv' + (bajo ? ' bajo' : '') + (abierta ? ' abierta' : '') +
+      (categoria ? ' con-categoria' : '') + '" ' +
       'data-ficha-inventario="' + id + '" data-inventario="' + id + '" aria-expanded="' + abierta + '">' +
-      icono(id) + '<span class="ficha-inv-nombre">' + esc(nombre) + '</span>' +
+      icono(id) + '<span class="ficha-inv-nombre">' + esc(nombre) + (categoria ? ' ' + etiquetaCategoria(categoria) : '') + '</span>' +
       '<span class="ficha-inv-cantidad">' + hay + (conBarra ? '<small> / ' + maximo + '</small>' : '') + '</span>' +
       (conBarra ? '<span class="ficha-inv-barra"><span style="width:' + Math.min(100, hay / maximo * 100).toFixed(0) + '%"></span></span>' : '') +
       '</button>';
@@ -1102,12 +1129,48 @@
     if (!o) return '';
     const hay = (estado.objetos || {})[id] || 0;
     const puestos = equipados(estado, id);
-    return '<div class="ficha-panel"><strong>' + esc(o.nombre) + ' · ' + hay + ' en el almacén' +
-      (puestos ? ', ' + puestos + (puestos === 1 ? ' equipado' : ' equipados') : '') + '</strong>' +
+    return '<div class="ficha-panel"><strong>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) + ' · ' + hay +
+      ' sin equipar' + (puestos ? ', ' + puestos + (puestos === 1 ? ' equipado' : ' equipados') : '') + '</strong>' +
       '<p>' + esc(o.descripcion) + ' Se equipa desde la ficha de cada conductor.</p>' +
-      '<div class="acciones">' + (hay < c.objetos.maximo
-        ? boton('+1 · ' + euros(o.precio), 'comprarObjeto', [id, 1], '', o.precio)
-        : '<span class="ayuda">Almacén lleno</span>') + '</div></div>';
+      '<div class="acciones">' + (hay > 0 ? botonVenta(o.id) : '') + '</div></div>';
+  }
+
+  /* Botón de vender un objeto (del almacén, o de la bandeja con su posición). */
+  function botonVenta(id, deBandeja) {
+    const o = Libre.sim.buscarObjeto(id);
+    const precio = Libre.sim.buscarCategoria(o.categoria).venta;
+    return boton('Vender · ' + euros(precio), 'venderObjeto', deBandeja === undefined ? [id] : [id, deBandeja], 'boton-venta');
+  }
+
+  /* Objetos sin equipar del almacén, de mejor a peor categoría. */
+  function objetosDelAlmacen(estado) {
+    const orden = Libre.config.categorias.map(function (c) { return c.id; });
+    return Libre.config.objetos.lista.filter(function (o) { return ((estado.objetos || {})[o.id] || 0) > 0; })
+      .sort(function (a, b) { return orden.indexOf(b.categoria) - orden.indexOf(a.categoria); });
+  }
+
+  /* Lista para vender: cada objeto del almacén con su botón. */
+  function htmlListaVenta(estado) {
+    return '<ul class="lista-venta">' + objetosDelAlmacen(estado).map(function (o) {
+      return '<li>' + icono(o.id) + '<span>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) +
+        ' <small>×' + estado.objetos[o.id] + '</small></span>' + botonVenta(o.id) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  /*
+   * Bandeja: lo encontrado con el almacén lleno. Se vende ahí mismo o se
+   * hace sitio vendiendo algo del almacén (entra solo).
+   */
+  function htmlBandeja(estado) {
+    const bandeja = estado.bandeja || [];
+    if (bandeja.length === 0) return '';
+    return '<div class="bandeja"><strong>Almacén lleno · ' + bandeja.length + ' por guardar</strong>' +
+      '<ul class="lista-venta">' + bandeja.map(function (x, i) {
+        const o = Libre.sim.buscarObjeto(x.id);
+        return '<li>' + icono(o.id) + '<span>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) +
+          '<small>Lo encontró ' + esc(x.conductor) + '</small></span>' + botonVenta(o.id, i) + '</li>';
+      }).join('') + '</ul>' +
+      '<p>O vende algo del almacén y entrará solo:</p>' + htmlListaVenta(estado) + '</div>';
   }
 
   function htmlInventario(estado) {
@@ -1118,11 +1181,16 @@
         const hay = estado.inventario[k] || 0;
         return htmlFichaInventario(k, item.nombre, hay, item.maximo, hay <= item.aviso, true);
       }).join('');
-    const objetos = c.objetos.lista.map(function (o) {
-      return htmlFichaInventario(o.id, o.nombre, (estado.objetos || {})[o.id] || 0, c.objetos.maximo, false, false);
+    // Solo los objetos que tienes sin equipar, de mejor a peor.
+    const objetos = objetosDelAlmacen(estado).map(function (o) {
+      return htmlFichaInventario(o.id, o.nombre, estado.objetos[o.id], 0, false, false, o.categoria);
     }).join('');
-    return '<div class="inventario"><h3 class="flota-titulo">Inventario</h3>' +
-      '<div class="fichas">' + consumibles + objetos + '</div>' + htmlPanelInventario(estado) + '</div>';
+    const total = Libre.sim.objetosEnAlmacen(estado);
+    return '<div class="inventario"><h3 class="flota-titulo">Inventario <small>· objetos ' + total + ' de ' +
+      c.objetos.almacen + '</small></h3>' + htmlBandeja(estado) +
+      '<div class="fichas">' + consumibles + objetos + '</div>' +
+      (objetos ? '' : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +
+      htmlPanelInventario(estado) + '</div>';
   }
 
   function inventarioBajo(estado) {
@@ -1467,7 +1535,7 @@
       destellar(document.querySelector('[data-licencia="' + args[0] + '"]'));
     } else if (accion === 'comprarMejora') {
       destellar(document.querySelector('[data-mejora="' + args[0] + '"]'));
-    } else if (accion === 'comprarInventario' || accion === 'comprarObjeto') {
+    } else if (accion === 'comprarInventario') {
       destellar(document.querySelector('[data-inventario="' + args[0] + '"]'));
     }
   }
@@ -1513,7 +1581,7 @@
       if (b.disabled || b.closest('.inventario, .hoja')) return;
       if (VISTA_DE[b.closest('section').id] === 'flota') hay.flota = true;
     });
-    if (inventarioBajo(estado)) hay.flota = true;
+    if (inventarioBajo(estado) || (estado.bandeja || []).length > 0) hay.flota = true;
     Object.keys(hay).forEach(function (vista) {
       const marca = document.querySelector('[data-aviso="' + vista + '"]');
       if (marca) marca.classList.toggle('visible', hay[vista] && vista !== vistaActual);

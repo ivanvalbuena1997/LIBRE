@@ -137,6 +137,11 @@
           if (x && x.quien === 'conductor') x.objetos = x.objetos || [];
         });
       });
+    },
+    // Versión 15: los objetos ya no se compran, se encuentran. Bandeja vacía
+    // para lo encontrado con el almacén lleno; lo que tenías se queda.
+    14: function (estado) {
+      estado.bandeja = estado.bandeja || [];
     }
   };
 

@@ -99,20 +99,30 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket);
   sin conexión la experiencia se suma agrupada y sin aviso. Para probar:
   `Libre.darExperiencia('Laura', 100)` en la consola.
-- Objetos de conductor (`config.objetos`): se compran al almacén de la
-  flota (`estado.objetos`, unidades sin equipar) y se equipan en los huecos
+- Objetos de conductor (`config.objetos`, 24 con categoría de
+  `config.categorias`: B, A, S, S+ y LEGENDARIO). No se compran: un
+  conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;
+  categoría por pesos y objeto al azar dentro de ella), con aviso y sin ir
+  al ticket; tú no encuentras, y sin conexión tampoco. Van al almacén
+  (`estado.objetos`, como mucho `objetos.almacen` sin equipar) y, si está
+  lleno, a `estado.bandeja` hasta que vendas algo (nada se vende solo).
+  `venderObjeto()` vende uno del almacén o de la bandeja por el precio de
+  su categoría (incidencia «Venta de objetos»). Se equipan en los huecos
   del conductor (`turno.objetos`, sin repetir; 1, 2 en nivel 4 y 3 en nivel
-  8). Quitar uno lo devuelve al almacén. Su efecto entra en
-  `factoresConductor()` con los rasgos y el nivel, bajo los mismos topes.
-  Ruedas y bolsas siguen siendo consumibles del inventario.
+  8). Quitar uno lo devuelve al almacén (no si está lleno). Su efecto entra
+  en `factoresConductor()` con los rasgos y el nivel, bajo los mismos topes.
+  Ruedas y bolsas siguen siendo consumibles que se compran. Para probar:
+  `Libre.forzarEvento('hallazgo', 'S+')` (o el id de un objeto).
 - Despedir (`despedirConductor()`) cuesta el finiquito de
   `costeDespido()`: base más un importe por nivel
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
-  como incidencia «Finiquitos» y sus objetos vuelven al almacén. La
-  interfaz siempre pide confirmación.
+  como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
+  bandeja si no caben). La interfaz siempre pide confirmación.
 - Pestaña Flota: el inventario es una cuadrícula de fichas (consumibles con
-  barra sobre el máximo; objetos con lo que hay sin equipar); al tocar una
-  se abre debajo su panel con los botones de compra. Cada licencia es una
+  barra sobre el máximo; solo los objetos que tienes sin equipar, de mejor
+  a peor categoría); al tocar una se abre debajo su panel para comprar
+  (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
+  que espera y la lista para vender. Cada licencia es una
   tarjeta con el dibujo del taxi, su número en una placa y los dos turnos
   (icono de sol o luna). Un conductor se ve con retrato, nivel, barra de
   experiencia, rasgos (icono y «+»/«−», no solo color) y huecos; al tocarlo

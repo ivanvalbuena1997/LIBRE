@@ -1126,6 +1126,44 @@ button.zona-tarjeta { cursor: pointer; }
 .candidato-datos small { color: var(--suave); font-size: 0.75rem; line-height: 1.3; }
 .candidato button { grid-column: 2; justify-self: start; }
 
+/* Etiqueta de categoría (los colores, en el punto siguiente) */
+.categoria {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: 1px solid var(--borde);
+  align-self: flex-start;
+}
+.flota-titulo small { font-weight: 400; color: var(--suave); }
+.ficha-inv.con-categoria .ficha-inv-nombre .categoria { margin-top: 2px; }
+
+/* Vender objetos: bandeja (almacén lleno) y listas de venta */
+.bandeja {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1.5px solid var(--ambar);
+  border-radius: 10px;
+  background: var(--fondo);
+}
+.bandeja p { margin: 8px 0 4px; font-size: 0.82rem; color: var(--suave); }
+.lista-venta { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
+.lista-venta li {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.lista-venta li > span { display: flex; flex-direction: column; min-width: 0; }
+.lista-venta small { color: var(--suave); font-size: 0.74rem; }
+.lista-venta button { min-height: 44px; padding: 4px 10px; }
+
 /* Ficha del conductor: hoja que sube desde abajo */
 .hoja-fondo {
   position: fixed;

@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 14,
+    versionGuardado: 15,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -98,7 +98,9 @@
       // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.
       esterillas: { nombre: 'Monedas de las esterillas' },
       // Al despedir a un conductor (sale en el ticket con los gastos).
-      finiquito: { nombre: 'Finiquitos' }
+      finiquito: { nombre: 'Finiquitos' },
+      // Objetos vendidos (sale en el ticket con lo que entra).
+      venta: { nombre: 'Venta de objetos' }
     },
 
     /*
@@ -112,27 +114,84 @@
     },
 
     /*
-     * Objetos para los conductores (Equilibrio). Se compran al almacén de la
-     * flota (como mucho `maximo` de cada uno sin equipar) y se equipan a un
-     * conductor, uno de cada como mucho, en sus huecos (según su nivel:
-     * conductores.niveles.huecos). efecto: como el de los rasgos, con los
-     * mismos topes. Las ruedas y las bolsas siguen siendo consumibles.
+     * Categorías (Equilibrio), de peor a mejor. Las comparten los objetos y,
+     * más adelante, los conductores.
+     *   peso   probabilidad de que salga esa categoría (suman 1)
+     *   venta  lo que te dan por vender un objeto de esa categoría
+     */
+    categorias: [
+      { id: 'B', nombre: 'B', peso: 0.65, venta: 40 },
+      { id: 'A', nombre: 'A', peso: 0.25, venta: 120 },
+      { id: 'S', nombre: 'S', peso: 0.075, venta: 400 },
+      { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200 },
+      { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000 }
+    ],
+
+    /*
+     * Objetos para los conductores (Equilibrio). No se compran: los encuentran
+     * los conductores al terminar una carrera (`probHallazgo`; la categoría
+     * se sortea con los pesos de `categorias` y el objeto, entre los de esa
+     * categoría). Van al almacén de la flota (como mucho `almacen` sin
+     * equipar; si está lleno, esperan en una bandeja hasta que vendas algo) y
+     * se equipan a un conductor, uno de cada como mucho, en sus huecos.
+     * efecto: como el de los rasgos, con los mismos topes.
      */
     objetos: {
-      maximo: 10,
+      almacen: 40,
+      probHallazgo: 0.012,
       lista: [
-        { id: 'gps', nombre: 'GPS', precio: 800, efecto: { espera: 0.9 },
-          descripcion: 'Rutas y avisos de clientes: un 10 % menos de espera entre carreras.' },
-        { id: 'ambientador', nombre: 'Ambientador', precio: 300, efecto: { propina: 1.25 },
-          descripcion: 'Un taxi que huele bien: un 25 % más de propinas.' },
-        { id: 'cojin', nombre: 'Cojín lumbar', precio: 400, efecto: { baja: 0.6 },
-          descripcion: 'Doce horas sentado sin dolor de espalda: un 40 % menos de bajas.' },
-        { id: 'termo', nombre: 'Termo de café', precio: 350, efecto: { esperaNoche: 0.9 },
-          descripcion: 'Despierto toda la noche: un 10 % menos de espera en el turno de noche.' },
-        { id: 'gafas', nombre: 'Gafas de sol', precio: 350, efecto: { esperaDia: 0.9 },
-          descripcion: 'Sin deslumbrarse: un 10 % menos de espera en el turno de día.' },
-        { id: 'funda', nombre: 'Funda de asientos', precio: 250, efecto: { limpieza: 0.5 },
-          descripcion: 'Si un cliente vomita y no hay bolsa, la limpieza cuesta la mitad y se para la mitad de tiempo.' }
+        { id: 'ambientador', nombre: 'Ambientador', categoria: 'B', efecto: { propina: 1.1 },
+          descripcion: 'Un taxi que huele bien: un 10 % más de propinas.' },
+        { id: 'cojin', nombre: 'Cojín lumbar', categoria: 'B', efecto: { baja: 0.85 },
+          descripcion: 'Doce horas sentado sin dolor de espalda: un 15 % menos de bajas.' },
+        { id: 'termo', nombre: 'Termo de café', categoria: 'B', efecto: { esperaNoche: 0.96 },
+          descripcion: 'Despierto toda la noche: un 4 % menos de espera en el turno de noche.' },
+        { id: 'gafas', nombre: 'Gafas de sol', categoria: 'B', efecto: { esperaDia: 0.96 },
+          descripcion: 'Sin deslumbrarse: un 4 % menos de espera en el turno de día.' },
+        { id: 'funda', nombre: 'Funda de asientos', categoria: 'B', efecto: { limpieza: 0.75 },
+          descripcion: 'Si un cliente vomita y no hay bolsa, limpiar cuesta un 25 % menos y se para menos rato.' },
+        { id: 'callejero', nombre: 'Callejero de papel', categoria: 'B', efecto: { espera: 0.97 },
+          descripcion: 'Por si falla el móvil: un 3 % menos de espera entre carreras.' },
+
+        { id: 'gps', nombre: 'GPS', categoria: 'A', efecto: { espera: 0.94 },
+          descripcion: 'Rutas y avisos de clientes: un 6 % menos de espera entre carreras.' },
+        { id: 'manometro', nombre: 'Manómetro de ruedas', categoria: 'A', efecto: { pinchazo: 0.7 },
+          descripcion: 'Ruedas siempre a su presión: un 30 % menos de pinchazos.' },
+        { id: 'caramelos', nombre: 'Caramelos para clientes', categoria: 'A', efecto: { propina: 1.2 },
+          descripcion: 'Un detalle que se agradece: un 20 % más de propinas.' },
+        { id: 'espejo', nombre: 'Espejo panorámico', categoria: 'A', efecto: { sinPagar: 0.7 },
+          descripcion: 'Ve todo el asiento de atrás: un 30 % menos de clientes sin pagar.' },
+        { id: 'vitaminas', nombre: 'Vitaminas', categoria: 'A', efecto: { baja: 0.7 },
+          descripcion: 'Defensas altas: un 30 % menos de bajas.' },
+        { id: 'alfombrillas', nombre: 'Alfombrillas de goma', categoria: 'A', efecto: { limpieza: 0.55 },
+          descripcion: 'Se limpian con la manguera: un vómito cuesta un 45 % menos y se para menos rato.' },
+
+        { id: 'escaner', nombre: 'Radio-escáner', categoria: 'S', efecto: { espera: 0.9 },
+          descripcion: 'Se entera antes que nadie de dónde hay clientes: un 10 % menos de espera.' },
+        { id: 'herramientas', nombre: 'Kit de herramientas', categoria: 'S', efecto: { averia: 0.65, pinchazo: 0.8 },
+          descripcion: 'Arregla lo pequeño antes de que se rompa: un 35 % menos de averías y un 20 % menos de pinchazos.' },
+        { id: 'cargador', nombre: 'Cargador para clientes', categoria: 'S', efecto: { propina: 1.3, objeto: 1.2 },
+          descripcion: 'Todo el mundo lo agradece: un 30 % más de propinas y un 20 % más de objetos devueltos.' },
+        { id: 'botiquin', nombre: 'Botiquín', categoria: 'S', efecto: { baja: 0.55 },
+          descripcion: 'Lo que pilla, lo cura a tiempo: un 45 % menos de bajas.' },
+        { id: 'datafono', nombre: 'Datáfono portátil', categoria: 'S', efecto: { sinPagar: 0.5 },
+          descripcion: 'Nadie se escapa con la excusa de la tarjeta: la mitad de clientes sin pagar.' },
+
+        { id: 'navegador', nombre: 'Navegador con tráfico en directo', categoria: 'S+', efecto: { espera: 0.86 },
+          descripcion: 'Esquiva atascos y llega antes: un 14 % menos de espera entre carreras.' },
+        { id: 'silla', nombre: 'Silla ergonómica', categoria: 'S+', efecto: { baja: 0.5, esperaNoche: 0.93 },
+          descripcion: 'Aguanta la noche entera: la mitad de bajas y un 7 % menos de espera de noche.' },
+        { id: 'nevera', nombre: 'Nevera con agua fría', categoria: 'S+', efecto: { propina: 1.45, limpieza: 0.7 },
+          descripcion: 'Un lujo en agosto: un 45 % más de propinas y vómitos más llevaderos.' },
+        { id: 'baches', nombre: 'Detector de baches', categoria: 'S+', efecto: { pinchazo: 0.5, averia: 0.7 },
+          descripcion: 'Ni un bache sin esquivar: la mitad de pinchazos y un 30 % menos de averías.' },
+
+        { id: 'paconi', nombre: 'Planta de Paconi', categoria: 'L', efecto: { espera: 0.9, propina: 1.3, baja: 0.7 },
+          descripcion: 'Nadie sabe cómo, pero lo arregla todo: un 10 % menos de espera, un 30 % más de propinas y un 30 % menos de bajas.' },
+        { id: 'bocata', nombre: 'Bocata de calamares infinito', categoria: 'L', efecto: { baja: 0.4, esperaDia: 0.88 },
+          descripcion: 'Nunca se acaba: un 60 % menos de bajas y un 12 % menos de espera de día.' },
+        { id: 'bidon', nombre: 'Bidón energético', categoria: 'L', efecto: { esperaNoche: 0.78, baja: 0.8 },
+          descripcion: 'Medio litro que salva las noches: un 22 % menos de espera de noche y un 20 % menos de bajas.' }
       ]
     },
 

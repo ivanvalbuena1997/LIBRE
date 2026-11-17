@@ -71,6 +71,8 @@
       inventario: { ruedas: 0, bolsas: 0 },
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
       objetos: {},
+      // Objetos encontrados con el almacén lleno: esperan a que vendas algo.
+      bandeja: [],
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
       // Pausa al cierre del día: mientras no sea null el reloj está parado y
@@ -726,18 +728,84 @@
     return t && t.quien === 'conductor' ? t : null;
   }
 
-  /* Compra objetos para el almacén de la flota (sin equipar). */
-  function comprarObjeto(estado, id, cantidad) {
+  function buscarCategoria(id) {
+    return cfg().categorias.find(function (c) { return c.id === id; }) || null;
+  }
+
+  /* Categoría al azar con los pesos de la config. */
+  function sortearCategoria(estado) {
+    const lista = cfg().categorias;
+    let r = azar(estado);
+    for (const c of lista) { if (r < c.peso) return c.id; r -= c.peso; }
+    return lista[0].id;
+  }
+
+  /* Unidades sin equipar en el almacén (todas las clases juntas). */
+  function objetosEnAlmacen(estado) {
+    const o = estado.objetos || {};
+    return Object.keys(o).reduce(function (s, k) { return s + o[k]; }, 0);
+  }
+
+  /* Pasa al almacén lo que esperaba en la bandeja, mientras quepa. */
+  function guardarBandeja(estado) {
+    estado.objetos = estado.objetos || {};
+    const bandeja = estado.bandeja || [];
+    while (bandeja.length > 0 && objetosEnAlmacen(estado) < cfg().objetos.almacen) {
+      const x = bandeja.shift();
+      estado.objetos[x.id] = (estado.objetos[x.id] || 0) + 1;
+    }
+  }
+
+  /*
+   * Un conductor encuentra un objeto al terminar una carrera: categoría al
+   * azar y objeto al azar de esa categoría (o lo forzado desde la consola:
+   * una categoría o el id de un objeto). Al almacén o, si está lleno, a la
+   * bandeja. Avisa con su retrato; no va al ticket.
+   */
+  function hallazgo(estado, resumen, t) {
+    if (!t || t.quien !== 'conductor') return;
+    if (!toca(estado, 'hallazgo', cfg().objetos.probHallazgo)) return;
+    const forzado = consumirForzado(estado, 'hallazgo');
+    let objeto = forzado && forzado.arg ? buscarObjeto(forzado.arg) : null;
+    if (!objeto) {
+      const pedida = forzado && forzado.arg && buscarCategoria(forzado.arg) ? forzado.arg : null;
+      const categoria = pedida || sortearCategoria(estado);
+      const posibles = cfg().objetos.lista.filter(function (o) { return o.categoria === categoria; });
+      objeto = posibles[Math.floor(azar(estado) * posibles.length)];
+    }
+    estado.objetos = estado.objetos || {};
+    estado.bandeja = estado.bandeja || [];
+    const lleno = objetosEnAlmacen(estado) >= cfg().objetos.almacen;
+    if (lleno) estado.bandeja.push({ id: objeto.id, conductor: t.nombre });
+    else estado.objetos[objeto.id] = (estado.objetos[objeto.id] || 0) + 1;
+    resumen.eventos.push({
+      tipo: 'hallazgo', conductor: t.nombre, retrato: t.retrato, objeto: objeto.id, categoria: objeto.categoria,
+      texto: t.nombre + ' encuentra ' + objeto.nombre + ' (' + buscarCategoria(objeto.categoria).nombre + ')' +
+        (lleno ? '. El almacén está lleno: vende algo para guardarlo.' : '.')
+    });
+  }
+
+  /*
+   * Vende un objeto sin equipar: del almacén o, con `deBandeja`, el que
+   * espera en esa posición de la bandeja. Lo que espera en la bandeja entra
+   * al almacén si ahora cabe.
+   */
+  function venderObjeto(estado, id, deBandeja) {
     const o = buscarObjeto(id);
     if (!o) return fallo('Ese objeto no existe.');
-    estado.objetos = estado.objetos || {};
-    const hay = estado.objetos[id] || 0;
-    const n = Math.min(Number(cantidad) || 1, cfg().objetos.maximo - hay);
-    if (n <= 0) return fallo('Ya tienes ' + hay + ' sin equipar: es el máximo del almacén.');
-    if (estado.dinero < n * o.precio) return fallo('No te llega el dinero.');
-    estado.dinero -= n * o.precio;
-    estado.objetos[id] = hay + n;
-    return exito('+' + n + ' ' + o.nombre + ' al almacén.');
+    if (deBandeja !== undefined && deBandeja !== null && deBandeja !== '') {
+      const i = Number(deBandeja);
+      const x = (estado.bandeja || [])[i];
+      if (!x || x.id !== id) return fallo('Ese objeto ya no está en la bandeja.');
+      estado.bandeja.splice(i, 1);
+    } else {
+      if (!(estado.objetos && estado.objetos[id] > 0)) return fallo('No te queda ' + o.nombre + ' sin equipar.');
+      estado.objetos[id]--;
+    }
+    const precio = buscarCategoria(o.categoria).venta;
+    incidencia(estado, resumenVacio(), 'venta', 'Vendes ' + o.nombre + '.', precio, 'extras');
+    guardarBandeja(estado);
+    return exito('Vendes ' + o.nombre + ' por ' + Libre.ui_euros(precio) + '.');
   }
 
   /* Del almacén a un conductor: hueco libre y sin repetir objeto. */
@@ -755,12 +823,13 @@
     return exito(t.nombre + ' lleva ' + o.nombre + '.');
   }
 
-  /* De un conductor al almacén (para pasarlo a otro). */
+  /* De un conductor al almacén (para pasarlo a otro). Con el almacén lleno, no. */
   function quitarObjeto(estado, licenciaId, turno, id) {
     const t = turnoConductor(estado, licenciaId, turno);
     if (!t) return fallo('Ahí no hay ningún conductor.');
     const i = (t.objetos || []).indexOf(id);
     if (i === -1) return fallo('No lleva ese objeto.');
+    if (objetosEnAlmacen(estado) >= cfg().objetos.almacen) return fallo('El almacén está lleno: vende algo antes.');
     t.objetos.splice(i, 1);
     estado.objetos = estado.objetos || {};
     estado.objetos[id] = (estado.objetos[id] || 0) + 1;
@@ -840,7 +909,11 @@
     const coste = costeDespido(t);
     if (estado.dinero < coste) return fallo('No te llega para el finiquito de ' + t.nombre + ': ' + Libre.ui_euros(coste) + '.');
     estado.objetos = estado.objetos || {};
-    (t.objetos || []).forEach(function (id) { estado.objetos[id] = (estado.objetos[id] || 0) + 1; });
+    estado.bandeja = estado.bandeja || [];
+    (t.objetos || []).forEach(function (id) {
+      if (objetosEnAlmacen(estado) < cfg().objetos.almacen) estado.objetos[id] = (estado.objetos[id] || 0) + 1;
+      else estado.bandeja.push({ id, conductor: t.nombre });
+    });
     incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
     // Si estaba en una carrera, se pierde: se va con el cliente.
     lic.turnos[turno] = null;
@@ -1166,6 +1239,7 @@
     turno.carreras = (turno.carreras || 0) + 1;
     turno.facturado = (turno.facturado || 0) + cobrado;
     ganarExperiencia(estado, resumen, turno, cfg().conductores.niveles.porCarrera);
+    hallazgo(estado, resumen, turno);
   }
 
   // ------------------------------------------------------------- Eventos
@@ -1467,8 +1541,12 @@
    */
   function forzarEvento(estado, tipo, arg) {
     const resumen = resumenVacio();
-    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'lluvia', 'pinchazo', 'baja', 'averia'];
+    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'hallazgo', 'lluvia', 'pinchazo', 'baja', 'averia'];
     if (tipos.indexOf(tipo) === -1) return { ok: false, mensaje: 'Eventos: ' + tipos.join(', '), eventos: [] };
+    if (tipo === 'hallazgo') {
+      estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
+      return { ok: true, mensaje: 'Lo encontrará el próximo conductor que termine una carrera.', eventos: [] };
+    }
     if (['propina', 'sinPagar', 'objeto', 'vomito'].indexOf(tipo) !== -1) {
       estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
       return { ok: true, mensaje: 'Pasará en la próxima carrera que termine.', eventos: [] };
@@ -1764,7 +1842,10 @@
     nivelConductor,
     buscarObjeto,
     huecosConductor,
-    comprarObjeto,
+    buscarCategoria,
+    sortearCategoria,
+    objetosEnAlmacen,
+    venderObjeto,
     equiparObjeto,
     quitarObjeto,
     progresoConductor,

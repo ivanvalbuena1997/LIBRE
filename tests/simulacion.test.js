@@ -800,18 +800,25 @@ prueba('las partidas de la versión 12 empiezan en nivel 1', function () {
   assert.strictEqual(sim.nivelConductor(x), 1);
 });
 
-prueba('objetos: se compran al almacén, se equipan sin repetir y según los huecos', function () {
+function efectoDe(id, clave) {
+  return config.objetos.lista.find(function (o) { return o.id === id; }).efecto[clave];
+}
+
+prueba('objetos: los encuentran los conductores, se equipan sin repetir y según los huecos', function () {
   const e = flotaDe(1);
   const t = e.licencias[0].turnos.noche;
   t.cualidad = 'honrado'; t.defecto = 'antipatico';
-  const gps = config.objetos.lista.find(function (o) { return o.id === 'gps'; });
-  const antes = e.dinero;
-  assert.ok(sim.comprarObjeto(e, 'gps', 2).ok);
-  assert.strictEqual(antes - e.dinero, 2 * gps.precio);
-  assert.ok(sim.comprarObjeto(e, 'cojin').ok);
+  // Forzado desde la consola: con un id o con una categoría.
+  sim.forzarEvento(e, 'hallazgo', 'gps');
+  sim.forzarEvento(e, 'hallazgo', 'B');
+  for (let i = 0; i < 3000 && (e.eventosForzados || []).length; i++) sim.avanzar(e, 0.1);
+  assert.strictEqual(e.objetos.gps, 1, 'encuentra el GPS');
+  const deB = config.objetos.lista.filter(function (o) { return o.categoria === 'B' && e.objetos[o.id] > 0; });
+  assert.strictEqual(deB.length, 1, 'y uno de categoría B');
+  e.objetos = { gps: 2, cojin: 1 };
   assert.ok(sim.equiparObjeto(e, 1, 'noche', 'gps').ok);
   assert.strictEqual(e.objetos.gps, 1);
-  cerca(sim.factoresConductor(e, t).espera, gps.efecto.espera, 1e-9);
+  cerca(sim.factoresConductor(e, t).espera, efectoDe('gps', 'espera'), 1e-9);
   assert.ok(!sim.equiparObjeto(e, 1, 'noche', 'gps').ok, 'no dos iguales');
   assert.ok(!sim.equiparObjeto(e, 1, 'noche', 'cojin').ok, 'nivel 1: un solo hueco');
   t.xp = config.conductores.niveles.experiencia[3];
@@ -823,8 +830,45 @@ prueba('objetos: se compran al almacén, se equipan sin repetir y según los hue
   assert.ok(sim.quitarObjeto(e, 1, 'noche', 'gps').ok);
   assert.strictEqual(e.objetos.gps, 2);
   assert.ok(!sim.equiparObjeto(e, 1, 'dia', 'gps').ok, 'tu turno no lleva objetos');
-  e.objetos.funda = config.objetos.maximo;
-  assert.ok(!sim.comprarObjeto(e, 'funda').ok, 'almacén lleno');
+});
+
+prueba('los hallazgos siguen las categorías: muchos B y pocos LEGENDARIOS', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 99;
+  const cuenta = {};
+  for (let i = 0; i < 20000; i++) { const c = sim.sortearCategoria(e); cuenta[c] = (cuenta[c] || 0) + 1; }
+  config.categorias.forEach(function (c) { cerca(cuenta[c.id] / 20000, c.peso, Math.max(0.01, c.peso * 0.3)); });
+  assert.ok(config.objetos.lista.length >= 20, 'al menos 20 objetos');
+  config.categorias.forEach(function (c) {
+    assert.ok(config.objetos.lista.some(function (o) { return o.categoria === c.id; }), 'hay objetos ' + c.id);
+  });
+});
+
+prueba('almacén lleno: lo encontrado espera en la bandeja hasta que vendes algo', function () {
+  const e = flotaDe(1);
+  const max = config.objetos.almacen;
+  e.objetos = { callejero: max };
+  sim.forzarEvento(e, 'hallazgo', 'paconi');
+  for (let i = 0; i < 3000 && (e.eventosForzados || []).length; i++) sim.avanzar(e, 0.1);
+  assert.strictEqual(sim.objetosEnAlmacen(e), max, 'el almacén no pasa del máximo');
+  assert.deepStrictEqual(e.bandeja.map(function (x) { return x.id; }), ['paconi'], 'espera en la bandeja');
+  assert.ok(!sim.quitarObjeto(e, 1, 'noche', 'gps').ok, 'no se puede quitar nada al almacén lleno');
+  const antes = e.dinero;
+  const venta = config.categorias.find(function (c) { return c.id === 'B'; }).venta;
+  assert.ok(sim.venderObjeto(e, 'callejero').ok);
+  cerca(e.dinero - antes, venta);
+  assert.strictEqual(e.bandeja.length, 0, 'al hacer sitio entra al almacén');
+  assert.strictEqual(e.objetos.paconi, 1);
+  cerca(e.caja.hoy.extras, venta);
+  assert.strictEqual(e.caja.hoy.incidencias.venta.veces, 1);
+  // También se puede vender directamente lo de la bandeja.
+  e.objetos.callejero = max - 1;
+  e.bandeja = [{ id: 'bidon', conductor: 'X' }];
+  const l = config.categorias.find(function (c) { return c.id === 'L'; }).venta;
+  const antes2 = e.dinero;
+  assert.ok(sim.venderObjeto(e, 'bidon', 0).ok);
+  cerca(e.dinero - antes2, l);
+  assert.ok(!sim.venderObjeto(e, 'bidon').ok, 'no tienes bidón sin equipar');
 });
 
 prueba('rasgo, nivel y objetos se combinan con tope', function () {
@@ -833,9 +877,10 @@ prueba('rasgo, nivel y objetos se combinan con tope', function () {
   e.reloj.minutos = 23 * 60;
   t.cualidad = 'buho'; t.defecto = 'antipatico';
   t.xp = 1e6;
-  t.objetos = ['gps', 'termo'];
+  t.objetos = ['navegador', 'bidon'];
   const f = sim.factoresConductor(e, t);
-  const sinTope = 0.88 * 0.9 * 0.9 * (1 - 9 * config.conductores.niveles.esperaPorNivel);
+  const sinTope = 0.88 * efectoDe('navegador', 'espera') * efectoDe('bidon', 'esperaNoche') *
+    (1 - 9 * config.conductores.niveles.esperaPorNivel);
   cerca(f.espera, sinTope, 1e-9);
   assert.strictEqual(sim.topeConductor('espera', f.espera), config.conductores.topes.espera[0], 'se queda en el tope');
   t.cualidad = 'simpatico'; t.defecto = 'lento'; t.objetos = ['ambientador'];
