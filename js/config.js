@@ -150,7 +150,7 @@
      * efecto: como el de los rasgos, con los mismos topes.
      */
     objetos: {
-      almacen: 40,
+      almacen: 10,                 // Equilibrio: sin mejoras; «Taquillas» lo amplía.
       probHallazgo: 0.012,
       lista: [
         { id: 'ambientador', nombre: 'Ambientador', categoria: 'B', efecto: { propina: 1.1 },
@@ -670,6 +670,17 @@
         id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', precio: 2500,
         descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
         efecto: { gestionZonas: true }
+      },
+      {
+        // Equilibrio: cada nivel cuesta más o menos lo que valen vendidos los
+        // objetos (sobre todo B y A) que caben de más.
+        id: 'taquillas', nombre: 'Taquillas', rama: 'jornada',
+        descripcion: 'Taquillas para guardar lo que encuentran tus conductores: el almacén guarda más objetos.',
+        niveles: [
+          { precio: 600, descripcion: 'Almacén de 20 objetos.', efecto: { almacen: 10 } },
+          { precio: 1800, descripcion: 'Almacén de 30 objetos.', efecto: { almacen: 20 } },
+          { precio: 4500, descripcion: 'Almacén de 40 objetos.', efecto: { almacen: 30 } }
+        ]
       },
       {
         id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',

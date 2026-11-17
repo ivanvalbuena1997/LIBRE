@@ -133,7 +133,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;
   categoría por pesos y objeto al azar dentro de ella), con aviso y sin ir
   al ticket; tú no encuentras, y sin conexión tampoco. Van al almacén
-  (`estado.objetos`, como mucho `objetos.almacen` sin equipar) y, si está
+  (`estado.objetos`, como mucho `capacidadAlmacen()` sin equipar: 10, y
+  hasta 40 con la mejora «Taquillas» de Conductores y jornada) y, si está
   lleno, a `estado.bandeja` hasta que vendas algo (nada se vende solo).
   `venderObjeto()` vende uno del almacén o de la bandeja por el precio de
   su categoría (incidencia «Venta de objetos»). Se equipan en los huecos

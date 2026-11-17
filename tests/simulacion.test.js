@@ -868,7 +868,7 @@ prueba('los hallazgos siguen las categorías: muchos B y pocos LEGENDARIOS', fun
 
 prueba('almacén lleno: lo encontrado espera en la bandeja hasta que vendes algo', function () {
   const e = flotaDe(1);
-  const max = config.objetos.almacen;
+  const max = sim.capacidadAlmacen(e);
   e.objetos = { callejero: max };
   sim.forzarEvento(e, 'hallazgo', 'paconi');
   for (let i = 0; i < 3000 && (e.eventosForzados || []).length; i++) sim.avanzar(e, 0.1);
@@ -1146,6 +1146,18 @@ prueba('las partidas de la versión 19 empiezan la lista de licencias del ticket
   viejo.version = 19;
   delete viejo.caja.hoy.licencias;
   assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).caja.hoy.licencias, []);
+});
+
+prueba('el almacén guarda 10 objetos y «Taquillas» lo amplía por niveles', function () {
+  const e = flotaDe(1);
+  e.dinero = 1e6;
+  assert.strictEqual(sim.capacidadAlmacen(e), 10);
+  const t = config.mejoras.find(function (m) { return m.id === 'taquillas'; });
+  t.niveles.forEach(function (n, i) {
+    assert.ok(sim.comprarMejora(e, 'taquillas').ok);
+    assert.strictEqual(sim.capacidadAlmacen(e), 10 + n.efecto.almacen, 'nivel ' + (i + 1));
+  });
+  assert.strictEqual(sim.capacidadAlmacen(e), 40);
 });
 
 console.log(pasadas + ' pruebas correctas');

@@ -247,7 +247,7 @@
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
-      monedasMin: 0, monedasMax: 0
+      monedasMin: 0, monedasMax: 0, almacen: 0
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -269,6 +269,7 @@
       if (e.averiaCoste) m.averiaCoste *= e.averiaCoste;
       if (e.monedasMax) { m.monedasMin = e.monedasMin; m.monedasMax = e.monedasMax; }
       if (e.gestionZonas) m.gestionZonas = true;
+      if (e.almacen) m.almacen += e.almacen;
     });
     return m;
   }
@@ -953,6 +954,11 @@
     return lista[0].id;
   }
 
+  /* Cuántos objetos sin equipar caben en el almacén (con la mejora «Taquillas»). */
+  function capacidadAlmacen(estado) {
+    return cfg().objetos.almacen + modificadores(estado).almacen;
+  }
+
   /* Unidades sin equipar en el almacén (todas las clases juntas). */
   function objetosEnAlmacen(estado) {
     const o = estado.objetos || {};
@@ -963,7 +969,7 @@
   function guardarBandeja(estado) {
     estado.objetos = estado.objetos || {};
     const bandeja = estado.bandeja || [];
-    while (bandeja.length > 0 && objetosEnAlmacen(estado) < cfg().objetos.almacen) {
+    while (bandeja.length > 0 && objetosEnAlmacen(estado) < capacidadAlmacen(estado)) {
       const x = bandeja.shift();
       estado.objetos[x.id] = (estado.objetos[x.id] || 0) + 1;
     }
@@ -989,7 +995,7 @@
     }
     estado.objetos = estado.objetos || {};
     estado.bandeja = estado.bandeja || [];
-    const lleno = objetosEnAlmacen(estado) >= cfg().objetos.almacen;
+    const lleno = objetosEnAlmacen(estado) >= capacidadAlmacen(estado);
     if (lleno) estado.bandeja.push({ id: objeto.id, conductor: t.nombre });
     else estado.objetos[objeto.id] = (estado.objetos[objeto.id] || 0) + 1;
     resumen.eventos.push({
@@ -1043,7 +1049,7 @@
     if (!t) return fallo('Ahí no hay ningún conductor.');
     const i = (t.objetos || []).indexOf(id);
     if (i === -1) return fallo('No lleva ese objeto.');
-    if (objetosEnAlmacen(estado) >= cfg().objetos.almacen) return fallo('El almacén está lleno: vende algo antes.');
+    if (objetosEnAlmacen(estado) >= capacidadAlmacen(estado)) return fallo('El almacén está lleno: vende algo antes.');
     t.objetos.splice(i, 1);
     estado.objetos = estado.objetos || {};
     estado.objetos[id] = (estado.objetos[id] || 0) + 1;
@@ -1139,7 +1145,7 @@
     estado.objetos = estado.objetos || {};
     estado.bandeja = estado.bandeja || [];
     (t.objetos || []).forEach(function (id) {
-      if (objetosEnAlmacen(estado) < cfg().objetos.almacen) estado.objetos[id] = (estado.objetos[id] || 0) + 1;
+      if (objetosEnAlmacen(estado) < capacidadAlmacen(estado)) estado.objetos[id] = (estado.objetos[id] || 0) + 1;
       else estado.bandeja.push({ id, conductor: t.nombre });
     });
     incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
@@ -2093,6 +2099,7 @@
     buscarCategoria,
     sortearCategoria,
     objetosEnAlmacen,
+    capacidadAlmacen,
     venderObjeto,
     equiparObjeto,
     quitarObjeto,
