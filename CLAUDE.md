@@ -134,7 +134,7 @@ como eventos aleatorios desde el 16 de noviembre de 2026 (Iván).
   a peor categoría); al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
   que espera y la lista para vender. Cada licencia es una
-  tarjeta compacta: una línea con el taxi, su placa y el modelo, y una fila
+  tarjeta compacta: una línea con su placa y el modelo, y una fila
   por turno (icono de sol o luna). Un conductor es una fila de unos 48 px
   con retrato, nombre, categoría, nivel, barra de experiencia y, debajo,
   rasgos en icono con «+»/«−» (nombre en el título) y huecos; al tocarlo

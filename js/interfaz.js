@@ -781,8 +781,8 @@
 
   // ---------------------------------------------------------------- Flota
   /*
-   * Pestaña Flota: inventario en fichas, una tarjeta por licencia (dibujo del
-   * taxi, su número en una placa y los dos turnos) y la ficha de cada
+   * Pestaña Flota: inventario en fichas, una tarjeta por licencia (su número
+   * en una placa y los dos turnos) y la ficha de cada
    * conductor, que se abre al tocarlo.
    */
 
@@ -841,22 +841,6 @@
 
   function icono(nombre, clase) {
     return '<svg class="icono ' + (clase || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
-  }
-
-  /* Taxi de Madrid de perfil (blanco con la franja roja) para cada licencia. */
-  function dibujoTaxi() {
-    function rueda(cx) {
-      return '<circle class="neumatico" cx="' + cx + '" cy="16" r="4"/><circle class="llanta" cx="' + cx + '" cy="16" r="1.8"/>';
-    }
-    return '<svg class="taxi-dibujo" viewBox="0 -8 46 28" aria-hidden="true">' +
-      '<rect class="taxi-luminoso" x="19" y="-4" width="7" height="4" rx="1"/>' +
-      '<path class="taxi-chapa" d="M9 6 L14 0 H30 L36 6 Z"/>' +
-      '<path class="taxi-cristal" d="M15.5 1.5 H21.5 V5.2 H12.6 Z"/>' +
-      '<path class="taxi-cristal" d="M23 1.5 H29.4 L33.2 5.2 H23 Z"/>' +
-      '<rect class="taxi-chapa" x="1" y="5.5" width="43" height="9" rx="3"/>' +
-      '<polygon class="taxi-franja" points="15,14.5 20,14.5 27,5.5 22,5.5"/>' +
-      '<rect class="taxi-faro" x="41.5" y="7.5" width="2.5" height="2" rx="0.8"/>' +
-      rueda(10) + rueda(35) + '</svg>';
   }
 
   /*
@@ -1256,7 +1240,7 @@
     // Candidatos de un turno vacío de esta licencia, a todo el ancho.
     const eligiendo = ['dia', 'noche'].find(function (t) { return eligiendoConductor === lic.id + '|' + t; });
     return '<div class="licencia" data-licencia="' + lic.id + '">' +
-      '<div class="licencia-cabecera">' + (lic.vehiculo ? dibujoTaxi() : '') +
+      '<div class="licencia-cabecera">' +
       '<span class="placa" title="Número de licencia y letra de libranza">' + esc(Libre.sim.textoLicencia(lic)) + '</span>' +
       '<small>' + esc(modelo) + '</small></div>' +
       (lic.vehiculo ? '' : botonCompra('Comprar coche: ' + esc(modeloCompra.nombre), modeloCompra.precio, 'comprarVehiculo', [lic.id])) +

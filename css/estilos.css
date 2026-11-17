@@ -73,11 +73,6 @@
   --ventana-noche: #10142a;
   --ventana-encendida: #ffd36b;
   --lluvia: #a9c6de;
-  /* Dibujo del taxi en las tarjetas de Flota */
-  --taxi-contorno: #2a2a2a;
-  --taxi-cristal: #9fb7c9;
-  --neumatico: #1c1c1c;
-  --llanta: #b5b5b0;
   --placa-franja: #1d4fa3;     /* franja azul de la placa con el número de licencia */
 
   /* Categorías de objetos y conductores: fondo, texto y borde */
@@ -981,7 +976,7 @@ button.zona-tarjeta { cursor: pointer; }
 .ficha-panel p { margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
 .ficha-panel .acciones button { min-height: 44px; }
 
-/* Licencia: tarjeta compacta con el taxi, su placa y los dos turnos */
+/* Licencia: tarjeta compacta con su placa y los dos turnos */
 .licencia {
   border: 1px solid var(--borde);
   border-radius: 12px;
@@ -990,17 +985,6 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .licencia-cabecera { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; }
 .licencia-cabecera small { color: var(--suave); font-size: 0.75rem; }
-.taxi-dibujo { width: 40px; height: 24px; flex: none; }
-.taxi-dibujo .taxi-chapa, .taxi-dibujo .taxi-luminoso {
-  fill: var(--blanco);
-  stroke: var(--taxi-contorno);
-  stroke-width: 0.8;
-}
-.taxi-dibujo .taxi-cristal { fill: var(--taxi-cristal); }
-.taxi-dibujo .taxi-franja { fill: var(--rojo-taxi); }
-.taxi-dibujo .taxi-faro { fill: var(--ventana-encendida); }
-.taxi-dibujo .neumatico { fill: var(--neumatico); }
-.taxi-dibujo .llanta { fill: var(--llanta); }
 /* Número de licencia en una placa blanca con borde, como una matrícula */
 .placa {
   display: inline-block;
