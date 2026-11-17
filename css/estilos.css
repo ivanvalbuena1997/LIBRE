@@ -110,19 +110,6 @@
   --velo-boton-noche: rgba(16, 25, 54, 0.82);
   --placa-franja: #1d4fa3;     /* franja azul de la placa con el número de licencia */
 
-  /* Categorías de objetos y conductores: fondo, texto y borde */
-  --cat-b-fondo: #ecece8;
-  --cat-b-texto: #55554f;
-  --cat-a-fondo: #dcf2e4;
-  --cat-a-texto: #0b6e37;
-  --cat-s-fondo: #dce8fb;
-  --cat-s-texto: #1d4fa3;
-  --cat-smas-fondo: #ecdffa;
-  --cat-smas-texto: #6a2fb0;
-  --cat-l-oro-claro: #ffe08a;
-  --cat-l-oro: #f0a92e;
-  --cat-l-texto: #3b2600;
-  --cat-l-borde: #8a5a12;
   --luna: #f3f0dc;
 
   --radio: 12px;
@@ -1009,7 +996,6 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 }
 
 /* Flota */
-.flota-titulo { margin: 0 0 8px; font-size: 0.95rem; }
 .icono {
   width: 18px;
   height: 18px;
@@ -1021,62 +1007,94 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
   stroke-linejoin: round;
 }
 
-/* Inventario: cuadrícula de fichas; al tocar una se abre su panel debajo */
-.inventario {
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 12px;
-}
-.fichas {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
-  gap: 5px;
-}
-/* Ficha: icono arriba a la izquierda, cantidad a la derecha y debajo la categoría
-   (objetos) o la barra del almacén (consumibles). El nombre, al tocarla. */
-.ficha-inv {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 2px 4px;
+/*
+ * Pestaña Almacén (maqueta almacen.html): los consumibles en filas con su
+ * barra y chips de compra, y los objetos en casillas de 3 columnas (sin
+ * nombre: rareza, cantidad y dibujo). Al tocar una se abre su panel debajo.
+ */
+#sec-almacen { padding: 0; border: 0; background: transparent; font-family: var(--letra-cuerpo); font-weight: 600; color: var(--tinta); }
+#sec-almacen > .pantalla-titulo { margin-bottom: var(--esp-4); }
+#sec-almacen > .ayuda { font-size: var(--t-pequeno); color: var(--tinta-suave); }
+.icono-dibujo { display: block; object-fit: contain; }
+
+.almacen-consumibles { display: flex; flex-direction: column; gap: var(--esp-3); margin-bottom: var(--esp-4); }
+.almacen-consumible { display: flex; align-items: center; gap: var(--esp-5); padding: var(--esp-4) var(--esp-6); }
+.almacen-consumible-icono {
+  flex: none;
+  display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 5px 5px 7px;
-  border: 1px solid var(--borde);
-  border-radius: 9px;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-control);
+  background: var(--tinte-neutro);
+}
+.almacen-consumible-icono .icono { width: 32px; height: 32px; }
+.almacen-consumible-datos { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.almacen-consumible-datos > span { display: flex; align-items: center; gap: var(--esp-3); }
+.almacen-consumible-datos .ui-barra { flex: 1; }
+.almacen-consumible-datos strong { font-weight: 800; font-size: var(--t-normal); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.almacen-consumible-datos .ui-dinero { font-size: var(--t-cuerpo); white-space: nowrap; }
+.almacen-consumible-datos .ui-dinero small { font-family: var(--letra-cuerpo); font-size: var(--t-mini); color: var(--tinta-suave); }
+.almacen-consumible-datos .ui-barra-relleno { display: block; }
+.almacen-consumible.bajo .ui-barra-relleno { background: var(--peligro); }
+.almacen-consumible.bajo .ui-dinero { color: var(--peligro); }
+.almacen-chips { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: var(--esp-1); }
+.almacen-consumible .ui-chip-compra { padding: 5px var(--esp-4); font-size: var(--t-mini); white-space: nowrap; }
+.almacen-lleno { flex: none; font-size: var(--t-mini); font-weight: 800; color: var(--dinero); }
+
+.almacen-objetos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3); margin-bottom: var(--esp-4); }
+.almacen-objeto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  padding: var(--esp-4) var(--esp-3) var(--esp-3);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-placa);
   background: var(--tarjeta);
   font: inherit;
-  color: var(--texto);
-  text-align: left;
+  color: var(--tinta);
   cursor: pointer;
-  overflow: hidden;
 }
-.ficha-inv .icono { width: 20px; height: 20px; }
-.ficha-inv.abierta { border-color: var(--texto); box-shadow: inset 0 0 0 1px var(--texto); }
-.ficha-inv-cantidad { text-align: right; font-weight: 800; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
-.ficha-inv-cantidad small { font-weight: 600; font-size: 0.62rem; color: var(--suave); }
-.ficha-inv-categoria { grid-column: 1 / -1; line-height: 1; }
-.ficha-inv-categoria .categoria { font-size: 0.56rem; padding: 0 3px; letter-spacing: 0; }
-.ficha-inv.bajo .ficha-inv-cantidad { color: var(--rojo-taxi); }
-.ficha-inv-barra {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 4px;
-  background: var(--borde);
+.almacen-objeto.abierta { border-color: var(--marca); box-shadow: inset 0 0 0 1px var(--marca); }
+.almacen-objeto:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
+.almacen-objeto .ficha-objeto-rareza { top: 8px; left: 8px; }
+.almacen-cantidad { position: absolute; top: 8px; right: 10px; font-weight: 800; font-size: var(--t-pequeno); }
+.almacen-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-top: var(--esp-5);
+  border-radius: var(--r-boton);
 }
-.ficha-inv-barra > span { display: block; height: 100%; background: var(--verde-libre); }
-.ficha-inv.bajo .ficha-inv-barra > span { background: var(--rojo-taxi); }
-.ficha-panel {
-  margin-top: 8px;
-  padding: 10px;
-  border-radius: 10px;
-  background: var(--fondo);
-}
-.ficha-panel p { margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
-.ficha-panel .acciones button { min-height: 44px; }
+.almacen-icono .icono { width: 36px; height: 36px; }
+.almacen-icono.pequeno { width: 36px; height: 36px; margin: 0; border-radius: var(--r-control); }
+.almacen-icono.pequeno .icono { width: 28px; height: 28px; }
+
+/* Panel del objeto tocado */
+.almacen-panel { display: flex; flex-direction: column; gap: var(--esp-3); padding: var(--esp-5) var(--esp-6); margin-bottom: var(--esp-4); }
+.almacen-panel-cabecera { display: flex; align-items: center; gap: var(--esp-5); }
+.almacen-panel-cabecera .almacen-icono { margin: 0; flex: none; }
+.almacen-panel-cabecera > span:last-child { display: flex; flex-direction: column; align-items: flex-start; gap: var(--esp-1); }
+.almacen-panel-cabecera strong { font-weight: 800; font-size: var(--t-cuerpo); }
+.almacen-panel p { margin: 0; font-size: var(--t-pequeno); line-height: 1.35; color: var(--tinta-suave); }
+.almacen-panel .almacen-panel-nota { font-size: var(--t-mini); }
+.almacen-panel .boton-venta { width: 100%; }
+
+/* Bandeja (almacén lleno) y listas de venta */
+.bandeja { padding: var(--esp-5) var(--esp-6); margin-bottom: var(--esp-4); border: 2px solid var(--sol); background: var(--tinte-ambar); }
+.bandeja > strong { font-weight: 800; color: var(--aviso); }
+.bandeja > p { margin: var(--esp-3) 0 var(--esp-1); font-size: var(--t-pequeno); color: var(--tinta-suave); }
+.lista-venta { list-style: none; margin: var(--esp-2) 0 0; padding: 0; display: grid; gap: var(--esp-2); }
+.lista-venta li { display: grid; grid-template-columns: 36px 1fr auto; gap: var(--esp-4); align-items: center; font-size: var(--t-pequeno); }
+.lista-venta li > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; }
+.lista-venta strong { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista-venta small { display: flex; align-items: center; gap: var(--esp-2); color: var(--tinta-suave); font-size: var(--t-mini); }
+.lista-venta .boton-venta { min-height: 44px; padding: 0 var(--esp-4); font-size: var(--t-pequeno); white-space: nowrap; }
 
 /* Arrastrar conductores entre jornadas */
 [data-arrastrable] { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
@@ -1309,60 +1327,6 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .panel-tu select, .panel-tu button { min-height: 44px; }
 
 
-/* Etiqueta de categoría (los colores, en el punto siguiente) */
-.categoria {
-  display: inline-block;
-  padding: 0 5px;
-  border-radius: 4px;
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  line-height: 1.5;
-  vertical-align: middle;
-  white-space: nowrap;
-  border: 1px solid var(--borde);
-  align-self: flex-start;
-}
-.cat-B { background: var(--cat-b-fondo); color: var(--cat-b-texto); border-color: var(--cat-b-texto); }
-.cat-A { background: var(--cat-a-fondo); color: var(--cat-a-texto); border-color: var(--cat-a-texto); }
-.cat-S { background: var(--cat-s-fondo); color: var(--cat-s-texto); border-color: var(--cat-s-texto); }
-.cat-Smas { background: var(--cat-smas-fondo); color: var(--cat-smas-texto); border-color: var(--cat-smas-texto); }
-.cat-L {
-  background: linear-gradient(135deg, var(--cat-l-oro-claro), var(--cat-l-oro));
-  color: var(--cat-l-texto);
-  border-color: var(--cat-l-borde);
-}
-/* Fichas del inventario: una raya del color de su categoría a la izquierda */
-.ficha-inv.con-categoria { border-left-width: 4px; }
-.ficha-inv:has(.cat-B) { border-left-color: var(--cat-b-texto); }
-.ficha-inv:has(.cat-A) { border-left-color: var(--cat-a-texto); }
-.ficha-inv:has(.cat-S) { border-left-color: var(--cat-s-texto); }
-.ficha-inv:has(.cat-Smas) { border-left-color: var(--cat-smas-texto); }
-.ficha-inv:has(.cat-L) { border-left-color: var(--cat-l-oro); }
-.mensaje .categoria { margin-left: 2px; }
-.flota-titulo small { font-weight: 400; color: var(--suave); }
-
-/* Vender objetos: bandeja (almacén lleno) y listas de venta */
-.bandeja {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1.5px solid var(--ambar);
-  border-radius: 10px;
-  background: var(--fondo);
-}
-.bandeja p { margin: 8px 0 4px; font-size: 0.82rem; color: var(--suave); }
-.lista-venta { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
-.lista-venta li {
-  display: grid;
-  grid-template-columns: 20px 1fr auto;
-  gap: 8px;
-  align-items: center;
-  font-size: 0.85rem;
-}
-.lista-venta li > span { display: flex; flex-direction: column; min-width: 0; }
-.lista-venta small { color: var(--suave); font-size: 0.74rem; }
-.lista-venta button { min-height: 44px; padding: 4px 10px; }
-
 /* Hojas que suben desde abajo (ficha del conductor, ajustes) */
 .hoja-fondo {
   position: fixed;
@@ -1507,7 +1471,7 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
   margin-top: var(--esp-4);
   border-radius: var(--r-boton);
 }
-.ficha-objeto-icono .icono { width: 26px; height: 26px; stroke-width: 2; }
+.ficha-objeto-icono .icono { width: 38px; height: 38px; }
 .fondo-B { background: var(--tinte-neutro); }
 .fondo-A { background: var(--tinte-verde); }
 .fondo-S { background: var(--tinte-azul); }
@@ -1636,140 +1600,90 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .mensaje.con-retrato { display: flex; align-items: center; gap: 10px; }
 .mensaje .retrato { width: 32px; height: 32px; }
 
-/* Mejoras: árbol con una rama por pestaña */
+/*
+ * Pestaña Mejoras (maqueta mejoras.html): chips de rama y la lista vertical
+ * de nodos. Estados: comprada (verde con ✓), disponible (azul; el precio en
+ * gris si no llega el dinero) y bloqueada (gris con candado).
+ */
+#sec-mejoras { padding: 0; border: 0; background: transparent; font-family: var(--letra-cuerpo); font-weight: 600; color: var(--tinta); }
+#sec-mejoras > .pantalla-titulo { margin-bottom: var(--esp-4); }
 .ramas {
   display: flex;
-  gap: 6px;
+  gap: var(--esp-3);
   overflow-x: auto;
-  margin: 0 -4px 12px;
-  padding: 0 4px 4px;
+  margin: 0 calc(-1 * var(--margen)) var(--esp-4);
+  padding: 4px var(--margen);
   scrollbar-width: none;
 }
-.rama-pestana {
-  position: relative;
-  flex: none;
-  min-height: 40px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 0.88rem;
-  white-space: nowrap;
-}
-.rama-pestana.activa {
-  background: var(--texto);
-  border-color: var(--texto);
-  color: var(--blanco);
-  font-weight: 700;
-}
+.ramas::-webkit-scrollbar { display: none; }
+.ramas .ui-chip-rama { white-space: nowrap; }
 .marca-rama {
   position: absolute;
-  top: 2px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--fondo);
   border-radius: 50%;
-  background: var(--verde-libre);
+  background: var(--peligro);
   display: none;
 }
 .marca-rama.visible { display: block; }
 
-/* Una rama: nodos en vertical unidos por una línea */
-.rama {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  position: relative;
-}
-.nodo { position: relative; padding-left: 34px; margin-bottom: 10px; }
-.nodo:last-child { margin-bottom: 0; }
-/* Línea que une el nodo con el siguiente */
-.nodo::before {
-  content: "";
-  position: absolute;
-  left: 13px;
-  top: 30px;
-  bottom: -12px;
-  width: 3px;
-  background: var(--borde);
-}
-.nodo:last-child::before,
-.nodo.sin-enlace::before { display: none; }
-.nodo[data-nodo-estado="comprada"]::before { background: var(--verde-libre); }
-
+.rama { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--esp-3); }
+.nodo { border: 2px solid var(--marca); border-radius: var(--r-placa); background: var(--tarjeta); }
 .nodo-cabeza {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--esp-5);
+  min-height: 50px;
+  padding: var(--esp-4) var(--esp-5);
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
   text-align: left;
-  min-height: 48px;
-  padding: 8px 12px;
-  border: 2px solid var(--borde);
-  background: var(--tarjeta);
+  cursor: pointer;
 }
+.nodo-cabeza:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
 .nodo-punto {
-  position: absolute;
-  left: 4px;
-  top: 12px;
-  width: 21px;
-  height: 21px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--marca);
   border-radius: 50%;
-  border: 3px solid var(--borde);
   background: var(--tarjeta);
 }
-.nodo-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.nodo-nombre { font-weight: 600; line-height: 1.2; }
-.nodo-precio { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.nodo-niveles { display: flex; gap: 4px; }
-.nodo-niveles i {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  border: 2px solid var(--borde);
-}
-.nodo-niveles i.hecho { background: var(--verde-libre); border-color: var(--verde-libre); }
+.nodo-punto .icono { display: none; width: 18px; height: 18px; stroke-width: 2; }
+.nodo-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.nodo-nombre { font-weight: 800; font-size: var(--t-cuerpo); line-height: 1.25; }
+.nodo-precio { font-family: var(--letra-titulo); font-weight: 800; font-size: 16px; white-space: nowrap; }
+.nodo-niveles { display: flex; gap: var(--esp-1); margin-top: var(--esp-1); }
+.nodo-niveles i { width: 18px; height: 8px; border-radius: 3px; background: var(--tinte-neutro); }
+.nodo-niveles i.hecho { background: var(--marca); }
 
-/* Estados */
-.nodo[data-nodo-estado="comprada"] .nodo-cabeza { border-color: var(--verde-libre); background: var(--verde-claro); }
-.nodo[data-nodo-estado="comprada"] .nodo-punto { background: var(--verde-libre); border-color: var(--verde-libre); }
-.nodo[data-nodo-estado="comprada"] .nodo-punto::after {
-  content: "✓";
-  position: absolute;
-  inset: 0;
-  color: var(--blanco);
-  font-size: 0.75rem;
-  font-weight: 800;
-  line-height: 15px;
-  text-align: center;
-}
-.nodo[data-nodo-estado="comprada"] .nodo-precio { display: none; }
-.nodo[data-nodo-estado="disponible"] .nodo-cabeza { border-color: var(--verde-libre); }
-.nodo[data-nodo-estado="disponible"] .nodo-punto { border-color: var(--verde-libre); }
-.nodo[data-nodo-estado="disponible"] .nodo-precio { color: var(--verde-texto); }
-.nodo[data-nodo-estado="sinDinero"] .nodo-precio { color: var(--suave); }
-.nodo[data-nodo-estado="bloqueada"] .nodo-cabeza { border-style: dashed; color: var(--suave); }
-.nodo[data-nodo-estado="bloqueada"] .nodo-precio { color: var(--suave); font-weight: 400; }
-.nodo[data-nodo-estado="bloqueada"] .nodo-punto { border-style: dashed; }
-.nodo[data-nodo-estado="bloqueada"] .nodo-punto::after {
-  content: "🔒";
-  position: absolute;
-  inset: 0;
-  font-size: 0.6rem;
-  line-height: 15px;
-  text-align: center;
-}
+.nodo[data-nodo-estado="comprada"] { border-color: var(--dinero); background: var(--tinte-verde); }
+.nodo[data-nodo-estado="comprada"] .nodo-punto { border: 0; background: var(--dinero); color: var(--sobre-color); }
+.nodo[data-nodo-estado="comprada"] .nodo-punto .icono:first-child { display: block; }
+.nodo[data-nodo-estado="comprada"] .nodo-niveles i.hecho { background: var(--dinero); }
+.nodo[data-nodo-estado="sinDinero"] .nodo-precio { color: var(--tinta-suave); }
+.nodo[data-nodo-estado="bloqueada"] { border-color: var(--linea); background: var(--fondo); }
+.nodo[data-nodo-estado="bloqueada"] .nodo-punto { border-color: var(--linea); color: var(--tinta-suave); }
+.nodo[data-nodo-estado="bloqueada"] .nodo-punto .icono:last-child { display: block; }
+.nodo[data-nodo-estado="bloqueada"] .nodo-nombre,
+.nodo[data-nodo-estado="bloqueada"] .nodo-precio { color: var(--tinta-suave); }
 
-.nodo-ficha {
-  border: 2px solid var(--borde);
-  border-top: 0;
-  border-radius: 0 0 10px 10px;
-  padding: 8px 12px 12px;
-  margin-top: -4px;
-  font-size: 0.9rem;
-}
-.nodo-ficha p { margin: 4px 0 8px; color: var(--suave); }
-.nodo-ficha p strong { color: var(--texto); }
-.nodo-requisito { color: var(--rojo-taxi) !important; }
-.nodo-completa { color: var(--verde-texto) !important; font-weight: 600; }
+/* Nodo abierto: texto y botón, alineados con el nombre */
+.nodo-ficha { display: flex; flex-direction: column; gap: var(--esp-3); padding: 0 var(--esp-5) var(--esp-5) 54px; }
+.nodo-ficha p { margin: 0; font-size: var(--t-pequeno); line-height: 1.35; color: var(--tinta-suave); }
+.nodo-ficha .nodo-comprar { justify-content: space-between; padding: 0 var(--esp-6); }
+.nodo-requisito { color: var(--peligro) !important; font-weight: 800; }
+.nodo-completa { color: var(--dinero) !important; font-weight: 800; }
 
 .acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .acciones button { flex: 1 1 auto; }
@@ -1900,6 +1814,7 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 /* Chip de rama (Mejoras): pastilla que se marca al elegirla */
 .ui-chip-rama {
   flex: none;
+  min-height: 0;
   padding: var(--esp-3) var(--esp-6);
   border-radius: var(--r-pastilla);
   border: 2px solid var(--linea);
@@ -1938,6 +1853,7 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 /* Chip de compra (consumibles del Almacén) */
 .ui-chip-compra {
   flex: none;
+  min-height: 0;
   padding: 7px var(--esp-5);
   border: 0;
   border-radius: var(--r-control);

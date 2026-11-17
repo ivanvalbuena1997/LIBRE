@@ -127,10 +127,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   mantener pulsado 450 ms) sobre un conductor, un turno libre o la reserva
   (`data-arrastrable` y `data-destino`, solo en pausa), o el selector
   «Mover a…» de la ficha.
-- Etiqueta de categoría (`etiquetaCategoria()` en la interfaz): el nombre
-  (B, A, S, S+, LEGENDARIO) sobre su color (`--cat-*` en `:root`; gris,
-  verde, azul, morado y oro). Sale en conductores, candidatos, objetos,
-  fichas del inventario (con raya de color) y en el aviso de un hallazgo.
+- Rareza (categoría) en pantalla: insignia `ui-rareza` (`claseRareza()`,
+  `etiquetaCategoria()`): la letra o el nombre (B, A, S, S+, LEGENDARIO)
+  sobre su color (`--rareza-*` en `:root`; gris, verde, azul, morado y
+  amarillo). Las casillas de objeto llevan además el dibujo sobre un tinte
+  de su categoría (`claseFondo()`).
+- Iconos de objetos y consumibles: dibujos SVG en `iconos/` (del paquete de
+  diseño, con sus propios colores), con `<img>` desde `icono()`. Se llaman
+  como el objeto salvo los de `ARCHIVO_ICONO` (escaner → radio, paconi →
+  planta, alfombrillas → alfombrilla, ruedas → rueda, bolsas → bolsa). Los
+  de turnos y rasgos siguen siendo trazos en `ICONOS`.
 - Experiencia (`turno.xp`): cada carrera terminada de un conductor da
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
   tabla `niveles.experiencia` (10 niveles) y cada nivel acorta la espera.
@@ -158,15 +164,15 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
-- Pestañas Almacén y Conductores (antes, juntas en Flota). El almacén (en
-  el código sigue siendo `inventario` para los consumibles; `seccionAlmacen`)
-  es una cuadrícula de fichas pequeñas, sin
-  nombre a la vista (va en el título y en la ficha abierta): icono,
-  cantidad y debajo la categoría (objetos) o la barra sobre el máximo
-  (consumibles). Solo los objetos que tienes sin equipar, de mejor a peor
-  categoría; al tocar una se abre debajo su panel para comprar
-  (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
-  que espera y la lista para vender. En Conductores (`seccionConductores`,
+- Pestañas Almacén y Conductores (antes, juntas en Flota). Almacén
+  (`seccionAlmacen`, maqueta almacen.html; en el código los consumibles
+  siguen siendo `inventario`): título con «Objetos N de M»; los
+  consumibles en filas (dibujo, nombre, barra con N / máximo y chips de
+  compra +1 y +10); los objetos sin equipar en casillas de 3 columnas, de
+  mejor a peor, sin nombre a la vista (Iván: rareza, ×cantidad y dibujo; el
+  nombre va en el título y en el panel). Al tocar una se abre debajo su
+  panel (nombre, rareza, descripción y vender). Con la bandeja llena, arriba
+  sale lo que espera y la lista para vender. En Conductores (`seccionConductores`,
   maquetas conductores.html y ficha-conductor.html): título y número de
   licencias, la reserva (tarjeta discontinua con sus 5 huecos: caras de 44
   px y huecos «+» que abren los candidatos) y las licencias de dos en dos
@@ -214,9 +220,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   en la config es el de la rama. Las que no tienen `requiere` abren la rama
   (puede haber varias: Bolsas y Callejero; Deflectores y Conducción eficiente;
   Curso de zonas, Taquillas y Esterillas), y la
-  línea solo une un nodo con el siguiente si este lo pide. La interfaz no inventa requisitos: los lee.
-  En pantalla: una pestaña por rama y los nodos en vertical; al
-  tocar uno se abre su ficha.
+  La interfaz no inventa requisitos: los lee.
+  En pantalla (maqueta mejoras.html): un chip por rama y los nodos en una
+  lista vertical (comprada en verde con ✓, disponible en azul con el precio
+  en gris si no llega, bloqueada en gris con candado; las de niveles, con
+  rayitas); al tocar uno se abre debajo qué hace y «Comprar nivel N · precio».
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
   la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
   efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven.

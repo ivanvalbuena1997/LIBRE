@@ -775,7 +775,8 @@
    * conductor, que se abre al tocarlo.
    */
 
-  /* Iconos de trazo (24 × 24): turnos, rasgos, objetos y consumibles. */
+  /* Iconos de trazo (24 × 24): turnos y rasgos. Los de objetos y consumibles son
+     dibujos aparte en iconos/ (ARCHIVO_ICONO). */
   const ICONOS = {
     dia: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     noche: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
@@ -793,33 +794,7 @@
     buho: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
     madrugador: '<path d="M3 18h18M7 18a5 5 0 0 1 10 0M12 6v3M5 11l1.5 1.5M19 11l-1.5 1.5"/>',
     dormilon: '<path d="M4 6h6l-6 7h6M13 11h6l-6 7h6"/>',
-    trasnochador: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M6 10v4"/>',
-    gps: '<path d="M3 11l18-8-8 18-2-8z"/>',
-    ambientador: '<path d="M12 3l5 7h-3l4 6H6l4-6H7zM12 16v5"/>',
-    cojin: '<rect x="4" y="6" width="16" height="12" rx="4"/><path d="M8 12h8"/>',
-    termo: '<path d="M5 8h11v6a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/>',
-    gafas: '<circle cx="7" cy="14" r="3.5"/><circle cx="17" cy="14" r="3.5"/><path d="M10.5 14h3M3.5 14L5 7M20.5 14L19 7"/>',
-    funda: '<path d="M7 3h7a2 2 0 0 1 2 2v9H7zM5 14h14v3H5zM8 17v4M16 17v4"/>',
-    callejero: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/>',
-    manometro: '<circle cx="12" cy="13" r="8"/><path d="M12 13l4-4M8 18h8"/>',
-    caramelos: '<circle cx="12" cy="12" r="4"/><path d="M8.5 10L4 7v10l4.5-3M15.5 10L20 7v10l-4.5-3"/>',
-    espejo: '<rect x="3" y="8" width="18" height="7" rx="3.5"/><path d="M12 8V5"/>',
-    vitaminas: '<path d="M7 17L17 7a3.5 3.5 0 0 0-5-5L2 12a3.5 3.5 0 0 0 5 5zM7 7l5 5"/>',
-    alfombrillas: '<rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h8"/>',
-    escaner: '<path d="M12 12v9M8 21h8"/><circle cx="12" cy="10" r="2"/><path d="M7.8 5.8a6 6 0 0 0 0 8.4M16.2 5.8a6 6 0 0 1 0 8.4"/>',
-    herramientas: '<path d="M14.7 6.3a4 4 0 0 0 5 5L12 19l-3 1-1-1 1-3z"/>',
-    cargador: '<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/>',
-    botiquin: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M12 10v7M8.5 13.5h7"/>',
-    datafono: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 6h6M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 15h.01"/>',
-    navegador: '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4M8 13l3-5 2 3 3-4"/>',
-    silla: '<path d="M7 3h10v9H7zM5 12h14v3H5zM8 15l-1 6M16 15l1 6"/>',
-    nevera: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 9h14M8 5v2M8 12v3"/>',
-    baches: '<path d="M2 18h5l2-3 3 3h10M6 10a6 6 0 0 1 12 0M9 10a3 3 0 0 1 6 0"/>',
-    paconi: '<path d="M8 21h8l1-6H7zM12 15V9M12 9c0-3-2-5-5-5 0 3 2 5 5 5zM12 11c0-3 2-5 5-5 0 3-2 5-5 5z"/>',
-    bocata: '<path d="M3 12c0-3 4-5 9-5s9 2 9 5zM3 12h18M4 15h16c0 2-3.5 3-8 3s-8-1-8-3z"/>',
-    bidon: '<path d="M7 5h10v15a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1zM9 2h6l2 3H7zM12 9l-2 4h4l-2 4"/>',
-    ruedas: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/>',
-    bolsas: '<path d="M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2"/>'
+    trasnochador: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M6 10v4"/>'
   };
 
   /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
@@ -827,11 +802,30 @@
     const c = Libre.sim.buscarCategoria(id);
     // Corta (fichas pequeñas): «L» en vez de LEGENDARIO; el color es el mismo.
     const texto = corta && id === 'L' ? 'L' : c && c.nombre;
-    return c ? '<span class="categoria cat-' + (id === 'S+' ? 'Smas' : id) + '" title="' + esc(c.nombre) + '">' + esc(texto) + '</span>' : '';
+    return c ? '<span class="' + claseRareza(id) + '" title="' + esc(c.nombre) + '">' + esc(texto) + '</span>' : '';
+  }
+
+  /*
+   * Iconos de objetos y consumibles (iconos/*.svg, del paquete de diseño): se
+   * llaman como el objeto salvo estos. Los dibujos traen sus propios colores.
+   */
+  const ARCHIVO_ICONO = { escaner: 'radio', paconi: 'planta', alfombrillas: 'alfombrilla', ruedas: 'rueda', bolsas: 'bolsa' };
+  function archivoIcono(nombre) {
+    if (ARCHIVO_ICONO[nombre]) return ARCHIVO_ICONO[nombre];
+    return Libre.sim.buscarObjeto(nombre) ? nombre : null;
   }
 
   function icono(nombre, clase) {
+    const archivo = archivoIcono(nombre);
+    if (archivo) {
+      return '<img class="icono icono-dibujo ' + (clase || '') + '" src="iconos/' + archivo + '.svg" alt="" width="48" height="48" draggable="false">';
+    }
     return '<svg class="icono ' + (clase || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
+  }
+
+  /* Fondo de color de la casilla de un objeto, según su categoría. */
+  function claseFondo(categoria) {
+    return 'fondo-' + (categoria === 'S+' ? 'Smas' : categoria);
   }
 
   /* Lo menos que cuesta contratar ahora (el candidato más barato). */
@@ -1283,54 +1277,68 @@
     return n;
   }
 
-  function htmlFichaInventario(id, nombre, hay, maximo, bajo, conBarra, categoria) {
-    const abierta = fichaInventario === id;
-    return '<button type="button" class="ficha-inv' + (bajo ? ' bajo' : '') + (abierta ? ' abierta' : '') +
-      (categoria ? ' con-categoria' : '') + '" ' +
-      'data-ficha-inventario="' + id + '" data-inventario="' + id + '" aria-expanded="' + abierta + '"' +
-      // Sin nombre a la vista (sale al tocarla): icono, cantidad y categoría.
-      ' title="' + esc(nombre) + '" aria-label="' + esc(nombre + ': ' + hay + (conBarra ? ' de ' + maximo : '') +
-        (categoria ? ', categoría ' + Libre.sim.buscarCategoria(categoria).nombre : '')) + '">' +
-      icono(id) +
-      '<span class="ficha-inv-cantidad">' + hay + (conBarra ? '<small>/' + maximo + '</small>' : '') + '</span>' +
-      (categoria ? '<span class="ficha-inv-categoria">' + etiquetaCategoria(categoria, true) + '</span>' : '') +
-      (conBarra ? '<span class="ficha-inv-barra"><span style="width:' + Math.min(100, hay / maximo * 100).toFixed(0) + '%"></span></span>' : '') +
-      '</button>';
+  /*
+   * Casilla de un objeto en el almacén (maqueta almacen.html, sin el nombre:
+   * va en el título y en el panel al tocarla): rareza, cantidad y el dibujo
+   * sobre el color de su categoría.
+   */
+  function htmlCasillaObjeto(estado, o) {
+    const abierta = fichaInventario === o.id;
+    const cat = Libre.sim.buscarCategoria(o.categoria);
+    const hay = estado.objetos[o.id];
+    return '<button type="button" class="almacen-objeto' + (abierta ? ' abierta' : '') + '" ' +
+      'data-ficha-inventario="' + o.id + '" data-inventario="' + o.id + '" aria-expanded="' + abierta + '"' +
+      ' title="' + esc(o.nombre) + '" aria-label="' + esc(o.nombre + ': ' + hay + ', categoría ' + cat.nombre) + '">' +
+      '<span class="ficha-objeto-rareza ' + claseRareza(o.categoria) + '">' + esc(o.categoria === 'L' ? 'L' : o.categoria) + '</span>' +
+      '<span class="almacen-cantidad">×' + hay + '</span>' +
+      '<span class="almacen-icono ' + claseFondo(o.categoria) + '">' + icono(o.id) + '</span></button>';
   }
 
+  /* Panel bajo la cuadrícula del objeto tocado: qué es, cuántos y vender. */
   function htmlPanelInventario(estado) {
-    const c = Libre.config;
     const id = fichaInventario;
-    if (!id) return '';
-    const consumible = c.inventario[id];
-    if (consumible) {
-      if (!Libre.sim.inventarioAbierto(estado, id)) return '';
-      const hay = estado.inventario[id] || 0;
-      const hueco = consumible.maximo - hay;
-      const botones = [1, 10].filter(function (n) { return n === 1 || hueco > 1; }).map(function (n) {
-        const cuantas = Math.min(n, hueco);
-        return boton('+' + cuantas + ' · ' + euros(cuantas * consumible.precio), 'comprarInventario', [id, cuantas], '',
-          cuantas * consumible.precio);
-      }).join('');
-      return '<div class="ficha-panel"><strong>' + esc(consumible.nombre) + ' · ' + hay + ' de ' + consumible.maximo + '</strong>' +
-        '<p>' + esc(TEXTO_CONSUMIBLE[id] || '') + '</p>' +
-        '<div class="acciones">' + (hueco > 0 ? botones : '<span class="ayuda">Almacén lleno</span>') + '</div></div>';
-    }
-    const o = Libre.sim.buscarObjeto(id);
+    const o = id && Libre.sim.buscarObjeto(id);
     if (!o) return '';
     const hay = (estado.objetos || {})[id] || 0;
+    if (!hay) return '';
     const puestos = equipados(estado, id);
-    return '<div class="ficha-panel"><strong>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) + ' · ' + hay +
-      ' sin equipar' + (puestos ? ', ' + puestos + (puestos === 1 ? ' equipado' : ' equipados') : '') + '</strong>' +
-      '<p>' + esc(o.descripcion) + ' Se equipa desde la ficha de cada conductor.</p>' +
-      '<div class="acciones">' + (hay > 0 ? botonVenta(o.id) : '') + '</div></div>';
+    return '<div class="almacen-panel ui-tarjeta">' +
+      '<div class="almacen-panel-cabecera"><span class="almacen-icono ' + claseFondo(o.categoria) + '">' + icono(o.id) + '</span>' +
+      '<span><strong>' + esc(o.nombre) + '</strong><span class="' + claseRareza(o.categoria) + '">' +
+      esc(Libre.sim.buscarCategoria(o.categoria).nombre) + '</span></span></div>' +
+      '<p>' + esc(o.descripcion) + '</p>' +
+      '<p class="almacen-panel-nota">' + hay + ' sin equipar' + (puestos ? ' · ' + puestos + (puestos === 1 ? ' equipado' : ' equipados') : '') +
+      '. Se equipa desde la ficha de cada conductor.</p>' + botonVenta(o.id) + '</div>';
+  }
+
+  /*
+   * Consumible (ruedas, bolsas): una fila con su dibujo, cuántas hay sobre el
+   * máximo, la barra y los chips de compra (+1 y +10).
+   */
+  function htmlConsumible(estado, k) {
+    const item = Libre.config.inventario[k];
+    const hay = estado.inventario[k] || 0;
+    const hueco = item.maximo - hay;
+    const bajo = hay <= item.aviso;
+    const chips = [1, 10].filter(function (n) { return n === 1 || hueco > 1; }).map(function (n) {
+      const cuantas = Math.min(n, hueco);
+      return '<button type="button" class="ui-chip-compra ui-tactil" data-accion="comprarInventario" data-args="' + k + '|' + cuantas + '"' +
+        ' data-precio="' + (cuantas * item.precio) + '" aria-label="Comprar ' + cuantas + ' por ' + euros(cuantas * item.precio) + '">' +
+        (n === 1 ? '' : '+' + cuantas + ' · ') + euros(cuantas * item.precio) + '</button>';
+    }).join('');
+    return '<div class="almacen-consumible ui-tarjeta' + (bajo ? ' bajo' : '') + '" data-inventario="' + k + '" title="' + esc(TEXTO_CONSUMIBLE[k] || '') + '">' +
+      '<span class="almacen-consumible-icono">' + icono(k) + '</span>' +
+      '<span class="almacen-consumible-datos"><strong>' + esc(item.nombre) + '</strong><span>' +
+      '<span class="ui-barra ui-barra--marca"><span class="ui-barra-relleno" style="width:' + Math.min(100, hay / item.maximo * 100).toFixed(0) + '%"></span></span>' +
+      '<span class="ui-dinero">' + hay + '<small> / ' + item.maximo + '</small></span></span></span>' +
+      (hueco > 0 ? '<span class="almacen-chips">' + chips + '</span>' : '<span class="almacen-lleno">Lleno</span>') + '</div>';
   }
 
   /* Botón de vender un objeto (del almacén, o de la bandeja con su posición). */
   function botonVenta(id, deBandeja) {
     const o = Libre.sim.buscarObjeto(id);
     const precio = Libre.sim.buscarCategoria(o.categoria).venta;
-    return boton('Vender · ' + euros(precio), 'venderObjeto', deBandeja === undefined ? [id] : [id, deBandeja], 'boton-venta');
+    return boton('Vender · ' + euros(precio), 'venderObjeto', deBandeja === undefined ? [id] : [id, deBandeja], 'ui-boton ui-boton--secundario boton-venta');
   }
 
   /* Objetos sin equipar del almacén, de mejor a peor categoría. */
@@ -1343,8 +1351,9 @@
   /* Lista para vender: cada objeto del almacén con su botón. */
   function htmlListaVenta(estado) {
     return '<ul class="lista-venta">' + objetosDelAlmacen(estado).map(function (o) {
-      return '<li>' + icono(o.id) + '<span>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) +
-        ' <small>×' + estado.objetos[o.id] + '</small></span>' + botonVenta(o.id) + '</li>';
+      return '<li><span class="almacen-icono pequeno ' + claseFondo(o.categoria) + '">' + icono(o.id) + '</span>' +
+        '<span><strong>' + esc(o.nombre) + '</strong><small><span class="' + claseRareza(o.categoria) + '">' +
+        esc(o.categoria === 'L' ? 'L' : o.categoria) + '</span> ×' + estado.objetos[o.id] + '</small></span>' + botonVenta(o.id) + '</li>';
     }).join('') + '</ul>';
   }
 
@@ -1355,11 +1364,13 @@
   function htmlBandeja(estado) {
     const bandeja = estado.bandeja || [];
     if (bandeja.length === 0) return '';
-    return '<div class="bandeja"><strong>Almacén lleno · ' + bandeja.length + ' por guardar</strong>' +
+    return '<div class="bandeja ui-tarjeta"><strong>Almacén lleno · ' + bandeja.length + ' por guardar</strong>' +
       '<ul class="lista-venta">' + bandeja.map(function (x, i) {
         const o = Libre.sim.buscarObjeto(x.id);
-        return '<li>' + icono(o.id) + '<span>' + esc(o.nombre) + ' ' + etiquetaCategoria(o.categoria) +
-          '<small>Lo encontró ' + esc(x.conductor) + '</small></span>' + botonVenta(o.id, i) + '</li>';
+        return '<li><span class="almacen-icono pequeno ' + claseFondo(o.categoria) + '">' + icono(o.id) + '</span>' +
+          '<span><strong>' + esc(o.nombre) + '</strong><small><span class="' + claseRareza(o.categoria) + '">' +
+          esc(o.categoria === 'L' ? 'L' : o.categoria) + '</span> Lo encontró ' + esc(x.conductor) + '</small></span>' +
+          botonVenta(o.id, i) + '</li>';
       }).join('') + '</ul>' +
       '<p>O vende algo del almacén y entrará solo:</p>' + htmlListaVenta(estado) + '</div>';
   }
@@ -1367,21 +1378,15 @@
   function htmlInventario(estado) {
     const c = Libre.config;
     const consumibles = Object.keys(c.inventario).filter(function (k) { return Libre.sim.inventarioAbierto(estado, k); })
-      .map(function (k) {
-        const item = c.inventario[k];
-        const hay = estado.inventario[k] || 0;
-        return htmlFichaInventario(k, item.nombre, hay, item.maximo, hay <= item.aviso, true);
-      }).join('');
+      .map(function (k) { return htmlConsumible(estado, k); }).join('');
     // Solo los objetos que tienes sin equipar, de mejor a peor.
-    const objetos = objetosDelAlmacen(estado).map(function (o) {
-      return htmlFichaInventario(o.id, o.nombre, estado.objetos[o.id], 0, false, false, o.categoria);
-    }).join('');
-    const total = Libre.sim.objetosEnAlmacen(estado);
-    return '<div class="inventario"><h3 class="flota-titulo">Objetos <small>· ' + total + ' de ' +
-      Libre.sim.capacidadAlmacen(estado) + '</small></h3>' + htmlBandeja(estado) +
-      '<div class="fichas">' + consumibles + objetos + '</div>' +
-      (objetos ? '' : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +
-      htmlPanelInventario(estado) + '</div>';
+    const objetos = objetosDelAlmacen(estado).map(function (o) { return htmlCasillaObjeto(estado, o); }).join('');
+    return htmlBandeja(estado) +
+      (consumibles ? '<div class="almacen-consumibles">' + consumibles + '</div>' : '') +
+      (objetos
+        ? '<div class="almacen-objetos">' + objetos + '</div>'
+        : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +
+      htmlPanelInventario(estado);
   }
 
   function inventarioBajo(estado) {
@@ -1445,7 +1450,9 @@
     id: 'sec-almacen',
     firma: firmaFlota,
     html: function (estado) {
-      return '<h2>Almacén</h2>' + htmlInventario(estado);
+      return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Almacén</h2>' +
+        '<span>Objetos ' + Libre.sim.objetosEnAlmacen(estado) + ' de ' + Libre.sim.capacidadAlmacen(estado) + '</span></div>' +
+        htmlInventario(estado);
     }
   };
 
@@ -1499,9 +1506,9 @@
   };
 
   /*
-   * Árbol de mejoras. Una rama por pestaña; cada mejora es un nodo unido a la
-   * anterior de su rama (los requisitos están en la config). Al tocar un nodo
-   * se abre su ficha con qué hace, cuánto cuesta y el botón de comprar.
+   * Árbol de mejoras. Una rama por chip; cada mejora es un nodo de la lista,
+   * en el orden de su rama (los requisitos están en la config). Al tocar un
+   * nodo se abre debajo qué hace, cuánto cuesta y el botón de comprar.
    * Estados: comprada, disponible, sin dinero y bloqueada.
    */
   let ramaActual = null;
@@ -1514,9 +1521,12 @@
     return ramaActual;
   }
 
+  // Al cambiar de rama (o al entrar), su chip se desliza a la vista.
+  let centrarRama = true;
   function elegirRama(id) {
     ramaActual = id;
     nodoAbierto = null;
+    centrarRama = true;
     try { raiz.localStorage.setItem('libre-rama', id); } catch (e) { /* da igual */ }
   }
 
@@ -1540,21 +1550,31 @@
     });
   }
 
+  /* Al abrir un nodo: qué hace, el nivel que toca y el botón de comprar. */
   function htmlFicha(estado, m) {
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
-    let pie;
+    let texto = esc(m.descripcion);
+    let pie = '';
     if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) {
       pie = '<p class="nodo-requisito">Antes necesitas «' + esc(nombreMejora(m.requiere)) + '».</p>';
     } else if (!siguiente) {
       pie = '<p class="nodo-completa">Comprada' + (m.niveles ? ' entera: los ' + m.niveles.length + ' niveles' : '') + '.</p>';
     } else {
-      pie = (m.niveles ? '<p><strong>Nivel ' + siguiente.nivel + ':</strong> ' + esc(siguiente.descripcion) + '</p>' : '') +
-        botonCompra(m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar', siguiente.precio, 'comprarMejora', [m.id]);
+      if (m.niveles) texto += ' Nivel ' + siguiente.nivel + ': ' + esc(siguiente.descripcion);
+      pie = boton('<span>' + (m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar') + '</span><span>' + euros(siguiente.precio) + '</span>',
+        'comprarMejora', [m.id], 'ui-boton ui-boton--principal ui-boton--ancho nodo-comprar', siguiente.precio);
     }
-    return '<div class="nodo-ficha"><p>' + esc(m.descripcion) + '</p>' + pie + '</div>';
+    return '<div class="nodo-ficha"><p>' + texto + '</p>' + pie + '</div>';
   }
 
-  function htmlNodo(estado, m, sinEnlace) {
+  const ICONO_HECHO = '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const ICONO_CANDADO = '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+
+  /*
+   * Nodo (maqueta mejoras.html): círculo de estado (hecho con ✓, disponible
+   * en azul, bloqueado con candado), nombre, niveles en rayitas y precio.
+   */
+  function htmlNodo(estado, m) {
     const nivel = Libre.sim.nivelMejora(estado, m.id);
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
     const precio = siguiente ? siguiente.precio : null;
@@ -1563,10 +1583,9 @@
         m.niveles.map(function (n, k) { return '<i class="' + (k < nivel ? 'hecho' : '') + '"></i>'; }).join('') + '</span>'
       : '';
     const abierto = nodoAbierto === m.id;
-    return '<li class="nodo' + (sinEnlace ? ' sin-enlace' : '') + '" data-mejora="' + m.id + '" data-nodo-estado>' +
-      '<button type="button" class="nodo-cabeza" data-nodo="' + m.id + '" aria-expanded="' + abierto + '"' +
-      (precio !== null ? ' data-precio-nodo="' + precio + '"' : '') + '>' +
-      '<span class="nodo-punto" aria-hidden="true"></span>' +
+    return '<li class="nodo" data-mejora="' + m.id + '" data-nodo-estado>' +
+      '<button type="button" class="nodo-cabeza" data-nodo="' + m.id + '" aria-expanded="' + abierto + '">' +
+      '<span class="nodo-punto" aria-hidden="true">' + ICONO_HECHO + ICONO_CANDADO + '</span>' +
       '<span class="nodo-texto"><span class="nodo-nombre">' + esc(m.nombre) + '</span>' + niveles + '</span>' +
       '<span class="nodo-precio">' + (precio !== null ? euros(precio) : '') + '</span>' +
       '</button>' + (abierto ? htmlFicha(estado, m) : '') + '</li>';
@@ -1581,17 +1600,15 @@
       const c = Libre.config;
       const rama = ramaValida();
       const pestanas = c.ramasMejoras.map(function (r) {
-        return '<button type="button" class="rama-pestana' + (r.id === rama ? ' activa' : '') +
-          '" data-rama="' + r.id + '" aria-pressed="' + (r.id === rama) + '">' + esc(r.nombre) +
-          '<i class="marca-rama" data-marca-rama="' + r.id + '"></i></button>';
+        return '<button type="button" class="ui-chip-rama ui-tactil" data-rama="' + r.id + '" aria-pressed="' + (r.id === rama) + '">' +
+          esc(r.nombre) + '<i class="marca-rama" data-marca-rama="' + r.id + '"></i></button>';
       }).join('');
-      // La línea une un nodo con el siguiente solo si el siguiente lo pide.
-      const deRama = c.mejoras.filter(function (m) { return m.rama === rama; });
-      const nodos = deRama.map(function (m, k) {
-        const enlazado = deRama[k + 1] && deRama[k + 1].requiere === m.id;
-        return htmlNodo(estado, m, !enlazado);
+      // Lista vertical en el orden de la config (el de la rama).
+      const nodos = c.mejoras.filter(function (m) { return m.rama === rama; }).map(function (m) {
+        return htmlNodo(estado, m);
       }).join('');
-      return '<h2>Mejoras</h2><div class="ramas" role="tablist">' + pestanas + '</div>' +
+      return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Mejoras</h2></div>' +
+        '<div class="ramas" role="group" aria-label="Ramas de mejoras">' + pestanas + '</div>' +
         '<ol class="rama">' + nodos + '</ol>';
     },
     actualizar: function (estado) {
@@ -1603,6 +1620,13 @@
       document.querySelectorAll('[data-marca-rama]').forEach(function (marca) {
         marca.classList.toggle('visible', hayMejoraComprable(estado, marca.dataset.marcaRama));
       });
+      const elegida = document.querySelector('.ramas [aria-pressed="true"]');
+      if (centrarRama && elegida && elegida.offsetParent) {
+        centrarRama = false;
+        const fila = elegida.parentNode;
+        const e = elegida.getBoundingClientRect(), f = fila.getBoundingClientRect();
+        fila.scrollLeft += (e.left - f.left) - (f.width - e.width) / 2;
+      }
     }
   };
 
