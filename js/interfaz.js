@@ -1222,9 +1222,13 @@
     const abierta = fichaInventario === id;
     return '<button type="button" class="ficha-inv' + (bajo ? ' bajo' : '') + (abierta ? ' abierta' : '') +
       (categoria ? ' con-categoria' : '') + '" ' +
-      'data-ficha-inventario="' + id + '" data-inventario="' + id + '" aria-expanded="' + abierta + '">' +
-      icono(id) + '<span class="ficha-inv-nombre">' + esc(nombre) + (categoria ? ' ' + etiquetaCategoria(categoria) : '') + '</span>' +
-      '<span class="ficha-inv-cantidad">' + hay + (conBarra ? '<small> / ' + maximo + '</small>' : '') + '</span>' +
+      'data-ficha-inventario="' + id + '" data-inventario="' + id + '" aria-expanded="' + abierta + '"' +
+      // Sin nombre a la vista (sale al tocarla): icono, cantidad y categoría.
+      ' title="' + esc(nombre) + '" aria-label="' + esc(nombre + ': ' + hay + (conBarra ? ' de ' + maximo : '') +
+        (categoria ? ', categoría ' + Libre.sim.buscarCategoria(categoria).nombre : '')) + '">' +
+      icono(id) +
+      '<span class="ficha-inv-cantidad">' + hay + (conBarra ? '<small>/' + maximo + '</small>' : '') + '</span>' +
+      (categoria ? '<span class="ficha-inv-categoria">' + etiquetaCategoria(categoria) + '</span>' : '') +
       (conBarra ? '<span class="ficha-inv-barra"><span style="width:' + Math.min(100, hay / maximo * 100).toFixed(0) + '%"></span></span>' : '') +
       '</button>';
   }

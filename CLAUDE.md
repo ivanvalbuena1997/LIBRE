@@ -147,9 +147,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
-- Pestaña Flota: el inventario es una cuadrícula de fichas (consumibles con
-  barra sobre el máximo; solo los objetos que tienes sin equipar, de mejor
-  a peor categoría); al tocar una se abre debajo su panel para comprar
+- Pestaña Flota: el inventario es una cuadrícula de fichas pequeñas, sin
+  nombre a la vista (va en el título y en la ficha abierta): icono,
+  cantidad y debajo la categoría (objetos) o la barra sobre el máximo
+  (consumibles). Solo los objetos que tienes sin equipar, de mejor a peor
+  categoría; al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
   que espera y la lista para vender. Las licencias van de dos en
   dos (rejilla `.licencias`): cada una, su placa a la izquierda (libranza

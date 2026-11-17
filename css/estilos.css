@@ -923,20 +923,21 @@ button.zona-tarjeta { cursor: pointer; }
 }
 .fichas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 5px;
 }
+/* Ficha: icono arriba a la izquierda, cantidad a la derecha y debajo la categoría
+   (objetos) o la barra del almacén (consumibles). El nombre, al tocarla. */
 .ficha-inv {
   position: relative;
   display: grid;
-  grid-template-columns: 22px 1fr;
-  grid-template-rows: auto 1fr;
-  gap: 2px 6px;
+  grid-template-columns: auto 1fr;
+  gap: 2px 4px;
   align-items: center;
-  min-height: 60px;
-  padding: 6px 7px 9px;
+  min-height: 44px;
+  padding: 5px 5px 7px;
   border: 1px solid var(--borde);
-  border-radius: 10px;
+  border-radius: 9px;
   background: var(--tarjeta);
   font: inherit;
   color: var(--texto);
@@ -944,18 +945,12 @@ button.zona-tarjeta { cursor: pointer; }
   cursor: pointer;
   overflow: hidden;
 }
-.ficha-inv .icono { grid-row: 1; width: 22px; height: 22px; }
+.ficha-inv .icono { width: 20px; height: 20px; }
 .ficha-inv.abierta { border-color: var(--texto); box-shadow: inset 0 0 0 1px var(--texto); }
-.ficha-inv-nombre {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  align-self: start;
-  font-size: 0.72rem;
-  line-height: 1.15;
-  color: var(--suave);
-}
-.ficha-inv-cantidad { grid-column: 2; grid-row: 1; text-align: right; font-weight: 800; font-size: 1rem; font-variant-numeric: tabular-nums; }
-.ficha-inv-cantidad small { font-weight: 600; font-size: 0.72rem; color: var(--suave); }
+.ficha-inv-cantidad { text-align: right; font-weight: 800; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.ficha-inv-cantidad small { font-weight: 600; font-size: 0.62rem; color: var(--suave); }
+.ficha-inv-categoria { grid-column: 1 / -1; line-height: 1; }
+.ficha-inv-categoria .categoria { font-size: 0.56rem; padding: 0 3px; letter-spacing: 0; }
 .ficha-inv.bajo .ficha-inv-cantidad { color: var(--rojo-taxi); }
 .ficha-inv-barra {
   position: absolute;
@@ -1283,7 +1278,6 @@ button.zona-tarjeta { cursor: pointer; }
 .ficha-inv:has(.cat-L) { border-left-color: var(--cat-l-oro); }
 .mensaje .categoria { margin-left: 2px; }
 .flota-titulo small { font-weight: 400; color: var(--suave); }
-.ficha-inv.con-categoria .ficha-inv-nombre .categoria { margin-top: 2px; font-size: 0.58rem; letter-spacing: 0; padding: 0 3px; }
 
 /* Vender objetos: bandeja (almacén lleno) y listas de venta */
 .bandeja {
