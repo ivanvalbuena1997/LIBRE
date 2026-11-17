@@ -1,6 +1,19 @@
 /* Libre · estilos. Móvil primero, una sola columna. */
 
 /*
+ * Fuentes autoalojadas (carpeta fuentes/, licencias en fuentes/LICENCIAS.md):
+ * Bricolage Grotesque para títulos y cifras de dinero, Nunito para el cuerpo,
+ * Courier Prime para el ticket y DSEG7 para el LED del taxímetro (sin coma
+ * ni €: el LED lleva punto y el € va aparte con otra letra).
+ */
+@font-face { font-family: 'Bricolage Grotesque'; src: url(../fuentes/bricolage-grotesque-800.woff2) format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Nunito'; src: url(../fuentes/nunito-600.woff2) format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Nunito'; src: url(../fuentes/nunito-800.woff2) format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Courier Prime'; src: url(../fuentes/courier-prime-400.woff2) format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Courier Prime'; src: url(../fuentes/courier-prime-700.woff2) format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'DSEG7'; src: url(../fuentes/dseg7-classic-700.woff2) format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+
+/*
  * Paleta del taxi de Madrid. TODOS los colores del juego se definen aquí;
  * el resto del archivo solo usa estas variables.
  *   Blanco: la carrocería, color base.
@@ -9,8 +22,6 @@
  */
 :root {
   --blanco: #ffffff;
-  --fondo: #f5f5f3;            /* casi blanco, para separar las tarjetas */
-  --tarjeta: var(--blanco);
   --texto: #1a1a1a;
   --suave: #66665f;
   --borde: #e1e1dc;
@@ -53,7 +64,6 @@
 
   /* Ticket de papel térmico */
   --papel: #fbf8ef;
-  --tinta: #1a1a1a;
   --ranura: #111111;
 
   /* Tira de ambiente: cielo por momento del día (hex: ambiente.js los mezcla). */
@@ -100,6 +110,98 @@
   --tx-texto: #c9c9c4;
   --tx-flota: #f2a516;         /* piloto «FLOTA»: ámbar de aviso */
   --radio: 12px;
+
+  /* ===== Rework visual (Paleta B «Cielo de Madrid», ESPECIFICACION-VISUAL) =====
+     Las pantallas pasan a estos tokens fase a fase. --fondo, --tarjeta y
+     --tinta ya tienen aquí su valor nuevo (casi igual que el anterior). */
+  --fondo: #f6f3ec;            /* papel de la pantalla */
+  --tarjeta: #ffffff;          /* fichas y paneles */
+  --linea: #e3ddcf;            /* bordes y separadores */
+  --tinta: #172033;            /* texto principal */
+  --tinta-suave: #5b6479;      /* texto secundario */
+  --marca: #2554d6;            /* botones, selección, taxi ocupado */
+  --dinero: #0f6e42;           /* ganar, libre, positivo */
+  --sol: #ffc83d;              /* acento: destacar, aviso, parado */
+  --aviso: #8f6200;            /* texto sobre amarillo claro */
+  --peligro: #b3302a;          /* gastos, pérdidas, baja */
+  --peligro-borde: #ebb5ae;    /* borde del botón de peligro */
+  --sobre-color: #ffffff;      /* texto sobre marca y rarezas oscuras */
+
+  /* Tintes (fondo de chips y estados) */
+  --tinte-verde: #daf1e5;
+  --tinte-azul: #dce6fb;
+  --tinte-ambar: #fbebc8;
+  --tinte-rojo: #f9dedb;
+  --tinte-neutro: #ece9e1;
+  --tinte-morado: #eadff7;
+
+  /* Rarezas (relleno de la insignia) */
+  --rareza-b: #6b6f78;
+  --rareza-a: #0f6e42;
+  --rareza-s: #2554d6;
+  --rareza-smas: #6b3fb5;
+  --rareza-l: #ffc83d;         /* LEGENDARIO: texto en --tinta */
+
+  /* Taxímetro */
+  --taxi-cuerpo: #16101a;
+  --taxi-pantalla: #0b0710;
+  --taxi-digitos: #ff5a3c;
+  --taxi-piloto: #43d17f;
+  --taxi-piloto-texto: #0f2a1b;
+  --taxi-tarifa: #26305c;
+  --taxi-tarifa-texto: #e8eeff;
+  --taxi-etiqueta: #e8ddf2;
+
+  /* Sombras y velos */
+  --sombra-placa: rgba(16, 25, 54, 0.18);
+  --sombra-placa-baja: rgba(16, 25, 54, 0.16);
+  --sombra-taximetro: rgba(16, 25, 54, 0.25);
+  --sombra-hoja: rgba(23, 32, 51, 0.25);
+  --velo-dia: rgba(255, 255, 255, 0.93);
+  --velo-noche: rgba(16, 25, 54, 0.90);
+
+  /* Tipografía */
+  --letra-titulo: 'Bricolage Grotesque', system-ui, sans-serif;
+  --letra-cuerpo: 'Nunito', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --letra-ticket: 'Courier Prime', ui-monospace, "Courier New", monospace;
+  --letra-led: 'DSEG7', ui-monospace, monospace;
+  --t-caja: 42px;              /* «Caja total» */
+  --t-led: 48px;               /* cifras del taxímetro */
+  --t-logo: 28px;
+  --t-pantalla: 26px;          /* título de pestaña */
+  --t-seccion: 18px;           /* «Tus taxis hoy» */
+  --t-boton: 15px;
+  --t-cuerpo: 15px;
+  --t-normal: 14px;
+  --t-pequeno: 13px;
+  --t-mini: 12px;
+  --t-micro: 11px;
+
+  /* Espaciado y radios */
+  --esp-1: 4px;
+  --esp-2: 6px;
+  --esp-3: 8px;
+  --esp-4: 10px;
+  --esp-5: 12px;
+  --esp-6: 14px;
+  --margen: 16px;              /* margen lateral de la pantalla */
+  --r-insignia: 7px;
+  --r-piloto: 10px;
+  --r-control: 12px;           /* chip de compra, celdas */
+  --r-boton: 14px;
+  --r-placa: 16px;
+  --r-tarjeta: 18px;
+  --r-caja: 20px;
+  --r-taximetro: 22px;
+  --r-hoja: 26px;
+  --r-pastilla: 999px;
+
+  /* Alturas */
+  --alto-cabecera: 220px;
+  --alto-cabecera-compacta: 124px;
+  --alto-menu-nuevo: 78px;
+  --alto-fila: 44px;
+  --alto-boton: 48px;
 }
 
 * { box-sizing: border-box; }
@@ -1581,3 +1683,189 @@ button.zona-tarjeta { cursor: pointer; }
   font-size: 0.92rem;
   z-index: 20;
 }
+
+/* =====================================================================
+ * Componentes base del rework visual (prefijo ui-). Valores copiados de
+ * las maquetas de libre-rework/. Las pantallas los irán usando fase a fase
+ * y entonces se quitarán los estilos viejos que sustituyen.
+ * ===================================================================== */
+
+/* Tarjeta: panel blanco con borde fino */
+.ui-tarjeta {
+  background: var(--tarjeta);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-tarjeta);
+  color: var(--tinta);
+}
+.ui-tarjeta-cuerpo { padding: var(--esp-4) var(--esp-6); }
+.ui-tarjeta--hueco { border-style: dashed; }
+
+/* Textos */
+.ui-titulo {
+  margin: 0;
+  font-family: var(--letra-titulo);
+  font-weight: 800;
+  font-size: var(--t-seccion);
+  line-height: 1.2;
+}
+.ui-titulo--pantalla { font-size: var(--t-pantalla); line-height: 1.1; }
+.ui-dinero { font-family: var(--letra-titulo); font-weight: 800; font-variant-numeric: tabular-nums; }
+.ui-dinero--positivo { color: var(--dinero); }
+.ui-dinero--negativo { color: var(--peligro); }
+.ui-suave { color: var(--tinta-suave); }
+.ui-etiqueta { font-size: var(--t-mini); letter-spacing: 1.2px; text-transform: uppercase; color: var(--tinta-suave); }
+
+/* Chip de estado (Libre, Ocupado, Parado, Libranza, De baja) */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-1);
+  padding: 3px var(--esp-4);
+  border-radius: var(--r-pastilla);
+  background: var(--tinte-neutro);
+  color: var(--tinta);
+  font-family: var(--letra-cuerpo);
+  font-weight: 800;
+  font-size: var(--t-mini);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.ui-chip--grande { padding: var(--esp-2) var(--esp-6); font-size: var(--t-normal); }
+.ui-chip--libre { background: var(--tinte-verde); color: var(--dinero); }
+.ui-chip--ocupado { background: var(--tinte-azul); color: var(--marca); }
+.ui-chip--parado { background: var(--tinte-ambar); color: var(--aviso); }
+.ui-chip--libranza { background: var(--tinte-neutro); color: var(--tinta); }
+.ui-chip--baja { background: var(--tinte-rojo); color: var(--peligro); }
+
+/*
+ * Controles pequeños (chip de rama, chip de compra): se ven como en la
+ * maqueta, pero un ::before invisible lleva la zona táctil a 44 px.
+ */
+.ui-tactil { position: relative; }
+.ui-tactil::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+}
+
+/* Chip de rama (Mejoras): pastilla que se marca al elegirla */
+.ui-chip-rama {
+  flex: none;
+  padding: var(--esp-3) var(--esp-6);
+  border-radius: var(--r-pastilla);
+  border: 2px solid var(--linea);
+  background: var(--tarjeta);
+  color: var(--tinta);
+  font-family: var(--letra-cuerpo);
+  font-weight: 800;
+  font-size: var(--t-pequeno);
+  cursor: pointer;
+}
+.ui-chip-rama[aria-pressed="true"],
+.ui-chip-rama[aria-selected="true"] { background: var(--marca); border-color: var(--marca); color: var(--sobre-color); }
+
+/* Chip de zona (Calle): nombre y detalle en dos líneas */
+.ui-chip-zona {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 44px;
+  padding: var(--esp-3) var(--esp-6);
+  border-radius: var(--r-boton);
+  border: 2px solid var(--linea);
+  background: var(--tarjeta);
+  color: var(--tinta-suave);
+  font-family: var(--letra-cuerpo);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.ui-chip-zona-nombre { font-weight: 800; font-size: var(--t-normal); }
+.ui-chip-zona-detalle { font-size: var(--t-mini); color: var(--tinta-suave); }
+.ui-chip-zona--activa { border-color: var(--marca); background: var(--tinte-azul); }
+.ui-chip-zona--activa .ui-chip-zona-nombre { color: var(--tinta); }
+
+/* Chip de compra (consumibles del Almacén) */
+.ui-chip-compra {
+  flex: none;
+  padding: 7px var(--esp-5);
+  border: 0;
+  border-radius: var(--r-control);
+  background: var(--marca);
+  color: var(--sobre-color);
+  font-family: var(--letra-cuerpo);
+  font-weight: 800;
+  font-size: var(--t-pequeno);
+  cursor: pointer;
+}
+.ui-chip-compra:disabled { background: var(--tinte-neutro); color: var(--tinta-suave); cursor: not-allowed; }
+
+/* Botones */
+.ui-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-3);
+  min-height: var(--alto-boton);
+  padding: 0 var(--esp-5);
+  border-radius: var(--r-boton);
+  border: 2px solid transparent;
+  font-family: var(--letra-cuerpo);
+  font-weight: 800;
+  font-size: var(--t-boton);
+  cursor: pointer;
+}
+.ui-boton--principal { background: var(--marca); border-color: var(--marca); color: var(--sobre-color); }
+.ui-boton--secundario { background: var(--tarjeta); border-color: var(--linea); color: var(--tinta); }
+.ui-boton--peligro { background: var(--tinte-rojo); border-color: var(--peligro-borde); color: var(--peligro); }
+.ui-boton--ancho { width: 100%; }
+.ui-boton:disabled { opacity: 0.5; cursor: not-allowed; }
+.ui-boton:focus-visible,
+.ui-chip-rama:focus-visible,
+.ui-chip-zona:focus-visible,
+.ui-chip-compra:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
+
+/* Barra de progreso */
+.ui-barra {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--tinte-neutro);
+  overflow: hidden;
+}
+.ui-barra-relleno {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--dinero);
+}
+.ui-barra--marca .ui-barra-relleno { background: var(--marca); }
+
+/* Insignia de rareza (B, A, S, S+, L) */
+.ui-rareza {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--r-insignia);
+  background: var(--rareza-b);
+  color: var(--sobre-color);
+  font-family: var(--letra-cuerpo);
+  font-weight: 800;
+  font-size: var(--t-mini);
+  line-height: 1;
+  white-space: nowrap;
+}
+.ui-rareza--grande { min-width: 34px; height: 30px; padding: 0 var(--esp-3); border-radius: 9px; font-size: var(--t-boton); }
+.ui-rareza--B { background: var(--rareza-b); }
+.ui-rareza--A { background: var(--rareza-a); }
+.ui-rareza--S { background: var(--rareza-s); }
+.ui-rareza--Smas { background: var(--rareza-smas); }
+.ui-rareza--L { background: var(--rareza-l); color: var(--tinta); }

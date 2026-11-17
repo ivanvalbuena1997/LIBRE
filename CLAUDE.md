@@ -50,6 +50,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Colores solo como variables CSS en el `:root` de `css/estilos.css` (paleta
   del taxi de Madrid: blanco base, rojo de la franja, verde de "libre" para lo
   positivo). Ningún color escrito a mano fuera de ese bloque. Sin modo oscuro.
+- Rework visual en marcha (referencia en `libre-rework/`, fuera de git):
+  paleta B «Cielo de Madrid» y tipografía como tokens en `:root`
+  (`--marca`, `--dinero`, `--tinte-*`, `--rareza-*`, `--taxi-*`,
+  `--letra-*`, `--t-*`, `--esp-*`, `--r-*`) y componentes base con
+  prefijo `ui-` (`.ui-tarjeta`, `.ui-chip`, `.ui-boton`, `.ui-barra`,
+  `.ui-rareza`…). Fuentes autoalojadas en `fuentes/`. Las pantallas pasan
+  a ellos fase a fase; los estilos viejos se borran al sustituirlos.
 - Dinero con `Libre.ui.euros()` (formato es-ES).
 - Animaciones: todas desactivadas con `prefers-reduced-motion` (CSS y JS).
   Los importes flotantes salen de comparar `estado.totales` entre fotogramas,
