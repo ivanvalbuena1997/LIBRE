@@ -1319,8 +1319,11 @@
       const efectiva = s.fuentes.filter(function (f) { return f.cuenta !== false; });
       const sentido = s.factor === 1 || (efectiva.length === 0 && s.clave !== 'sinPagar') ? ''
         : (s.factor > 1) === !!MAS_ES_MEJOR[s.clave] ? ' stat--bien' : ' stat--mal';
-      const desglose = s.fuentes.length === 0 ? 'Sin cambios: lo normal'
-        : s.fuentes.map(textoFuente).join(' · ') + (s.tope ? ' · llega al tope' : '');
+      // Su tope del lado bueno («tope ×0,42»): crece con la categoría y el nivel.
+      const tope = s.limite ? (s.tope ? 'llega a su tope' : 'su tope') + ' ×' +
+        s.limite.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : '';
+      const desglose = (s.fuentes.length === 0 ? 'Sin cambios: lo normal' : s.fuentes.map(textoFuente).join(' · ')) +
+        (tope ? ' · ' + tope : '');
       return '<div class="stat' + sentido + '"><span class="stat-nombre">' + esc(NOMBRE_STAT[s.clave]) + '</span>' +
         '<strong class="stat-valor">' + esc(textoStat(s)) + '</strong>' +
         '<small class="stat-desglose">' + esc(desglose) + '</small></div>';

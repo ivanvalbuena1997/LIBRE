@@ -209,13 +209,15 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 **Categorías.** Salen al azar, con los mismos pesos que los objetos:
 
-| Categoría | Probabilidad | Precio | Cualidades | Defectos | Fuerza de la cualidad | Fuerza del defecto | Encuentra objetos |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| B | 65 % | 400 € | 1 | 2 | ×1 | ×1 | ×1 |
-| A | 25 % | 900 € | 1 | 1 | ×1,2 | ×0,85 | ×1,15 |
-| S | 7,5 % | 2.000 € | 1 | 1 la mitad de las veces | ×1,4 | ×0,7 | ×1,3 |
-| S+ | 2 % | 5.000 € | 1 | 0 | ×1,6 | — | ×1,5 |
-| LEGENDARIO | 0,5 % | 12.000 € | 2 | 0 | ×1,8 | — | ×2 |
+| Categoría | Probabilidad | Precio | Cualidades | Defectos | Fuerza de la cualidad | Fuerza del defecto | Encuentra objetos | Espera de serie | Abre los topes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| B | 65 % | 400 € | 1 | 2 | ×1 | ×1 | ×1 | — | 0 |
+| A | 25 % | 900 € | 1 | 1 | ×1,2 | ×0,85 | ×1,15 | −5 % | 0,1 |
+| S | 7,5 % | 2.000 € | 1 | 1 la mitad de las veces | ×1,4 | ×0,7 | ×1,3 | −12 % | 0,2 |
+| S+ | 2 % | 5.000 € | 1 | 0 | ×1,6 | — | ×1,5 | −25 % | 0,3 |
+| LEGENDARIO | 0,5 % | 12.000 € | 2 | 0 | ×1,8 | — | ×2 | −55 % | 0,75 |
+
+**Que la categoría se note más que el nivel** (Iván, 17-11-2026): cada categoría espera menos de serie, le toquen los rasgos que le toquen, y abre más sus topes. Medido con un bot al final de la partida (nivel 10 y los mismos tres objetos buenos para todos), un conductor deja por jornada: B 151 €, A 164 €, S 174 €, S+ 185 € y LEGENDARIO 223 € (**+47 % sobre un B**).
 
 Con tres candidatos, una de cada 65 tandas más o menos ofrece un LEGENDARIO (y ahora sale una tanda nueva cada día, además de una tras cada contrato); al principio no te lo puedes permitir, y esa es la gracia.
 
@@ -237,7 +239,7 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 
 «Limpieza» es el coste y el tiempo parado al limpiar un vómito (solo cuenta si no quedan bolsas).
 
-**Experiencia y niveles.** Cada carrera da 1 punto (un conductor hace unas 25–30 por jornada). Cada nivel acorta la espera un 2,5 %; los niveles 4 y 8 abren un hueco más de objeto. **Al llegar al nivel 10** pierde un defecto o, si no tiene ninguno, gana una cualidad nueva.
+**Experiencia y niveles.** Cada carrera da 1 punto (un conductor hace unas 25–30 por jornada). Cada nivel acorta la espera un 1,5 % (antes un 2,5 %: pesaba más que la categoría); los niveles 4 y 8 abren un hueco más de objeto. **Al llegar al nivel 10** pierde un defecto o, si no tiene ninguno, gana una cualidad nueva.
 
 | Nivel | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -246,14 +248,17 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 
 El nivel 5 llega hacia la quinta jornada y el 10 hacia la 35 (cerca de una hora de juego por conductor).
 
-**Topes.** Rasgos, nivel, objetos y mejoras se multiplican, pero el resultado nunca baja ni sube de estos límites sobre el valor normal:
+**Topes que crecen** (Iván, 17-11-2026). Rasgos, nivel, objetos y mejoras se multiplican, pero el resultado no pasa de unos límites sobre el valor normal. Lo malo tiene siempre el mismo freno; lo bueno se abre con la categoría y el nivel: cada conductor tiene una apertura de 0 a 1 (la de su categoría, en la tabla de arriba, más 0,25 por subir del nivel 1 al 10). Con apertura 0 (un B de nivel 1) valen los topes de la primera columna; con 1 (un LEGENDARIO de nivel 10), el extremo; entre medias, a medio camino.
 
-| Valor | Mínimo | Máximo |
-| --- | --- | --- |
-| Espera entre carreras (sin contar las mejoras de búsqueda) | ×0,6 | ×1,4 |
-| Propinas (con la mejora Propinas) | ×0,5 | ×2,5 |
-| Sin pagar, objetos devueltos, bajas, pinchazos, averías | ×0,3 | ×2 |
-| Limpieza de un vómito | ×0,4 | ×1,5 |
+| Valor | Lo malo, como mucho | Lo bueno con apertura 0 | Lo bueno con apertura 1 |
+| --- | --- | --- | --- |
+| Espera entre carreras (sin contar las mejoras de búsqueda) | ×1,4 | ×0,6 | ×0,2 |
+| Propinas (con la mejora Propinas) | ×0,5 | ×2,5 | ×7 |
+| Objetos devueltos | ×0,3 | ×2 | ×4 |
+| Sin pagar, bajas, pinchazos, averías | ×2 | ×0,3 | ×0,05 |
+| Limpieza de un vómito | ×1,5 | ×0,4 | ×0,15 |
+
+Por ejemplo, la espera de un B de nivel 10 puede bajar hasta ×0,46 y la de un S+ de nivel 10 hasta ×0,33. La ficha enseña el tope de cada stat («su tope ×0,46»).
 
 La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
 

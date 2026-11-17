@@ -1128,7 +1128,8 @@
    * sale. `turno` es el suyo ('dia' o 'noche'); null en la reserva. Lo que
    * es solo de día o de noche lleva `soloTurno` y `cuenta` (false si no es
    * su turno, o en la reserva): se enseña, pero no se suma.
-   * Cada stat: { clave, valor, factor (total, 1 = normal), tope,
+   * Cada stat: { clave, valor, factor (total, 1 = normal), tope (si llega),
+   *   limite (su tope del lado bueno, como factor; no en hallazgo),
    *   fuentes: [{ tipo, nombre, factor, soloTurno, cuenta, anula }] }.
    *   espera     valor = factor sobre la espera entre carreras (no hay un
    *              tiempo fijo: depende de la zona y la hora)
@@ -1163,18 +1164,23 @@
     function producto(fuentes) {
       return fuentes.reduce(function (p, x) { return x.cuenta === false || x.anula ? p : p * x.factor; }, 1);
     }
+    // El tope del lado bueno de cada stat para este conductor (topesDe()).
+    function limite(clave) {
+      return topesDe(clave, t)[MAS_ES_MEJOR[clave] ? 1 : 0];
+    }
     function probabilidad(clave, base, extra) {
       const fuentes = fuentesDe(clave).concat(extra || []);
       const bruto = producto(fuentes);
       const factor = topeConductor(clave, bruto, t);
-      return { clave, valor: base * factor, factor, tope: factor !== bruto, fuentes };
+      return { clave, valor: base * factor, factor, tope: factor !== bruto, limite: limite(clave), fuentes };
     }
     const stats = [];
 
     const espera = fuentesDe('espera');
     const brutoEspera = producto(espera);
     const factorEspera = topeConductor('espera', brutoEspera, t);
-    stats.push({ clave: 'espera', valor: factorEspera, factor: factorEspera, tope: factorEspera !== brutoEspera, fuentes: espera });
+    stats.push({ clave: 'espera', valor: factorEspera, factor: factorEspera, tope: factorEspera !== brutoEspera,
+      limite: limite('espera'), fuentes: espera });
 
     // Propinas: las mejoras suman probabilidad, y el tope va sobre el total.
     const extrasPropina = mejoras.filter(function (x) { return x.efecto.propinaProb; }).map(function (x) {
@@ -1184,7 +1190,8 @@
     const brutoPropina = (ev.propina.probCarrera + m.propinaProb) / ev.propina.probCarrera *
       producto(fuentesDe('propina'));
     const factorPropina = topeConductor('propina', brutoPropina, t);
-    stats.push({ clave: 'propina', valor: ev.propina.probCarrera * factorPropina, factor: factorPropina, tope: factorPropina !== brutoPropina, fuentes: propina });
+    stats.push({ clave: 'propina', valor: ev.propina.probCarrera * factorPropina, factor: factorPropina, tope: factorPropina !== brutoPropina,
+      limite: limite('propina'), fuentes: propina });
 
     const sinPagar = probabilidad('sinPagar', ev.sinPagar.probCarrera);
     if (m.sinImpagos) {
@@ -1211,7 +1218,7 @@
     const limpieza = fuentesDe('limpieza');
     const brutoLimpieza = producto(limpieza);
     const l = topeConductor('limpieza', brutoLimpieza, t);
-    stats.push({ clave: 'limpieza', factor: l, tope: l !== brutoLimpieza, fuentes: limpieza,
+    stats.push({ clave: 'limpieza', factor: l, tope: l !== brutoLimpieza, limite: limite('limpieza'), fuentes: limpieza,
       valor: { costeMin: ev.vomito.costeMin * l, costeMax: ev.vomito.costeMax * l, minutos: ev.vomito.horasParado * 60 * l } });
     return stats;
   }

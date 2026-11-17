@@ -114,14 +114,21 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   tras cada contrato). Solo modifican valores que ya existen: espera entre
   carreras (no la cola de las paradas), probabilidades de propina, sin
   pagar, objeto, baja, pinchazo y avería, y la limpieza de un vómito.
-  `factoresConductor()` los multiplica y `topeConductor()` los recorta a
-  `config.conductores.topes`. Tu turno no tiene rasgos.
+  `factoresConductor()` los multiplica y `topeConductor(valor, factor, t)`
+  los recorta a los topes de ese conductor (`topesDe()`): los de
+  `config.conductores.topes` con el lado bueno abierto según
+  `aperturaTopes()` (`aperturaTope` de su categoría + `topesAbiertos.porNivel`
+  por nivel; con 1 llega a `topesAbiertos.extremo`). Pasa siempre el turno
+  `t`: sin él, salen los topes de un B de nivel 1. Tu turno no tiene rasgos.
 - Categoría del conductor (`turno.categoria`, de `config.categorias`):
   sale al azar en cada candidato con los mismos pesos que los objetos y
   fija su precio (`precioCandidato()`), cuántas cualidades tiene (los
   LEGENDARIOS, dos), cuántos defectos (B, dos; A, uno; S, uno la mitad de
-  las veces; S+ y LEGENDARIO, ninguno), la fuerza de sus rasgos y cuánto
-  encuentra. Campos: `cualidad`, `cualidad2`, `cualidad3`, `defecto`,
+  las veces; S+ y LEGENDARIO, ninguno), la fuerza de sus rasgos, cuánto
+  encuentra, su plus de espera de serie (`esperaBase`, un aporte más en
+  `aportesConductor()`) y cuánto abre sus topes (`aperturaTope`). Iván
+  (17-11-2026): la categoría debe notarse más que el nivel; un LEGENDARIO
+  deja ~+50 % que un B al final de la partida (medido con un bot). Campos: `cualidad`, `cualidad2`, `cualidad3`, `defecto`,
   `defecto2` (null si no los tiene); léelos con `cualidadesDe()` y
   `defectosDe()`. Al llegar al nivel 10 (`premioNivelMaximo()`) pierde un
   defecto (el segundo primero) o, si no tiene, gana una cualidad nueva. Los candidatos cambian cada día (`cerrarCaja()` llama a

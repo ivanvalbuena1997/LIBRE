@@ -1340,4 +1340,32 @@ prueba('rasgos: cada opuesto existe y nunca salen juntos (Pulcro/Guarro, Honrado
   }
 });
 
+prueba('topes que crecen: con la categoría y el nivel, solo hacia lo bueno', function () {
+  const xp = config.conductores.niveles.experiencia;
+  const quien = function (cat, nivel) { return { quien: 'conductor', categoria: cat, xp: xp[nivel - 1] }; };
+  const base = config.conductores.topes, extremo = config.conductores.topesAbiertos.extremo;
+  // Un B de nivel 1 tiene los topes de siempre; tu turno, también.
+  assert.deepStrictEqual(sim.topesDe('espera', quien('B', 1)), base.espera);
+  assert.deepStrictEqual(sim.topesDe('espera', { quien: 'jugador' }), base.espera);
+  // Un LEGENDARIO de nivel 10 llega al extremo del lado bueno; el malo no se mueve.
+  const l = quien('L', 10);
+  cerca(sim.aperturaTopes(l), 1);
+  cerca(sim.topesDe('espera', l)[0], extremo.espera);
+  assert.strictEqual(sim.topesDe('espera', l)[1], base.espera[1], 'lo malo sigue frenado');
+  cerca(sim.topesDe('propina', l)[1], extremo.propina);
+  assert.strictEqual(sim.topesDe('propina', l)[0], base.propina[0]);
+  // Crece con la categoría y con el nivel.
+  const espera = function (cat, nivel) { return sim.topesDe('espera', quien(cat, nivel))[0]; };
+  assert.ok(espera('B', 10) < espera('B', 1), 'el nivel abre');
+  assert.ok(espera('S', 1) < espera('A', 1) && espera('L', 1) < espera('S+', 1), 'la categoría abre');
+  // El tope de cada conductor manda en lo que usa la simulación.
+  assert.strictEqual(sim.topeConductor('espera', 0.01, l), sim.topesDe('espera', l)[0]);
+  // Y sale en sus estadísticas.
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  Object.assign(t, { categoria: 'L', xp: 1e9 });
+  const st = sim.statsConductor(e, t, 'noche').find(function (x) { return x.clave === 'espera'; });
+  cerca(st.limite, extremo.espera);
+});
+
 console.log(pasadas + ' pruebas correctas');
