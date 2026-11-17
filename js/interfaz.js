@@ -1613,6 +1613,8 @@
         return '<button type="button" class="ui-chip-rama ui-tactil" data-rama="' + r.id + '" aria-pressed="' + (r.id === rama) + '">' +
           esc(r.nombre) + '<i class="marca-rama" data-marca-rama="' + r.id + '"></i></button>';
       }).join('');
+      // Al rehacer la sección la fila de ramas vuelve al principio: se recentra.
+      centrarRama = true;
       // Lista vertical en el orden de la config (el de la rama).
       const nodos = c.mejoras.filter(function (m) { return m.rama === rama; }).map(function (m) {
         return htmlNodo(estado, m);

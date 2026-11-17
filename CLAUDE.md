@@ -49,15 +49,20 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Código, nombres, comentarios, interfaz y commits en español.
 - Interfaz pensada primero para móvil: una columna, botones de 44 px mínimo.
 - Colores solo como variables CSS en el `:root` de `css/estilos.css` (paleta
-  del taxi de Madrid: blanco base, rojo de la franja, verde de "libre" para lo
-  positivo). Ningún color escrito a mano fuera de ese bloque. Sin modo oscuro.
-- Rework visual en marcha (referencia en `libre-rework/`, fuera de git):
-  paleta B «Cielo de Madrid» y tipografía como tokens en `:root`
+  «Cielo de Madrid»: papel claro, azul de marca, verde del dinero, amarillo
+  sol, rojo de peligro). Ningún color escrito a mano fuera de ese bloque
+  (los dibujos de `iconos/` traen los suyos). Sin modo oscuro; la cabecera
+  de noche no es un modo oscuro, solo la escena.
+- Sistema visual del rework (referencia en `libre-rework/`, fuera de git;
+  descrito en DISENO.md, «Sistema visual»):
+  paleta y tipografía como tokens en `:root`
   (`--marca`, `--dinero`, `--tinte-*`, `--rareza-*`, `--taxi-*`,
   `--letra-*`, `--t-*`, `--esp-*`, `--r-*`) y componentes base con
   prefijo `ui-` (`.ui-tarjeta`, `.ui-chip`, `.ui-boton`, `.ui-barra`,
-  `.ui-rareza`…). Fuentes autoalojadas en `fuentes/`. Las pantallas pasan
-  a ellos fase a fase; los estilos viejos se borran al sustituirlos.
+  `.ui-rareza`…). Fuentes autoalojadas en `fuentes/`. Las pantallas nuevas
+  usan estos tokens y componentes; quedan variables viejas (`--texto`,
+  `--suave`, `--borde`, `--verde-*`…) en estilos sin rehacer (mensajes,
+  botones genéricos, panel de tu turno, elección de placa).
 - Dinero con `Libre.ui.euros()` (formato es-ES).
 - Sonidos (`js/sonidos.js`): sintetizados con Web Audio, sin archivos:
   cobro (al cobrar cualquier taxi, como mucho uno cada 300 ms), propina,

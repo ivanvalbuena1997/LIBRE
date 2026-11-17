@@ -1,6 +1,6 @@
 # Libre: documento de diseño
 
-Iván · creado el 13 de noviembre de 2026 · actualizado el 17 de noviembre de 2026
+Iván · creado el 13 de noviembre de 2026 · actualizado el 17 de noviembre de 2026 (rework visual)
 
 Este documento describe el juego tal como está hoy: qué es, cómo se juega, cada sistema con sus números y por qué está así. Las cifras exactas viven en `js/config.js`; si algo cambia allí, este documento debe seguirle.
 
@@ -65,55 +65,86 @@ Datos reales que el juego aún no usa: tarifa 7 (recorridos de menos de 1.450 m,
 
 ## 4. Pantallas
 
-El juego es una sola columna con un menú inferior de cuatro pestañas: **Calle**, **Flota**, **Mejoras** y **Partida**. Una marca roja en la pestaña avisa de que hay algo que comprar, un ticket esperando o un almacén por vaciar.
+El juego es una sola columna, pensada para un móvil en vertical (390 × 844 de referencia). Arriba va siempre la **cabecera con la calle**; abajo, un menú fijo de cuatro pestañas: **Calle**, **Conductores**, **Almacén** y **Mejoras**. Los ajustes y la partida no son una pestaña: los abre el **engranaje** de la cabecera. Una marca roja en una pestaña avisa de que hay algo que comprar (Conductores, Mejoras), consumibles por reponer u objetos esperando en la bandeja (Almacén), o un ticket por leer (Calle).
+
+### Cabecera
+
+Una escena dibujada de la calle: cielo que sigue la hora del juego (amanecer, día, atardecer y noche), sol o luna y estrellas, edificios con ventanas que se encienden y parpadean de noche, nubes, un taxi que pasa y lluvia cuando llueve. Es adorno: no enseña datos.
+
+Encima va la placa **«Caja total»**, siempre a la vista: el dinero y, en Calle, el chip «Día 7 · Dom 10:32 · Tarifa 2». En Calle la cabecera es alta (220 px; 180 en pantallas de menos de 830 px de alto, para que todo quepa sin desplazar); en las demás pestañas es compacta (124 px) y solo se ve la calle. Al desplazar la página sube hasta dejar solo la placa. De noche, la placa y el engranaje pasan a fondo oscuro con letra clara.
 
 ### Calle
 
 <p>
-<img src="docs/capturas/calle-conductor.jpg" width="250" alt="Calle con el taxímetro en modo conductor: ocupado, 6,46 €">
-<img src="docs/capturas/calle-flota.jpg" width="250" alt="Calle con el taxímetro en modo flota: recaudación de toda la flota y un aviso de Elena">
+<img src="docs/capturas/calle-conductor.jpg" width="250" alt="Calle de día con el taxímetro en modo conductor: ocupado, 13,16 € con pasajero">
+<img src="docs/capturas/calle-flota.jpg" width="250" alt="Calle de noche con el taxímetro en modo flota: recaudación de toda la flota">
 </p>
 
-De arriba abajo:
+De arriba abajo, debajo de la cabecera:
 
-- **Tira de ambiente** (36 px): cielo que sigue la hora, edificios con ventanas que se encienden de noche y lluvia cuando llueve. Es un módulo aparte para poder cambiarlo algún día por un mapa.
-- **Taxímetro**, con dos modos que cambian solos:
-  - **Conductor** (izquierda), cuando conduces y es tu turno: piloto LIBRE/OCUPADO, tarifa, importe en vivo y barra de la carrera. Todo el taxímetro es el botón de buscar cliente.
-  - **Flota** (derecha), el resto del tiempo: piloto FLOTA en ámbar, el display suma lo recaudado hoy por toda la flota y el pie resume «3 ocupados · 2 parados» y la hora de tu turno. Tocarlo abre el desglose de la caja de hoy.
-- **Siguiente:** la compra más barata que aún no te puedes permitir, con su barra de progreso. Al tocarla te lleva a ella.
-- **Tus taxis hoy:** una fila por taxi con retrato, zona, estado (Ocupado, Libre, Avería, Libranza, De baja, Pinchazo, Limpieza…) y lo facturado en la jornada, con una barra proporcional al que más lleva. Las filas se reordenan con una animación cuando un taxi adelanta a otro y destellan al cobrar. Con más de 6 taxis, «Ver los N restantes». Tocar una fila lleva a ese taxi en Flota.
-- **Zonas:** las abiertas como botones compactos con su demanda ahora; las cerradas, en una línea con la mejora que las abre. Mientras conduces, tocar una zona te lleva allí.
+- **Taxímetro** de 132 px: cuerpo oscuro, piloto y tarifa a la izquierda y una pantalla de LED rojo (letra DSEG7, con punto decimal: «13.16 €»). Encima de las cifras, qué marca y una segunda línea con lo que pasa. Dos modos que cambian solos:
+  - **Conductor** (izquierda), cuando conduces y es tu turno: piloto LIBRE en verde u OCUPADO, importe en vivo, «Con pasajero · 4,5 km» y una raya con el avance de la carrera. Todo el taxímetro es el botón de buscar cliente.
+  - **Flota** (derecha), el resto del tiempo: piloto FLOTA en amarillo, el display suma lo recaudado hoy por toda la flota, la segunda línea resume «2 ocupados · 3 parados» y debajo del piloto sale la hora de tu turno. Tocarlo abre el desglose de la caja de hoy.
+- **Siguiente:** tarjeta con la compra más barata que aún no te puedes permitir, lo que falta y su barra; cuando llega el dinero dice «¡ya puedes!» y lleva a ella.
+- **Tus taxis hoy:** una fila de 44 px por taxi con retrato, nombre, zona, chip de estado (Libre en verde, Ocupado en azul, Libranza en gris, De baja en rojo; Avería, Pinchazo o Limpieza en ámbar), lo facturado en la jornada y una barra proporcional al que más lleva. Las filas se reordenan con una animación cuando un taxi adelanta a otro y destellan al cobrar. Con más de 6 taxis, «Ver los N restantes». Tocar una fila lleva a ese taxi en Conductores; tocar el total abre el desglose de la caja.
+- **Zonas:** chips con el nombre y «25 viajes/h» (o «Abre a las 21:00»); en azul las que tienen clientes ahora y rellena la tuya cuando conduces (tocar otra te lleva allí). Las cerradas, en una línea debajo con la mejora que las abre.
 
-Con hasta 5 taxis, Calle cabe sin scroll en un móvil de 375 × 800.
+Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket de cierre** sale aquí, debajo del taxímetro, al acabar la jornada (ver más abajo).
 
-### Flota
+### Conductores
 
 <p>
-<img src="docs/capturas/flota.jpg" width="250" alt="Flota: almacén, reserva y licencias de dos en dos">
-<img src="docs/capturas/ficha-conductor.jpg" width="250" alt="Ficha de Elena, conductora LEGENDARIA de nivel 10">
-<img src="docs/capturas/candidatos.jpg" width="250" alt="Candidatos para un turno libre, con su categoría y precio">
+<img src="docs/capturas/conductores.jpg" width="250" alt="Conductores: reserva con 5 huecos y licencias de dos en dos">
+<img src="docs/capturas/ficha-conductor.jpg" width="250" alt="Ficha de Carmen, conductora S+ de nivel 8">
+<img src="docs/capturas/candidatos.jpg" width="250" alt="Hoja de candidatos para un turno libre">
 </p>
 
-- **Almacén:** fichas pequeñas con icono, cantidad y categoría (los consumibles, con una barra sobre su máximo). El nombre sale al tocar la ficha, que abre su panel para comprar (ruedas, bolsas) o vender (objetos). Si lo encontrado no cabe, arriba aparece la bandeja «Almacén lleno · N por guardar».
-- **Reserva:** hasta 5 conductores contratados sin turno, en una fila de caras.
-- **Licencias, de dos en dos:** la placa a la izquierda (con «Hoy libra» si toca) y los dos turnos con un sol o una luna. Cada conductor es una cara: retrato, círculo de color con la letra de su categoría (abajo a la izquierda), círculo con su nivel (abajo a la derecha) y su nombre. Un «!» rojo marca a quien está parado.
-- **Tocar:** un conductor abre su **ficha** (centro): nivel y experiencia, cualidades y defectos explicados, objetos con quitar o equipar, lo que lleva hecho, su zona, cambiar de sitio y despedir. Un turno libre («+») abre los **candidatos** (derecha). «TÚ» abre tu zona y tus opciones.
-- **Entre jornadas** (con el día cerrado), los conductores se arrastran de un sitio a otro.
-- **Comprar licencia nueva** abre dos placas para elegir, cada una con su libranza.
+- **Reserva:** tarjeta con 5 huecos. Los conductores que esperan turno son caras; los huecos libres («+») abren los candidatos.
+- **Licencias, de dos en dos:** la placa con su número y letra (chip «Libra» el día que le toca librar) y dos casillas de turno, cada una con un sol o una luna, la cara y el nombre. La cara lleva la rareza abajo a la izquierda, el nivel abajo a la derecha y un «!» rojo si el conductor está parado (baja, avería, libranza). La última casilla es **«Comprar licencia»**, que abre dos placas para elegir, cada una con su libranza.
+- **Ficha del conductor** (centro): una hoja que sube desde abajo y cabe sin desplazar. Nombre, rareza, licencia y turno; nivel con su barra de experiencia; cualidades en verde y defectos en rojo, cada uno con lo que hace; un mosaico de 3 casillas de objetos (puesto, con su efecto en corto y una «×» para quitarlo; «Equipar»; o el nivel que abre el hueco); carreras, facturado y zona (solo de lectura: la eligen ellos); y los botones **Cambiar de sitio** y **Despedir · finiquito**. Cambiar de sitio solo se puede entre jornadas: durante el día sale desactivado con una línea que lo explica.
+- **Equipar** abre encima otra hoja con los objetos del almacén en casillas, de mejor a peor; los que ya lleva salen atenuados. Tocar uno lo equipa.
+- **Candidatos** (derecha): hoja con tres tarjetas, cada una con retrato, rareza, rasgos, «Contratar · precio» y «A la reserva»; si no llega el dinero, cuánto falta y, al pie, vender objetos para contratar. Si tu turno de esa licencia está libre, también «Conducir yo este turno».
+- **Entre jornadas** (con el día cerrado), los conductores se arrastran de un sitio a otro (con el dedo, tras mantener pulsado medio segundo).
+
+### Almacén
+
+<p>
+<img src="docs/capturas/almacen.jpg" width="250" alt="Almacén: ruedas y bolsas con sus barras y los objetos en casillas">
+</p>
+
+- **Consumibles:** ruedas de repuesto y bolsas de papel en filas, con su dibujo, una barra sobre el máximo («6 / 10», en rojo si quedan pocas) y chips de compra de una unidad y de diez.
+- **Objetos sin equipar:** casillas de 3 columnas, de mejor a peor, **sin nombre a la vista** (decisión de Iván): rareza, cantidad y el dibujo sobre el color de su categoría. Al tocar una se abre debajo su panel con el nombre, qué hace, cuántos hay equipados y «Vender».
+- **Bandeja:** si un conductor encuentra algo con el almacén lleno, arriba aparece en amarillo «Almacén lleno · N por guardar», con lo que espera y la lista para vender.
 
 ### Mejoras
 
 <p>
-<img src="docs/capturas/mejoras.jpg" width="250" alt="Árbol de mejoras: rama Conductores y jornada con Jornada larga abierta">
-<img src="docs/capturas/ticket.jpg" width="250" alt="Ticket de cierre del lunes con cuatro licencias">
+<img src="docs/capturas/mejoras.jpg" width="250" alt="Mejoras: rama Conductores y jornada con Jornada larga abierta">
 </p>
 
-- **Mejoras (izquierda):** una pestaña por rama y los nodos en vertical, unidos por una línea cuando uno pide el anterior. Cada nodo enseña si está comprado, su precio y, en las de niveles, cuadritos por nivel. Al tocarlo se abre su ficha con qué hace y el botón de compra.
-- **Ticket de cierre (derecha):** aparece en Calle al acabar la jornada, con aspecto de papel térmico. Cabecera con las licencias que trabajaron ese día; líneas de carreras, kilómetros, recaudación, combustible, conductores, costes fijos y neto (en ese orden); debajo, las incidencias. El juego se para hasta «Arrancar día siguiente» (se puede desactivar en Partida).
+Un chip por rama (la elegida, en azul) y debajo los nodos de esa rama en una lista vertical. Cada nodo tiene un círculo de estado: **comprado** (verde con ✓), **disponible** (azul; el precio en gris si aún no llega el dinero) o **bloqueado** (gris con candado). Las mejoras por niveles llevan una rayita por nivel. Al tocar un nodo se abre debajo qué hace, el nivel que toca y el botón «Comprar nivel 3 · 1.000,00 €».
 
-### Partida
+### Ticket de cierre y ajustes
 
-Ajuste «Parar al cierre del día», exportar e importar la partida como texto y borrar la partida.
+<p>
+<img src="docs/capturas/ticket.jpg" width="250" alt="Ticket de cierre del viernes con tres licencias e incidencias">
+<img src="docs/capturas/ajustes.jpg" width="250" alt="Hoja de ajustes y partida: parar al cierre, sonido y volumen">
+</p>
+
+- **Ticket de cierre** (izquierda): aparece en Calle al acabar la jornada, en papel térmico con letra de máquina (Courier Prime). Cabecera con las licencias que trabajaron; carreras, kilómetros, recaudación, combustible, conductores, costes fijos y neto (en ese orden); debajo, las incidencias. El juego se para hasta «Arrancar día siguiente».
+- **Ajustes y partida** (derecha), desde el engranaje: parar al cierre del día, sonido sí o no y volumen, y exportar, importar o borrar la partida.
+
+### Sistema visual
+
+Estilo ilustrado y cálido, tema claro. La referencia completa (maquetas, iconos y fuentes) está en `libre-rework/`, fuera del repositorio.
+
+- **Colores** («Cielo de Madrid»): fondo de papel `#F6F3EC`, tarjetas blancas con borde `#E3DDCF`, tinta azul oscura `#172033`. **Azul** `#2554D6` para la marca, los botones y lo ocupado; **verde** `#0F6E42` para el dinero y lo libre; **amarillo sol** `#FFC83D` para destacar; **rojo** `#B3302A` para gastos, bajas y peligro. Los estados van sobre tintes claros (verde, azul, ámbar, rojo y neutro). Todos los colores son variables en un solo sitio (`:root` de `css/estilos.css`).
+- **Rarezas:** B gris, A verde, S azul, S+ morado y LEGENDARIO amarillo, siempre en una insignia redondeada con la letra.
+- **Letras:** Bricolage Grotesque para títulos y cifras de dinero; Nunito para el texto; Courier Prime para el ticket; DSEG7 para el LED del taxímetro.
+- **Componentes:** tarjetas de esquinas redondeadas, chips de estado, botones de 48 px (principal azul, secundario blanco, peligro rojo claro), barras de 8 px e insignias de rareza. Todo lo que se toca mide al menos 44 px.
+- **Iconos:** cada objeto y consumible tiene su dibujo (26 en total, con trazo oscuro y relleno plano). Los rasgos y los turnos usan iconos de trazo.
+- **Animaciones:** el taxi que cruza la calle (16 s), dos nubes (40 y 55 s), el sol que late (5 s), las ventanas de noche (4 y 6 s), la lluvia, el ticket que se imprime, las filas que se reordenan, los importes que flotan al cobrar y las hojas que suben. Todas se apagan con «reducir movimiento».
+- **Sonidos**, sintetizados en el navegador (sin archivos) y mudos hasta el primer toque: **cobro** (un «ding» de caja registradora al cobrar cualquier taxi), **propina** (monedas), **nivel** (arpegio), **objeto** (brillo), **avería** (golpe sordo; también pinchazos), **ticket** (impresora) y **tic** (al bajar la bandera). Se ajustan a oído.
 
 ---
 
@@ -254,7 +285,7 @@ La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
 | LEGENDARIO | Bocata de calamares infinito | −60 % de bajas y −12 % de espera de día |
 | LEGENDARIO | Bidón energético | −22 % de espera de noche y −20 % de bajas |
 
-**Consumibles** (comunes a toda la flota, se compran): **ruedas de repuesto** (80 €, hasta 10; un pinchazo gasta una y el taxi sigue) y **bolsas de papel** (2 €, hasta 50; un vómito gasta una y no pasa nada). Cada uno se desbloquea con su mejora; con pocas unidades, la pestaña Flota avisa.
+**Consumibles** (comunes a toda la flota, se compran): **ruedas de repuesto** (80 €, hasta 10; un pinchazo gasta una y el taxi sigue) y **bolsas de papel** (2 €, hasta 50; un vómito gasta una y no pasa nada). Cada uno se desbloquea con su mejora; con pocas unidades, la pestaña Almacén avisa.
 
 ### 5.8 Eventos
 
@@ -358,8 +389,10 @@ HTML, CSS y JavaScript sin framework ni paso de compilación; se juega abriendo 
 - **Datos separados del código:** todos los números están en `js/config.js`, marcados como dato real, dato de Iván o equilibrio.
 - **Lógica separada de la pantalla:** una sola función avanza el tiempo (`avanzar`), la misma con el juego abierto y sin conexión; la simulación no sabe nada del HTML y se prueba sin navegador (`node tests/simulacion.test.js`).
 - **Azar con semilla:** todo lo que afecta a la flota sale de un generador guardado en la partida.
-- **Guardado:** `localStorage` con número de versión (hoy, la 21) y migraciones para que las partidas antiguas sigan cargando; exportar e importar como texto.
-- **Diseño:** primero para móvil, en una sola columna, con los colores del taxi de Madrid (blanco, rojo de la franja y verde de «libre»). Todas las animaciones se apagan con «reducir movimiento».
+- **Guardado:** `localStorage` con número de versión (hoy, la 21) y migraciones para que las partidas antiguas sigan cargando; exportar e importar como texto. El rework visual no cambió el formato: la pestaña elegida (`libre-vista`), la rama de mejoras y los ajustes de sonido (`libre-sonido`) se guardan aparte, como comodidades del navegador.
+- **Módulos de la interfaz:** `js/ambiente.js` dibuja la calle de la cabecera (se puede cambiar por otro módulo, un mapa, sin tocar el resto); `js/retratos.js`, las caras de los conductores; `js/sonidos.js`, los sonidos con Web Audio; `js/interfaz.js`, las pantallas.
+- **Recursos propios:** las fuentes van en `fuentes/` (licencias en `fuentes/LICENCIAS.md`, por verificar antes de publicar) y los dibujos de los objetos en `iconos/`. No se carga nada de internet.
+- **Diseño:** primero para móvil, una sola columna; colores, letras, espaciados y radios como variables CSS, y componentes base reutilizables (prefijo `ui-`). Todas las animaciones se apagan con «reducir movimiento».
 
 Las convenciones de código están en `CLAUDE.md`.
 
@@ -393,6 +426,15 @@ Las convenciones de código están en `CLAUDE.md`.
 - La libranza entra en el juego, con elección entre dos placas al comprar. El ritmo se alarga a unos 70–78 minutos para tres licencias con conductores y se deja así.
 - Pantalla Calle con taxímetro de dos modos, lista «Tus taxis hoy» y tira de ambiente; pestaña Flota compacta con licencias de dos en dos; ticket con las licencias que trabajaron.
 - Almacén de 10 objetos con la mejora Taquillas; Jornada larga en una sola mejora de cinco niveles que abre la Oficina de gestión; Deflectores de viento en Vehículo.
+- **Rework visual** (paquete de diseño en `libre-rework/`):
+  - Paleta «Cielo de Madrid» (azul de marca, verde del dinero, amarillo sol), letras Bricolage Grotesque, Nunito, Courier Prime y DSEG7, y componentes base comunes.
+  - Cuatro pestañas: Calle, Conductores, Almacén y Mejoras. Flota se parte en dos y Partida pasa a una hoja que abre el engranaje.
+  - Cabecera con la calle animada de día y de noche y la placa «Caja total» siempre visible; alta en Calle (180 px en pantallas bajas, para que Calle quepa sin desplazar) y compacta en el resto.
+  - Taxímetro con LED DSEG7; ficha del conductor sin desplazar, con «Cambiar de sitio» desactivado durante la jornada; candidatos y selector de objetos en hojas.
+  - El almacén enseña los objetos sin nombre, solo dibujo, cantidad y rareza (Iván).
+  - Dibujos propios para los 24 objetos y los 2 consumibles.
+  - Sonidos sintetizados desde cero (cobro, propina, nivel, objeto, avería, ticket y tic), mudos hasta el primer toque, con sonido y volumen en Ajustes.
+  - Sin cambios en la simulación ni en el formato de guardado.
 
 ---
 
