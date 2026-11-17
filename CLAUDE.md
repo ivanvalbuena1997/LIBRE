@@ -272,19 +272,26 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   vista (un mapa) basta otro módulo con esas dos funciones. No enseña datos
   de la partida. Animaciones solo CSS (taxi 16 s, nubes 40/55 s, sol 5 s,
   ventanas 4/6 s), fuera con `prefers-reduced-motion`.
-- Zonas: las abiertas, en una fila de botones compactos (sirven para
-  elegir zona mientras conduces a mano); las cerradas, en una sola línea
-  debajo con la mejora que las abre.
-- El taxímetro debe verse entero en el móvil sin scroll. Tiene dos modos
+- Zonas: las abiertas, en una fila de chips (`ui-chip-zona`, se desliza de
+  lado si no caben) con nombre y viajes/h (o cuándo abre); en azul las que
+  tienen clientes ahora, y la tuya rellena cuando conduces (sirven para
+  elegir zona a mano). Las cerradas, en una sola línea debajo con la mejora
+  que las abre.
+- El taxímetro (132 px, maqueta calle.html) debe verse entero en el móvil
+  sin scroll: piloto y tarifa a la izquierda y un display de LED con la
+  letra DSEG7 (sin coma ni €: `textoLed()` da «1234.56» y el € va aparte;
+  con más de 4 cifras se encoge). Encima de las cifras, la etiqueta y una
+  segunda línea con el estado (no hay pie). Tiene dos modos
   que cambian solos (`modoTaximetro()`): **conductor** si conduces y es tu
   turno (o aún no tienes conductores), y es el botón de buscar cliente;
-  **flota** el resto del tiempo: piloto «FLOTA», el display suma
-  `caja.hoy.ingresos` (sube con cada cobro de cualquier taxi), el pie
-  resume «N ocupados · N libres · N parados» y la hora de tu turno, y
-  tocarlo abre el desglose de la caja de hoy. Los importes flotantes salen
+  **flota** el resto del tiempo: piloto «FLOTA» (amarillo), el display suma
+  `caja.hoy.ingresos` (sube con cada cobro de cualquier taxi), la segunda
+  línea resume «N ocupados · N libres · N parados», el cuadro de la tarifa
+  enseña la hora de tu turno, y tocarlo abre el desglose de la caja de hoy. Los importes flotantes salen
   por taxi (diferencia de `facturadoJornada`) con el nombre del conductor.
-- «Tus taxis hoy» (`seccionTaxis`): una fila por taxi con retrato, nombre,
-  zona, estado (Ocupado, Libre o el motivo de la parada), barra
+- «Tus taxis hoy» (`seccionTaxis`): una fila de 44 px por taxi con retrato, nombre,
+  zona, chip de estado (`ui-chip`: Ocupado, Libre, Libranza, De baja o el
+  motivo de la parada en ámbar), barra
   proporcional al que más lleva y lo facturado en la jornada. Las filas se
   crean una vez y en cada fotograma solo se rellenan y recolocan (FLIP);
   destellan al cobrar y llevan a su licencia en Conductores. Más de 6 taxis:

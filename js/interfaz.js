@@ -88,38 +88,57 @@
    *   "LIBRE" se apaga cuando sube el pasajero y el importe sube en vivo.
    *   Automático: suma en vivo la recaudación de hoy de la flota.
    */
-  const formatoDisplay = new Intl.NumberFormat('es-ES', {
-    minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: 'always'
-  });
-
+  /*
+   * Display de LED con la letra DSEG7, que no tiene coma ni €: las cifras
+   * llevan punto decimal y sin separador de miles («1234.56»), y el € va
+   * aparte con la letra del cuerpo. Encima, la etiqueta (una o dos líneas:
+   * qué marca y en qué estás). Sin alto extra: todo cabe en los 132 px de
+   * la maqueta.
+   */
   function htmlDisplay() {
-    return '<div class="taximetro-cuerpo">' +
-      '<div class="taximetro-izquierda">' +
+    return '<span class="taximetro-izquierda">' +
       '<span class="piloto" id="tx-piloto">LIBRE</span>' +
       '<span class="tx-tarifa" id="tx-tarifa"></span>' +
-      '</div>' +
-      '<div class="display">' +
-      '<span class="display-etiqueta" id="tx-etiqueta"></span>' +
-      '<span class="display-cifras"><span class="display-fantasma" id="tx-fantasma" aria-hidden="true"></span>' +
-      '<span class="display-valor" id="tx-valor">0,00</span></span>' +
-      '<span class="display-euro">€</span>' +
-      '</div>' +
-      '</div>';
+      '</span>' +
+      '<span class="display">' +
+      '<span class="display-etiqueta"><span id="tx-etiqueta"></span><small id="tx-estado"></small></span>' +
+      '<span class="display-cifras"><span class="display-valor" id="tx-valor">0.00</span>' +
+      '<span class="display-euro">€</span></span>' +
+      '<span class="progreso"><span id="carrera-barra"></span></span>' +
+      '</span>';
   }
 
-  function pintarDisplay(valor, etiqueta, tarifaId, libre) {
-    const texto = formatoDisplay.format(valor);
-    $('tx-valor').textContent = texto;
-    $('tx-fantasma').textContent = texto.replace(/\d/g, '8');
-    // Con cifras largas (miles de euros) se encoge para que no se salga.
-    $('tx-valor').parentNode.style.setProperty('--escala', Math.min(1, 7 / texto.length).toFixed(3));
+  /* «1234.56»: el LED no tiene coma ni separador de miles. */
+  function textoLed(valor) {
+    return (Math.round(valor * 100) / 100).toFixed(2);
+  }
+
+  /*
+   * Rellena el display. etiqueta: qué marca (IMPORTE, RECAUDACIÓN HOY…);
+   * estado: la segunda línea (qué pasa ahora). piloto: 'libre', 'ocupado'
+   * o 'flota'. chip: el texto del cuadro de debajo del piloto (la tarifa, o
+   * en modo flota la hora de tu turno).
+   */
+  function pintarDisplay(valor, etiqueta, estadoTexto, piloto, chip) {
+    const texto = textoLed(valor);
+    const v = $('tx-valor');
+    if (v.textContent !== texto) {
+      v.textContent = texto;
+      // Con cifras de más se encoge para que no se salga: en 375 px de ancho
+      // caben unas 3,8 cifras de 48 px junto al €.
+      const cifras = texto.replace('.', '').length;
+      v.parentNode.style.setProperty('--escala', Math.min(1, 3.8 / cifras).toFixed(3));
+    }
     $('tx-etiqueta').textContent = etiqueta;
-    const t = Libre.config.tarifas[tarifaId];
-    $('tx-tarifa').innerHTML = '<small>TARIFA</small>' + esc(t.nombre.replace('Tarifa ', ''));
-    $('tx-tarifa').className = 'tx-tarifa tx-' + tarifaId;
-    const piloto = $('tx-piloto');
-    piloto.classList.toggle('encendido', libre);
-    piloto.textContent = libre ? 'LIBRE' : 'OCUPADO';
+    $('tx-estado').textContent = estadoTexto;
+    $('tx-tarifa').innerHTML = chip;
+    const p = $('tx-piloto');
+    p.className = 'piloto piloto-' + piloto;
+    p.textContent = piloto === 'flota' ? 'FLOTA' : piloto === 'libre' ? 'LIBRE' : 'OCUPADO';
+  }
+
+  function chipTarifa(tarifaId) {
+    return esc(Libre.config.tarifas[tarifaId].nombre.toUpperCase());
   }
 
   /*
@@ -156,26 +175,20 @@
       modoAnterior = modo;
       if (modo === 'flota') {
         return '<button type="button" class="taximetro taximetro-flota' + clase + '" data-desglose ' +
-          'aria-label="Recaudación de hoy de la flota: ver el desglose">' + htmlDisplay() +
-          '<span class="taximetro-pie pie-flota"><span id="tx-resumen"></span><small id="tx-miturno"></small></span></button>';
+          'aria-label="Recaudación de hoy de la flota: ver el desglose">' + htmlDisplay() + '</button>';
       }
       return '<button type="button" class="taximetro taximetro-boton' + clase + '" data-accion="buscarCliente" ' +
-        'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() +
-        '<span class="progreso"><span id="carrera-barra"></span></span>' +
-        '<span class="taximetro-pie" id="tx-pie"></span></button>';
+        'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() + '</button>';
     },
     actualizar: function (estado) {
       const c = Libre.config;
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
 
       if (modoTaximetro(estado) === 'flota') {
-        pintarDisplay(estado.caja.hoy.ingresos, 'RECAUDACIÓN HOY ›', info.tarifa, false);
-        const piloto = $('tx-piloto');
-        piloto.textContent = 'FLOTA';
-        piloto.classList.add('flota');
-        $('tx-resumen').textContent = resumenFlota(taxisDeLaFlota(estado));
+        // Debajo del piloto, la hora de tu turno (la tarifa ya está en la placa).
         const u = Libre.sim.ubicacionJugador(estado);
-        $('tx-miturno').textContent = u ? 'Tu turno: ' + dos(c.turnos[u.turno].horaInicio) + ':00' : '';
+        const chip = u ? '<small>TU TURNO</small>' + dos(c.turnos[u.turno].horaInicio) + ':00' : chipTarifa(info.tarifa);
+        pintarDisplay(estado.caja.hoy.ingresos, 'RECAUDACIÓN HOY ›', resumenFlota(taxisDeLaFlota(estado)), 'flota', chip);
         return;
       }
 
@@ -184,9 +197,6 @@
       const conPasajero = enCurso !== null;
       // Libre: la etiqueta del display recuerda la última carrera.
       const ultima = estado.jugador.ultimaCarrera;
-      pintarDisplay(conPasajero ? enCurso : 0,
-        conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : '',
-        conPasajero ? carrera.tarifa : info.tarifa, !conPasajero);
 
       const boton = document.querySelector('.taximetro-boton');
       const pausa = Libre.sim.enPausa(estado);
@@ -197,15 +207,18 @@
         return l.id === Libre.sim.ubicacionJugador(estado).licenciaId;
       }));
       boton.disabled = !!carrera || pausa || !enTurno || libras;
-      $('tx-pie').textContent = pausa ? 'Día cerrado'
+      const estadoTexto = pausa ? 'Día cerrado'
         : libras ? 'Hoy libra tu licencia: descansas'
         : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
         : carrera ? c.zonas[carrera.zona].textoEspera + '…'
         : parado ? 'Parado hasta las ' + horaDe(estado.jugador.paradoHasta)
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
         : 'Toca para buscar cliente';
+      pintarDisplay(conPasajero ? enCurso : 0,
+        conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : 'IMPORTE',
+        estadoTexto, conPasajero ? 'ocupado' : 'libre', chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
       // Latido suave mientras el taxi espera a que lo toques.
-      $('tx-pie').classList.toggle('latido', !pausa && !carrera && enTurno && !libras);
+      $('tx-estado').classList.toggle('latido', !pausa && !carrera && enTurno && !libras);
 
       const barra = $('carrera-barra');
       const p = carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
@@ -274,7 +287,7 @@
    * desplegada) y en cada fotograma solo se rellenan y se recolocan; cuando
    * un taxi adelanta a otro se deslizan a su sitio (técnica FLIP: se mide,
    * se mueve en el DOM y se anima desde la posición vieja). Al cobrar, la
-   * fila destella. Tocar una fila lleva a ese taxi en Flota.
+   * fila destella. Tocar una fila lleva a ese taxi en Conductores.
    */
   const MAX_FILAS_TAXIS = 6;
   let taxisDesplegados = false;
@@ -286,6 +299,14 @@
     }
     // Tú, o un turno sin conductor.
     return '<span class="retrato retrato-texto' + (t.quien === 'Tú' ? ' tu' : '') + '">' + (t.quien === 'Tú' ? 'TÚ' : '') + '</span>';
+  }
+
+  /* Chip de estado de un taxi: Libre, Ocupado, Libranza, De baja o parado (ámbar). */
+  function claseSituacion(t) {
+    if (t.situacion !== 'parado') return 'ui-chip ui-chip--' + t.situacion;
+    if (t.icono === 'libranza') return 'ui-chip ui-chip--libranza';
+    if (t.icono === 'baja') return 'ui-chip ui-chip--baja';
+    return 'ui-chip ui-chip--parado';
   }
 
   const seccionTaxis = {
@@ -301,14 +322,14 @@
           '<span class="taxi-retrato"></span>' +
           '<span class="taxi-quien"><strong></strong><small></small></span>' +
           '<span class="taxi-situacion"></span>' +
-          '<span class="taxi-importe"></span>' +
-          '<span class="taxi-barra"><span></span></span>' +
+          '<span class="taxi-importe ui-dinero"></span>' +
+          '<span class="taxi-barra ui-barra"><span class="ui-barra-relleno"></span></span>' +
           '</button></li>';
       }).join('');
       const resto = ids.length - MAX_FILAS_TAXIS;
       filasRecienCreadas = true;
-      return '<div class="taxis-cabecera"><h2>Tus taxis hoy</h2>' +
-        '<button type="button" class="taxis-total" data-desglose aria-label="Ver el desglose de la caja de hoy"><span id="taxis-total"></span> ›</button></div>' +
+      return '<div class="taxis-cabecera"><h2 class="ui-titulo">Tus taxis hoy</h2>' +
+        '<button type="button" class="taxis-total ui-dinero" data-desglose aria-label="Ver el desglose de la caja de hoy"><span id="taxis-total"></span></button></div>' +
         '<ol class="taxis-lista" id="taxis-lista">' + filas + '</ol>' +
         (resto > 0
           ? '<button type="button" class="taxis-mas" data-taxis-mas>' +
@@ -346,12 +367,12 @@
         li.querySelector('.taxi-quien small').textContent = zona ? zona.nombre : Libre.sim.textoLicencia(t.licencia);
         const sit = li.querySelector('.taxi-situacion');
         sit.textContent = t.situacion === 'ocupado' ? 'Ocupado' : t.situacion === 'libre' ? 'Libre' : t.motivo;
-        sit.className = 'taxi-situacion ' + t.situacion;
+        sit.className = 'taxi-situacion ' + claseSituacion(t);
         li.querySelector('.taxi-importe').textContent = euros(t.facturado);
         li.querySelector('.taxi-barra > span').style.width = (Math.max(0, t.facturado) / maximo * 100).toFixed(1) + '%';
         li.classList.toggle('fuera', !taxisDesplegados && i >= MAX_FILAS_TAXIS);
         li.querySelector('button').setAttribute('aria-label',
-          t.quien + ', ' + sit.textContent + ', ' + euros(t.facturado) + ' hoy. Ver en Flota');
+          t.quien + ', ' + sit.textContent + ', ' + euros(t.facturado) + ' hoy. Ver en Conductores');
       });
 
       if (!cambia) return;
@@ -455,11 +476,11 @@
       const o = objetivoActual(estado);
       if (!o) return '';
       const listo = estado.dinero >= o.precio;
-      return '<button type="button" class="objetivo' + (listo ? ' listo' : '') + '" data-objetivo="' + esc(o.selector) + '"' +
+      return '<button type="button" class="objetivo ui-tarjeta' + (listo ? ' listo' : '') + '" data-objetivo="' + esc(o.selector) + '"' +
         (o.mejora ? ' data-objetivo-mejora="' + o.mejora + '"' : '') + '>' +
-        '<span class="objetivo-texto"><span>Siguiente: <strong>' + esc(o.nombre) + '</strong></span>' +
+        '<span class="objetivo-texto"><span>Siguiente · <strong>' + esc(o.nombre) + '</strong></span>' +
         '<span id="objetivo-falta"></span></span>' +
-        '<span class="objetivo-barra"><span id="objetivo-relleno"></span></span></button>';
+        '<span class="objetivo-barra ui-barra"><span class="ui-barra-relleno" id="objetivo-relleno"></span></span></button>';
     },
     actualizar: function (estado) {
       const o = objetivoActual(estado);
@@ -561,8 +582,8 @@
         '</div></div>' +
         '<div class="ticket-pie" style="--i:' + (i++) + '">' +
         (t.pausa
-          ? boton('Arrancar día siguiente', 'arrancarDia', [], 'boton-principal')
-          : '<button type="button" class="boton-principal" data-cerrar-ticket>Vale</button>') +
+          ? boton('Arrancar día siguiente', 'arrancarDia', [], 'ui-boton ui-boton--principal ui-boton--ancho')
+          : '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-cerrar-ticket>Vale</button>') +
         '</div>';
     }
   };
@@ -637,7 +658,7 @@
     firma: function () { return 'caja:' + cajaAbierta; },
     html: function () {
       if (!cajaAbierta) return '';
-      return '<div class="caja-desglose"><div class="caja-titulo"><strong>Caja de hoy</strong>' +
+      return '<div class="caja-desglose ui-tarjeta"><div class="caja-titulo"><strong class="ui-titulo">Caja de hoy</strong>' +
         '<button type="button" class="caja-cerrar" data-desglose aria-label="Cerrar el desglose">×</button></div>' +
         filasCaja(null, 'hoy', true) + '</div>';
     },
@@ -659,40 +680,11 @@
   };
 
   /*
-   * Zonas: las abiertas, una fila de botones compactos con icono, nombre,
-   * dato y medidor de demanda (viajes/h ahora respecto al máximo de la semana
-   * en esa zona); sin demanda, atenuada y con la hora a la que abre. Mientras
-   * conduces a mano, tocar una elige la zona. Las cerradas, en una sola línea
-   * debajo con la mejora que las abre.
+   * Zonas: las abiertas, una fila de chips (nombre y dato: viajes/h y coches
+   * tuyos ahí, o la hora a la que abre); con clientes ahora van en azul.
+   * Mientras conduces a mano, tocar una elige la zona (la tuya, rellena).
+   * Las cerradas, en una sola línea debajo con la mejora que las abre.
    */
-  const ICONOS_ZONA = {
-    centro: '<path d="M3 21V10l5-3v14M8 21V4h8v17M16 21v-8h5v8M2 21h20M11 8h2M11 12h2M11 16h2"/>',
-    ocio: '<path d="M18 2.5a4.5 4.5 0 1 0 3.5 7.3 3.8 3.8 0 0 1-3.5-7.3z"/>' +
-      '<path d="M3 10h8l-4 5zM7 15v5M4.5 20h5"/>',
-    aeropuerto: '<path class="relleno" d="M12 2.5l1.3 6.6 8.2 4v1.8l-8.2-2.3-.5 6.2 2.8 1.9v1.1L12 21l-3.6.8v-1.1l2.8-1.9-.5-6.2-8.2 2.3v-1.8l8.2-4z"/>',
-    estaciones: '<rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M8 16l-2 5M16 16l2 5M7 19h10"/>' +
-      '<circle class="relleno" cx="9" cy="13" r="1"/><circle class="relleno" cx="15" cy="13" r="1"/>'
-  };
-
-  function iconoZona(id) {
-    return '<svg class="zona-icono" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS_ZONA[id] || ICONOS_ZONA.centro) + '</svg>';
-  }
-
-  // Máximo de demanda de cada zona en la semana (depende de las mejoras).
-  let cacheMaximos = { clave: null, valores: {} };
-  function demandaMaxima(estado, zonaId) {
-    const clave = JSON.stringify(estado.mejoras);
-    if (cacheMaximos.clave !== clave) cacheMaximos = { clave, valores: {} };
-    if (cacheMaximos.valores[zonaId] === undefined) {
-      let max = 0;
-      for (let h = 0; h < 7 * 24; h++) {
-        max = Math.max(max, Libre.sim.demandaZona(estado, zonaId, Libre.sim.infoReloj(h * 60)));
-      }
-      cacheMaximos.valores[zonaId] = max;
-    }
-    return cacheMaximos.valores[zonaId];
-  }
-
   // Próxima hora con clientes en una zona, como texto ("Abre a las 21:00").
   let cacheApertura = {};
   function textoApertura(estado, zonaId) {
@@ -742,16 +734,15 @@
         return cerradas.indexOf(id) === -1;
       }).map(function (id) {
         const zona = c.zonas[id];
-        const cuerpo = iconoZona(id) +
-          '<span class="zona-nombre">' + esc(zona.nombre) + '</span>' +
-          '<span class="zona-dato" id="zona-dato-' + id + '"></span>' +
-          '<span class="zona-medidor"><span id="zona-medidor-' + id + '"></span></span>';
+        const cuerpo = '<span class="ui-chip-zona-nombre">' + esc(zona.nombre) + '</span>' +
+          '<span class="ui-chip-zona-detalle" id="zona-dato-' + id + '"></span>';
         if (aMano) {
-          return '<button type="button" class="zona-tarjeta' + (id === u.datos.zona ? ' activa' : '') + '" id="zona-' + id + '" ' +
-            'data-accion="elegirZona" data-args="' + u.licenciaId + '|' + u.turno + '|' + id + '" title="' + esc(zona.descripcion) + '">' +
-            cuerpo + '</button>';
+          const mia = id === u.datos.zona;
+          return '<button type="button" class="zona-tarjeta ui-chip-zona' + (mia ? ' mia' : '') + '" id="zona-' + id + '" ' +
+            'data-accion="elegirZona" data-args="' + u.licenciaId + '|' + u.turno + '|' + id + '" title="' + esc(zona.descripcion) + '"' +
+            ' aria-pressed="' + mia + '">' + cuerpo + '</button>';
         }
-        return '<div class="zona-tarjeta" id="zona-' + id + '" title="' + esc(zona.descripcion) + '">' + cuerpo + '</div>';
+        return '<div class="zona-tarjeta ui-chip-zona" id="zona-' + id + '" title="' + esc(zona.descripcion) + '">' + cuerpo + '</div>';
       }).join('') + '</div>' + lineaCerradas;
     },
     actualizar: function (estado) {
@@ -764,6 +755,8 @@
         const coches = grupos[id] ? grupos[id].length : 0;
         const r = Libre.sim.rendimientoZona(estado, id, coches, info);
         const vacia = r.demanda < umbral;
+        // Con clientes ahora: azul (la maqueta); sin ellos, blanca y en gris.
+        $('zona-' + id).classList.toggle('ui-chip-zona--activa', !vacia);
         $('zona-' + id).classList.toggle('vacia', vacia);
         // Texto corto para que quepa en media pantalla de móvil.
         let texto;
@@ -771,8 +764,6 @@
         else if (coches > 0) texto = Math.round(r.demanda) + '/h · ' + coches + (coches === 1 ? ' coche' : ' coches');
         else texto = Math.round(r.demanda) + ' viajes/h';
         $('zona-dato-' + id).textContent = texto;
-        const max = demandaMaxima(estado, id);
-        $('zona-medidor-' + id).style.width = (max > 0 ? Math.min(1, r.demanda / max) * 100 : 0).toFixed(0) + '%';
       });
     }
   };

@@ -34,9 +34,7 @@
   --verde-claro: #e4f6ec;
 
   --ambar: #c27c0e;
-  --tarifa-1: #2b4f7a;
   --tarifa-2: #6a3d8f;
-  --tarifa-fija: #8a5a12;
 
   --sombra: rgba(0, 0, 0, 0.08);
   --alto-menu: 78px;           /* menú inferior (maqueta) */
@@ -127,15 +125,6 @@
   --cat-l-borde: #8a5a12;
   --luna: #f3f0dc;
 
-  /* Taxímetro: carcasa negra y cifras de LED rojo, como los de verdad. */
-  --tx-carcasa: #1b1b1b;
-  --tx-display: #0c0d0c;
-  --tx-cifras: #ff4a3d;
-  --tx-brillo: rgba(255, 74, 61, 0.55);
-  --tx-fantasma: rgba(255, 74, 61, 0.08);
-  --tx-apagado: #3a3a38;
-  --tx-texto: #c9c9c4;
-  --tx-flota: #f2a516;         /* piloto «FLOTA»: ámbar de aviso */
   --radio: 12px;
 
   /* ===== Rework visual (Paleta B «Cielo de Madrid», ESPECIFICACION-VISUAL) =====
@@ -618,172 +607,162 @@ textarea {
   padding: 8px;
 }
 
-/* Taxímetro */
-#sec-taximetro {
-  padding: 8px;
-}
-.taximetro {
-  display: block;
-  width: 100%;
-  background: var(--tx-carcasa);
-  color: var(--tx-texto);
+/*
+ * Pestaña Calle (maqueta calle.html): columna con 10 px entre bloques. El
+ * taxímetro, «Siguiente» y las zonas no van en tarjeta; «Tus taxis hoy» y
+ * el desglose de la caja, sí (con el estilo nuevo).
+ */
+body[data-vista="calle"] main { padding-top: var(--esp-2); }
+#sec-taximetro, #sec-objetivo, #sec-zonas, #sec-caja, #sec-ticket {
+  padding: 0;
   border: 0;
-  border-radius: 14px;
-  padding: 12px;
-  text-align: left;
-  box-shadow: inset 0 -3px 0 var(--sombra-fuerte), 0 3px 10px var(--sombra);
+  background: transparent;
+  margin-bottom: var(--esp-3);
 }
-.taximetro-boton { cursor: pointer; }
-/* Modo flota: el display suma lo de toda la flota; tocarlo abre el desglose. */
-.taximetro-flota { cursor: pointer; }
-.taximetro-flota:active { transform: translateY(1px); }
-.taximetro-flota:focus-visible { outline: 3px solid var(--verde-libre); outline-offset: 2px; }
-.piloto.flota {
-  background: var(--tx-flota);
-  color: var(--tx-carcasa);
-  box-shadow: 0 0 10px var(--tx-flota);
-}
-.taximetro-pie.pie-flota {
+
+/* Taxímetro: cuerpo oscuro de 132 px con piloto, tarifa y display de LED */
+.taximetro {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
+  gap: var(--esp-5);
+  width: 100%;
+  height: 132px;
+  min-height: 0;
+  padding: var(--esp-6) var(--margen);
+  border: 0;
+  border-radius: var(--r-taximetro);
+  background: var(--taxi-cuerpo);
+  color: var(--taxi-etiqueta);
+  box-shadow: 0 8px 20px var(--sombra-taximetro);
+  font-family: var(--letra-cuerpo);
   text-align: left;
 }
-.pie-flota small { font-size: 0.72rem; opacity: 0.8; white-space: nowrap; }
+.taximetro-boton, .taximetro-flota { cursor: pointer; }
+.taximetro-boton:disabled { opacity: 1; cursor: default; }
+.taximetro-boton:not(:disabled):active, .taximetro-flota:active { transform: translateY(1px); }
+.taximetro:focus-visible { outline: 3px solid var(--marca); outline-offset: 3px; }
 /* Cambio de modo: el display se enciende de nuevo, breve. */
 .taximetro.cambio-modo .display,
 .taximetro.cambio-modo .piloto { animation: cambio-modo 0.45s ease-out; }
 @keyframes cambio-modo { from { opacity: 0.15; } }
-.taximetro-boton:disabled { opacity: 1; cursor: default; }
-.taximetro-boton:not(:disabled):active { transform: translateY(1px); }
-.taximetro-boton:focus-visible { outline: 3px solid var(--verde-libre); outline-offset: 2px; }
 
-.taximetro-cuerpo {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-}
 .taximetro-izquierda {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 84px;
+  gap: var(--esp-3);
+  width: 88px;
   flex: none;
 }
 .piloto {
   display: block;
+  padding: var(--esp-3) 0;
+  border-radius: var(--r-piloto);
   text-align: center;
   font-weight: 800;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  padding: 6px 0;
-  border-radius: 6px;
-  background: var(--tx-apagado);
-  color: var(--tx-texto);
+  font-size: var(--t-boton);
+  line-height: 1.3;
+  background: var(--taxi-tarifa);
+  color: var(--taxi-tarifa-texto);
 }
-.piloto.encendido {
-  background: var(--verde-libre);
-  color: var(--blanco);
-  box-shadow: 0 0 12px var(--verde-libre), 0 0 2px var(--verde-libre) inset;
-}
+.piloto-libre { background: var(--taxi-piloto); color: var(--taxi-piloto-texto); }
+.piloto-flota { background: var(--sol); color: var(--tinta); }
 .tx-tarifa {
   display: block;
+  padding: var(--esp-2) 0;
+  border-radius: var(--r-piloto);
   text-align: center;
-  border-radius: 6px;
-  padding: 2px 0 4px;
-  font-size: 1.5rem;
   font-weight: 800;
-  line-height: 1.1;
-  color: var(--blanco);
-  background: var(--tarifa-1);
+  font-size: var(--t-pequeno);
+  line-height: 1.3;
+  background: var(--taxi-tarifa);
+  color: var(--taxi-tarifa-texto);
+  white-space: nowrap;
 }
-.tx-tarifa small {
-  display: block;
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  font-weight: 700;
-  opacity: 0.85;
-}
-.tx-t2 { background: var(--tarifa-2); }
-.tx-t3, .tx-t4 { background: var(--tarifa-fija); }
+.tx-tarifa small { display: block; font-size: 10px; line-height: 1.2; letter-spacing: 0.5px; opacity: 0.85; }
 
 .display {
   position: relative;
   flex: 1;
   min-width: 0;
-  background: var(--tx-display);
-  border-radius: 8px;
-  padding: 16px 10px 6px;
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 4px;
-  font-family: ui-monospace, "Cascadia Mono", "Consolas", "Courier New", monospace;
-  color: var(--tx-cifras);
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 var(--margen);
+  overflow: hidden;
+  border-radius: var(--r-boton);
+  background: var(--taxi-pantalla);
 }
 .display-etiqueta {
-  position: absolute;
-  top: 5px;
-  left: 10px;
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  color: var(--tx-texto);
-}
-.display-cifras {
-  position: relative;
-  font-size: calc(clamp(2.2rem, 11vw, 3.2rem) * var(--escala, 1));
-  font-weight: 700;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 10px var(--tx-brillo);
+  display: flex;
+  flex-direction: column;
+  font-size: var(--t-micro);
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1.25;
+  color: var(--taxi-etiqueta);
   white-space: nowrap;
 }
-/* Segmentos apagados detrás de las cifras, como en un display de LED. */
-.display-fantasma {
+.display-etiqueta small {
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: 0;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.display-etiqueta small:empty { display: none; }
+.display-etiqueta small.latido { animation: latido 1.8s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: 0.35; } }
+.display-cifras {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--esp-2);
+  color: var(--taxi-digitos);
+  white-space: nowrap;
+}
+.display-valor {
+  font-family: var(--letra-led);
+  font-weight: 700;
+  font-size: calc(var(--t-led) * var(--escala, 1));
+  line-height: 1.1;
+}
+.display-euro { font-weight: 800; font-size: 20px; }
+/* Avance de tu carrera: una raya fina al pie del display */
+.progreso {
   position: absolute;
+  left: 0;
   right: 0;
-  color: var(--tx-fantasma);
-  text-shadow: none;
+  bottom: 0;
+  height: 3px;
 }
-.display-valor { position: relative; }
-.display-euro { font-size: 1.1rem; font-weight: 700; padding-bottom: 4px; }
-
-.taximetro-pie.latido { animation: latido 1.8s ease-in-out infinite; }
-@keyframes latido { 50% { opacity: 0.45; } }
-.taximetro-pie {
+.progreso > span {
   display: block;
-  text-align: center;
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--tx-texto);
-  min-height: 1.2em;
+  height: 100%;
+  width: 0;
+  background: var(--taxi-piloto);
 }
 
-
-/* Objetivo: barra hacia la siguiente compra */
-#sec-objetivo {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
+/* Siguiente: tarjeta con la compra que viene y su barra */
 .objetivo {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
   width: 100%;
   min-height: 0;
-  padding: 8px 12px 10px;
+  padding: var(--esp-4) var(--esp-6);
+  font-family: var(--letra-cuerpo);
+  font-weight: 600;
   text-align: left;
-  border: 1px solid var(--borde);
-  border-radius: var(--radio);
-  background: var(--tarjeta);
   cursor: default;
 }
 .objetivo-texto {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 0.88rem;
-  font-variant-numeric: tabular-nums;
+  align-items: baseline;
+  gap: var(--esp-3);
+  font-size: var(--t-normal);
+  line-height: 1.3;
 }
 .objetivo-texto > span:first-child {
   min-width: 0;
@@ -791,44 +770,13 @@ textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#objetivo-falta { color: var(--suave); white-space: nowrap; }
-.objetivo-barra {
-  display: block;
-  height: 8px;
-  margin-top: 6px;
-  border-radius: 999px;
-  background: var(--borde);
-  overflow: hidden;
-}
-#objetivo-relleno {
-  display: block;
-  height: 100%;
-  width: 0;
-  background: var(--verde-libre);
-  transition: width 0.3s ease-out;
-}
-.objetivo.listo {
-  cursor: pointer;
-  border-color: var(--verde-libre);
-  background: var(--verde-claro);
-}
-.objetivo.listo #objetivo-falta { color: var(--verde-texto); font-weight: 700; }
-.objetivo.listo #objetivo-relleno { background: var(--verde-libre); }
-
-.progreso {
-  display: block;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--tx-apagado);
-  overflow: hidden;
-  margin: 8px 0 0;
-}
-.progreso > * {
-  display: block;
-  height: 100%;
-  background: var(--verde-libre);
-  width: 0;
-}
+.objetivo-texto strong { font-weight: 800; }
+#objetivo-falta { font-size: var(--t-pequeno); color: var(--tinta-suave); white-space: nowrap; }
+.objetivo-barra { display: block; }
+#objetivo-relleno { display: block; width: 0; transition: width 0.3s ease-out; }
+.objetivo.listo { cursor: pointer; }
+.objetivo.listo #objetivo-falta { color: var(--dinero); font-weight: 800; }
+.objetivo:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
 
 /* Tablas de números */
 .filas { margin: 0; }
@@ -848,122 +796,101 @@ textarea {
 .positivo { color: var(--verde-texto); }
 .negativo-texto { color: var(--rojo-taxi); }
 
-/* Tus taxis hoy */
-#sec-taxis { padding: 6px 10px; }
+/* Tus taxis hoy: tarjeta con una fila de 44 px por taxi */
+#sec-taxis {
+  padding: var(--esp-4) var(--esp-6) var(--esp-2);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-tarjeta);
+  margin-bottom: var(--esp-3);
+  font-family: var(--letra-cuerpo);
+  font-weight: 600;
+  color: var(--tinta);
+}
 .taxis-cabecera {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin: 0;
+  align-items: baseline;
+  line-height: 1.2;
 }
-.taxis-cabecera h2 { margin: 0; font-size: 0.95rem; }
 .taxis-total {
-  min-height: 32px;
-  padding: 2px 4px;
+  min-height: 0;
+  padding: 0;
   border: 0;
   background: none;
-  font: inherit;
-  font-weight: 700;
-  color: var(--texto);
-  font-variant-numeric: tabular-nums;
+  font-size: var(--t-seccion);
+  color: var(--tinta);
   cursor: pointer;
 }
+.taxis-total:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
 .taxis-lista { margin: 0; padding: 0; list-style: none; }
 .taxi-fila {
-  border-top: 1px solid var(--borde);
-  border-radius: 8px;
+  border-radius: var(--r-control);
   transition: transform 0.45s ease;
 }
-.taxi-fila:first-child { border-top: 0; }
 .taxi-fila.fuera { display: none; }
 .taxi-fila.cobro { animation: cobro 0.7s ease-out; }
-@keyframes cobro { from { background: var(--verde-claro); } }
+@keyframes cobro { from { background: var(--tinte-verde); } }
 .taxi-fila > button {
   display: grid;
-  grid-template-columns: 32px 1fr auto auto;
+  grid-template-columns: 34px minmax(0, 1fr) auto auto;
   grid-template-rows: auto auto;
-  column-gap: 8px;
-  row-gap: 3px;
+  column-gap: var(--esp-4);
+  row-gap: 5px;
   align-items: center;
   width: 100%;
-  min-height: 44px;
-  padding: 5px 2px;
+  height: var(--alto-fila);
+  min-height: 0;
+  padding: 0;
   border: 0;
+  border-radius: var(--r-control);
   background: none;
   font: inherit;
-  color: var(--texto);
+  color: var(--tinta);
   text-align: left;
   cursor: pointer;
 }
+.taxi-fila > button:focus-visible { outline: 3px solid var(--marca); outline-offset: 1px; }
 .taxi-retrato { grid-row: 1 / span 2; display: flex; }
-.taxi-retrato .retrato { width: 32px; height: 32px; }
+.taxi-retrato .retrato { width: 34px; height: 34px; }
 .retrato-texto {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px dashed var(--borde);
-  font-size: 0.68rem;
+  border: 1.5px dashed var(--linea);
+  font-family: var(--letra-titulo);
+  font-size: var(--t-pequeno);
   font-weight: 800;
 }
-.retrato-texto.tu { border: 0; background: var(--texto); color: var(--blanco); }
-.taxi-quien { min-width: 0; display: flex; gap: 6px; align-items: baseline; white-space: nowrap; overflow: hidden; }
-.taxi-quien strong { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; }
-.taxi-quien small { color: var(--suave); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; }
-.taxi-situacion {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.taxi-situacion.libre { background: var(--verde-claro); color: var(--verde-texto); }
-.taxi-situacion.ocupado { background: var(--rojo-claro); color: var(--rojo-taxi); }
-.taxi-situacion.parado { background: var(--fondo); color: var(--ambar); border: 1px solid var(--borde); }
-.taxi-importe {
-  font-weight: 700;
-  font-size: 0.9rem;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  min-width: 72px;
-}
-.taxi-barra {
-  grid-column: 2 / -1;
-  display: block;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--borde);
-  overflow: hidden;
-}
-.taxi-barra > span {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--verde-libre);
-  transition: width 0.4s ease;
-}
+.retrato-texto.tu { border: 0; background: var(--tinta); color: var(--sobre-color); }
+.taxi-quien { min-width: 0; display: flex; gap: var(--esp-2); align-items: baseline; white-space: nowrap; overflow: hidden; }
+.taxi-quien strong { font-weight: 800; font-size: var(--t-cuerpo); overflow: hidden; text-overflow: ellipsis; }
+.taxi-quien small { color: var(--tinta-suave); font-size: var(--t-mini); overflow: hidden; text-overflow: ellipsis; }
+.taxi-importe { font-size: var(--t-cuerpo); text-align: right; min-width: 64px; white-space: nowrap; }
+.taxi-barra { grid-column: 2 / -1; display: block; }
+.taxi-barra > span { display: block; transition: width 0.4s ease; }
 .taxis-mas {
   display: block;
   width: 100%;
-  min-height: 40px;
-  margin-top: 4px;
+  min-height: var(--alto-fila);
   border: 0;
-  border-top: 1px solid var(--borde);
+  border-top: 1px solid var(--linea);
+  border-radius: 0;
   background: none;
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--verde-texto);
+  font-family: var(--letra-cuerpo);
+  font-size: var(--t-pequeno);
+  font-weight: 800;
+  color: var(--marca);
   cursor: pointer;
 }
 
 /* Desglose de la caja de hoy, bajo el taxímetro cuando lo pides */
-#sec-caja { padding: 0; }
+.caja-desglose { font-family: var(--letra-cuerpo); font-weight: 600; }
 .caja-titulo {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 2px 4px 2px 14px;
-  border-bottom: 1px solid var(--borde);
+  border-bottom: 1px solid var(--linea);
 }
 .caja-cerrar {
   min-width: 44px;
@@ -979,12 +906,7 @@ textarea {
 .caja-desglose .filas { padding: 8px 14px 12px; }
 
 /* Ticket de cierre de caja: papel térmico que sale de debajo del taxímetro */
-#sec-ticket {
-  padding: 0;
-  margin-top: -6px;
-  background: transparent;
-  border: 0;
-}
+#sec-ticket { margin-top: -16px; }
 .ticket-ranura {
   position: relative;
   overflow: hidden;           /* el papel aparece desde el borde de arriba */
@@ -997,7 +919,7 @@ textarea {
   position: relative;
   background: var(--papel);
   color: var(--tinta);
-  font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  font-family: var(--letra-ticket);
   font-size: 0.86rem;
   line-height: 1.5;
   text-transform: uppercase;
@@ -1056,93 +978,34 @@ textarea {
 }
 .ajuste input { width: 22px; height: 22px; accent-color: var(--verde-libre); }
 
-/* Zonas que no responden mientras el día está cerrado */
-button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
-
-/* Zonas: fila de botones compactos; las cerradas, en una línea debajo */
-#sec-zonas { padding: 6px; }
+/* Zonas: una fila de chips que se desliza de lado si no caben; las
+   cerradas, en una línea debajo. Con clientes, en azul (ui-chip-zona--activa);
+   la tuya, cuando conduces, rellena de azul. */
 .zonas-fila {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--esp-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 2px calc(-1 * var(--margen)) 0;
+  padding: 0 var(--margen);
 }
-.zona-tarjeta {
-  position: relative;
-  flex: 1 1 130px;
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  column-gap: 6px;
-  align-items: center;
-  min-height: 44px;
-  padding: 5px 8px 7px;
-  overflow: hidden;
-  text-align: left;
-  font: inherit;
-  color: var(--texto);
-  background: var(--tarjeta);
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-}
-button.zona-tarjeta { cursor: pointer; }
-.zona-tarjeta.activa {
-  border-color: var(--verde-libre);
-  background: var(--verde-claro);
-  box-shadow: inset 0 0 0 1px var(--verde-libre);
-}
-.zona-icono {
-  grid-row: 1 / span 2;
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.zona-icono .relleno { fill: currentColor; stroke: none; }
-.zona-nombre {
-  font-weight: 600;
-  font-size: 0.85rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.zona-dato {
-  font-size: 0.72rem;
-  color: var(--suave);
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* Medidor de demanda: una raya fina al pie del botón. */
-.zona-medidor {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background: var(--borde);
-}
-.zona-medidor > span {
-  display: block;
-  height: 100%;
-  width: 0;
-  background: var(--verde-libre);
-  transition: width 0.4s ease-out;
-}
-/* Sin demanda a esta hora: atenuada. */
-.zona-tarjeta.vacia { opacity: 0.5; }
-.zona-tarjeta.vacia .zona-medidor > span { background: var(--suave); }
+.zonas-fila::-webkit-scrollbar { display: none; }
+.zona-tarjeta { white-space: nowrap; line-height: 1.2; }
+.zona-tarjeta.mia { background: var(--marca); border-color: var(--marca); }
+.zona-tarjeta.mia .ui-chip-zona-nombre,
+.zona-tarjeta.mia .ui-chip-zona-detalle { color: var(--sobre-color); }
+button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
+.ui-chip-zona-detalle { font-variant-numeric: tabular-nums; }
 .zonas-cerradas {
-  margin: 6px 2px 0;
-  font-size: 0.75rem;
+  margin: var(--esp-2) 2px 0;
+  font-family: var(--letra-cuerpo);
+  font-size: var(--t-mini);
   line-height: 1.35;
-  color: var(--suave);
+  color: var(--tinta-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.zonas-cerradas span { white-space: nowrap; }
 
 /* Flota */
 .flota-titulo { margin: 0 0 8px; font-size: 0.95rem; }
@@ -1779,11 +1642,12 @@ button.zona-tarjeta { cursor: pointer; }
   z-index: 30;
   transform: translateX(-100%);
   pointer-events: none;
+  font-family: var(--letra-titulo);
   font-weight: 800;
   font-size: 1.05rem;
-  color: var(--verde-texto);
-  background: var(--blanco);
-  border: 1px solid var(--verde-libre);
+  color: var(--dinero);
+  background: var(--tarjeta);
+  border: 1px solid var(--dinero);
   border-radius: 999px;
   padding: 1px 8px;
   white-space: nowrap;
