@@ -1320,7 +1320,7 @@
       const sentido = s.factor === 1 || (efectiva.length === 0 && s.clave !== 'sinPagar') ? ''
         : (s.factor > 1) === !!MAS_ES_MEJOR[s.clave] ? ' stat--bien' : ' stat--mal';
       // Su tope del lado bueno («tope ×0,42»): crece con la categoría y el nivel.
-      const tope = s.limite ? (s.tope ? 'llega a su tope' : 'su tope') + ' ×' +
+      const tope = s.limite && s.fuentes.length ? (s.tope ? 'llega a su tope' : 'su tope') + ' ×' +
         s.limite.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : '';
       const desglose = (s.fuentes.length === 0 ? 'Sin cambios: lo normal' : s.fuentes.map(textoFuente).join(' · ')) +
         (tope ? ' · ' + tope : '');

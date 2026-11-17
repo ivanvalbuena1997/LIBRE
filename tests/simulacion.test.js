@@ -1014,7 +1014,10 @@ prueba('categorías de conductor: más cualidad, menos defecto, más hallazgos',
   assert.ok(porCat.L.esperaBase < porCat['S+'].esperaBase && porCat['S+'].esperaBase < porCat.B.esperaBase,
     'el plus de espera crece con la categoría');
   assert.strictEqual(sim.precioCandidato({ categoria: 'L' }), porCat.L.contratar);
-  assert.ok(porCat.L.contratar > porCat.B.contratar * 10);
+  ['B', 'A', 'S', 'S+', 'L'].reduce(function (anterior, id) {
+    assert.ok(porCat[id].contratar > anterior, 'cada categoría cuesta más que la anterior');
+    return porCat[id].contratar;
+  }, 0);
 });
 
 prueba('las partidas de la versión 15 dan categoría a sus conductores', function () {
