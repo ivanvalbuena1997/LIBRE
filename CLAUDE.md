@@ -18,7 +18,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   - `Libre.config` → `js/config.js`
   - `Libre.sim` → `js/simulacion.js`
   - `Libre.guardado` → `js/guardado.js`
-  - `Libre.ambiente` → `js/ambiente.js` (tira SVG de ambiente; solo interfaz)
+  - `Libre.ambiente` → `js/ambiente.js` (calle SVG de la cabecera; solo interfaz)
   - `Libre.retratos` → `js/retratos.js` (retratos SVG de conductores; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
@@ -123,7 +123,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   turnos de cualquier licencia con coche y la reserva; si el destino está
   ocupado, se intercambian; nunca sobre tu turno. Pierden lo que estuvieran
   esperando; baja, objetos y nivel van con ellos y la avería se queda en el
-  coche. En Flota: arrastrar el retrato (ratón: al mover; dedo: tras
+  coche. En Conductores: arrastrar el retrato (ratón: al mover; dedo: tras
   mantener pulsado 450 ms) sobre un conductor, un turno libre o la reserva
   (`data-arrastrable` y `data-destino`, solo en pausa), o el selector
   «Mover a…» de la ficha.
@@ -158,14 +158,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
-- Pestaña Flota: el almacén (en la interfaz se llama así; en el código
-  sigue siendo `inventario` para los consumibles) es una cuadrícula de fichas pequeñas, sin
+- Pestañas Almacén y Conductores (antes, juntas en Flota). El almacén (en
+  el código sigue siendo `inventario` para los consumibles; `seccionAlmacen`)
+  es una cuadrícula de fichas pequeñas, sin
   nombre a la vista (va en el título y en la ficha abierta): icono,
   cantidad y debajo la categoría (objetos) o la barra sobre el máximo
   (consumibles). Solo los objetos que tienes sin equipar, de mejor a peor
   categoría; al tocar una se abre debajo su panel para comprar
   (consumibles) o vender (objetos). Con la bandeja llena, arriba sale lo
-  que espera y la lista para vender. Las licencias van de dos en
+  que espera y la lista para vender. En Conductores (`seccionConductores`),
+  las licencias van de dos en
   dos (rejilla `.licencias`): cada una, su placa a la izquierda (libranza
   en el título, «Hoy libra» debajo si toca) y los dos turnos, cada uno con un sol
   o una luna pequeños sobre una cara (`htmlCara()`); la que tiene candidatos
@@ -180,7 +182,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al
   azar entre las zonas con clientes; con el curso, cada hora la que más deja
-  al dueño contando a los compañeros. En Flota no se puede elegir su zona;
+  al dueño contando a los compañeros. En Conductores no se puede elegir su zona;
   la tuya, sí.
 - Eventos (`config.eventos`): por carrera (propina, sin pagar, objeto
   devuelto, vómito; también en las tuyas), al empezar cada turno (baja,
@@ -208,8 +210,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   a toda la flota: ruedas de repuesto y bolsas de papel. Cada uno se
   desbloquea con su mejora (efecto `inventario`) y luego se compran unidades
   hasta el máximo del almacén (`comprarInventario()`). Un pinchazo gasta una
-  rueda si hay; un vómito, una bolsa. Se repone en la tarjeta «Almacén» de
-  Flota; con pocas unidades, la pestaña avisa.
+  rueda si hay; un vómito, una bolsa. Se repone en la pestaña Almacén; con
+  pocas unidades, la pestaña avisa.
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
   entre un 1 % y un 2 % más que jugando.
@@ -238,21 +240,38 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   con la del «Día N». `puedeTrabajar()` la tiene en cuenta (también sin
   conexión). `config.licencias.libranza = false` la apaga (las pruebas lo
   hacen; las de libranza la encienden).
-- Menú inferior fijo con pestañas Calle, Flota, Mejoras y Partida
-  (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección). Una marca
-  roja avisa de compras posibles o de un ticket esperando. La pestaña elegida
-  se recuerda en `localStorage` (`libre-vista`), aparte de la partida.
-- Pestaña Calle en móvil, de arriba abajo: tira de ambiente, taxímetro,
+- Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén y
+  Mejoras (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección;
+  `body[data-vista]` la pestaña elegida). Una marca roja avisa de compras
+  posibles (Conductores, Mejoras), de consumibles bajos o la bandeja
+  (Almacén) o de un ticket esperando (Calle). La pestaña elegida se recuerda
+  en `localStorage` (`libre-vista`), aparte de la partida; las antiguas
+  `flota` y `partida` se traducen a `conductores` y `calle`.
+- Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
+  hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
+  Escape).
+- Cabecera (`#cabecera`): la calle de fondo, «Libre», el engranaje y la
+  placa «Caja total» (dinero y, en Calle, «Día N · Mié 07:00 · Tarifa 1»).
+  Alta (220 px) en Calle y compacta (124 px) en las demás; en pantallas de
+  menos de 830 px de alto, la alta baja a 180 px. Es `sticky` con `top`
+  negativo: al desplazar solo queda la placa a la vista. De noche (lo dice
+  la escena) cambia sus colores.
+- Pestaña Calle en móvil, de arriba abajo: cabecera, taxímetro,
   «Siguiente», «Tus taxis hoy» y zonas. Con hasta 5 taxis debe caber sin
-  scroll en 375×800 px por encima del menú inferior (con 1 taxi, en
-  375×600). Cualquier texto nuevo ahí, a una línea y sin añadir alto.
+  scroll en 390×844 y en 375×800 px (cabecera de 180) por encima del menú
+  inferior. Cualquier texto nuevo ahí, a una línea y sin añadir alto.
 - No hay línea «Hoy»: el desglose de la caja de hoy sale bajo el taxímetro
   al tocar el display en modo flota o el total de «Tus taxis hoy»
   (`cajaAbierta`), y se cierra con su ×.
-- Tira de ambiente (`js/ambiente.js`, 36 px): cielo según la hora, perfil
-  de edificios y lluvia. Es un módulo aparte con `montar(contenedor)` y
-  `dibujar(contenedor, estado)`; para cambiarla por otra vista (un mapa)
-  basta otro módulo con esas dos funciones. No enseña datos de la partida.
+- Escena de la cabecera (`js/ambiente.js`): cielo según la hora, sol o
+  luna y estrellas, edificios con ventanas que se encienden de noche, nubes,
+  un taxi que pasa y lluvia. Se dibuja a escala 1 pegada abajo (la cabecera
+  compacta enseña solo la calle). Es un módulo aparte con
+  `montar(contenedor)` y `dibujar(contenedor, estado)`, que deja
+  `contenedor.dataset.momento` ('dia' o 'noche'); para cambiarla por otra
+  vista (un mapa) basta otro módulo con esas dos funciones. No enseña datos
+  de la partida. Animaciones solo CSS (taxi 16 s, nubes 40/55 s, sol 5 s,
+  ventanas 4/6 s), fuera con `prefers-reduced-motion`.
 - Zonas: las abiertas, en una fila de botones compactos (sirven para
   elegir zona mientras conduces a mano); las cerradas, en una sola línea
   debajo con la mejora que las abre.
@@ -268,7 +287,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   zona, estado (Ocupado, Libre o el motivo de la parada), barra
   proporcional al que más lleva y lo facturado en la jornada. Las filas se
   crean una vez y en cada fotograma solo se rellenan y recolocan (FLIP);
-  destellan al cobrar y llevan a su licencia en Flota. Más de 6 taxis:
+  destellan al cobrar y llevan a su licencia en Conductores. Más de 6 taxis:
   «Ver los N restantes». Los datos salen de `taxisDeLaFlota()`.
 - Taxis parados: la simulación guarda `motivoParada` ('pinchazo',
   'vomito') junto a `paradoHasta`, solo para enseñarlo.

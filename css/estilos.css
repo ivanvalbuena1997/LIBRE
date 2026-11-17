@@ -39,7 +39,7 @@
   --tarifa-fija: #8a5a12;
 
   --sombra: rgba(0, 0, 0, 0.08);
-  --alto-menu: 54px;
+  --alto-menu: 78px;           /* menú inferior (maqueta) */
   --sombra-fuerte: rgba(0, 0, 0, 0.25);
 
   /* Retratos de conductores */
@@ -66,23 +66,50 @@
   --papel: #fbf8ef;
   --ranura: #111111;
 
-  /* Tira de ambiente: cielo por momento del día (hex: ambiente.js los mezcla). */
-  --cielo-noche-alto: #0b1330;
-  --cielo-noche-bajo: #27305e;
+  /* Escena de la cabecera (js/ambiente.js). El cielo va en hex: ambiente.js
+     lo lee y mezcla los cuatro momentos. Día y noche, de la maqueta. */
+  --cielo-noche-alto: #0f1b3d;
+  --cielo-noche-bajo: #2a3e7a;
   --cielo-alba-alto: #6f7fb8;
   --cielo-alba-bajo: #f6b07a;
-  --cielo-dia-alto: #6fb8ea;
-  --cielo-dia-bajo: #cfe9f8;
+  --cielo-dia-alto: #7db4ee;
+  --cielo-dia-bajo: #dceeff;
   --cielo-ocaso-alto: #5a4f93;
   --cielo-ocaso-bajo: #f08a5d;
-  --edificio-lejos: #b9c3cc;
-  --edificio-cerca: #8794a1;
-  --edificio-lejos-noche: #1e2440;
-  --edificio-cerca-noche: #12162b;
-  --ventana-apagada: #dfe5ea;
-  --ventana-noche: #10142a;
-  --ventana-encendida: #ffd36b;
+  --esc-nube: #ffffff;
+  --esc-lejos: #b7cde8;
+  --esc-medio: #d9a07a;
+  --esc-cerca: #a9654f;
+  --esc-ventana: #fff3d0;
+  --esc-acera: #cfc6b4;
+  --esc-asfalto: #3c4258;
+  --esc-raya: #f2e9d2;
+  --esc-tronco: #6b4a3a;
+  --esc-copa: #5e9a6a;
+  --esc-luna: #f3f6ff;
+  --esc-lejos-noche: #22305f;
+  --esc-medio-noche: #2e3b72;
+  --esc-cerca-noche: #1c2550;
+  --esc-ventana-noche: #ffd27a;
+  --esc-acera-noche: #2a3566;
+  --esc-asfalto-noche: #1a2038;
+  --esc-raya-noche: #9aa7d6;
+  --esc-tronco-noche: #141b3a;
+  --esc-copa-noche: #1f3a4a;
+  --esc-mascara-si: #ffffff;   /* máscara de la luna: lo que se ve… */
+  --esc-mascara-no: #000000;   /* …y lo que se recorta */
+  --coche-carroceria: #ffffff;
+  --coche-perfil: #c9bfb0;
+  --coche-cristal: #9fc4de;
+  --coche-franja: #d0382a;
+  --coche-faro: #ffe9a8;
   --lluvia: #a9c6de;
+  /* Cabecera de noche: textos claros sobre velo oscuro */
+  --noche-texto: #f3f6ff;
+  --noche-suave: #c9d3f5;
+  --noche-chip: #2a3566;
+  --velo-boton-dia: rgba(255, 255, 255, 0.90);
+  --velo-boton-noche: rgba(16, 25, 54, 0.82);
   --placa-franja: #1d4fa3;     /* franja azul de la placa con el número de licencia */
 
   /* Categorías de objetos y conductores: fondo, texto y borde */
@@ -196,10 +223,12 @@
   --r-hoja: 26px;
   --r-pastilla: 999px;
 
-  /* Alturas */
+  /* Alturas. La cabecera alta (Calle) baja a 180 px en pantallas de menos
+     de 830 px de alto (ver .cabecera) para que Calle quepa sin scroll. */
   --alto-cabecera: 220px;
   --alto-cabecera-compacta: 124px;
-  --alto-menu-nuevo: 78px;
+  --placa-arriba: 76px;        /* dónde empieza la placa «Caja total» en Calle */
+  --placa-arriba-compacta: 58px;
   --alto-fila: 44px;
   --alto-boton: 48px;
 }
@@ -217,70 +246,203 @@ body {
   line-height: 1.4;
 }
 
+/*
+ * Cabecera con la calle de fondo (maqueta cabecera-dia-noche.html). Alta en
+ * Calle y compacta en el resto (body[data-vista]). Se queda pegada arriba
+ * con «top» negativo: al desplazar la página sube hasta que solo queda a la
+ * vista la placa «Caja total».
+ */
 .cabecera {
   position: sticky;
-  top: 0;
+  top: calc(8px - var(--placa-arriba));
   z-index: 10;
-  background: var(--blanco);
-  color: var(--texto);
-  padding: 10px 16px 0;
-  border-bottom: 1px solid var(--borde);
-  box-shadow: 0 2px 8px var(--sombra);
+  height: var(--alto-cabecera);
   overflow: hidden;
+  background: var(--cielo-dia-bajo);
+  font-family: var(--letra-cuerpo);
+  font-weight: 600;
+  color: var(--tinta);
+}
+@media (max-height: 829px) {
+  :root { --alto-cabecera: 180px; --placa-arriba: 64px; }
+  /* La escena baja 20 px (se recorta el borde de la calzada) para que el
+     sol y la luna no se corten arriba. */
+  body[data-vista="calle"] .cabecera-escena { bottom: -20px; }
+}
+body:not([data-vista="calle"]) .cabecera {
+  --alto-cabecera: var(--alto-cabecera-compacta);
+  --placa-arriba: var(--placa-arriba-compacta);
 }
 
-/* Franja roja diagonal del taxi, de borde a borde de la cabecera. */
-.franja {
+.cabecera-escena { position: absolute; inset: 0; overflow: hidden; }
+.cabecera-contenido { position: relative; max-width: 560px; height: 100%; margin: 0 auto; }
+
+.cabecera-logo {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.franja polygon { fill: var(--rojo-taxi); }
-.cabecera-fila { position: relative; }
-
-.cabecera-fila {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  max-width: 560px;
-  margin: 0 auto;
-}
-
-.marca {
+  left: 20px;
+  top: 16px;
   margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.02em;
+  font-family: var(--letra-titulo);
+  font-weight: 800;
+  font-size: var(--t-logo);
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+}
+
+.cabecera-ajustes {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  width: 46px;
+  height: 46px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--velo-boton-dia);
+  color: var(--tinta);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  cursor: pointer;
 }
-
-.luz {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--verde-libre);
-  box-shadow: 0 0 8px var(--verde-libre);
-  display: inline-block;
+.cabecera-ajustes svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
+.cabecera-ajustes:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
 
-.dinero {
-  font-size: 1.35rem;
-  font-weight: 700;
+/* Placa «Caja total»: en Calle, título y reloj arriba y el dinero grande
+   debajo; en las demás pestañas, una sola fila. */
+.placa-caja {
+  position: absolute;
+  left: var(--margen);
+  right: var(--margen);
+  top: var(--placa-arriba);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "titulo reloj" "dinero dinero";
+  align-items: center;
+  row-gap: 3px;
+  padding: 10px 18px 12px;
+  border-radius: var(--r-caja);
+  background: var(--velo-dia);
+  box-shadow: 0 6px 18px var(--sombra-placa);
+}
+.placa-caja-titulo { grid-area: titulo; font-size: var(--t-pequeno); font-weight: 800; color: var(--tinta-suave); }
+.placa-caja-reloj {
+  grid-area: reloj;
+  justify-self: end;
+  padding: 3px 10px;
+  border-radius: var(--r-pastilla);
+  background: var(--tinte-neutro);
+  color: var(--tinta);
+  font-size: var(--t-mini);
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.dinero.negativo { color: var(--rojo-taxi); }
-
-.reloj {
-  font-size: 0.9rem;
-  color: var(--suave);
+.placa-caja-dinero {
+  grid-area: dinero;
+  font-family: var(--letra-titulo);
+  font-weight: 800;
+  font-size: clamp(30px, 10.5vw, var(--t-caja));
+  line-height: 1;
   font-variant-numeric: tabular-nums;
-  padding: 2px 0 8px;
+  white-space: nowrap;
+  color: var(--tinta);
 }
+.placa-caja-dinero.negativo { color: var(--peligro); }
+body:not([data-vista="calle"]) .placa-caja {
+  grid-template-areas: "titulo dinero";
+  padding: 6px 16px;
+  border-radius: var(--r-placa);
+  box-shadow: 0 4px 12px var(--sombra-placa-baja);
+}
+body:not([data-vista="calle"]) .placa-caja-reloj { display: none; }
+body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size: var(--t-pantalla); line-height: 1.1; }
 
+/* De noche (lo decide la escena): textos claros sobre velo oscuro. */
+.cabecera.noche { background: var(--cielo-noche-bajo); }
+.cabecera.noche .cabecera-logo { color: var(--noche-texto); }
+.cabecera.noche .cabecera-ajustes { background: var(--velo-boton-noche); color: var(--noche-texto); }
+.cabecera.noche .placa-caja { background: var(--velo-noche); }
+.cabecera.noche .placa-caja-titulo { color: var(--noche-suave); }
+.cabecera.noche .placa-caja-reloj { background: var(--noche-chip); color: var(--noche-texto); }
+.cabecera.noche .placa-caja-dinero { color: var(--noche-texto); }
+.cabecera.noche .placa-caja-dinero.negativo { color: var(--tinte-rojo); }
+
+/* Escena: dibujo a escala 1, pegado abajo y centrado (js/ambiente.js). */
+.esc-calle { position: absolute; left: 50%; bottom: 0; margin-left: -975px; display: block; }
+.esc-lejos { fill: var(--esc-lejos); }
+.esc-medio { fill: var(--esc-medio); }
+.esc-cerca { fill: var(--esc-cerca); }
+.esc-ventana { fill: var(--esc-ventana); }
+.esc-acera { fill: var(--esc-acera); }
+.esc-asfalto { fill: var(--esc-asfalto); }
+.esc-raya { fill: none; stroke: var(--esc-raya); stroke-width: 3; stroke-linecap: round; }
+.esc-tronco { fill: var(--esc-tronco); }
+.esc-copa { fill: var(--esc-copa); }
+.esc-sol { fill: var(--sol); }
+.esc-luna, .esc-estrella { fill: var(--esc-luna); }
+.esc-mascara-si { fill: var(--esc-mascara-si); }
+.esc-mascara-no { fill: var(--esc-mascara-no); }
+.esc-noche { display: none; }
+.noche .esc-dia { display: none; }
+.noche .esc-noche { display: inline; }
+.noche .esc-lejos { fill: var(--esc-lejos-noche); }
+.noche .esc-medio { fill: var(--esc-medio-noche); }
+.noche .esc-cerca { fill: var(--esc-cerca-noche); }
+.noche .esc-ventana { fill: var(--esc-ventana-noche); }
+.noche .esc-acera { fill: var(--esc-acera-noche); }
+.noche .esc-asfalto { fill: var(--esc-asfalto-noche); }
+.noche .esc-raya { stroke: var(--esc-raya-noche); }
+.noche .esc-tronco { fill: var(--esc-tronco-noche); }
+.noche .esc-copa { fill: var(--esc-copa-noche); }
+.esc-lluvia { display: none; }
+.lloviendo .esc-lluvia { display: inline; }
+.esc-gota { fill: none; stroke: var(--lluvia); stroke-width: 1.2; stroke-linecap: round; }
+
+.esc-nube { position: absolute; left: -80px; fill: var(--esc-nube); opacity: 0.9; }
+.esc-nube-1 { bottom: 199px; }
+.esc-nube-2 { bottom: 162px; left: 35%; opacity: 0.8; }
+.noche .esc-nube { display: none; }
+
+/* El taxi va a la altura de la acera (y = 196 de la maqueta). */
+.esc-taxi { position: absolute; left: 16px; bottom: 24px; }
+.esc-carroceria { fill: var(--coche-carroceria); stroke: var(--coche-perfil); stroke-width: 1.5; }
+.esc-cristal { fill: var(--coche-cristal); }
+.esc-piloto { fill: var(--taxi-piloto); }
+.esc-franja { fill: var(--coche-franja); }
+.esc-faro { fill: var(--coche-faro); }
+.esc-rueda { fill: var(--tinta); }
+/* Brillo de los faros: el amarillo del faro que se desvanece hacia fuera. */
+.esc-faro-centro { stop-color: var(--coche-faro); stop-opacity: 0.7; }
+.esc-faro-borde { stop-color: var(--coche-faro); stop-opacity: 0; }
+.esc-brillo { display: none; }
+.noche .esc-brillo { display: inline; }
+
+/* Animaciones de la escena (todas fuera con prefers-reduced-motion). Las
+   ventanas solo parpadean de noche. */
+@keyframes taxi-pasa { from { left: -130px; } to { left: 100%; } }
+@keyframes nube-pasa { from { left: -80px; } to { left: 100%; } }
+@keyframes sol-late { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
+@keyframes ventana { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes llover { to { transform: translateY(40px); } }
+.an-taxi { animation: taxi-pasa 16s linear infinite; }
+.an-nube { animation: nube-pasa 40s linear infinite; }
+.an-nube2 { animation: nube-pasa 55s linear infinite; animation-delay: -20s; }
+.an-sol { opacity: 0.6; animation: sol-late 5s ease-in-out infinite; }
+.noche .an-v1 { animation: ventana 4s ease-in-out infinite; }
+.noche .an-v2 { animation: ventana 6s ease-in-out infinite; animation-delay: -2s; }
+.an-lluvia { animation: llover 0.5s linear infinite; }
+
+/* Chips pequeños de texto (se usan en varias pantallas) */
 .chip {
   display: inline-block;
   padding: 1px 8px;
@@ -289,22 +451,7 @@ body {
   font-weight: 600;
   vertical-align: 1px;
 }
-.chip-t1 { background: var(--tarifa-1); color: var(--blanco); }
-.chip-t2 { background: var(--tarifa-2); color: var(--blanco); }
-.chip-t3, .chip-t4 { background: var(--tarifa-fija); color: var(--blanco); }
 .chip-gris { background: var(--borde); color: var(--texto); }
-
-.barra-dia {
-  position: relative;
-  height: 4px;
-  background: var(--borde);
-  margin: 0 -16px;
-}
-.barra-dia > div {
-  height: 100%;
-  background: var(--verde-libre);
-  width: 0;
-}
 
 main {
   max-width: 560px;
@@ -315,7 +462,11 @@ main {
 
 .fuera-de-vista { display: none !important; }
 
-/* Menú inferior fijo */
+/* Ajustes y partida: hoja que abre el engranaje (la sección no es tarjeta) */
+#sec-partida { display: contents; }
+#sec-partida .hoja h2 { margin: 0 0 12px; padding-right: 40px; font-family: var(--letra-titulo); font-weight: 800; font-size: var(--t-seccion); }
+
+/* Menú inferior fijo: cuatro pestañas (maqueta: 78 px, icono y nombre) */
 .menu-inferior {
   position: fixed;
   left: 0;
@@ -324,10 +475,11 @@ main {
   z-index: 15;
   display: flex;
   justify-content: center;
-  background: var(--blanco);
-  border-top: 1px solid var(--borde);
-  box-shadow: 0 -2px 8px var(--sombra);
-  padding-bottom: env(safe-area-inset-bottom);
+  align-items: flex-start;
+  padding: 0 6px env(safe-area-inset-bottom);
+  background: var(--tarjeta);
+  border-top: 1px solid var(--linea);
+  font-family: var(--letra-cuerpo);
 }
 .menu-inferior button {
   position: relative;
@@ -335,32 +487,41 @@ main {
   max-width: 140px;
   height: var(--alto-menu);
   min-height: 0;
-  padding: 4px 0 2px;
+  padding: 6px 0 0;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--suave);
+  color: var(--tinta-suave);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1px;
-  font-size: 0.72rem;
+  justify-content: flex-start;
+  gap: 3px;
+  font-size: var(--t-mini);
+  font-weight: 800;
 }
 .menu-inferior svg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.menu-inferior button[aria-current="page"] {
-  color: var(--verde-texto);
-  font-weight: 700;
-  box-shadow: inset 0 3px 0 var(--verde-libre);
+.menu-inferior button[aria-current="page"] { color: var(--marca); }
+/* Rayita de la pestaña elegida, pegada al borde de arriba */
+.menu-inferior button[aria-current="page"]::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 22%;
+  right: 22%;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--marca);
 }
+.menu-inferior button:focus-visible { outline: 3px solid var(--marca); outline-offset: -3px; }
 .marca-aviso {
   position: absolute;
   top: 6px;
@@ -368,8 +529,8 @@ main {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--rojo-taxi);
-  border: 2px solid var(--blanco);
+  background: var(--peligro);
+  border: 2px solid var(--tarjeta);
   display: none;
 }
 .marca-aviso.visible { display: block; }
@@ -599,26 +760,6 @@ textarea {
   min-height: 1.2em;
 }
 
-/* Tira de ambiente encima del taxímetro (js/ambiente.js) */
-#sec-ambiente {
-  padding: 0;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-.ambiente { display: block; width: 100%; height: 36px; }
-.ambiente .edificio-lejos { fill: var(--edificio-lejos); }
-.ambiente .edificio-cerca { fill: var(--edificio-cerca); }
-.ambiente .ventanal { fill: var(--ventana-apagada); }
-.ambiente .estrella, .ambiente .luna { fill: var(--luna); opacity: 0; transition: opacity 1s; }
-.ambiente.noche .estrella, .ambiente.noche .luna { opacity: 1; }
-.ambiente.noche .edificio-lejos { fill: var(--edificio-lejos-noche); }
-.ambiente.noche .edificio-cerca { fill: var(--edificio-cerca-noche); }
-.ambiente.noche .ventanal { fill: var(--ventana-noche); }
-.ambiente.noche .ventanal.encendible { fill: var(--ventana-encendida); }
-.ambiente .lluvia { display: none; }
-.ambiente.lloviendo .lluvia { display: inline; animation: llover 0.6s linear infinite; }
-.ambiente .gota { stroke: var(--lluvia); stroke-width: 1; stroke-linecap: round; }
-@keyframes llover { to { transform: translate(-2px, 6px); } }
 
 /* Objetivo: barra hacia la siguiente compra */
 #sec-objetivo {

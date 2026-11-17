@@ -3,23 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#7db4ee">
   <title>Libre</title>
   <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
-  <header class="cabecera">
-    <svg class="franja" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <polygon points="56,0 64,0 50,100 42,100"></polygon>
-    </svg>
-    <div class="cabecera-fila">
-      <h1 class="marca"><span class="luz"></span>Libre</h1>
-      <div class="dinero" id="dinero">0,00 €</div>
+  <!-- Cabecera: la calle de fondo (js/ambiente.js), el nombre, el engranaje
+       de Ajustes y la placa «Caja total», siempre a la vista. Alta en Calle y
+       compacta en las demás pestañas. -->
+  <header class="cabecera" id="cabecera">
+    <div class="cabecera-escena" id="cabecera-escena" aria-hidden="true"></div>
+    <div class="cabecera-contenido">
+      <h1 class="cabecera-logo">Libre</h1>
+      <button type="button" class="cabecera-ajustes" id="abrir-ajustes" aria-label="Ajustes y partida" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <div class="placa-caja">
+        <span class="placa-caja-titulo">Caja total</span>
+        <span class="placa-caja-reloj" id="reloj">Día 1 · Lunes 07:00</span>
+        <span class="placa-caja-dinero" id="dinero">0,00 €</span>
+      </div>
     </div>
-    <div class="cabecera-fila">
-      <div class="reloj" id="reloj">Lunes 07:00</div>
-    </div>
-    <div class="barra-dia"><div id="barra-dia"></div></div>
   </header>
 
   <main id="juego">
@@ -29,20 +33,20 @@
   <!-- Menú inferior: cada pestaña enseña una parte del juego. -->
   <nav class="menu-inferior" aria-label="Secciones del juego">
     <button type="button" data-vista="calle" aria-current="page">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15l2-5.5A2 2 0 0 1 6.9 8h10.2a2 2 0 0 1 1.9 1.5L21 15v3h-2.5M5.5 18H3v-3h18M9 6h6"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="16.5" cy="18" r="1.8"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l1.6-5.2A2 2 0 0 1 7.5 9.4h9a2 2 0 0 1 1.9 1.4L20 16"/><rect x="3" y="16" width="18" height="4" rx="1.5"/><path d="M8 20v1.5M16 20v1.5M10 6h4"/></svg>
       <span>Calle</span><i class="marca-aviso" data-aviso="calle"></i>
     </button>
-    <button type="button" data-vista="flota">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M16 16l2-2M18.5 18.5l1.5-1.5"/></svg>
-      <span>Flota</span><i class="marca-aviso" data-aviso="flota"></i>
+    <button type="button" data-vista="conductores">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.5 6-5.5s6 2.3 6 5.5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 14.8c1.8.7 3 2.4 3 5.2"/></svg>
+      <span>Conductores</span><i class="marca-aviso" data-aviso="conductores"></i>
+    </button>
+    <button type="button" data-vista="almacen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8L12 4l8.5 4v9L12 21l-8.5-4z"/><path d="M3.5 8L12 12l8.5-4M12 12v9"/></svg>
+      <span>Almacén</span><i class="marca-aviso" data-aviso="almacen"></i>
     </button>
     <button type="button" data-vista="mejoras">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V5M6 11l6-6 6 6M5 20h14"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V6M6 12l6-6 6 6"/><path d="M5 20h14"/></svg>
       <span>Mejoras</span><i class="marca-aviso" data-aviso="mejoras"></i>
-    </button>
-    <button type="button" data-vista="partida">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
-      <span>Partida</span>
     </button>
   </nav>
 

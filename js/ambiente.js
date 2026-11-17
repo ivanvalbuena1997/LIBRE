@@ -1,82 +1,121 @@
 /*
- * Libre · tira de ambiente.
+ * Libre · escena de la cabecera.
  *
- * Franja fina encima del taxímetro: cielo que sigue el reloj del juego, el
- * perfil de edificios (con ventanas que se encienden de noche) y lluvia
- * cuando llueve. Es puro adorno: no enseña datos de la partida.
+ * La calle de fondo de la cabecera (maqueta libre-rework/maquetas/
+ * cabecera-dia-noche.html): cielo que sigue el reloj del juego, sol o luna
+ * y estrellas, edificios con ventanas que se encienden de noche, acera,
+ * asfalto, nubes y un taxi que pasa. Lluvia cuando llueve. Es puro adorno:
+ * no enseña datos de la partida.
  *
  * Módulo independiente con dos funciones, para poder cambiarlo por otra vista
  * (un mapa, por ejemplo) sin tocar el resto de la pantalla:
  *   montar(contenedor)          crea su dibujo dentro del contenedor (una vez)
- *   dibujar(contenedor, estado) lo pone al día con el estado de la partida
+ *   dibujar(contenedor, estado) lo pone al día con el estado de la partida;
+ *                               deja contenedor.dataset.momento = 'dia' o
+ *                               'noche' para que la cabecera ajuste sus colores.
  * Solo lee el estado a través de Libre.sim; no lo modifica.
+ *
+ * Tamaño: se dibuja a escala 1 (un píxel por unidad) y pegado abajo, como en
+ * la maqueta: la cabecera alta (220 px) enseña la escena entera y la
+ * compacta (124 px) solo la parte de abajo. El perfil de 390 de ancho se
+ * repite a los lados para pantallas anchas; sol y luna van en el centro.
+ * El taxi y las nubes son dibujos aparte que cruzan todo el ancho.
  *
  * Colores: variables CSS del :root (ver estilos.css). El cielo se interpola
  * en JS, así que lee esas variables una vez y las mezcla.
- * Movimiento: solo la lluvia, anulada con prefers-reduced-motion.
+ * Movimiento: animaciones CSS (taxi, nubes, sol, ventanas, estrellas y
+ * lluvia), anuladas con prefers-reduced-motion.
  */
 (function (raiz) {
   'use strict';
   const Libre = raiz.Libre = raiz.Libre || {};
 
-  const ANCHO = 560;   // unidades del dibujo; se recorta a lo ancho de la pantalla
-  const ALTO = 36;
+  const TRAMO = 390;            // ancho del perfil de la maqueta
+  const TRAMOS = 5;             // se repite: 1950 de ancho, el centro es el tramo 2
+  const ANCHO = TRAMO * TRAMOS;
+  const CENTRO = TRAMO * 2;     // x donde empieza el tramo del centro
 
-  /* Azar con semilla: los edificios salen siempre iguales. */
-  function azar(semilla) {
-    let s = semilla;
-    return function () {
-      s = (s * 16807) % 2147483647;
-      return (s - 1) / 2147483646;
-    };
+  // Ventanas del perfil (x, y), de la maqueta.
+  const VENTANAS = [
+    [10, 150], [10, 166], [26, 150], [26, 182], [40, 150], [40, 166],
+    [308, 150], [308, 182], [322, 150], [322, 166], [336, 166], [336, 182],
+    [352, 150], [352, 166], [368, 150], [368, 182]
+  ];
+  // Estrellas de un tramo (x, y), de la maqueta.
+  const ESTRELLAS = [[30, 30], [74, 58], [126, 24], [170, 66], [214, 28], [262, 70], [352, 98], [58, 96], [246, 100]];
+
+  /* Un tramo del perfil: edificios, ventanas y árboles. */
+  function tramo() {
+    return '<path class="esc-lejos" d="M0 150V120h28v-18h22v30h26v-24h30v34h24v-14h34v28h30v-22h28v30h30v-20h34v22h40v50H0z"/>' +
+      '<path class="esc-medio" d="M0 170V132h36v-20h30v44h28v-30h38v54h30v-26h34v34h30v-40h36v36h28v-18h34V200H0z"/>' +
+      '<path class="esc-cerca" d="M0 200V160h52v-12h34v52zM300 200v-52h42v-14h48v66z"/>' +
+      VENTANAS.map(function (v, i) {
+        return '<rect class="esc-ventana ' + (i % 3 === 1 ? 'an-v2' : 'an-v1') + '" x="' + v[0] + '" y="' + v[1] +
+          '" width="8" height="9" rx="1.5"/>';
+      }).join('') +
+      '<rect class="esc-tronco" x="96" y="176" width="5" height="22"/><circle class="esc-copa" cx="98" cy="170" r="14"/>' +
+      '<rect class="esc-tronco" x="262" y="176" width="5" height="22"/><circle class="esc-copa" cx="264" cy="170" r="14"/>';
   }
 
-  /* Una fila de edificios a lo ancho, con ventanas si se pide. */
-  function edificios(semilla, altoMin, altoMax, anchoMin, anchoMax, clase, ventanas) {
-    const r = azar(semilla);
-    let x = 0;
-    let svg = '';
-    while (x < ANCHO) {
-      const w = Math.min(ANCHO - x, Math.round(anchoMin + r() * (anchoMax - anchoMin)));
-      const h = Math.round(altoMin + r() * (altoMax - altoMin));
-      const y = ALTO - h;
-      svg += '<rect class="' + clase + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '"/>';
-      if (ventanas) {
-        for (let vy = y + 3; vy < ALTO - 4; vy += 5) {
-          for (let vx = x + 3; vx < x + w - 4; vx += 5) {
-            svg += '<rect class="ventanal' + (r() < 0.5 ? ' encendible' : '') +
-              '" x="' + vx + '" y="' + vy + '" width="2" height="2.5"/>';
-          }
-        }
-      }
-      x += w + (ventanas ? 2 : 0);
-    }
-    return svg;
-  }
-
-  function svg() {
+  function escena() {
+    let tramos = '';
     let estrellas = '';
-    const r = azar(3);
-    for (let i = 0; i < 18; i++) {
-      estrellas += '<circle class="estrella" cx="' + Math.round(r() * ANCHO) + '" cy="' + Math.round(2 + r() * 12) + '" r="0.6"/>';
+    for (let i = 0; i < TRAMOS; i++) {
+      tramos += '<g transform="translate(' + (i * TRAMO) + ' 0)">' + tramo() + '</g>';
+      ESTRELLAS.forEach(function (e) {
+        estrellas += '<circle class="esc-estrella an-v1" cx="' + (i * TRAMO + e[0]) + '" cy="' + e[1] + '" r="1.3"/>';
+      });
     }
-    // Las gotas se repiten una altura por encima para que caigan sin cortes.
-    let gotas = '';
-    const g = azar(5);
-    for (let i = 0; i < 50; i++) {
-      const x = Math.round(g() * ANCHO), y = Math.round(g() * ALTO);
-      gotas += '<path class="gota" d="M' + x + ' ' + y + ' l-1.5 4.5"/><path class="gota" d="M' + x + ' ' + (y - ALTO) + ' l-1.5 4.5"/>';
-    }
-    return '<svg class="ambiente" viewBox="0 0 ' + ANCHO + ' ' + ALTO + '" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
-      '<defs><linearGradient id="ambiente-cielo" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" data-cielo="alto"/><stop offset="1" data-cielo="bajo"/></linearGradient></defs>' +
-      '<rect width="' + ANCHO + '" height="' + ALTO + '" fill="url(#ambiente-cielo)"/>' +
-      '<g class="estrellas">' + estrellas + '</g>' +
-      '<circle class="luna" cx="470" cy="9" r="4"/>' +
-      edificios(7, 12, 26, 18, 34, 'edificio-lejos', false) +
-      edificios(11, 8, 20, 16, 28, 'edificio-cerca', true) +
-      '<g class="lluvia">' + gotas + '</g>' +
+    return '<svg class="esc-calle" width="' + ANCHO + '" height="220" viewBox="0 30 ' + ANCHO + ' 220" aria-hidden="true" focusable="false">' +
+      '<defs>' +
+      '<linearGradient id="esc-cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" data-cielo="alto"/><stop offset="1" data-cielo="bajo"/></linearGradient>' +
+      '<mask id="esc-creciente"><circle cx="' + (CENTRO + 250) + '" cy="62" r="24" class="esc-mascara-si"/><circle cx="' + (CENTRO + 261) + '" cy="56" r="21" class="esc-mascara-no"/></mask>' +
+      '<pattern id="esc-gotas" width="40" height="40" patternUnits="userSpaceOnUse">' +
+      '<path class="esc-gota" d="M8 4l-2 6M28 14l-2 6M18 26l-2 6M36 32l-2 6"/></pattern>' +
+      '</defs>' +
+      '<rect x="0" y="0" width="' + ANCHO + '" height="250" fill="url(#esc-cielo)"/>' +
+      '<g class="esc-dia">' +
+      '<circle class="esc-sol an-sol" cx="' + (CENTRO + 250) + '" cy="74" r="46"/>' +
+      '<circle class="esc-sol" cx="' + (CENTRO + 250) + '" cy="74" r="28"/></g>' +
+      '<g class="esc-noche"><g class="esc-estrellas">' + estrellas + '</g>' +
+      '<circle class="esc-luna" cx="' + (CENTRO + 250) + '" cy="62" r="24" mask="url(#esc-creciente)"/></g>' +
+      tramos +
+      '<rect class="esc-acera" x="0" y="198" width="' + ANCHO + '" height="8"/>' +
+      '<rect class="esc-asfalto" x="0" y="206" width="' + ANCHO + '" height="44"/>' +
+      '<path class="esc-raya" d="' + rayas() + '"/>' +
+      '<g class="esc-lluvia"><rect class="an-lluvia" x="0" y="-10" width="' + ANCHO + '" height="260" fill="url(#esc-gotas)"/></g>' +
       '</svg>';
+  }
+
+  /* Rayas discontinuas del centro de la calzada. */
+  function rayas() {
+    let d = '';
+    for (let x = 10; x < ANCHO; x += 70) d += 'M' + x + ' 232h40';
+    return d;
+  }
+
+  /* El taxi que pasa (dibujo aparte: cruza todo el ancho de la cabecera). */
+  function taxi() {
+    return '<svg class="esc-taxi an-taxi" width="130" height="50" viewBox="0 -20 130 50" aria-hidden="true" focusable="false">' +
+      '<defs><radialGradient id="esc-faro"><stop offset="0" class="esc-faro-centro"/><stop offset="1" class="esc-faro-borde"/></radialGradient></defs>' +
+      // Brillo de los faros de noche: degradado que se pierde (no una mancha).
+      '<ellipse class="esc-brillo" cx="104" cy="14" rx="26" ry="9" fill="url(#esc-faro)"/>' +
+      '<rect class="esc-carroceria" x="0" y="0" width="84" height="22" rx="8"/>' +
+      '<path class="esc-carroceria" d="M12 0 l10 -12 h40 l12 12z"/>' +
+      '<path class="esc-cristal" d="M24 -1 l7 -9 h14 v9z"/><path class="esc-cristal" d="M49 -1 v-9 h11 l8 9z"/>' +
+      '<rect class="esc-piloto" x="35" y="-17" width="14" height="5" rx="2"/>' +
+      '<path class="esc-franja" d="M40 0 l12 22 h-9 l-12 -22z"/>' +
+      '<rect class="esc-faro" x="78" y="8" width="6" height="4" rx="1.5"/>' +
+      '<circle class="esc-rueda" cx="18" cy="22" r="6"/><circle class="esc-rueda" cx="64" cy="22" r="6"/>' +
+      '</svg>';
+  }
+
+  /* Dos nubes que cruzan despacio (solo de día). */
+  function nubes() {
+    return '<svg class="esc-nube esc-nube-1 an-nube" width="76" height="27" viewBox="28 24 76 27" aria-hidden="true" focusable="false">' +
+      '<ellipse cx="60" cy="40" rx="30" ry="9"/><ellipse cx="82" cy="34" rx="20" ry="8"/></svg>' +
+      '<svg class="esc-nube esc-nube-2 an-nube2" width="66" height="25" viewBox="122 63 66 25" aria-hidden="true" focusable="false">' +
+      '<ellipse cx="150" cy="78" rx="26" ry="8"/><ellipse cx="170" cy="72" rx="16" ry="7"/></svg>';
   }
 
   // ------------------------------------------------------------- Cielo
@@ -123,20 +162,26 @@
   // ------------------------------------------------------------- Interfaz
 
   function montar(contenedor) {
-    contenedor.innerHTML = svg();
+    contenedor.innerHTML = escena() + nubes() + taxi();
   }
 
-  /* De noche se encienden ventanas y salen estrellas y luna. */
+  /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
   function dibujar(contenedor, estado) {
-    const dibujo = contenedor.querySelector('svg.ambiente');
+    const dibujo = contenedor.querySelector('svg.esc-calle');
     if (!dibujo) return;
     if (!paleta) leerPaleta();
     const minutos = estado.reloj.minutos;
     const hora = Libre.sim.infoReloj(minutos).minutoDelDia / 60;
-    dibujo.querySelector('[data-cielo="alto"]').setAttribute('stop-color', colorCielo(hora, 'alto'));
-    dibujo.querySelector('[data-cielo="bajo"]').setAttribute('stop-color', colorCielo(hora, 'bajo'));
-    dibujo.classList.toggle('noche', hora >= 20.5 || hora < 7);
-    dibujo.classList.toggle('lloviendo', Libre.sim.lloviendo(estado, minutos));
+    const alto = colorCielo(hora, 'alto');
+    const bajo = colorCielo(hora, 'bajo');
+    dibujo.querySelector('[data-cielo="alto"]').setAttribute('stop-color', alto);
+    dibujo.querySelector('[data-cielo="bajo"]').setAttribute('stop-color', bajo);
+    // Más allá del dibujo (pantallas muy anchas), el mismo cielo.
+    contenedor.style.backgroundColor = bajo;
+    const noche = hora >= 20.5 || hora < 7;
+    contenedor.classList.toggle('noche', noche);
+    contenedor.classList.toggle('lloviendo', Libre.sim.lloviendo(estado, minutos));
+    contenedor.dataset.momento = noche ? 'noche' : 'dia';
   }
 
   Libre.ambiente = { montar, dibujar };

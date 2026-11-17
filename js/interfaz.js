@@ -55,10 +55,6 @@
       dos(info.hora) + ':' + dos(info.minuto);
   }
 
-  function chipTarifa(tarifaId) {
-    return '<span class="chip chip-' + tarifaId + '">' + esc(Libre.config.tarifas[tarifaId].nombre) + '</span>';
-  }
-
   /* Botón de acción. Si lleva precio, se desactiva solo cuando no llega el dinero. */
   function boton(texto, accion, args, clase, precio) {
     return '<button type="button" class="' + (clase || '') + '" data-accion="' + accion +
@@ -271,22 +267,6 @@
       };
     }).sort(function (a, b) { return b.facturado - a.facturado; });
   }
-
-  /*
-   * Tira de ambiente encima del taxímetro (js/ambiente.js): un módulo aparte
-   * que se monta una vez en su hueco y se dibuja con el estado. Para cambiarla
-   * por otra vista basta otro módulo con montar() y dibujar().
-   */
-  const seccionAmbiente = {
-    id: 'sec-ambiente',
-    firma: function () { return 'fija'; },
-    html: function () { return '<div class="ambiente-hueco" id="ambiente-hueco"></div>'; },
-    actualizar: function (estado) {
-      const hueco = $('ambiente-hueco');
-      if (!hueco.firstChild) Libre.ambiente.montar(hueco);
-      Libre.ambiente.dibujar(hueco, estado);
-    }
-  };
 
   /*
    * Tus taxis hoy: una fila por taxi, de más a menos facturado en la jornada.
@@ -1314,7 +1294,7 @@
       return htmlFichaInventario(o.id, o.nombre, estado.objetos[o.id], 0, false, false, o.categoria);
     }).join('');
     const total = Libre.sim.objetosEnAlmacen(estado);
-    return '<div class="inventario"><h3 class="flota-titulo">Almacén <small>· objetos ' + total + ' de ' +
+    return '<div class="inventario"><h3 class="flota-titulo">Objetos <small>· ' + total + ' de ' +
       Libre.sim.capacidadAlmacen(estado) + '</small></h3>' + htmlBandeja(estado) +
       '<div class="fichas">' + consumibles + objetos + '</div>' +
       (objetos ? '' : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +
@@ -1382,8 +1362,18 @@
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
 
-  const seccionFlota = {
-    id: 'sec-flota',
+  /* Pestaña Almacén: consumibles, objetos sin equipar y la bandeja. */
+  const seccionAlmacen = {
+    id: 'sec-almacen',
+    firma: firmaFlota,
+    html: function (estado) {
+      return '<h2>Almacén</h2>' + htmlInventario(estado);
+    }
+  };
+
+  /* Pestaña Conductores: reserva, licencias con sus turnos y la ficha. */
+  const seccionConductores = {
+    id: 'sec-conductores',
     firma: firmaFlota,
     html: function (estado) {
       const c = Libre.config;
@@ -1396,7 +1386,7 @@
             '(en el móvil, mantén pulsado su retrato). También desde su ficha.'
           : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
-      return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
+      return '<h2>Conductores</h2><p class="ayuda">' + ayuda + '</p>' + htmlReserva(estado) +
         '<h3 class="flota-titulo">Licencias <small>· ' + estado.licencias.length + '</small></h3>' +
         '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') + '</div>' +
         htmlComprarLicencia(estado) +
@@ -1404,7 +1394,7 @@
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
-      document.querySelectorAll('#sec-flota [data-xp]').forEach(function (barra) {
+      document.querySelectorAll('#sec-conductores [data-xp]').forEach(function (barra) {
         const x = conductorDe(estado, barra.dataset.xp);
         if (!x) return;
         const p = nivelDe(x.t);
@@ -1534,11 +1524,18 @@
     }
   };
 
+  let ajustesAbiertos = false;
+  let enfocarAjustes = false;
+
   const seccionPartida = {
     id: 'sec-partida',
-    firma: function (estado) { return 'ajustes:' + estado.ajustes.pararAlCierre; },
+    firma: function (estado) { return 'ajustes:' + ajustesAbiertos + ':' + estado.ajustes.pararAlCierre; },
     html: function (estado) {
-      return '<h2>Partida</h2>' +
+      if (!ajustesAbiertos) return '';
+      return '<div class="hoja-fondo" data-cerrar-ajustes></div>' +
+        '<div class="hoja" role="dialog" aria-modal="true" aria-labelledby="ajustes-titulo">' +
+        '<button type="button" class="hoja-cerrar" data-cerrar-ajustes aria-label="Cerrar los ajustes">×</button>' +
+        '<h2 id="ajustes-titulo">Ajustes y partida</h2>' +
         '<label class="ajuste"><input type="checkbox" data-cambio="cambiarAjuste" data-args="pararAlCierre"' +
         (estado.ajustes.pararAlCierre ? ' checked' : '') + '> Parar al cierre del día</label>' +
         '<p class="ayuda">Se guarda sola en este navegador. Para pasarla a otro dispositivo, exporta el texto y pégalo allí en Importar.</p>' +
@@ -1547,11 +1544,19 @@
         '<button type="button" data-partida="exportar">Exportar</button>' +
         '<button type="button" data-partida="importar">Importar</button>' +
         '<button type="button" data-partida="borrar" class="boton-peligro">Borrar partida</button>' +
-        '</div>';
+        '</div></div>';
+    },
+    actualizar: function () {
+      if (enfocarAjustes) {
+        enfocarAjustes = false;
+        const cerrar = document.querySelector('#sec-partida .hoja-cerrar');
+        if (cerrar) cerrar.focus({ preventScroll: true });
+      }
     }
   };
 
-  const secciones = [seccionAmbiente, seccionTaximetro, seccionTicket, seccionCaja, seccionObjetivo, seccionTaxis, seccionZonas, seccionFlota, seccionMejoras, seccionPartida];
+  const secciones = [seccionTaximetro, seccionTicket, seccionCaja, seccionObjetivo, seccionTaxis, seccionZonas,
+    seccionConductores, seccionAlmacen, seccionMejoras, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -1716,18 +1721,24 @@
   // ---------------------------------------------------------- Menú inferior
   /*
    * Pestañas: cada sección pertenece a una vista y solo se ve la activa.
+   * Ajustes y partida no es una pestaña: es una hoja que abre el engranaje
+   * de la cabecera, encima de cualquier vista ('siempre').
    * La pestaña elegida se recuerda en este navegador (comodidad, no partida).
+   * body[data-vista] dice a la cabecera si va alta (Calle) o compacta.
    */
   const VISTA_DE = {
-    'sec-ambiente': 'calle', 'sec-taximetro': 'calle', 'sec-ticket': 'calle',
+    'sec-taximetro': 'calle', 'sec-ticket': 'calle',
     'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
-    'sec-flota': 'flota', 'sec-mejoras': 'mejoras', 'sec-partida': 'partida'
+    'sec-conductores': 'conductores', 'sec-almacen': 'almacen', 'sec-mejoras': 'mejoras', 'sec-partida': 'siempre'
   };
+  // Pestañas de antes del rework: Flota se partió y Partida es ahora una hoja.
+  const VISTA_ANTIGUA = { flota: 'conductores', partida: 'calle' };
   const CLAVE_VISTA = 'libre-vista';
   let vistaActual = 'calle';
   try {
-    const guardada = raiz.localStorage.getItem(CLAVE_VISTA);
-    if (guardada && Object.values(VISTA_DE).indexOf(guardada) !== -1) vistaActual = guardada;
+    let guardada = raiz.localStorage.getItem(CLAVE_VISTA);
+    if (VISTA_ANTIGUA[guardada]) guardada = VISTA_ANTIGUA[guardada];
+    if (guardada && guardada !== 'siempre' && Object.values(VISTA_DE).indexOf(guardada) !== -1) vistaActual = guardada;
   } catch (e) { /* sin almacenamiento: se empieza en Calle */ }
 
   function cambiarVista(vista) {
@@ -1739,8 +1750,9 @@
 
   function aplicarVista() {
     secciones.forEach(function (s) {
-      $(s.id).classList.toggle('fuera-de-vista', VISTA_DE[s.id] !== vistaActual);
+      $(s.id).classList.toggle('fuera-de-vista', VISTA_DE[s.id] !== vistaActual && VISTA_DE[s.id] !== 'siempre');
     });
+    document.body.dataset.vista = vistaActual;
     document.querySelectorAll('[data-vista]').forEach(function (b) {
       if (b.dataset.vista === vistaActual) b.setAttribute('aria-current', 'page');
       else b.removeAttribute('aria-current');
@@ -1749,12 +1761,16 @@
 
   /* Marcas en las pestañas: algo que puedes comprar, o un ticket esperando. */
   function actualizarAvisos(estado) {
-    const hay = { calle: !!estado.cierrePendiente, flota: false, mejoras: hayMejoraComprable(estado) };
-    document.querySelectorAll('[data-precio]').forEach(function (b) {
-      if (b.disabled || b.closest('.inventario, .hoja')) return;
-      if (VISTA_DE[b.closest('section').id] === 'flota') hay.flota = true;
+    const hay = {
+      calle: !!estado.cierrePendiente,
+      conductores: false,
+      // Almacén: consumibles por reponer o objetos esperando en la bandeja.
+      almacen: inventarioBajo(estado) || (estado.bandeja || []).length > 0,
+      mejoras: hayMejoraComprable(estado)
+    };
+    document.querySelectorAll('#sec-conductores [data-precio]').forEach(function (b) {
+      if (!b.disabled && !b.closest('.hoja')) hay.conductores = true;
     });
-    if (inventarioBajo(estado) || (estado.bandeja || []).length > 0) hay.flota = true;
     Object.keys(hay).forEach(function (vista) {
       const marca = document.querySelector('[data-aviso="' + vista + '"]');
       if (marca) marca.classList.toggle('visible', hay[vista] && vista !== vistaActual);
@@ -1791,6 +1807,7 @@
     eligiendoConductor = null;
     fichaConductor = null;
     fichaInventario = null;
+    ajustesAbiertos = false;
     eligiendoPlaca = false;
     panelTu = null;
     flotantes.porLicencia = null;
@@ -1927,7 +1944,19 @@
     });
     aplicarVista();
 
+    function abrirAjustes(abrir) {
+      ajustesAbiertos = abrir;
+      enfocarAjustes = abrir;
+      opciones.redibujar();
+      if (!abrir) $('abrir-ajustes').focus({ preventScroll: true });
+    }
+    $('abrir-ajustes').addEventListener('click', function () { abrirAjustes(true); });
+
     main.addEventListener('click', function (ev) {
+      if (ev.target.closest('[data-cerrar-ajustes]')) {
+        abrirAjustes(false);
+        return;
+      }
       if (ev.target.closest('[data-cerrar-ticket]')) {
         ticketAviso = null;
         opciones.redibujar();
@@ -1946,8 +1975,8 @@
       }
       const filaTaxi = ev.target.closest('[data-ir-licencia]');
       if (filaTaxi) {
-        // A ese taxi en la pestaña Flota.
-        cambiarVista('flota');
+        // A ese taxi en la pestaña Conductores.
+        cambiarVista('conductores');
         opciones.redibujar();
         const destino = document.querySelector('.licencia[data-licencia="' + filaTaxi.dataset.irLicencia + '"]');
         if (destino) {
@@ -2057,6 +2086,10 @@
     iniciarArrastre(opciones);
 
     document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && ajustesAbiertos) {
+        abrirAjustes(false);
+        return;
+      }
       if (ev.key === 'Escape' && fichaConductor) {
         const clave = fichaConductor;
         fichaConductor = null;
@@ -2077,14 +2110,29 @@
 
   let estadoActual = null;   // el último dibujado (para confirmar acciones)
 
+  /*
+   * Calle de fondo de la cabecera (js/ambiente.js): se monta una vez y se
+   * pone al día con el estado. La escena dice si es de noche, y la cabecera
+   * cambia con ella sus colores (logo, engranaje y placa).
+   */
+  function dibujarEscena(estado) {
+    const escena = $('cabecera-escena');
+    if (!escena.firstChild) Libre.ambiente.montar(escena);
+    Libre.ambiente.dibujar(escena, estado);
+    $('cabecera').classList.toggle('noche', escena.dataset.momento === 'noche');
+  }
+
   function dibujar(estado) {
     estadoActual = estado;
     const info = Libre.sim.infoReloj(estado.reloj.minutos);
     fijarDinero(estado.dinero);
-    // Día y barra siguen la jornada (de 7:00 a 7:00): cambian cuando sale el ticket.
+    // El día sigue la jornada (de 7:00 a 7:00): cambia cuando sale el ticket.
     const jornada = jornadaDe(estado.reloj.minutos);
-    $('reloj').innerHTML = 'Día ' + (jornada.dia + 1) + ' · ' + textoHora(info) + ' ' + chipTarifa(info.tarifa);
-    $('barra-dia').style.width = (jornada.avance * 100).toFixed(2) + '%';
+    // «Día 3 · Mié 07:00 · Tarifa 1»: el día de la semana abreviado, como en la maqueta.
+    const reloj = 'Día ' + (jornada.dia + 1) + ' · ' + textoHora(info).replace(/^(\S{3})\S*/, '$1') + ' · ' +
+      Libre.config.tarifas[info.tarifa].nombre;
+    if ($('reloj').textContent !== reloj) $('reloj').textContent = reloj;
+    dibujarEscena(estado);
 
     secciones.forEach(function (s) {
       const el = $(s.id);
