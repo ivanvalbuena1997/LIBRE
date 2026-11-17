@@ -1027,8 +1027,7 @@ button.zona-tarjeta { cursor: pointer; }
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  min-width: 52px;
-  max-width: 76px;
+  width: 64px;
   min-height: 44px;
   padding: 2px;
   border: 0;
@@ -1102,30 +1101,54 @@ button.zona-tarjeta { cursor: pointer; }
 .reserva-contratar { width: 100%; min-height: 44px; margin-top: 6px; }
 .boton-secundario { background: var(--fondo); }
 
-/* Licencia en una línea: placa y los dos turnos */
+/* Licencias de dos en dos: placa arriba y los dos turnos debajo */
+.licencias {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
 .licencia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 4px 4px 2px;
   border: 1px solid var(--borde);
   border-radius: 12px;
-  padding: 4px 8px;
-  margin-bottom: 6px;
 }
-.licencia-fila { display: flex; align-items: center; gap: 6px; }
-.licencia-placa { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; flex: 1; min-width: 0; }
-.licencia-sin-coche { flex: 2; }
+/* Con candidatos o tu panel abiertos, la licencia ocupa la fila entera. */
+.licencia.abierta { grid-column: 1 / -1; }
+.licencia.abierta .candidatos, .licencia.abierta .panel-tu, .licencia.abierta > .acciones { width: 100%; }
+.licencia-placa { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+.licencia-turnos { display: flex; justify-content: center; gap: 2px; }
+.licencia-sin-coche { width: 100%; padding: 4px 0; }
 .licencia-sin-coche .boton-compra { width: 100%; }
 /* Número de licencia en una placa blanca con borde, como una matrícula */
 .placa {
   display: inline-block;
-  padding: 0 6px 0 14px;
+  padding: 0 5px 0 12px;
   border: 2px solid var(--texto);
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--placa-franja) 0 9px, var(--blanco) 9px);
-  font: 800 0.82rem ui-monospace, "Cascadia Mono", Consolas, monospace;
+  background: linear-gradient(90deg, var(--placa-franja) 0 8px, var(--blanco) 8px);
+  font: 800 0.76rem ui-monospace, "Cascadia Mono", Consolas, monospace;
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
-.hueco-turno { display: flex; align-items: center; gap: 2px; }
-.hueco-turno > .icono { width: 16px; height: 16px; flex: none; }
+.hueco-turno { position: relative; display: flex; align-items: flex-start; }
+/* El sol o la luna, pequeño, arriba a la izquierda del retrato. */
+.hueco-turno > .icono {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  padding: 1px;
+  border-radius: 50%;
+  background: var(--tarjeta);
+}
 .turno-dia > .icono { color: var(--ambar); }
 .turno-noche > .icono { color: var(--tarifa-2); }
 .solo-lector {

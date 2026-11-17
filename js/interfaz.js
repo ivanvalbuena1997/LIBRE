@@ -1350,14 +1350,14 @@
     const tuAbierto = ['dia', 'noche'].find(function (t) {
       return panelTu === lic.id + '|' + t && lic.turnos[t] && lic.turnos[t].quien === 'jugador';
     });
-    return '<div class="licencia" data-licencia="' + lic.id + '"><div class="licencia-fila">' +
-      '<span class="licencia-placa"><span class="placa" title="' + esc(textoLibranza(lic.numero)) + '">' +
+    const abierta = eligiendo || tuAbierto;
+    return '<div class="licencia' + (abierta ? ' abierta' : '') + '" data-licencia="' + lic.id + '">' +
+      '<div class="licencia-placa"><span class="placa" title="' + esc(textoLibranza(lic.numero)) + '">' +
       esc(Libre.sim.textoLicencia(lic)) + '</span>' +
-      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') + '</span>' +
+      (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Hoy libra</span>' : '') + '</div>' +
       (lic.vehiculo
-        ? htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche')
-        : '<span class="licencia-sin-coche">' + botonCompra('Comprar coche', modeloCompra.precio, 'comprarVehiculo', [lic.id]) + '</span>') +
-      '</div>' +
+        ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
+        : '<div class="licencia-sin-coche">' + botonCompra('Coche', modeloCompra.precio, 'comprarVehiculo', [lic.id]) + '</div>') +
       (eligiendo
         ? (Libre.sim.conduce(estado) ? '' : '<div class="acciones">' + boton('Conducir yo este turno', 'conducir', [lic.id, eligiendo]) + '</div>') +
           htmlCandidatos(estado, lic, eligiendo)
@@ -1381,7 +1381,7 @@
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
       return '<h2>Flota</h2><p class="ayuda">' + ayuda + '</p>' + htmlInventario(estado) + htmlReserva(estado) +
         '<h3 class="flota-titulo">Licencias <small>· ' + estado.licencias.length + '</small></h3>' +
-        estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
+        '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') + '</div>' +
         htmlComprarLicencia(estado) +
         htmlFichaConductor(estado);
     },
