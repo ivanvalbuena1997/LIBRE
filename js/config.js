@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 20,
+    versionGuardado: 21,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -694,29 +694,22 @@
         ]
       },
       {
-        id: 'jornada1', nombre: 'Jornada larga I', rama: 'jornada', requiere: 'esterillas', precio: 400,
-        descripcion: 'El día dura 10 segundos más: más carreras con los mismos costes fijos diarios.',
-        efecto: { segundosDia: 10 }
+        // Equilibrio: los cuatro niveles de antes (mismos precios y segundos)
+        // y un quinto. Cada nivel da el total de segundos de más.
+        id: 'jornadaLarga', nombre: 'Jornada larga', rama: 'jornada', requiere: 'esterillas',
+        descripcion: 'El día dura más: más carreras con los mismos costes fijos diarios.',
+        niveles: [
+          { precio: 400, descripcion: 'El día dura 10 segundos más.', efecto: { segundosDia: 10 } },
+          { precio: 700, descripcion: '20 segundos más en total.', efecto: { segundosDia: 20 } },
+          { precio: 1000, descripcion: '30 segundos más en total.', efecto: { segundosDia: 30 } },
+          { precio: 1400, descripcion: '45 segundos más en total.', efecto: { segundosDia: 45 } },
+          { precio: 1900, descripcion: '60 segundos más en total.', efecto: { segundosDia: 60 } }
+        ]
       },
       {
-        id: 'jornada2', nombre: 'Jornada larga II', rama: 'jornada', requiere: 'jornada1', precio: 700,
-        descripcion: 'El día dura otros 10 segundos más.',
-        efecto: { segundosDia: 10 }
-      },
-      {
-        id: 'jornada3', nombre: 'Jornada larga III', rama: 'jornada', requiere: 'jornada2', precio: 1000,
-        descripcion: 'El día dura otros 10 segundos más.',
-        efecto: { segundosDia: 10 }
-      },
-      {
-        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornada3', precio: 6000,
+        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornadaLarga', precio: 6000,
         descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota. Tu turno queda libre para un conductor.',
         efecto: { dejarVolante: true }
-      },
-      {
-        id: 'jornada4', nombre: 'Jornada larga IV', rama: 'jornada', requiere: 'oficina', precio: 1400,
-        descripcion: 'El día dura 15 segundos más.',
-        efecto: { segundosDia: 15 }
       }
     ]
   };

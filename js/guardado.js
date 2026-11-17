@@ -199,6 +199,14 @@
       [estado.caja.hoy, estado.caja.ayer, estado.cierrePendiente].forEach(function (caja) {
         if (caja && !caja.licencias) caja.licencias = [];
       });
+    },
+    // Versión 21: las cuatro «Jornada larga» pasan a ser una mejora con
+    // niveles: tantos niveles como tenías comprados.
+    20: function (estado) {
+      const m = estado.mejoras;
+      const nivel = ['jornada1', 'jornada2', 'jornada3', 'jornada4'].filter(function (id) { return m[id]; }).length;
+      ['jornada1', 'jornada2', 'jornada3', 'jornada4'].forEach(function (id) { delete m[id]; });
+      if (nivel) m.jornadaLarga = nivel;
     }
   };
 

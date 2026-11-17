@@ -180,12 +180,27 @@ prueba('el aeropuerto está cerrado hasta comprar su mejora y cobra tarifa fija'
   cerca(e.jugador.carrera.importe, config.tarifas.t4.fija);
 });
 
-prueba('las mejoras de jornada alargan el día y requieren la anterior', function () {
+prueba('Jornada larga: una mejora de 5 niveles; su nivel 1 abre la Oficina de gestión', function () {
   const e = sim.crearEstadoInicial(0);
   e.dinero = 100000;
-  assert.ok(!sim.comprarMejora(e, 'jornada2').ok, 'sin la Jornada I no se puede');
-  assert.ok(comprarConRequisitos(e, 'jornada1').ok);
+  assert.ok(!sim.comprarMejora(e, 'oficina').ok, 'sin Jornada larga no hay oficina');
+  assert.ok(comprarConRequisitos(e, 'jornadaLarga').ok);
   assert.strictEqual(sim.segundosPorDia(e), config.reloj.segundosPorDia + 10);
+  assert.ok(sim.comprarMejora(e, 'oficina').ok, 'con el nivel 1 ya se puede');
+  for (let n = 2; n <= 5; n++) assert.ok(sim.comprarMejora(e, 'jornadaLarga').ok, 'nivel ' + n);
+  assert.strictEqual(sim.segundosPorDia(e), config.reloj.segundosPorDia + 60);
+  assert.ok(!sim.comprarMejora(e, 'jornadaLarga').ok, 'no hay nivel 6');
+});
+
+prueba('las partidas de la versión 20 juntan las cuatro jornadas largas en niveles', function () {
+  require('../js/guardado.js');
+  const viejo = flotaDe(1);
+  viejo.version = 20;
+  viejo.mejoras = { esterillas: 1, jornada1: 1, jornada2: 1, jornada3: 1, oficina: 1 };
+  const m = globalThis.Libre.guardado.migrar(viejo).mejoras;
+  assert.strictEqual(m.jornadaLarga, 3);
+  assert.strictEqual(m.jornada1, undefined);
+  assert.strictEqual(m.oficina, 1);
 });
 
 prueba('un día más largo da más carreras con el mismo coste fijo', function () {
@@ -193,7 +208,7 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
     const e = sim.crearEstadoInicial(0);
     e.dinero = 100000;
     sim.contratarConductor(e, 1, 'noche');
-    if (conMejora) comprarConRequisitos(e, 'jornada1');
+    if (conMejora) comprarConRequisitos(e, 'jornadaLarga');
     return sim.avanzar(e, sim.segundosPorDia(e), { agregado: true });   // cuenta media, sin azar
   }
   const normal = unDia(false), largo = unDia(true);
@@ -293,7 +308,7 @@ prueba('en pausa no se busca cliente pero se puede comprar', function () {
   assert.ok(sim.enPausa(e));
   assert.ok(!sim.buscarCliente(e).ok);
   assert.ok(sim.comprarLicencia(e).ok);
-  assert.ok(comprarConRequisitos(e, 'jornada1').ok);
+  assert.ok(comprarConRequisitos(e, 'jornadaLarga').ok);
 });
 
 prueba('sin el ajuste de pausa el día siguiente empieza solo', function () {
