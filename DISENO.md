@@ -208,7 +208,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 **Contratar.** Hay siempre tres candidatos (personajes y cualidades distintos), con su retrato, categoría, rasgos y precio. Cambian cada día, al cerrar la caja (Iván, 17-11-2026), y también al contratar a uno: entonces salen otros tres. Si no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí mismo. Se puede contratar para un turno libre o para la reserva.
 
-**Categorías.** Salen al azar, con los mismos pesos que los objetos:
+**Categorías.** Salen al azar, con los mismos pesos que los objetos (la mejora Departamento de RRHH los cambia para los candidatos):
 
 | Categoría | Probabilidad | Precio | Cualidades | Defectos | Fuerza de la cualidad | Fuerza del defecto | Encuentra objetos | Espera de serie | Abre los topes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -375,6 +375,7 @@ Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
 | Curso gestión de zonas | 2.000 € | Los conductores van cada hora a la zona que más deja |
+| Departamento de RRHH (5 niveles, pide el Curso) | 1.500 / 3.500 / 6.000 / 10.000 / 15.000 € | Candidatos de mejor categoría: los B bajan del 65 % al 55, 45, 35, 25 y 15 %; los LEGENDARIOS suben del 0,5 % al 1, 2, 3, 5 y 8 %. Al comprar un nivel salen candidatos nuevos |
 | Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |
 | Sacudir esterillas (5 niveles) | 450 / 720 / 990 / 1.350 / 1.800 € | Cada conductor encuentra de 0,50–2 € a 3–8 € al acabar su turno |
 | Jornada larga (5 niveles) | 400 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |

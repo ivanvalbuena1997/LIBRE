@@ -247,7 +247,8 @@
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
-      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1
+      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1,
+      pesosCandidatos: null
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -272,6 +273,7 @@
       if (e.almacen) m.almacen += e.almacen;
       if (e.baja) m.baja *= e.baja;
       if (e.porcentajeConductor) m.porcentajeConductor *= e.porcentajeConductor;
+      if (e.pesosCandidatos) m.pesosCandidatos = e.pesosCandidatos;
     });
     return m;
   }
@@ -317,6 +319,9 @@
     if (estado.dinero < siguiente.precio) return fallo('No te llega el dinero.');
     estado.dinero -= siguiente.precio;
     estado.mejoras[id] = siguiente.nivel;
+    // Con mejores probabilidades de candidatos, salen otros nuevos al momento.
+    const e = mejora.niveles ? mejora.niveles[siguiente.nivel - 1].efecto : mejora.efecto;
+    if (e.pesosCandidatos) sortearCandidatos(estado);
     return exito(mejora.nombre + (mejora.niveles ? ' nivel ' + siguiente.nivel : '') + ': hecho.');
   }
 
@@ -890,7 +895,7 @@
     for (let i = 0; i < c.candidatos; i++) {
       const retrato = sortearPersonaje(estado, apartados);
       apartados[retrato] = true;
-      const categoria = sortearCategoria(estado);
+      const categoria = sortearCategoria(estado, pesosCandidatos(estado));
       const r = sortearRasgos(estado, cualidades, categoria);
       cualidades[r.cualidad] = true;
       estado.candidatos.push({
@@ -1023,12 +1028,27 @@
     return cfg().categorias.find(function (c) { return c.id === id; }) || null;
   }
 
-  /* Categoría al azar con los pesos de la config. */
-  function sortearCategoria(estado) {
+  /*
+   * Categoría al azar con los pesos de la config, o con `pesos` ({ id: peso },
+   * los de los candidatos con la mejora de RRHH).
+   */
+  function sortearCategoria(estado, pesos) {
     const lista = cfg().categorias;
     let r = azar(estado);
-    for (const c of lista) { if (r < c.peso) return c.id; r -= c.peso; }
+    for (const c of lista) {
+      const p = pesos && pesos[c.id] !== undefined ? pesos[c.id] : c.peso;
+      if (r < p) return c.id;
+      r -= p;
+    }
     return lista[0].id;
+  }
+
+  /* Probabilidad de cada categoría en los candidatos: { id: peso }. */
+  function pesosCandidatos(estado) {
+    const m = modificadores(estado).pesosCandidatos;
+    const pesos = {};
+    cfg().categorias.forEach(function (c) { pesos[c.id] = m && m[c.id] !== undefined ? m[c.id] : c.peso; });
+    return pesos;
   }
 
   /* Cuántos objetos sin equipar caben en el almacén (con la mejora «Taquillas»). */
@@ -2376,6 +2396,7 @@
     huecosConductor,
     buscarCategoria,
     sortearCategoria,
+    pesosCandidatos,
     objetosEnAlmacen,
     capacidadAlmacen,
     venderObjeto,

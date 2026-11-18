@@ -572,6 +572,7 @@
      *             baja: multiplica la probabilidad de baja de los conductores
      *                   (junto con su rasgo y sus objetos, bajo el mismo tope)
      *             almacen: objetos de más que caben en el almacén
+     *             pesosCandidatos: probabilidad de cada categoría en los candidatos
      *             porcentajeConductor: multiplica la parte de cada carrera que se queda el conductor
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
      *             (el efecto del nivel es el total, no se suma al anterior).
@@ -718,6 +719,26 @@
         id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', precio: 2000,
         descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
         efecto: { gestionZonas: true }
+      },
+      {
+        // Iván (18-11-2026): mejores candidatos en el late-game. Cada nivel da
+        // los pesos de las categorías de los candidatos (suman 1; sin la
+        // mejora, los `peso` de config.categorias). No cambia los objetos.
+        // Precios y pesos: Equilibrio.
+        id: 'rrhh', nombre: 'Departamento de RRHH', rama: 'jornada', requiere: 'gestionZonas',
+        descripcion: 'Alguien que hace entrevistas de verdad: los candidatos salen de mejor categoría.',
+        niveles: [
+          { precio: 1500, descripcion: 'B 55 % · A 30 % · S 11 % · S+ 3 % · LEGENDARIO 1 %.',
+            efecto: { pesosCandidatos: { B: 0.55, A: 0.30, S: 0.11, 'S+': 0.03, L: 0.01 } } },
+          { precio: 3500, descripcion: 'B 45 % · A 33 % · S 15 % · S+ 5 % · LEGENDARIO 2 %.',
+            efecto: { pesosCandidatos: { B: 0.45, A: 0.33, S: 0.15, 'S+': 0.05, L: 0.02 } } },
+          { precio: 6000, descripcion: 'B 35 % · A 35 % · S 19 % · S+ 8 % · LEGENDARIO 3 %.',
+            efecto: { pesosCandidatos: { B: 0.35, A: 0.35, S: 0.19, 'S+': 0.08, L: 0.03 } } },
+          { precio: 10000, descripcion: 'B 25 % · A 35 % · S 23 % · S+ 12 % · LEGENDARIO 5 %.',
+            efecto: { pesosCandidatos: { B: 0.25, A: 0.35, S: 0.23, 'S+': 0.12, L: 0.05 } } },
+          { precio: 15000, descripcion: 'B 15 % · A 33 % · S 27 % · S+ 17 % · LEGENDARIO 8 %.',
+            efecto: { pesosCandidatos: { B: 0.15, A: 0.33, S: 0.27, 'S+': 0.17, L: 0.08 } } }
+        ]
       },
       {
         // Equilibrio: cada nivel cuesta más o menos lo que valen vendidos los

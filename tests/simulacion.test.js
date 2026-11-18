@@ -1408,4 +1408,29 @@ prueba('«Siguiente» propone crecer: flota primero, luego licencia y solo mejor
   assert.strictEqual(sim.objetivoCompra(e, 'licencia-2').tipo, 'coche', 'la fija ya no vale si falta un coche');
 });
 
+prueba('RRHH: cada nivel suma 1 y sube la categoría de los candidatos (no la de los objetos)', function () {
+  const rrhh = config.mejoras.find(function (m) { return m.id === 'rrhh'; });
+  rrhh.niveles.forEach(function (n) {
+    const suma = Object.keys(n.efecto.pesosCandidatos).reduce(function (a, k) { return a + n.efecto.pesosCandidatos[k]; }, 0);
+    cerca(suma, 1);
+  });
+  const media = function (e) {
+    const orden = config.categorias.map(function (c) { return c.id; });
+    let total = 0;
+    for (let i = 0; i < 400; i++) {
+      sim.sortearCandidatos(e).forEach(function (x) { total += orden.indexOf(x.categoria); });
+    }
+    return total / 1200;
+  };
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 12345;
+  const antes = media(e);
+  e.dinero = 1e6;
+  assert.ok(comprarConRequisitos(e, 'rrhh').ok);
+  for (let n = 2; n <= rrhh.niveles.length; n++) assert.ok(sim.comprarMejora(e, 'rrhh').ok);
+  const despues = media(e);
+  assert.ok(despues > antes + 1, 'candidatos mejores: ' + antes.toFixed(2) + ' → ' + despues.toFixed(2));
+  cerca(sim.pesosCandidatos(e).B, rrhh.niveles[rrhh.niveles.length - 1].efecto.pesosCandidatos.B);
+});
+
 console.log(pasadas + ' pruebas correctas');

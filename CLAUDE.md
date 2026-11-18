@@ -121,7 +121,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   por nivel; con 1 llega a `topesAbiertos.extremo`). Pasa siempre el turno
   `t`: sin él, salen los topes de un B de nivel 1. Tu turno no tiene rasgos.
 - Categoría del conductor (`turno.categoria`, de `config.categorias`):
-  sale al azar en cada candidato con los mismos pesos que los objetos y
+  sale al azar en cada candidato con los mismos pesos que los objetos
+  (salvo con la mejora «Departamento de RRHH»: `pesosCandidatos()`) y
   fija su precio (`precioCandidato()`), cuántas cualidades tiene (los
   LEGENDARIOS, dos), cuántos defectos (B, dos; A, uno; S, uno la mitad de
   las veces; S+ y LEGENDARIO, ninguno), la fuerza de sus rasgos, cuánto
