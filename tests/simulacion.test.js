@@ -388,8 +388,10 @@ prueba('cada licencia tiene número único y su letra sale de la última cifra',
   assert.strictEqual(new Set(numeros).size, numeros.length);
   numeros.forEach(function (n) { assert.ok(n >= 1 && n <= config.licencias.maximo); });
   assert.strictEqual(sim.textoLicencia({ numero: 15288 }), '15288-L');
-  assert.strictEqual(sim.textoLicencia({ numero: 4720 }), '4720-M');
-  assert.strictEqual(sim.textoLicencia({ numero: 31 }), '31-X');
+  // Siempre 5 cifras, con ceros delante (Iván).
+  assert.strictEqual(sim.textoLicencia({ numero: 4720 }), '04720-M');
+  assert.strictEqual(sim.textoLicencia({ numero: 31 }), '00031-X');
+  assert.strictEqual(sim.textoLicencia({ numero: 7 }), '00007-L');
 });
 
 prueba('la caja cuenta los kilómetros y el ticket los suma', function () {

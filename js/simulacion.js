@@ -181,10 +181,11 @@
     return lista;
   }
 
-  /* Texto de la licencia: número y letra de libranza, p. ej. "15288-L". */
+  /* Texto de la licencia: número de 5 cifras y letra de libranza, p. ej. "15288-L" o "00607-L". */
   function textoLicencia(licencia) {
     const letra = cfg().licencias.letraPorCifra[licencia.numero % 10];
-    return licencia.numero + '-' + letra;
+    // Siempre con las mismas cifras, rellenando con ceros: 607 → «00607-L».
+    return String(licencia.numero).padStart(cfg().licencias.digitosPlaca, '0') + '-' + letra;
   }
 
   // ------------------------------------------------------------------- Reloj

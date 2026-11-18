@@ -317,7 +317,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   junta las de varios días.
 - Licencias: `numero` al azar entre 1 y el máximo de Madrid, sin repetir. La
   letra (día de libranza) sale de la última cifra (`config.licencias.letraPorCifra`)
-  y se muestra como `15288-L` con `textoLicencia()`. Al comprar eliges entre
+  y se muestra como `15288-L` con `textoLicencia()`, siempre con
+  `config.licencias.digitosPlaca` (5) cifras rellenando con ceros (`00607-L`, Iván). Al comprar eliges entre
   las placas de `placasEnVenta()` (letras distintas; se guardan hasta que
   compras).
 - Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia

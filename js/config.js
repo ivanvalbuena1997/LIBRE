@@ -504,6 +504,7 @@
       precioBase: 2500,            // Iván (valor de juego, 18-11-2026): precio de la segunda licencia.
       factorSubida: 1.15,          // Equilibrio: cada licencia cuesta un 15 % más que la anterior.
       maximo: 15812,               // Dato real: licencias en el área de Madrid.
+      digitosPlaca: 5,             // Dato de Iván: la placa siempre con 5 cifras (00607-L).
       // Dato real (Iván): la letra de la licencia indica el día de libranza y
       // sale de la última cifra del número. Ej.: 15288-L libra los lunes.
       // La X del miércoles está por confirmar.
