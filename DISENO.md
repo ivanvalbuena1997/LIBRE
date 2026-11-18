@@ -434,7 +434,7 @@ El juego completo tiene cinco etapas; cada una añade un tipo de vehículo y una
 
 ### Alcance de la versión actual
 
-Incluye todo lo descrito en las secciones 4 y 5. Queda fuera: VTC y otros vehículos, gerentes, otras ciudades, prestigio, la tarifa 7 y los suplementos de Nochebuena y Nochevieja.
+Incluye todo lo descrito en las secciones 4 y 5. Queda fuera: VTC y otros vehículos, gerentes, otras ciudades, prestigio, la tarifa 7 y los suplementos de Nochebuena y Nochevieja. Las ideas apuntadas para más adelante están en [docs/ideas-futuras.md](docs/ideas-futuras.md).
 
 ---
 
