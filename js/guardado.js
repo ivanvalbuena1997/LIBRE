@@ -251,6 +251,11 @@
       estado.ultimoIdConductor = id;
       estado.caja.hoy.porConductor = {};
       estado.caja.hoy.tuyo = 0;
+    },
+    // 23 → 24: la lluvia es chubasco o tormenta (Iván, 18-11-2026). La que
+    // ya estaba sorteada se queda como chubasco.
+    23: function (estado) {
+      if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     }
   };
 

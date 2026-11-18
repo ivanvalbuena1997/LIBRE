@@ -2278,8 +2278,13 @@
     const forzada = consumirForzado(estado, 'lluvia');
     const inicioJornada = jornada * MIN_DIA + cfg().reloj.minutoCierreCaja;
     const desde = forzada ? estado.reloj.minutos : entre(estado, Math.max(estado.reloj.minutos, inicioJornada), inicioJornada + MIN_DIA);
-    const horas = forzada && forzada.arg ? Number(forzada.arg) : entre(estado, ev.horasMin, ev.horasMax);
-    estado.lluvia = { jornada, desde, hasta: desde + horas * 60, avisada: false };
+    // Chubasco o tormenta, por pesos; cada uno con su duración.
+    const ids = Object.keys(ev.tipos);
+    const total = ids.reduce(function (s, id) { return s + ev.tipos[id].peso; }, 0);
+    let r = azar(estado) * total, tipo = ids[ids.length - 1];
+    for (const id of ids) { if (r < ev.tipos[id].peso) { tipo = id; break; } r -= ev.tipos[id].peso; }
+    const horas = forzada && forzada.arg ? Number(forzada.arg) : entre(estado, ev.tipos[tipo].horasMin, ev.tipos[tipo].horasMax);
+    estado.lluvia = { jornada, desde, hasta: desde + horas * 60, avisada: false, tipo };
   }
 
   function avisarLluvia(estado, resumen) {
@@ -2287,8 +2292,9 @@
     if (!l || l.avisada || estado.reloj.minutos < l.desde) return;
     l.avisada = true;
     const fin = infoReloj(l.hasta);
-    incidencia(estado, resumen, 'lluvia', 'Empieza a llover: hasta las ' + String(fin.hora).padStart(2, '0') + ':' +
-      String(fin.minuto).padStart(2, '0') + ' hay el doble de clientes.', 0, null);
+    const tormenta = l.tipo === 'tormenta';
+    incidencia(estado, resumen, 'lluvia', (tormenta ? '¡Tormenta! Hasta las ' : 'Chubasco: hasta las ') +
+      String(fin.hora).padStart(2, '0') + ':' + String(fin.minuto).padStart(2, '0') + ' hay el doble de clientes.', 0, null);
   }
 
   /*

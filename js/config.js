@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 23,
+    versionGuardado: 24,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -95,7 +95,17 @@
         costeMin: 150, costeMax: 400,
         cochesMinimos: 2           // con menos coches no hay averías
       },
-      lluvia: { nombre: 'Lluvia', probJornada: 0.2, horasMin: 1, horasMax: 3, factorDemanda: 2 },
+      // Lluvia (Iván, 18-11-2026): chubascos casi siempre y de vez en cuando
+      // una tormenta larga. Mezcla elegida para que llueva lo mismo de media
+      // que antes (un 20 % de las jornadas, de 1 a 3 horas): unas 0,4 horas
+      // por jornada. Cada tipo: peso (lo que sale) y duración en horas.
+      lluvia: {
+        nombre: 'Lluvia', probJornada: 0.25, factorDemanda: 2,
+        tipos: {
+          chubasco: { nombre: 'Chubasco', peso: 0.75, horasMin: 0.5, horasMax: 1 },
+          tormenta: { nombre: 'Tormenta', peso: 0.25, horasMin: 3, horasMax: 5 }
+        }
+      },
       // Vómito evitado por la Bolsa para vómitos de un conductor (solo sale en el ticket).
       bolsa: { nombre: 'Bolsas usadas' },
       // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.

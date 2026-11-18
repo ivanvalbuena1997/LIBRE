@@ -1725,4 +1725,31 @@ prueba('Azucarillo no trabaja mientras llueve y vuelve al escampar', function ()
   assert.strictEqual(config.conductores.cualidades.find(function (q) { return q.id === 'anfibio'; }).opuesto, 'azucarillo');
 });
 
+prueba('lluvia: chubascos cortos casi siempre y alguna tormenta larga', function () {
+  const ev = config.eventos.lluvia;
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 77;
+  e.ajustes.pararAlCierre = false;
+  const vistas = { chubasco: 0, tormenta: 0 };
+  let ultima = -1;
+  for (let i = 0; i < 400 * 24; i++) {
+    sim.avanzar(e, sim.segundosPorDia(e) / 24);
+    const l = e.lluvia;
+    if (!l || l.jornada === ultima || l.hasta <= l.desde) continue;
+    ultima = l.jornada;
+    const horas = (l.hasta - l.desde) / 60, t = ev.tipos[l.tipo];
+    assert.ok(t, 'tipo conocido: ' + l.tipo);
+    assert.ok(horas >= t.horasMin - 1e-9 && horas <= t.horasMax + 1e-9, l.tipo + ' de ' + horas + ' h');
+    vistas[l.tipo]++;
+  }
+  assert.ok(vistas.chubasco > vistas.tormenta * 2 && vistas.tormenta > 0, JSON.stringify(vistas));
+  // Partidas de la versión 23: la lluvia ya sorteada se queda como chubasco.
+  require('../js/guardado.js');
+  const viejo = sim.crearEstadoInicial(0);
+  viejo.version = 23;
+  viejo.lluvia = { jornada: 0, desde: 10, hasta: 100, avisada: false };
+  const migrado = globalThis.Libre.guardado.migrar(JSON.parse(JSON.stringify(viejo)));
+  assert.strictEqual(migrado.lluvia.tipo, 'chubasco');
+});
+
 console.log(pasadas + ' pruebas correctas');

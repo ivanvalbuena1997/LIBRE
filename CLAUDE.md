@@ -265,7 +265,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Eventos (`config.eventos`): por carrera (propina, sin pagar, objeto
   devuelto, vómito; también en las tuyas), al empezar cada turno (baja,
   pinchazo y avería en conductores; en el tuyo solo pinchazo) y lluvia una
-  vez por jornada. Van a la caja como `extras` (dinero que entra), `otros`
+  vez por jornada como mucho: chubasco o tormenta (`estado.lluvia.tipo`,
+  sorteado por pesos de `config.eventos.lluvia.tipos`, cada uno con su
+  duración; versión 24 del guardado). Van a la caja como `extras` (dinero que entra), `otros`
   (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket. Sin
   conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
   Desde el 18-11-2026 (Iván) restan: pinchazos 4 %, bajas 2 % y averías
