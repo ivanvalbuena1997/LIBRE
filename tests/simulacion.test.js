@@ -1652,4 +1652,26 @@ prueba('migración a la versión 23: historial, ids y despedidos', function () {
   assert.strictEqual(m.reserva[0].id, 2, 'los nuevos no repiten id');
 });
 
+prueba('estadísticas: los días de libranza no cuentan para la media', function () {
+  const e = flotaDe(1);
+  config.licencias.libranza = true;
+  try {
+    const lic = e.licencias[0];
+    const id = lic.turnos.noche.id;
+    sim.avanzar(e, segundosDe(e, 24 * 60 * 7), { agregado: true });
+    const libres = e.historial.filter(function (r) {
+      return sim.libra(e, lic, config.reloj.minutoCierreCaja + r.dia * sim.MIN_DIA + 60);
+    });
+    assert.ok(libres.length >= 1, 'en una semana libra algún día');
+    libres.forEach(function (r) {
+      assert.strictEqual(r.conductores[id], undefined, 'el conductor no cuenta ese día');
+      assert.strictEqual(r.tu, null, 'tú tampoco');
+    });
+    const trabajados = e.historial.length - libres.length;
+    assert.strictEqual(sim.mediasDiarias(e).conductores[0].dias, trabajados);
+  } finally {
+    config.licencias.libranza = false;
+  }
+});
+
 console.log(pasadas + ' pruebas correctas');

@@ -488,12 +488,18 @@
    * Al cerrar la caja se guarda un resumen de la jornada en el historial
    * (como mucho config.estadisticas.dias): lo que entró, el neto, las
    * carreras, lo tuyo (null si no tenías turno) y lo de cada conductor que
-   * tenía turno ese día (0 si no facturó: libranza, baja…). La reserva no
-   * cuenta: no está en la flota.
+   * tenía turno ese día (0 si no facturó: baja, avería…). La reserva no
+   * cuenta: no está en la flota. Si su licencia libraba esa jornada, ni él ni
+   * tú contáis ese día: la media no debe bajar por la libranza (Iván,
+   * 18-11-2026).
    */
   function registrarDia(estado, caja) {
     const porConductor = {};
+    // Un minuto dentro de la jornada que se cierra (libra() la saca de ahí).
+    const minuto = cfg().reloj.minutoCierreCaja + caja.dia * MIN_DIA + 60;
+    const u = ubicacionJugador(estado);
     estado.licencias.forEach(function (l) {
+      if (libra(estado, l, minuto)) return;
       TURNOS.forEach(function (tn) {
         const t = l.turnos[tn];
         if (t && t.quien === 'conductor' && t.id) porConductor[t.id] = (caja.porConductor || {})[t.id] || 0;
@@ -501,7 +507,8 @@
     });
     const registro = {
       dia: caja.dia, ingresos: caja.ingresos, extras: caja.extras || 0, neto: netoCaja(caja),
-      carreras: caja.carreras, tu: ubicacionJugador(estado) ? caja.tuyo || 0 : null, conductores: porConductor
+      carreras: caja.carreras, conductores: porConductor,
+      tu: u && !libra(estado, buscarLicencia(estado, u.licenciaId), minuto) ? caja.tuyo || 0 : null
     };
     estado.historial = estado.historial || [];
     estado.historial.push(registro);

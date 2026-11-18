@@ -350,7 +350,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`estado.totales` y `estado.mejorDia`), facturación por día (barras en
   HTML, raya del neto; tocar una la elige: `diaEstadistica`), media diaria
   (`Libre.sim.mediasDiarias()`: tú y los conductores con turno, entre las
-  jornadas que estuvieron en la flota) y top 10 (`clasificacionConductores()`,
+  jornadas que estuvieron en la flota; las de libranza de su licencia no se
+  apuntan) y top 10 (`clasificacionConductores()`,
   con los despedidos de `estado.exConductores`). Datos: al cerrar la caja,
   `registrarDia()` guarda en `estado.historial` (como mucho
   `config.estadisticas.dias`, 30) lo que entró, el neto, las carreras, lo

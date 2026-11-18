@@ -141,7 +141,7 @@ Pestaña nueva del 18-11-2026 (Iván). De arriba abajo:
 
 - **Tres cifras de la partida:** lo facturado, las carreras y el mejor día (con su fecha).
 - **Facturación por día:** una barra verde por cada uno de los últimos 30 días, con una raya para el neto (roja si ese día se perdió dinero; entonces baja del cero). Tocar una barra enseña debajo su día, lo facturado, el neto y las carreras; al entrar está elegido el último.
-- **Media diaria:** tú (barra azul, arriba) y cada conductor que tiene turno ahora (barras verdes, de mayor a menor), con lo que facturó de media por jornada en los últimos 30 días, contando solo las jornadas que estuvo en la flota (las de baja o libranza cuentan; la reserva, no). Al lado, cuántas jornadas lleva la cuenta.
+- **Media diaria:** tú (barra azul, arriba) y cada conductor que tiene turno ahora (barras verdes, de mayor a menor), con lo que facturó de media por jornada en los últimos 30 días, contando solo las jornadas que estuvo en la flota (los días de libranza de su licencia no cuentan, para no bajarle la media; los de baja o avería, sí; la reserva no entra). Al lado, cuántas jornadas lleva la cuenta.
 - **Mejores conductores:** los diez que más han facturado en la partida, con medalla de oro, plata y bronce para los tres primeros. Entran también los despedidos (atenuados, con el chip «Despedido»). Tocar a uno que sigue contigo abre su ficha en Conductores.
 
 Los días se guardan desde esta versión: en una partida de antes, el historial empieza con el último cierre. Sin ningún día cerrado, cada bloque dice qué hace falta para llenarlo.
