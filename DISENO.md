@@ -32,7 +32,7 @@ Juego incremental de gestión para navegador: empiezas como taxista autónomo en
 
 **Bucle largo (horas).** Compras licencias y coches, contratas conductores, abres zonas y mejoras, encuentras objetos y subes de nivel a tu gente. Cuando tienes la Oficina de gestión puedes dejar el volante y dirigir solo la flota.
 
-**Ritmo medido** (bot que compra flota en cuanto puede y mejoras que se pagan pronto): la segunda licencia llega hacia el minuto 24–44 y **tres licencias con sus seis turnos cubiertos, hacia el minuto 69–78**. Las libranzas alargaron este ritmo desde unos 52–63 minutos; Iván decidió dejarlo así (17-11-2026).
+**Ritmo medido** (18-11-2026, `tests/progresion.js`, 10 semillas; detalle en [docs/analisis-progresion.md](docs/analisis-progresion.md)): si priorizas la flota, la segunda licencia llega hacia el **minuto 33** y **tres licencias con sus seis turnos, hacia el 65**; a las dos horas y media, unas 8–9 licencias. Si vas comprando las mejoras baratas primero (lo que propone «Siguiente»), la segunda licencia no llega hasta el minuto 109. Antes del reequilibrio del 17-11, con las libranzas, eran 69–78 minutos para tres licencias.
 
 ---
 

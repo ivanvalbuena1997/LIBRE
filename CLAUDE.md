@@ -398,6 +398,11 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
   antes de cada commit.
 - Probar en el navegador abriendo `index.html`, o con un servidor local
   cualquiera sobre la carpeta (mismo resultado).
+- `node tests/progresion.js [semillas] [minutos]` no es una prueba: un bot
+  juega varias partidas con cuatro perfiles de compra y da cómo va a los
+  30/60/90/120/150 minutos y cuándo llega cada hito (unos 25 s). Sirve para
+  medir cambios de equilibrio; el último informe está en
+  `docs/analisis-progresion.md`.
 
 ## Forma de trabajar
 
