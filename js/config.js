@@ -149,6 +149,7 @@
      * equipar; si está lleno, esperan en una bandeja hasta que vendas algo) y
      * se equipan a un conductor, uno de cada como mucho, en sus huecos.
      * efecto: como el de los rasgos, con los mismos topes.
+     * frase: su chiste (Iván, 18-11-2026); sale en su panel del Almacén.
      */
     objetos: {
       almacen: 10,                 // Equilibrio: sin mejoras; «Taquillas» lo amplía.
@@ -163,64 +164,121 @@
        * mejoras de toda la flota y anulaban otros objetos.
        */
       lista: [
+        { id: 'mapaMetro', nombre: 'Mapa del Metro de 1998', categoria: 'B', efecto: {},
+          descripcion: 'No sirve para nada. Pero tres objetos B se combinan en uno A.',
+          frase: 'No sale ni la línea 8. Lo guardas por si vuelve 1998.' },
+        { id: 'perrito', nombre: 'Perrito del salpicadero', categoria: 'B', efecto: { propina: 1.06, espera: 0.98 },
+          descripcion: 'Un 6 % más de propinas y un 2 % menos de espera.',
+          frase: 'Asiente a todo lo que dice el cliente. El cliente lo agradece.' },
+        { id: 'rosario', nombre: 'Rosario del retrovisor', categoria: 'B', efecto: { sinPagar: 0.75, propina: 1.04 },
+          descripcion: 'Un 25 % menos de clientes sin pagar y un 4 % más de propinas.',
+          frase: 'Nadie se va sin pagar delante de la Virgen de la Paloma.' },
         { id: 'ambientador', nombre: 'Ambientador', categoria: 'B', efecto: { propina: 1.1 },
-          descripcion: 'Un taxi que huele bien: un 10 % más de propinas.' },
+          descripcion: 'Un taxi que huele bien: un 10 % más de propinas.',
+          frase: 'Pino del bosque. O eso dice la etiqueta.' },
         { id: 'cojin', nombre: 'Cojín lumbar', categoria: 'B', efecto: { baja: 0.85 },
-          descripcion: 'Doce horas sentado sin dolor de espalda: un 15 % menos de bajas.' },
+          descripcion: 'Doce horas sentado sin dolor de espalda: un 15 % menos de bajas.',
+          frase: 'Doce horas sentado. Tu espalda te lo agradece por escrito.' },
         { id: 'termo', nombre: 'Termo de café', categoria: 'B', efecto: { esperaNoche: 0.96 },
-          descripcion: 'Despierto toda la noche: un 4 % menos de espera en el turno de noche.' },
+          descripcion: 'Despierto toda la noche: un 4 % menos de espera en el turno de noche.',
+          frase: 'A las cuatro de la mañana, el café es un derecho fundamental.' },
         { id: 'gafas', nombre: 'Gafas de sol', categoria: 'B', efecto: { esperaDia: 0.96 },
-          descripcion: 'Sin deslumbrarse: un 4 % menos de espera en el turno de día.' },
+          descripcion: 'Sin deslumbrarse: un 4 % menos de espera en el turno de día.',
+          frase: 'Para el sol de la Castellana. Y para no cruzar la mirada con el agente de movilidad.' },
         { id: 'funda', nombre: 'Funda de asientos', categoria: 'B', efecto: { limpieza: 0.75 },
-          descripcion: 'Si un cliente vomita y no hay bolsa, limpiar cuesta un 25 % menos y se para menos rato.' },
+          descripcion: 'Si un cliente vomita y no hay bolsa, limpiar cuesta un 25 % menos y se para menos rato.',
+          frase: 'De cuadros escoceses. Nadie sabe por qué, pero todas son así.' },
         { id: 'callejero', nombre: 'Callejero de papel', categoria: 'B', efecto: { espera: 0.97 },
-          descripcion: 'Por si falla el móvil: un 3 % menos de espera entre carreras.' },
+          descripcion: 'Por si falla el móvil: un 3 % menos de espera entre carreras.',
+          frase: 'Edición de 2003. Desde entonces solo han cambiado todas las calles.' },
 
         { id: 'gps', nombre: 'GPS', categoria: 'A', efecto: { espera: 0.94 },
-          descripcion: 'Rutas y avisos de clientes: un 6 % menos de espera entre carreras.' },
+          descripcion: 'Rutas y avisos de clientes: un 6 % menos de espera entre carreras.',
+          frase: '«Gire a la derecha.» No hay derecha. Nunca hay derecha.' },
         { id: 'manometro', nombre: 'Manómetro de ruedas', categoria: 'A', efecto: { pinchazo: 0.7 },
-          descripcion: 'Ruedas siempre a su presión: un 30 % menos de pinchazos.' },
+          descripcion: 'Ruedas siempre a su presión: un 30 % menos de pinchazos.',
+          frase: 'Dos coma dos bares. Ni uno más, ni uno menos.' },
         { id: 'caramelos', nombre: 'Caramelos para clientes', categoria: 'A', efecto: { propina: 1.2 },
-          descripcion: 'Un detalle que se agradece: un 20 % más de propinas.' },
+          descripcion: 'Un detalle que se agradece: un 20 % más de propinas.',
+          frase: 'Los de café con leche son para los clientes. Los de fresa, no.' },
         { id: 'espejo', nombre: 'Espejo panorámico', categoria: 'A', efecto: { sinPagar: 0.7 },
-          descripcion: 'Ve todo el asiento de atrás: un 30 % menos de clientes sin pagar.' },
+          descripcion: 'Ve todo el asiento de atrás: un 30 % menos de clientes sin pagar.',
+          frase: 'Lo ve todo. A veces, demasiado.' },
         { id: 'vitaminas', nombre: 'Vitaminas', categoria: 'A', efecto: { baja: 0.7 },
-          descripcion: 'Defensas altas: un 30 % menos de bajas.' },
+          descripcion: 'Defensas altas: un 30 % menos de bajas.',
+          frase: 'Una al día. Dos si es lunes.' },
         { id: 'alfombrillas', nombre: 'Alfombrillas de goma', categoria: 'A', efecto: { limpieza: 0.55 },
-          descripcion: 'Se limpian con la manguera: un vómito cuesta un 45 % menos y se para menos rato.' },
+          descripcion: 'Se limpian con la manguera: un vómito cuesta un 45 % menos y se para menos rato.',
+          frase: 'Manguera y listo. Ya lo has visto todo en esta vida.' },
 
+        { id: 'chicles', nombre: 'Paquete de chicles de menta', categoria: 'A', efecto: { propina: 1.1, esperaNoche: 0.95 },
+          descripcion: 'Un 10 % más de propinas y un 5 % menos de espera de noche.',
+          frase: 'Aliento fresco a las cuatro de la mañana. Los de atrás lo agradecen.' },
+        { id: 'linterna', nombre: 'Linterna de bolsillo', categoria: 'A', efecto: { hallazgo: 1.4 },
+          descripcion: 'Mira debajo de los asientos: encuentra un 40 % más de objetos.',
+          frase: 'Lo que sale de debajo de los asientos, mejor no preguntarlo.' },
         { id: 'camara', nombre: 'Cámara de seguridad', categoria: 'S', efecto: { sinImpagos: true },
-          descripcion: 'Con la cámara a la vista, nadie se va sin pagar de su taxi.' },
+          descripcion: 'Con la cámara a la vista, nadie se va sin pagar de su taxi.',
+          frase: 'Sonría. Y pague.' },
         { id: 'rueda', nombre: 'Rueda de repuesto', categoria: 'S', efecto: { rueda: true },
-          descripcion: 'Si pincha, cambia la rueda y sigue: ni neumático que pagar ni turno perdido.' },
+          descripcion: 'Si pincha, cambia la rueda y sigue: ni neumático que pagar ni turno perdido.',
+          frase: 'La de verdad, no la de galleta. Ya te lo explicó tu cuñado.' },
         { id: 'escaner', nombre: 'Radio-escáner', categoria: 'S', efecto: { espera: 0.9 },
-          descripcion: 'Se entera antes que nadie de dónde hay clientes: un 10 % menos de espera.' },
+          descripcion: 'Se entera antes que nadie de dónde hay clientes: un 10 % menos de espera.',
+          frase: 'Se entera de todo antes que la radio. Y antes que los vecinos.' },
         { id: 'herramientas', nombre: 'Kit de herramientas', categoria: 'S', efecto: { averia: 0.65, pinchazo: 0.8 },
-          descripcion: 'Arregla lo pequeño antes de que se rompa: un 35 % menos de averías y un 20 % menos de pinchazos.' },
+          descripcion: 'Arregla lo pequeño antes de que se rompa: un 35 % menos de averías y un 20 % menos de pinchazos.',
+          frase: 'Llave del 13, cinta americana y fe.' },
         { id: 'cargador', nombre: 'Cargador para clientes', categoria: 'S', efecto: { propina: 1.3, objeto: 1.2 },
-          descripcion: 'Todo el mundo lo agradece: un 30 % más de propinas y un 20 % más de objetos devueltos.' },
+          descripcion: 'Todo el mundo lo agradece: un 30 % más de propinas y un 20 % más de objetos devueltos.',
+          frase: 'Tiene todos los cables del mundo. Menos el tuyo.' },
         { id: 'botiquin', nombre: 'Botiquín', categoria: 'S', efecto: { baja: 0.55 },
-          descripcion: 'Lo que pilla, lo cura a tiempo: un 45 % menos de bajas.' },
+          descripcion: 'Lo que pilla, lo cura a tiempo: un 45 % menos de bajas.',
+          frase: 'Tiritas, ibuprofeno y una aspirina de 2009.' },
         { id: 'datafono', nombre: 'Datáfono portátil', categoria: 'S', efecto: { sinPagar: 0.5 },
-          descripcion: 'Nadie se escapa con la excusa de la tarjeta: la mitad de clientes sin pagar.' },
+          descripcion: 'Nadie se escapa con la excusa de la tarjeta: la mitad de clientes sin pagar.',
+          frase: '«¿Aceptas tarjeta?» Siempre. Se acabaron las excusas.' },
 
+        { id: 'calcetines', nombre: 'Calcetines de la suerte (sin lavar)', categoria: 'S', efecto: { espera: 0.87, propina: 0.85 },
+          descripcion: 'Un 13 % menos de espera… y un 15 % menos de propinas.',
+          frase: 'No se lavan desde que empezaron a funcionar. No vamos a arriesgarnos ahora.' },
+        { id: 'bufanda', nombre: 'Bufanda mitad y mitad', categoria: 'S', efecto: { propina: 1.35, esperaDia: 0.96 },
+          descripcion: 'Un 35 % más de propinas y un 4 % menos de espera de día.',
+          frase: 'Media de cada equipo: nadie se baja enfadado del taxi.' },
         { id: 'bolsaVomito', nombre: 'Bolsa para vómitos', categoria: 'S+', efecto: { bolsa: true },
-          descripcion: 'Siempre a mano: si un cliente se marea, no vomita en el coche. Ni limpieza ni rato parado.' },
+          descripcion: 'Siempre a mano: si un cliente se marea, no vomita en el coche. Ni limpieza ni rato parado.',
+          frase: 'El conductor de noche la saca con reflejos de portero.' },
         { id: 'navegador', nombre: 'Navegador con tráfico en directo', categoria: 'S+', efecto: { espera: 0.86 },
-          descripcion: 'Esquiva atascos y llega antes: un 14 % menos de espera entre carreras.' },
+          descripcion: 'Esquiva atascos y llega antes: un 14 % menos de espera entre carreras.',
+          frase: 'Sabe dónde va a haber atasco antes de que exista.' },
         { id: 'silla', nombre: 'Silla ergonómica', categoria: 'S+', efecto: { baja: 0.5, esperaNoche: 0.93 },
-          descripcion: 'Aguanta la noche entera: la mitad de bajas y un 7 % menos de espera de noche.' },
+          descripcion: 'Aguanta la noche entera: la mitad de bajas y un 7 % menos de espera de noche.',
+          frase: 'Más cara que el coche. Bueno, casi.' },
         { id: 'nevera', nombre: 'Nevera con agua fría', categoria: 'S+', efecto: { propina: 1.45, limpieza: 0.7 },
-          descripcion: 'Un lujo en agosto: un 45 % más de propinas y vómitos más llevaderos.' },
+          descripcion: 'Un lujo en agosto: un 45 % más de propinas y vómitos más llevaderos.',
+          frase: 'Agua fría en agosto en Madrid: el único lujo de verdad.' },
         { id: 'baches', nombre: 'Detector de baches', categoria: 'S+', efecto: { pinchazo: 0.5, averia: 0.7 },
-          descripcion: 'Ni un bache sin esquivar: la mitad de pinchazos y un 30 % menos de averías.' },
+          descripcion: 'Ni un bache sin esquivar: la mitad de pinchazos y un 30 % menos de averías.',
+          frase: 'Se sabe los baches de la M-30 por su nombre.' },
 
+        { id: 'gato', nombre: 'Gato de la suerte', categoria: 'S+', efecto: { propina: 1.3, hallazgo: 1.4, suerte: 1.15 },
+          descripcion: 'Un 30 % más de propinas, un 40 % más de objetos encontrados y un 15 % de que salgan de una categoría mejor.',
+          frase: 'Mueve la patita todo el día. Algo hace.' },
+        { id: 'detector', nombre: 'Detector de metales', categoria: 'S+', efecto: { hallazgo: 1.8, suerte: 1.3 },
+          descripcion: 'Un 80 % más de objetos encontrados y un 30 % de que salgan de una categoría mejor.',
+          frase: 'Pita con cada moneda, cada llave… y a veces con algo que vale la pena.' },
         { id: 'paconi', nombre: 'Planta de Paconi', categoria: 'L', efecto: { espera: 0.9, propina: 1.3, baja: 0.7 },
-          descripcion: 'Nadie sabe cómo, pero lo arregla todo: un 10 % menos de espera, un 30 % más de propinas y un 30 % menos de bajas.' },
+          descripcion: 'Nadie sabe cómo, pero lo arregla todo: un 10 % menos de espera, un 30 % más de propinas y un 30 % menos de bajas.',
+          frase: 'Nadie sabe de dónde salió. Nadie se atreve a regarla.' },
         { id: 'bocata', nombre: 'Bocata de calamares infinito', categoria: 'L', efecto: { baja: 0.4, esperaDia: 0.88 },
-          descripcion: 'Nunca se acaba: un 60 % menos de bajas y un 12 % menos de espera de día.' },
+          descripcion: 'Nunca se acaba: un 60 % menos de bajas y un 12 % menos de espera de día.',
+          frase: 'De la Plaza Mayor. Se acaba uno y aparece otro.' },
+        { id: 'pizza', nombre: 'Porción de pizza', categoria: 'L', efecto: { espera: 0.88, baja: 0.6, propina: 1.3 },
+          descripcion: 'Un 12 % menos de espera, un 40 % menos de bajas y un 30 % más de propinas.',
+          frase: 'De tu 24 horas de confianza.' },
         { id: 'bidon', nombre: 'Bidón energético', categoria: 'L', efecto: { esperaNoche: 0.78, baja: 0.8 },
-          descripcion: 'Medio litro que salva las noches: un 22 % menos de espera de noche y un 20 % menos de bajas.' }
+          descripcion: 'Medio litro que salva las noches: un 22 % menos de espera de noche y un 20 % menos de bajas.',
+          frase: 'Medio litro de algo verde. No preguntes.' }
       ]
     },
 
@@ -281,6 +339,8 @@
        *   propina, sinPagar, objeto   probabilidades por carrera
        *   baja, pinchazo, averia      probabilidades al empezar el turno
        *   limpieza     coste de limpiar un vómito y tiempo parado
+       *   hallazgo     probabilidad de encontrar un objeto al terminar una carrera
+       *   suerte       lo encontrado sube una categoría con probabilidad suerte − 1
        * Solo afectan a los conductores contratados, nunca a tu turno.
        */
       // Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de un +5 % de
@@ -306,7 +366,10 @@
         { id: 'madrugador', nombre: 'Madrugador', opuesto: 'dormilon', efecto: { esperaDia: 0.88 },
           descripcion: 'Rinde de día: un 12 % menos de espera en el turno de día.' },
         { id: 'pulcro', nombre: 'Pulcro', opuesto: 'guarro', efecto: { limpieza: 0.5, propina: 1.45 },
-          descripcion: 'Taxi siempre impecable: limpiar un vómito le cuesta la mitad y un 45 % más de propinas.' }
+          descripcion: 'Taxi siempre impecable: limpiar un vómito le cuesta la mitad y un 45 % más de propinas.' },
+        // Iván, 18-11-2026. Equilibrio: cerca de +5 % con la venta de objetos rebajada.
+        { id: 'urraca', nombre: 'Urraca', opuesto: 'desastre', efecto: { hallazgo: 1.2, suerte: 1.15 },
+          descripcion: 'Ve brillar cualquier cosa: encuentra un 20 % más de objetos y un 15 % de lo que encuentra sube de categoría.' }
       ],
       defectos: [
         { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.25, espera: 1.08 },
@@ -326,7 +389,9 @@
         { id: 'guarro', nombre: 'Guarro', efecto: { limpieza: 1.7, propina: 0.55 },
           descripcion: 'El taxi da pena: limpiar un vómito le cuesta un 70 % más y un 45 % menos de propinas.' },
         { id: 'aprovechado', nombre: 'Aprovechado', efecto: { objeto: 0.3, propina: 0.4 },
-          descripcion: 'Lo que se olvidan, se lo queda: un 70 % menos de objetos devueltos y un 60 % menos de propinas.' }
+          descripcion: 'Lo que se olvidan, se lo queda: un 70 % menos de objetos devueltos y un 60 % menos de propinas.' },
+        { id: 'desastre', nombre: 'Desastre', efecto: { hallazgo: 0.6 },
+          descripcion: 'Lo que encuentra, lo pierde por el camino: un 40 % menos de objetos encontrados.' }
       ],
 
       /*
@@ -362,7 +427,11 @@
         baja: [0.3, 2],
         pinchazo: [0.3, 2],
         averia: [0.3, 2],
-        limpieza: [0.4, 1.5]
+        limpieza: [0.4, 1.5],
+        // Iván, 18-11-2026: encontrar objetos (probabilidad) y suerte (1,15 =
+        // un 15 % de lo encontrado sube una categoría; nunca baja de 1).
+        hallazgo: [0.3, 2.5],
+        suerte: [1, 1.4]
       },
       /*
        * Topes que crecen (Equilibrio, Iván 17-11-2026): los de arriba son los
@@ -374,7 +443,7 @@
        */
       topesAbiertos: {
         porNivel: 0.25,
-        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15 }
+        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15, hallazgo: 4, suerte: 1.7 }
       },
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).

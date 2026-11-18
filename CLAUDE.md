@@ -172,7 +172,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket);
   sin conexión la experiencia se suma agrupada y sin aviso. Para probar:
   `Libre.darExperiencia('Laura', 100)` en la consola.
-- Objetos de conductor (`config.objetos`, 24 con categoría de
+- Objetos de conductor (`config.objetos`, 37 con categoría de
   `config.categorias`: B, A, S, S+ y LEGENDARIO). No se compran: un
   conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;
   categoría por pesos y objeto al azar dentro de ella), con aviso y sin ir
@@ -195,6 +195,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   18-11-2026 eran mejoras con consumibles (versión 22 del guardado). Tu
   turno no lleva objetos: no tiene esas protecciones. Para probar:
   `Libre.forzarEvento('hallazgo', 'S+')` (o el id de un objeto).
+  Cada objeto lleva `frase` (su chiste, en el panel del Almacén). Dos
+  factores más (Iván, 18-11-2026): `hallazgo` (probabilidad de encontrar,
+  con tope) y `suerte` (1,15 = un 15 % de que lo encontrado suba una
+  categoría: `probSubir()`); los usan Linterna, Gato, Detector y la
+  cualidad Urraca (su opuesto, Desastre).
 - Despedir (`despedirConductor()`) cuesta el finiquito de
   `costeDespido()`: base más un importe por nivel
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja

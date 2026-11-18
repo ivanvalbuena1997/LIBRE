@@ -1468,4 +1468,43 @@ prueba('combinar: 3 objetos de una categoría dan uno al azar de la siguiente', 
   assert.strictEqual(e.objetos.gps >= 1, true);
 });
 
+prueba('hallazgo y suerte: objetos y Urraca encuentran más y mejor, con tope', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;
+  const t = e.licencias[0].turnos.noche;
+  Object.assign(t, { categoria: 'B', cualidad: null, defecto: null, defecto2: null, xp: 0, objetos: [] });
+  const de = function (clave) { return sim.statsConductor(e, t, 'noche').find(function (x) { return x.clave === clave; }); };
+  cerca(de('hallazgo').valor, config.objetos.probHallazgo);
+  assert.strictEqual(de('suerte'), undefined, 'sin suerte no sale la fila');
+  t.objetos = ['linterna'];
+  cerca(de('hallazgo').valor, config.objetos.probHallazgo * sim.buscarObjeto('linterna').efecto.hallazgo);
+  t.objetos = ['detector'];
+  cerca(sim.probSubir(t), sim.buscarObjeto('detector').efecto.suerte - 1);
+  cerca(de('suerte').valor, sim.probSubir(t));
+  // La suerte tiene tope.
+  t.cualidad = 'urraca';
+  t.objetos = ['detector', 'gato'];
+  cerca(sim.probSubir(t), config.conductores.topes.suerte[1] - 1);
+  // Con suerte, lo encontrado sube de categoría más a menudo.
+  function media(objetos) {
+    const orden = config.categorias.map(function (c) { return c.id; });
+    const x = flotaDe(1);
+    x.reloj.minutos = 22 * 60;
+    x.azar = 777;
+    const tt = x.licencias[0].turnos.noche;
+    Object.assign(tt, { categoria: 'B', cualidad: null, defecto: null, defecto2: null, objetos });
+    x.objetos = {};
+    let suma = 0, n = 0;
+    for (let i = 0; i < 3000; i++) {
+      x.objetos = {};
+      x.bandeja = [];
+      sim.forzarEvento(x, 'hallazgo');
+      sim.hallazgo(x, { eventos: [] }, tt);
+      Object.keys(x.objetos).forEach(function (id) { suma += orden.indexOf(sim.buscarObjeto(id).categoria); n++; });
+    }
+    return suma / n;
+  }
+  assert.ok(media(['detector']) > media([]) + 0.15, 'con detector, mejores objetos');
+});
+
 console.log(pasadas + ' pruebas correctas');

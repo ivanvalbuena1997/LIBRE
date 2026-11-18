@@ -65,7 +65,7 @@ Datos reales que el juego aún no usa: tarifa 7 (recorridos de menos de 1.450 m,
 
 ## 4. Pantallas
 
-El juego es una sola columna, pensada para un móvil en vertical (390 × 844 de referencia). Arriba va siempre la **cabecera con la calle**; abajo, un menú fijo de cuatro pestañas: **Calle**, **Conductores**, **Almacén** y **Mejoras**. Los ajustes y la partida no son una pestaña: los abre el **engranaje** de la cabecera. Una marca roja en una pestaña avisa de que hay algo que comprar (Conductores, Mejoras), consumibles por reponer u objetos esperando en la bandeja (Almacén), o un ticket por leer (Calle).
+El juego es una sola columna, pensada para un móvil en vertical (390 × 844 de referencia). Arriba va siempre la **cabecera con la calle**; abajo, un menú fijo de cuatro pestañas: **Calle**, **Conductores**, **Almacén** y **Mejoras**. Los ajustes y la partida no son una pestaña: los abre el **engranaje** de la cabecera. Una marca roja en una pestaña avisa de que hay algo que comprar (Conductores, Mejoras), objetos esperando en la bandeja (Almacén), o un ticket por leer (Calle).
 
 ### Cabecera
 
@@ -150,7 +150,7 @@ Estilo ilustrado y cálido, tema claro. La referencia completa (maquetas, iconos
 - **Letras:** Bricolage Grotesque para títulos y cifras de dinero; Nunito para el texto; Courier Prime para el ticket; DSEG7 para el LED del taxímetro.
 - **Componentes:** tarjetas de esquinas redondeadas, chips de estado, botones de 48 px (principal azul, secundario blanco, peligro rojo claro), barras de 8 px e insignias de rareza. Todo lo que se toca mide al menos 44 px.
 - **Logo:** un taxi de Madrid de frente, con la luz verde de «libre» y el sol, sobre el azul de marca (`docs/logo/libre-icono.svg`, también icono de la pestaña); con el nombre en Bricolage Grotesque en `docs/logo/libre-logo.svg`.
-- **Iconos:** cada objeto y consumible tiene su dibujo (26 en total, con trazo oscuro y relleno plano). Los rasgos y los turnos usan iconos de trazo.
+- **Iconos:** cada objeto tiene su dibujo (37 en total, con trazo oscuro y relleno plano). Los rasgos y los turnos usan iconos de trazo.
 - **Animaciones:** el taxi que cruza la calle (16 s), dos nubes (40 y 55 s), el sol que late (5 s), las ventanas de noche (4 y 6 s), la lluvia, el ticket que se imprime, las filas que se reordenan, los importes que flotan al cobrar y las hojas que suben. Todas se apagan con «reducir movimiento».
 - **Sonidos**, sintetizados en el navegador (sin archivos) y mudos hasta el primer toque: **cobro** (un «ding» de caja registradora al cobrar cualquier taxi), **propina** (monedas), **nivel** (arpegio), **objeto** (brillo), **avería** (golpe sordo; también pinchazos), **ticket** (impresora) y **tic** (al bajar la bandera). Se ajustan a oído.
 
@@ -238,6 +238,7 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 | Búho | −12 % de espera de noche | Trasnochador flojo | +18 % de espera de noche |
 | Madrugador | −12 % de espera de día | Dormilón | +16 % de espera de día |
 | Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
+| Urraca (18-11-2026) | +20 % de objetos encontrados y un 15 % de que suban de categoría | Desastre | −40 % de objetos encontrados |
 
 «Limpieza» es el coste y el tiempo parado al limpiar un vómito (no cuenta si el conductor lleva la Bolsa para vómitos).
 
@@ -278,37 +279,49 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 - **Almacén:** guarda 10 objetos sin equipar (hasta 40 con Taquillas). Si está lleno, lo encontrado espera en una **bandeja** hasta que vendes algo: nada se vende solo.
 - **Equipar:** desde la ficha de cada conductor, en sus huecos, sin repetir objeto. Quitarlo lo devuelve al almacén.
 - **Vender:** B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 € (Iván, 18-11-2026; antes, 40 / 120 / 400 / 1.200 / 4.000 €, y vender ganaba a equipar). Entra en la caja como «Venta de objetos».
+- **Frase:** cada objeto tiene su chiste (Iván, 18-11-2026), que sale en su panel del Almacén.
+- **Encontrar más y mejor:** algunos objetos y la cualidad Urraca suben la probabilidad de encontrar (con tope) o hacen que lo encontrado suba una categoría («suerte», como mucho un 40 %, más con la categoría y el nivel).
 - **Combinar** (Iván, 18-11-2026): tres objetos sin equipar de la misma categoría se cambian por uno al azar de la categoría siguiente (los LEGENDARIOS no se combinan). Se gasta el que has tocado y, para completar, primero sus copias y luego los que más se repiten; el panel dice cuáles antes de tocar. Deja hueco en el almacén, así que entra lo que esperaba en la bandeja.
 
-| Categoría | Objeto | Efecto |
-| --- | --- | --- |
-| B | Ambientador | +10 % de propinas |
-| B | Cojín lumbar | −15 % de bajas |
-| B | Termo de café | −4 % de espera de noche |
-| B | Gafas de sol | −4 % de espera de día |
-| B | Funda de asientos | Vómito sin bolsa: −25 % de limpieza y menos rato parado |
-| B | Callejero de papel | −3 % de espera |
-| A | GPS | −6 % de espera |
-| A | Manómetro de ruedas | −30 % de pinchazos |
-| A | Caramelos para clientes | +20 % de propinas |
-| A | Espejo panorámico | −30 % de clientes sin pagar |
-| A | Vitaminas | −30 % de bajas |
-| A | Alfombrillas de goma | Vómito: −45 % de limpieza y menos rato parado |
-| S | Cámara de seguridad | Nadie se va sin pagar de su taxi |
-| S | Rueda de repuesto | Un pinchazo no cuesta ni le para |
-| S | Radio-escáner | −10 % de espera |
-| S | Kit de herramientas | −35 % de averías y −20 % de pinchazos |
-| S | Cargador para clientes | +30 % de propinas y +20 % de objetos devueltos |
-| S | Botiquín | −45 % de bajas |
-| S | Datáfono portátil | La mitad de clientes sin pagar |
-| S+ | Bolsa para vómitos | Nadie vomita en su taxi |
-| S+ | Navegador con tráfico en directo | −14 % de espera |
-| S+ | Silla ergonómica | La mitad de bajas y −7 % de espera de noche |
-| S+ | Nevera con agua fría | +45 % de propinas y −30 % de limpieza |
-| S+ | Detector de baches | La mitad de pinchazos y −30 % de averías |
-| LEGENDARIO | Planta de Paconi | −10 % de espera, +30 % de propinas y −30 % de bajas |
-| LEGENDARIO | Bocata de calamares infinito | −60 % de bajas y −12 % de espera de día |
-| LEGENDARIO | Bidón energético | −22 % de espera de noche y −20 % de bajas |
+| Categoría | Objeto | Efecto | Frase |
+| --- | --- | --- | --- |
+| B | Mapa del Metro de 1998 | Ninguno (sirve para combinar) | No sale ni la línea 8. Lo guardas por si vuelve 1998. |
+| B | Perrito del salpicadero | +6 % de propinas, −2 % de espera | Asiente a todo lo que dice el cliente. El cliente lo agradece. |
+| B | Rosario del retrovisor | −25 % de clientes sin pagar, +4 % de propinas | Nadie se va sin pagar delante de la Virgen de la Paloma. |
+| B | Ambientador | +10 % de propinas | Pino del bosque. O eso dice la etiqueta. |
+| B | Cojín lumbar | −15 % de bajas | Doce horas sentado. Tu espalda te lo agradece por escrito. |
+| B | Termo de café | −4 % de espera de noche | A las cuatro de la mañana, el café es un derecho fundamental. |
+| B | Gafas de sol | −4 % de espera de día | Para el sol de la Castellana. Y para no cruzar la mirada con el agente de movilidad. |
+| B | Funda de asientos | −25 % de limpieza de un vómito | De cuadros escoceses. Nadie sabe por qué, pero todas son así. |
+| B | Callejero de papel | −3 % de espera | Edición de 2003. Desde entonces solo han cambiado todas las calles. |
+| A | GPS | −6 % de espera | «Gire a la derecha.» No hay derecha. Nunca hay derecha. |
+| A | Manómetro de ruedas | −30 % de pinchazos | Dos coma dos bares. Ni uno más, ni uno menos. |
+| A | Caramelos para clientes | +20 % de propinas | Los de café con leche son para los clientes. Los de fresa, no. |
+| A | Espejo panorámico | −30 % de clientes sin pagar | Lo ve todo. A veces, demasiado. |
+| A | Vitaminas | −30 % de bajas | Una al día. Dos si es lunes. |
+| A | Alfombrillas de goma | −45 % de limpieza de un vómito | Manguera y listo. Ya lo has visto todo en esta vida. |
+| A | Paquete de chicles de menta | +10 % de propinas, −5 % de espera de noche | Aliento fresco a las cuatro de la mañana. Los de atrás lo agradecen. |
+| A | Linterna de bolsillo | +40 % de objetos encontrados | Lo que sale de debajo de los asientos, mejor no preguntarlo. |
+| S | Cámara de seguridad | Nadie se va sin pagar de su taxi | Sonría. Y pague. |
+| S | Rueda de repuesto | Un pinchazo no cuesta ni le para | La de verdad, no la de galleta. Ya te lo explicó tu cuñado. |
+| S | Radio-escáner | −10 % de espera | Se entera de todo antes que la radio. Y antes que los vecinos. |
+| S | Kit de herramientas | −35 % de averías, −20 % de pinchazos | Llave del 13, cinta americana y fe. |
+| S | Cargador para clientes | +30 % de propinas, +20 % de objetos devueltos | Tiene todos los cables del mundo. Menos el tuyo. |
+| S | Botiquín | −45 % de bajas | Tiritas, ibuprofeno y una aspirina de 2009. |
+| S | Datáfono portátil | −50 % de clientes sin pagar | «¿Aceptas tarjeta?» Siempre. Se acabaron las excusas. |
+| S | Calcetines de la suerte (sin lavar) | −13 % de espera, −15 % de propinas | No se lavan desde que empezaron a funcionar. No vamos a arriesgarnos ahora. |
+| S | Bufanda mitad y mitad | +35 % de propinas, −4 % de espera de día | Media de cada equipo: nadie se baja enfadado del taxi. |
+| S+ | Bolsa para vómitos | Nadie vomita en su taxi | El conductor de noche la saca con reflejos de portero. |
+| S+ | Navegador con tráfico en directo | −14 % de espera | Sabe dónde va a haber atasco antes de que exista. |
+| S+ | Silla ergonómica | −50 % de bajas, −7 % de espera de noche | Más cara que el coche. Bueno, casi. |
+| S+ | Nevera con agua fría | +45 % de propinas, −30 % de limpieza de un vómito | Agua fría en agosto en Madrid: el único lujo de verdad. |
+| S+ | Detector de baches | −50 % de pinchazos, −30 % de averías | Se sabe los baches de la M-30 por su nombre. |
+| S+ | Gato de la suerte | +30 % de propinas, +40 % de objetos encontrados, 15 % de que lo encontrado sea de una categoría mejor | Mueve la patita todo el día. Algo hace. |
+| S+ | Detector de metales | +80 % de objetos encontrados, 30 % de que lo encontrado sea de una categoría mejor | Pita con cada moneda, cada llave… y a veces con algo que vale la pena. |
+| LEGENDARIO | Planta de Paconi | −10 % de espera, +30 % de propinas, −30 % de bajas | Nadie sabe de dónde salió. Nadie se atreve a regarla. |
+| LEGENDARIO | Bocata de calamares infinito | −60 % de bajas, −12 % de espera de día | De la Plaza Mayor. Se acaba uno y aparece otro. |
+| LEGENDARIO | Porción de pizza | −12 % de espera, −40 % de bajas, +30 % de propinas | De tu 24 horas de confianza. |
+| LEGENDARIO | Bidón energético | −22 % de espera de noche, −20 % de bajas | Medio litro de algo verde. No preguntes. |
 
 **Ya no hay consumibles** (Iván, 18-11-2026): las ruedas de repuesto, las bolsas de papel y la Cámara de seguridad eran mejoras de toda la flota que anulaban otros objetos. Ahora son objetos de un conductor. Las partidas guardadas recuperan lo que pagaron y reciben el objeto.
 
@@ -455,7 +468,7 @@ Las convenciones de código están en `CLAUDE.md`.
   - Cabecera con la calle animada de día y de noche y la placa «Caja total» siempre visible; alta en Calle (180 px en pantallas bajas, para que Calle quepa sin desplazar) y compacta en el resto.
   - Taxímetro con LED DSEG7; ficha del conductor sin desplazar, con «Cambiar de sitio» desactivado durante la jornada; candidatos y selector de objetos en hojas.
   - El almacén enseña los objetos sin nombre, solo dibujo, cantidad y rareza (Iván).
-  - Dibujos propios para los 24 objetos y los 2 consumibles.
+  - Dibujos propios para los 24 objetos y los 2 consumibles de entonces (hoy, 37 objetos y ningún consumible).
   - Sonidos sintetizados desde cero (cobro, propina, nivel, objeto, avería, ticket y tic), mudos hasta el primer toque, con sonido y volumen en Ajustes.
   - Sin cambios en la simulación ni en el formato de guardado.
 

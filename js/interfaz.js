@@ -1332,7 +1332,7 @@
       return lleva
         ? '<span class="ficha-objeto ficha-objeto--puesto" title="' + esc(o.descripcion) + '">' + contenido + '</span>'
         : '<button type="button" class="ficha-objeto" data-accion="equiparObjeto" data-args="' + x.licId + '|' + x.turno + '|' + o.id + '"' +
-          ' title="' + esc(o.descripcion) + '" aria-label="Equipar ' + esc(o.nombre) + ': ' + esc(textoEfecto(o.efecto)) + '">' +
+          ' title="' + esc(o.descripcion + (o.frase ? ' ' + o.frase : '')) + '" aria-label="Equipar ' + esc(o.nombre) + ': ' + esc(textoEfecto(o.efecto)) + '">' +
           contenido + '</button>';
     }).join('');
     return '<div class="hoja-fondo hoja-encima" data-cerrar-equipar></div>' +
@@ -1350,13 +1350,17 @@
   const NOMBRE_EFECTO = {
     espera: 'espera', esperaDia: 'espera de día', esperaNoche: 'espera de noche', propina: 'propinas',
     sinPagar: 'sin pagar', objeto: 'objetos devueltos', baja: 'bajas', pinchazo: 'pinchazos',
-    averia: 'averías', limpieza: 'limpieza'
+    averia: 'averías', limpieza: 'limpieza', hallazgo: 'objetos encontrados', suerte: 'de encontrar algo mejor'
   };
+  // Efectos que no son un porcentaje.
+  const TEXTO_EFECTO_ESPECIAL = { bolsa: 'nadie vomita en su taxi', sinImpagos: 'nadie se va sin pagar', rueda: 'pinchazos sin coste' };
   function textoEfecto(efecto) {
-    return Object.keys(efecto || {}).filter(function (k) { return NOMBRE_EFECTO[k]; }).map(function (k) {
+    const textos = Object.keys(efecto || {}).filter(function (k) { return NOMBRE_EFECTO[k] || TEXTO_EFECTO_ESPECIAL[k]; }).map(function (k) {
+      if (TEXTO_EFECTO_ESPECIAL[k]) return TEXTO_EFECTO_ESPECIAL[k];
       const v = efecto[k];
       return (v < 1 ? '−' : '+') + Math.round(Math.abs(1 - v) * 100) + ' % ' + NOMBRE_EFECTO[k];
-    }).join(', ');
+    });
+    return textos.length ? textos.join(', ') : 'No hace nada';
   }
 
   /*
@@ -1367,9 +1371,9 @@
   const NOMBRE_STAT = {
     espera: 'Espera entre carreras', propina: 'Propina', sinPagar: 'Se va sin pagar',
     objeto: 'Devuelve un olvido', hallazgo: 'Encuentra un objeto', baja: 'Baja',
-    pinchazo: 'Pinchazo', averia: 'Avería', limpieza: 'Limpiar un vómito'
+    pinchazo: 'Pinchazo', averia: 'Avería', limpieza: 'Limpiar un vómito', suerte: 'Encuentra algo mejor'
   };
-  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true };
+  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true };
   const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '' };
 
   /* Porcentaje legible con las cifras justas: «18 %», «0,8 %», «0,08 %». */
@@ -1386,6 +1390,7 @@
 
   function textoStat(s) {
     if (s.clave === 'espera') return s.factor === 1 ? 'Normal' : cambio(s.factor);
+    if (s.clave === 'suerte') return porcentaje(s.valor) + ' de lo que encuentra';
     if (s.clave === 'limpieza') {
       return euros(s.valor.costeMin) + '–' + euros(s.valor.costeMax) + ' · ' + Math.round(s.valor.minutos) + ' min parado';
     }
@@ -1491,6 +1496,7 @@
       '<span><strong>' + esc(o.nombre) + '</strong><span class="' + claseRareza(o.categoria) + '">' +
       esc(Libre.sim.buscarCategoria(o.categoria).nombre) + '</span></span></div>' +
       '<p>' + esc(o.descripcion) + '</p>' +
+      (o.frase ? '<p class="almacen-frase">' + esc(o.frase) + '</p>' : '') +
       '<p class="almacen-panel-nota">' + hay + ' sin equipar' + (puestos ? ' · ' + puestos + (puestos === 1 ? ' equipado' : ' equipados') : '') +
       '. Se equipa desde la ficha de cada conductor.</p>' + htmlCombinar(estado, o) + botonVenta(o.id) + '</div>';
   }

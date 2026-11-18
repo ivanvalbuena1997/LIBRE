@@ -1058,12 +1058,17 @@
   function hallazgo(estado, resumen, t) {
     if (!t || t.quien !== 'conductor') return;
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
-    if (!toca(estado, 'hallazgo', cfg().objetos.probHallazgo * cat.hallazgo)) return;
+    const f = factoresConductor(estado, t);
+    const prob = cfg().objetos.probHallazgo * cat.hallazgo * topeConductor('hallazgo', f.hallazgo, t);
+    if (!toca(estado, 'hallazgo', prob)) return;
     const forzado = consumirForzado(estado, 'hallazgo');
     let objeto = forzado && forzado.arg ? buscarObjeto(forzado.arg) : null;
     if (!objeto) {
       const pedida = forzado && forzado.arg && buscarCategoria(forzado.arg) ? forzado.arg : null;
-      const categoria = pedida || sortearCategoria(estado);
+      let categoria = pedida || sortearCategoria(estado);
+      // Con suerte (objetos, Urraca) lo encontrado sube una categoría.
+      const siguiente = categoriaSiguiente(categoria);
+      if (!pedida && siguiente && azar(estado) < probSubir(t, f)) categoria = siguiente.id;
       const posibles = cfg().objetos.lista.filter(function (o) { return o.categoria === categoria; });
       objeto = posibles[Math.floor(azar(estado) * posibles.length)];
     }
@@ -1100,6 +1105,15 @@
     incidencia(estado, resumenVacio(), 'venta', 'Vendes ' + o.nombre + '.', precio, 'extras');
     guardarBandeja(estado);
     return exito('Vendes ' + o.nombre + ' por ' + Libre.ui_euros(precio) + '.');
+  }
+
+  /*
+   * Probabilidad de que lo que encuentra un conductor suba una categoría:
+   * su factor de suerte menos 1 (1,15 → 15 %), con el tope de suerte.
+   */
+  function probSubir(t, f) {
+    const bruto = f ? f.suerte : aportesConductor(t).reduce(function (p, a) { return p * ((a.efecto || {}).suerte || 1); }, 1);
+    return Math.max(0, topeConductor('suerte', bruto, t) - 1);
   }
 
   /* Categoría siguiente a la de un objeto (null si ya es la mejor). */
@@ -1186,7 +1200,7 @@
     return exito(buscarObjeto(id).nombre + ' vuelve al almacén.');
   }
 
-  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza'];
+  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza', 'hallazgo', 'suerte'];
 
   /*
    * De dónde salen los factores de un conductor: una lista de aportes
@@ -1341,8 +1355,20 @@
     stats.push(probabilidad('objeto', ev.objeto.probCarrera));
 
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
-    stats.push({ clave: 'hallazgo', valor: cfg().objetos.probHallazgo * cat.hallazgo, factor: cat.hallazgo, tope: false,
-      fuentes: cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo, multiplica: true }] });
+    const hallazgo = fuentesDe('hallazgo');
+    const brutoHallazgo = producto(hallazgo);
+    const factorHallazgo = topeConductor('hallazgo', brutoHallazgo, t);
+    stats.push({ clave: 'hallazgo', valor: cfg().objetos.probHallazgo * cat.hallazgo * factorHallazgo,
+      factor: cat.hallazgo * factorHallazgo, tope: factorHallazgo !== brutoHallazgo, limite: limite('hallazgo'),
+      fuentes: (cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo, multiplica: true }])
+        .concat(hallazgo) });
+    const suerte = fuentesDe('suerte');
+    if (suerte.length) {
+      const brutoSuerte = producto(suerte);
+      const factorSuerte = topeConductor('suerte', brutoSuerte, t);
+      stats.push({ clave: 'suerte', valor: factorSuerte - 1, factor: factorSuerte, tope: factorSuerte !== brutoSuerte,
+        limite: limite('suerte'), fuentes: suerte });
+    }
 
     stats.push(probabilidad('baja', ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
       return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.baja };
@@ -1364,7 +1390,7 @@
   }
 
   /* Lo que conviene que sea alto (el resto, cuanto más bajo, mejor). */
-  const MAS_ES_MEJOR = { propina: true, objeto: true };
+  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true };
 
   /* Apertura de los topes de un conductor (0 a 1): categoría y nivel. */
   function aperturaTopes(t) {
@@ -2416,6 +2442,8 @@
     statsConductor,
     aportesConductor,
     conEfecto,
+    probSubir,
+    hallazgo,
     saltarAlCierre,
     cambiarAjuste,
     sumarCierres,
