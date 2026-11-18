@@ -49,8 +49,11 @@
     },
 
     /*
-     * Eventos aleatorios. Equilibrio: sin mejoras, el efecto neto de todos
-     * sobre el beneficio debe quedar cerca de cero.
+     * Eventos aleatorios. Equilibrio. Hasta el 17-11-2026, sin mejoras, el
+     * efecto neto de todos quedaba cerca de cero. Iván (18-11-2026): que
+     * pinchazos, bajas y averías se noten (y así los objetos que los evitan
+     * valgan algo): con 5 conductores B, los eventos restan ahora un 18 %
+     * frente a no tenerlos (antes un 8 %).
      *   probCarrera  probabilidad en cada carrera terminada (tuya o de conductor)
      *   probTurno    probabilidad al empezar cada turno de cada taxi
      *   probJornada  probabilidad una vez por jornada (general)
@@ -61,7 +64,7 @@
         nombre: 'Propinas', probCarrera: 0.15,
         porcentajeMin: 0.05, porcentajeMax: 0.25    // sobre el importe de la carrera
       },
-      sinPagar: { nombre: 'Sin pagar', probCarrera: 0.01 },
+      sinPagar: { nombre: 'Sin pagar', probCarrera: 0.02 },
       // Vómitos (Iván): mucho más de noche y, sobre todo, a la salida del ocio.
       // probCarrera es de día; probNoche, de horaNocheInicio a horaNocheFin;
       // probPorZona manda sobre las dos. Efecto: limpieza y horasParado sin trabajar.
@@ -85,10 +88,10 @@
           { nombre: 'un maletín con documentos', recompensa: 300, peso: 0.5 }
         ]
       },
-      pinchazo: { nombre: 'Pinchazos', probTurno: 0.015, coste: 120 },
-      baja: { nombre: 'Bajas', probTurno: 0.008, jornadasMin: 1, jornadasMax: 5 },
+      pinchazo: { nombre: 'Pinchazos', probTurno: 0.04, coste: 120 },
+      baja: { nombre: 'Bajas', probTurno: 0.02, jornadasMin: 1, jornadasMax: 5 },
       averia: {
-        nombre: 'Averías', probTurno: 0.0008, jornadasMin: 10, jornadasMax: 20,
+        nombre: 'Averías', probTurno: 0.003, jornadasMin: 3, jornadasMax: 8,
         costeMin: 150, costeMax: 400,
         cochesMinimos: 2           // con menos coches no hay averías
       },

@@ -314,17 +314,17 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 
 ### 5.8 Eventos
 
-Van a la caja y salen como incidencias en el ticket. Sin mejoras, su efecto neto queda cerca de cero, salvo los vómitos, que a propósito son un coste que se evita con la Bolsa para vómitos.
+Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin mejoras, su efecto neto quedaba cerca de cero (salvo los vómitos, un coste a propósito). Desde el 18-11 (Iván: «a penas me pasa nunca») pinchazos, bajas, averías y clientes sin pagar pasan más: con 5 conductores B los eventos restan un 18 % frente a no tenerlos (antes, un 8 %). Cada conductor pincha una vez cada unas 19 jornadas y se pone de baja una vez cada unas 60. Lo que se pierde se recupera con objetos.
 
 | Evento | Cuándo | Probabilidad | Efecto |
 | --- | --- | --- | --- |
 | Propina | Por carrera (también las tuyas) | 15 % | 5 a 25 % del importe |
-| Sin pagar | Por carrera | 1 % | Se pierde el importe |
+| Sin pagar | Por carrera | 2 % | Se pierde el importe (con la Cámara de seguridad, nada) |
 | Objeto devuelto | Por carrera | 1 % | Recompensa de 5 € (paraguas) a 300 € (maletín) |
 | Vómito | Por carrera | 0,08 % de día, 1 % de noche, 3 % en Ocio nocturno | Limpieza de 50 a 90 € y una hora parado (con la Bolsa para vómitos, nada) |
-| Pinchazo | Al empezar un turno | 1,5 % | Neumático de 120 € y parado el resto del turno (con la Rueda de repuesto, nada) |
-| Baja | Al empezar un turno de conductor | 0,8 % | De 1 a 5 jornadas sin trabajar |
-| Avería | Al empezar un turno de conductor, con 2 coches o más | 0,08 % | De 10 a 20 jornadas en el taller y 150 a 400 € |
+| Pinchazo | Al empezar un turno | 4 % | Neumático de 120 € y parado el resto del turno (con la Rueda de repuesto, nada) |
+| Baja | Al empezar un turno de conductor | 2 % | De 1 a 5 jornadas sin trabajar |
+| Avería | Al empezar un turno de conductor, con 2 coches o más | 0,3 % | De 3 a 8 jornadas en el taller y 150 a 400 € |
 | Lluvia | Una vez por jornada | 20 % | De 1 a 3 horas con el doble de demanda |
 | Objeto encontrado | Por carrera de conductor | 1,2 % | Un objeto para el almacén (ver 5.7) |
 

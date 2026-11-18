@@ -499,7 +499,7 @@ prueba('pinchazo, baja y avería paran el turno; la avería exige dos coches', f
   e.reloj.minutos = 22 * 60;
   assert.ok(sim.forzarEvento(e, 'averia').ok);
   const averiada = e.licencias.find(function (l) { return l.averia; });
-  assert.ok(averiada.averia.hasta - sim.jornadaDe(e.reloj.minutos) >= 10);
+  assert.ok(averiada.averia.hasta - sim.jornadaDe(e.reloj.minutos) >= config.eventos.averia.jornadasMin);
   assert.ok(!sim.puedeTrabajar(e, averiada, averiada.turnos.noche, e.reloj.minutos));
   assert.ok(sim.forzarEvento(e, 'baja', 2).ok);
   assert.ok(sim.forzarEvento(e, 'pinchazo').ok);

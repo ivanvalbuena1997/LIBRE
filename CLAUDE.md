@@ -260,8 +260,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   vez por jornada. Van a la caja como `extras` (dinero que entra), `otros`
   (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket. Sin
   conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
-  Sin mejoras, su efecto neto debe quedar cerca de cero (medido con un bot),
-  salvo los vómitos: a propósito (Iván) son un coste que se evita con la
+  Desde el 18-11-2026 (Iván) restan: pinchazos 4 %, bajas 2 % y averías
+  0,3 % por turno, sin pagar 2 % por carrera; con 5 conductores B, un 18 %
+  frente a no tenerlos (antes un 8 %, casi compensado por propinas). Los
+  vómitos: a propósito (Iván) son un coste que se evita con la
   Bolsa para vómitos (1 % por carrera de noche, 3 % en Ocio nocturno, 1
   hora parado).
   Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
