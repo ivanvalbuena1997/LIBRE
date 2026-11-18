@@ -324,7 +324,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   botón: «HOY LIBRAS · Toca para saltar al cierre ›».
 - Tarjeta «Siguiente»: la propone `Libre.sim.objetivoCompra(estado, fija)`
   (coche o conductor que falte; si no, licencia o mejoras de hasta
-  `config.objetivo.mejorasHasta` de crecer). La interfaz solo le pone nombre
+  `config.objetivo.mejorasHasta` de crecer; con
+  `licenciasParaPersonal` licencias, también `mejorasPersonal`: Curso de
+  zonas y RRHH). La interfaz solo le pone nombre
   y destino (`decorarCompra()`) y recuerda la fija. El bot la usa en su
   perfil «siguiente».
 - Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén y

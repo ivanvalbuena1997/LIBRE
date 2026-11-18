@@ -121,3 +121,29 @@ Medido con el bot (`node tests/progresion.js`, 10 semillas):
 | 4 | El Bocata, flojo para LEGENDARIO | Que su −12 % de espera valga de día y de noche. |
 | 5 | Casi todos los conductores son B | Que «Siguiente» proponga RRHH cuando tienes 3 licencias o más. |
 | 6 | Los B no se distinguen | Subir algo sus efectos (por ejemplo, Ambientador +15 %) o dejarlos como relleno para combinar, que ahora tiene sentido. |
+
+## Aplicadas el 18-11-2026 (y medidas otra vez)
+
+Las seis propuestas están aplicadas:
+
+| Qué | Cambio | Total, «tarde» |
+| --- | --- | --- |
+| Detector de metales | +30 % de hallazgo y 15 % de suerte | +26,2 → **+9,4 €** |
+| Gato de la suerte | +20 % de hallazgo | +14,6 → **+10,0 €** |
+| Cámara de seguridad | Pasa a A y da +10 % de propinas | +1,2 → **+4,2 €** (la mejor A) |
+| Bocata de calamares | −12 % de espera de día y de noche | +5,5 → **+11,1 €** |
+| Objetos B | Efectos algo más altos (Ambientador +15 %, Cojín −25 %, Termo y Gafas −6 %, Funda −40 %, Callejero −4 %, Perrito, Rosario) | Ahora entre +1 y +3 €, todavía cerca del ruido |
+| «Siguiente» | Con 3 licencias o más propone el Curso de zonas y RRHH | El bot compra el Curso hacia el minuto 63 y RRHH hacia el 67 |
+
+**Cómo queda la parte alta de la tierlist:**
+
+| Tier | Objetos |
+| --- | --- |
+| S | Pizza, Paconi y Bocata |
+| A | Gato, Detector de metales, Navegador, Nevera y Bidón |
+
+**Ritmo siguiendo «Siguiente»:**
+- La 2.ª licencia llega al minuto 21 y la 3.ª al 46.
+- A los 150 minutos hay 9 licencias y unos 2.050 € de neto por jornada.
+
+**Conductores:** siguen siendo casi todos B (15 de 16 a los 150 minutos). La mayoría se contrata antes de tener RRHH, y el bot no despide a nadie para cambiarlo por uno mejor.

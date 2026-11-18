@@ -1507,4 +1507,19 @@ prueba('hallazgo y suerte: objetos y Urraca encuentran más y mejor, con tope', 
   assert.ok(media(['detector']) > media([]) + 0.15, 'con detector, mejores objetos');
 });
 
+prueba('«Siguiente» propone el Curso de zonas y RRHH a partir de 3 licencias', function () {
+  const e = flotaDe(2);
+  const ids = function () { return sim.comprasParaObjetivo(e).map(function (x) { return x.mejora; }); };
+  assert.ok(ids().indexOf('gestionZonas') === -1, 'con 2 licencias, no');
+  e.dinero = 1e6;
+  sim.comprarLicencia(e);
+  const l = e.licencias[2];
+  sim.comprarVehiculo(e, l.id);
+  sim.contratarConductor(e, l.id, 'dia');
+  sim.contratarConductor(e, l.id, 'noche');
+  assert.ok(ids().indexOf('gestionZonas') !== -1, 'con 3, el Curso');
+  sim.comprarMejora(e, 'gestionZonas');
+  assert.ok(ids().indexOf('rrhh') !== -1, 'y luego RRHH');
+});
+
 console.log(pasadas + ' pruebas correctas');

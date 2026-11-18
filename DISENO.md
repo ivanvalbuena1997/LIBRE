@@ -86,7 +86,7 @@ De arriba abajo, debajo de la cabecera:
   - **Conductor** (izquierda), cuando conduces y es tu turno: piloto LIBRE en verde u OCUPADO, importe en vivo, «Con pasajero · 4,5 km» y una raya con el avance de la carrera. Todo el taxímetro es el botón de buscar cliente.
   - **Flota** (derecha), el resto del tiempo: piloto FLOTA en amarillo, el display suma lo recaudado hoy por toda la flota, la segunda línea resume «2 ocupados · 3 parados» y debajo del piloto sale la hora de tu turno. Tocarlo abre el desglose de la caja de hoy.
   - **Libranza**, el día que libra tu licencia si ningún taxi de la flota puede trabajar y no tienes otra licencia a la que pasarte: «HOY LIBRAS · Toca para saltar al cierre ›». Tocarlo salta al ticket de ese día (ver 5.4).
-- **Siguiente:** tarjeta con lo que hace crecer la flota (Iván, 18-11-2026): si falta un coche o hay un turno libre, eso; si no, la próxima licencia o una mejora que cueste como mucho el 10 % de crecer (licencia y coche). De esas, la más barata que aún no te puedes permitir, lo que falta y su barra; cuando llega el dinero dice «¡ya puedes!» y lleva a ella.
+- **Siguiente:** tarjeta con lo que hace crecer la flota (Iván, 18-11-2026): si falta un coche o hay un turno libre, eso; si no, la próxima licencia o una mejora que cueste como mucho el 10 % de crecer (licencia y coche); con 3 licencias o más, también el Curso gestión de zonas y el Departamento de RRHH, para que lleguen conductores mejores. De esas, la más barata que aún no te puedes permitir, lo que falta y su barra; cuando llega el dinero dice «¡ya puedes!» y lleva a ella.
 - **Tus taxis hoy:** una fila de 44 px por taxi con retrato (el de cada conductor lleva su rareza abajo a la izquierda y su nivel abajo a la derecha, como en Conductores), nombre, licencia y zona («15288-L · Centro»; si no cabe, se corta la zona, nunca la licencia), chip de estado (Libre en verde, Ocupado en azul, Libranza en gris, De baja en rojo; Avería, Pinchazo o Limpieza en ámbar), lo facturado en la jornada y una barra proporcional al que más lleva. Las filas se reordenan con una animación cuando un taxi adelanta a otro y destellan al cobrar. Con más de 6 taxis, «Ver los N restantes». Tocar una fila lleva a ese taxi en Conductores; tocar el total abre el desglose de la caja.
 - **Zonas:** chips con el nombre y «25 viajes/h» (o «Abre a las 21:00»); en azul las que tienen clientes ahora y rellena la tuya cuando conduces (tocar otra te lleva allí). Las cerradas, en un último chip gris y discontinuo («2 cerradas · Qué las abre ›»); al tocarlo dice qué mejora abre cada una.
 
@@ -286,14 +286,14 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | Categoría | Objeto | Efecto | Frase |
 | --- | --- | --- | --- |
 | B | Mapa del Metro de 1998 | Ninguno (sirve para combinar) | No sale ni la línea 8. Lo guardas por si vuelve 1998. |
-| B | Perrito del salpicadero | +6 % de propinas, −2 % de espera | Asiente a todo lo que dice el cliente. El cliente lo agradece. |
-| B | Rosario del retrovisor | −25 % de clientes sin pagar, +4 % de propinas | Nadie se va sin pagar delante de la Virgen de la Paloma. |
-| B | Ambientador | +10 % de propinas | Pino del bosque. O eso dice la etiqueta. |
-| B | Cojín lumbar | −15 % de bajas | Doce horas sentado. Tu espalda te lo agradece por escrito. |
-| B | Termo de café | −4 % de espera de noche | A las cuatro de la mañana, el café es un derecho fundamental. |
-| B | Gafas de sol | −4 % de espera de día | Para el sol de la Castellana. Y para no cruzar la mirada con el agente de movilidad. |
-| B | Funda de asientos | −25 % de limpieza de un vómito | De cuadros escoceses. Nadie sabe por qué, pero todas son así. |
-| B | Callejero de papel | −3 % de espera | Edición de 2003. Desde entonces solo han cambiado todas las calles. |
+| B | Perrito del salpicadero | +8 % de propinas, −3 % de espera | Asiente a todo lo que dice el cliente. El cliente lo agradece. |
+| B | Rosario del retrovisor | −40 % de clientes sin pagar, +6 % de propinas | Nadie se va sin pagar delante de la Virgen de la Paloma. |
+| B | Ambientador | +15 % de propinas | Pino del bosque. O eso dice la etiqueta. |
+| B | Cojín lumbar | −25 % de bajas | Doce horas sentado. Tu espalda te lo agradece por escrito. |
+| B | Termo de café | −6 % de espera de noche | A las cuatro de la mañana, el café es un derecho fundamental. |
+| B | Gafas de sol | −6 % de espera de día | Para el sol de la Castellana. Y para no cruzar la mirada con el agente de movilidad. |
+| B | Funda de asientos | −40 % de limpieza de un vómito | De cuadros escoceses. Nadie sabe por qué, pero todas son así. |
+| B | Callejero de papel | −4 % de espera | Edición de 2003. Desde entonces solo han cambiado todas las calles. |
 | A | GPS | −6 % de espera | «Gire a la derecha.» No hay derecha. Nunca hay derecha. |
 | A | Manómetro de ruedas | −30 % de pinchazos | Dos coma dos bares. Ni uno más, ni uno menos. |
 | A | Caramelos para clientes | +20 % de propinas | Los de café con leche son para los clientes. Los de fresa, no. |
@@ -302,7 +302,7 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | A | Alfombrillas de goma | −45 % de limpieza de un vómito | Manguera y listo. Ya lo has visto todo en esta vida. |
 | A | Paquete de chicles de menta | +10 % de propinas, −5 % de espera de noche | Aliento fresco a las cuatro de la mañana. Los de atrás lo agradecen. |
 | A | Linterna de bolsillo | +40 % de objetos encontrados | Lo que sale de debajo de los asientos, mejor no preguntarlo. |
-| S | Cámara de seguridad | Nadie se va sin pagar de su taxi | Sonría. Y pague. |
+| A | Cámara de seguridad | Nadie se va sin pagar de su taxi, +10 % de propinas | Sonría. Y pague. |
 | S | Rueda de repuesto | Un pinchazo no cuesta ni le para | La de verdad, no la de galleta. Ya te lo explicó tu cuñado. |
 | S | Radio-escáner | −10 % de espera | Se entera de todo antes que la radio. Y antes que los vecinos. |
 | S | Kit de herramientas | −35 % de averías, −20 % de pinchazos | Llave del 13, cinta americana y fe. |
@@ -316,10 +316,10 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | S+ | Silla ergonómica | −50 % de bajas, −7 % de espera de noche | Más cara que el coche. Bueno, casi. |
 | S+ | Nevera con agua fría | +45 % de propinas, −30 % de limpieza de un vómito | Agua fría en agosto en Madrid: el único lujo de verdad. |
 | S+ | Detector de baches | −50 % de pinchazos, −30 % de averías | Se sabe los baches de la M-30 por su nombre. |
-| S+ | Gato de la suerte | +30 % de propinas, +40 % de objetos encontrados, 15 % de que lo encontrado sea de una categoría mejor | Mueve la patita todo el día. Algo hace. |
-| S+ | Detector de metales | +80 % de objetos encontrados, 30 % de que lo encontrado sea de una categoría mejor | Pita con cada moneda, cada llave… y a veces con algo que vale la pena. |
+| S+ | Gato de la suerte | +30 % de propinas, +20 % de objetos encontrados, 15 % de que lo encontrado sea de una categoría mejor | Mueve la patita todo el día. Algo hace. |
+| S+ | Detector de metales | +30 % de objetos encontrados, 15 % de que lo encontrado sea de una categoría mejor | Pita con cada moneda, cada llave… y a veces con algo que vale la pena. |
 | LEGENDARIO | Planta de Paconi | −10 % de espera, +30 % de propinas, −30 % de bajas | Nadie sabe de dónde salió. Nadie se atreve a regarla. |
-| LEGENDARIO | Bocata de calamares infinito | −60 % de bajas, −12 % de espera de día | De la Plaza Mayor. Se acaba uno y aparece otro. |
+| LEGENDARIO | Bocata de calamares infinito | −60 % de bajas, −12 % de espera | De la Plaza Mayor. Se acaba uno y aparece otro. |
 | LEGENDARIO | Porción de pizza | −12 % de espera, −40 % de bajas, +30 % de propinas | De tu 24 horas de confianza. |
 | LEGENDARIO | Bidón energético | −22 % de espera de noche, −20 % de bajas | Medio litro de algo verde. No preguntes. |
 

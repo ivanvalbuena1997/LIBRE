@@ -593,7 +593,8 @@
    * Compras que la tarjeta «Siguiente» puede proponer (Iván, 18-11-2026: lo
    * que hace crecer). Si falta un coche o hay un turno libre, solo eso. Si
    * no, la licencia y las mejoras que cuestan como mucho
-   * `config.objetivo.mejorasHasta` de crecer (licencia y coche).
+   * `config.objetivo.mejorasHasta` de crecer (licencia y coche) y, con
+   * `licenciasParaPersonal` licencias, las de `mejorasPersonal` (RRHH).
    */
   function comprasParaObjetivo(estado) {
     const lista = comprasPosibles(estado);
@@ -601,8 +602,10 @@
     if (flota.length) return flota;
     const c = cfg();
     const crecer = precioLicencia(estado) + c.vehiculos.modelos[c.vehiculos.modeloInicial].precio;
+    const personal = estado.licencias.length >= c.objetivo.licenciasParaPersonal ? c.objetivo.mejorasPersonal : [];
     return lista.filter(function (x) {
-      return x.tipo === 'licencia' || (x.tipo === 'mejora' && x.precio <= c.objetivo.mejorasHasta * crecer);
+      return x.tipo === 'licencia' ||
+        (x.tipo === 'mejora' && (x.precio <= c.objetivo.mejorasHasta * crecer || personal.indexOf(x.mejora) !== -1));
     });
   }
 
