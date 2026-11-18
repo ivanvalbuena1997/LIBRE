@@ -399,7 +399,7 @@
     },
 
     licencias: {
-      precioBase: 3000,            // Iván (valor de juego): precio de la segunda licencia.
+      precioBase: 2500,            // Iván (valor de juego, 18-11-2026): precio de la segunda licencia.
       factorSubida: 1.15,          // Equilibrio: cada licencia cuesta un 15 % más que la anterior.
       maximo: 15812,               // Dato real: licencias en el área de Madrid.
       // Dato real (Iván): la letra de la licencia indica el día de libranza y
@@ -563,6 +563,7 @@
      *             baja: multiplica la probabilidad de baja de los conductores
      *                   (junto con su rasgo y sus objetos, bajo el mismo tope)
      *             almacen: objetos de más que caben en el almacén
+     *             porcentajeConductor: multiplica la parte de cada carrera que se queda el conductor
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
      *             (el efecto del nivel es el total, no se suma al anterior).
      *             inventario: desbloquea un consumible del inventario (config.inventario)
@@ -705,7 +706,7 @@
       },
       // ---- Rama: Conductores y jornada
       {
-        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', precio: 2500,
+        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', precio: 2000,
         descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
         efecto: { gestionZonas: true }
       },
@@ -745,9 +746,11 @@
         ]
       },
       {
-        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornadaLarga', precio: 6000,
-        descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota. Tu turno queda libre para un conductor.',
-        efecto: { dejarVolante: true }
+        // Iván (18-11-2026): 4.000 € y rebaja lo que se quedan los conductores,
+        // para que dejar el volante no sea una trampa. El 0,9 es Equilibrio.
+        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornadaLarga', precio: 4000,
+        descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota (tu turno queda libre para un conductor). Con la gestoría al día, tus conductores se quedan el 45 % de cada carrera en vez del 50 %.',
+        efecto: { dejarVolante: true, porcentajeConductor: 0.9 }
       }
     ]
   };

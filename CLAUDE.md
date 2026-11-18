@@ -284,7 +284,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Tu turno siempre es a clic, también con conductores contratados: solo
   producen solos los turnos de conductores. Solo se trabaja dentro de la
   franja de tu turno (`jugadorEnTurno()`). Dejar el volante y quedarte solo
-  como gestor (`dejarDeConducir()`) requiere la mejora «Oficina de gestión»;
+  como gestor (`dejarDeConducir()`) requiere la mejora «Oficina de gestión»,
+  que además rebaja lo que se quedan los conductores (`porcentajeConductor()`);
   `conducir()` te devuelve a un turno libre. Usan azar para variar km y tipo de viaje.
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
@@ -388,7 +389,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 
 Ahora mismo ninguno: Iván confirmó el 13 de noviembre de 2026 combustible,
 consumo, cuota de autónomo (535 €/mes), seguro, emisora y porcentaje del
-conductor (marcados «Dato de Iván»). Licencia (3.000 €) y coche (1.500 €) son valores de juego
+conductor (marcados «Dato de Iván»). Licencia (2.500 €, desde el 18-11-2026) y coche (1.500 €) son valores de juego
 fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
 `PROVISIONAL` y se apunta aquí.
 

@@ -1371,4 +1371,14 @@ prueba('topes que crecen: con la categoría y el nivel, solo hacia lo bueno', fu
   cerca(st.limite, extremo.espera);
 });
 
+prueba('la Oficina de gestión rebaja lo que se quedan los conductores', function () {
+  const e = sim.crearEstadoInicial(0);
+  cerca(sim.porcentajeConductor(e), config.conductores.porcentaje);
+  e.dinero = 100000;
+  assert.ok(comprarConRequisitos(e, 'oficina').ok);
+  const oficina = config.mejoras.find(function (m) { return m.id === 'oficina'; });
+  cerca(sim.porcentajeConductor(e), config.conductores.porcentaje * oficina.efecto.porcentajeConductor);
+  assert.ok(sim.porcentajeConductor(e) < config.conductores.porcentaje);
+});
+
 console.log(pasadas + ' pruebas correctas');

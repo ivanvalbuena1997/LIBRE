@@ -57,7 +57,7 @@ Otros datos reales que usa el juego (confirmados por Iván el 13 y el 16 de novi
 - **Conductor asalariado:** se queda el 50 % de lo que recauda.
 - **Libranza:** cada licencia libra según su letra, que sale de la última cifra del número: lunes (L) si acaba en 7 u 8, martes (M) en 9 o 0, miércoles (X) en 1 o 2, jueves (J) en 3 o 4 y viernes (V) en 5 o 6. En fin de semana libra según la paridad del día del mes: una licencia par trabaja los días pares y libra los impares; una impar, al revés. La letra del miércoles está por confirmar (el juego usa X).
 
-**Valores de juego, no reales:** licencia 3.000 € (sube un 15 % con cada compra) y coche 1.500 €, fijados por Iván. Todo lo demás que no aparece arriba (demanda, precios de mejoras, probabilidades) es equilibrio y se ajusta jugando.
+**Valores de juego, no reales:** licencia 2.500 € (sube un 15 % con cada compra; 3.000 € hasta el 18-11-2026) y coche 1.500 €, fijados por Iván. Todo lo demás que no aparece arriba (demanda, precios de mejoras, probabilidades) es equilibrio y se ajusta jugando.
 
 Datos reales que el juego aún no usa: tarifa 7 (recorridos de menos de 1.450 m, 8 €) y suplemento de Nochebuena y Nochevieja (7 €).
 
@@ -188,7 +188,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 ### 5.4 Licencias, coches y libranza
 
-- **Licencia:** 3.000 € la segunda y un 15 % más cara cada siguiente, hasta las 15.812 de Madrid. Al comprarla eliges entre **dos placas con letras distintas**, cada una con su libranza.
+- **Licencia:** 2.500 € la segunda y un 15 % más cara cada siguiente, hasta las 15.812 de Madrid. Al comprarla eliges entre **dos placas con letras distintas**, cada una con su libranza.
 - **Coche:** 1.500 € (un solo modelo, Turismo). Sin coche, la licencia no trabaja.
 - **Libranza:** el día que le toca, la licencia no trabaja en ninguno de sus dos turnos, tampoco el tuyo. Cada licencia libra unos 2 de cada 7 días (su día de semana y la mitad de los fines de semana). Los costes fijos se pagan igual: elegir bien la placa reparte las libranzas de la flota.
 - **Saltar el día de libranza:** si libra tu licencia y ese día no puede trabajar nadie (no hay conductores, o sus licencias también libran o están de baja o averiadas) y no tienes otra licencia a la que pasarte, el taxímetro ofrece **saltar al cierre**: el reloj corre de golpe hasta las 7:00, se pagan los costes fijos y sale el ticket del día. Cuenta como licencia a la que pasarte una con coche, que no libre ese día y con un turno libre, si tienes la Oficina de gestión (sin ella no puedes dejar tu turno). Si hay flota trabajando, el día corre normal.
@@ -374,11 +374,11 @@ Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Curso gestión de zonas | 2.500 € | Los conductores van cada hora a la zona que más deja |
+| Curso gestión de zonas | 2.000 € | Los conductores van cada hora a la zona que más deja |
 | Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |
 | Sacudir esterillas (5 niveles) | 450 / 720 / 990 / 1.350 / 1.800 € | Cada conductor encuentra de 0,50–2 € a 3–8 € al acabar su turno |
 | Jornada larga (5 niveles) | 400 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |
-| Oficina de gestión | 6.000 € | Puedes dejar el volante y solo gestionar (pide el nivel 1 de Jornada larga) |
+| Oficina de gestión | 4.000 € | Puedes dejar el volante y solo gestionar, y tus conductores se quedan el 45 % en vez del 50 % (pide el nivel 1 de Jornada larga) |
 
 ---
 
@@ -425,7 +425,7 @@ Las convenciones de código están en `CLAUDE.md`.
 **13 de noviembre de 2026**
 
 - El día dura 100 segundos y se alarga con mejoras; los costes fijos se cobran una vez por jornada.
-- Los conductores cobran un porcentaje de lo que recaudan (50 %, dato de Iván).
+- Los conductores cobran un porcentaje de lo que recaudan (50 %, dato de Iván; 45 % con la Oficina de gestión).
 - El precio de la licencia sube con cada compra.
 - Tus carreras son siempre a clic, también con conductores. Dejar de conducir es una mejora (Oficina de gestión).
 - La jornada va de 7:00 a 7:00, con pausa y ticket al cierre (desactivable).

@@ -1685,7 +1685,7 @@
         : Libre.sim.enPausa(estado)
           ? 'Día cerrado: arrastra a un conductor sobre otro, un turno libre o la reserva para reorganizarlos. ' +
             'En el móvil, mantén pulsado su retrato y toca dónde ponerlo (o «Cambiar de sitio» en su ficha).'
-          : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
+          : 'Tus conductores trabajan solos y se quedan el ' + Math.round(Libre.sim.porcentajeConductor(estado) * 100) +
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
       const n = estado.licencias.length;
       return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Conductores</h2>' +

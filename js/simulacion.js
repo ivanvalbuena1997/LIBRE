@@ -247,7 +247,7 @@
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
-      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1
+      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -271,8 +271,14 @@
       if (e.gestionZonas) m.gestionZonas = true;
       if (e.almacen) m.almacen += e.almacen;
       if (e.baja) m.baja *= e.baja;
+      if (e.porcentajeConductor) m.porcentajeConductor *= e.porcentajeConductor;
     });
     return m;
+  }
+
+  /* Parte de cada carrera que se queda el conductor (la Oficina la rebaja). */
+  function porcentajeConductor(estado) {
+    return cfg().conductores.porcentaje * modificadores(estado).porcentajeConductor;
   }
 
   /* Nivel comprado de una mejora: 0 si no la tienes (las de un nivel valen 1). */
@@ -1341,7 +1347,7 @@
     });
     if (modificadores(estado).gestionZonas) {
       const cuenta = {};
-      const parte = 1 - cfg().conductores.porcentaje;
+      const parte = 1 - porcentajeConductor(estado);
       conductores.forEach(function (x) {
         let mejor = x.t.zona, valor = -Infinity;
         zonas.forEach(function (z) {
@@ -1695,7 +1701,7 @@
       return;
     }
     cobrar(estado, resumen, carrera.importe, 1);
-    if (esConductor) gastar(estado, resumen, 'conductores', carrera.importe * cfg().conductores.porcentaje);
+    if (esConductor) gastar(estado, resumen, 'conductores', carrera.importe * porcentajeConductor(estado));
 
     if (toca(estado, 'propina', probPropina)) {
       consumirForzado(estado, 'propina');
@@ -2038,7 +2044,7 @@
       gastar(estado, resumen, 'combustible', r.kmHora * horas * k * costeKmMedio);
       estado.caja.hoy.km += r.kmHora * horas * k;
       if (conConductor > 0 && ingresos > 0) {
-        gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * c.conductores.porcentaje);
+        gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * porcentajeConductor(estado));
       }
     });
   }
@@ -2237,6 +2243,7 @@
     netoCaja,
     costePorKm,
     costesFijosDiarios,
+    porcentajeConductor,
     demandaZona,
     factorDeJornada,
     turnoDeHora,
