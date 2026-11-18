@@ -833,7 +833,11 @@
     pulcro: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
     guarro: '<path d="M8 6c2-2 6-2 8 0 3 1 4 5 2 7 1 3-2 6-5 5-2 2-6 1-6-2-3-1-4-5-1-7 0-1 1-2 2-3z"/><circle cx="19.5" cy="19.5" r="1"/>',
     aprovechado: '<circle cx="15" cy="7" r="3.5"/><path d="M3 15h4l3 2h5a1.5 1.5 0 0 0 0-3h-3M7 15v5M3 20h4l9-1 5-4a1.5 1.5 0 0 0-2-2l-4 2.5"/>',
-    anfibio: '<path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z"/><path d="M2 20c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0"/>'
+    anfibio: '<path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z"/><path d="M2 20c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0"/>',
+    // Urraca: un pájaro con un brillo (lo que encuentra).
+    urraca: '<path d="M3 15c3 0 5-2 6-5 1-3 3-4 5-4 2.5 0 4 1.5 4 3.5L21 11l-3 1c-.5 3-3 5.5-7 5.5H8l-3 2.5v-3.5"/><circle cx="15" cy="9" r=".6"/><path d="M5 4v3M3.5 5.5h3"/>',
+    // Desastre: un bolsillo roto por el que se cae algo.
+    desastre: '<path d="M5 4h14v8a7 7 0 0 1-7 7 7 7 0 0 1-7-7z"/><path d="M10 13l2 2 2-2 2 2"/><circle cx="12" cy="22" r=".8"/>'
   };
 
   /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
