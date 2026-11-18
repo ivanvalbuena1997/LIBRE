@@ -511,6 +511,7 @@
    * al final, debajo de las incidencias, porque ya las cuenta.
    */
   function lineasTicket(t) {
+    const neto = Libre.sim.netoCaja(t);
     return {
       actividad: [
         { texto: 'Carreras', valor: String(Math.floor(t.carreras)) },
@@ -518,12 +519,17 @@
       ],
       cuentas: [
         { texto: 'Recaudación', valor: '+' + euros(t.ingresos) },
-        { texto: 'Combustible', valor: '−' + euros(t.combustible) },
-        { texto: 'Conductores', valor: '−' + euros(t.conductores) },
-        { texto: 'Costes fijos', valor: '−' + euros(t.fijos) }
+        { texto: 'Combustible', valor: '−' + euros(t.combustible), negativo: t.combustible > 0 },
+        { texto: 'Conductores', valor: '−' + euros(t.conductores), negativo: t.conductores > 0 },
+        { texto: 'Costes fijos', valor: '−' + euros(t.fijos), negativo: t.fijos > 0 }
       ],
-      neto: { texto: 'Neto', valor: euros(Libre.sim.netoCaja(t)), total: true }
+      neto: { texto: 'Neto', valor: euros(neto), total: true, negativo: neto < 0 }
     };
+  }
+
+  /* El importe de una línea del ticket, en rojo si resta (Iván, 18-11-2026). */
+  function valorTicket(valor, negativo) {
+    return negativo ? '<span class="ticket-negativo">' + valor + '</span>' : '<span>' + valor + '</span>';
   }
 
   /*
@@ -542,7 +548,8 @@
         const nombre = (ev[tipo] ? ev[tipo].nombre : tipo) + (a.veces > 1 ? ' ×' + a.veces : '');
         const valor = a.importe === 0 ? '' : (a.importe > 0 ? '+' : '−') + euros(Math.abs(a.importe)) +
           (tipo === 'sinPagar' ? ' sin cobrar' : '');
-        return '<div class="ticket-linea" style="--i:' + siguiente() + '"><span>' + esc(nombre) + '</span><span>' + valor + '</span></div>';
+        return '<div class="ticket-linea" style="--i:' + siguiente() + '"><span>' + esc(nombre) + '</span>' +
+          valorTicket(valor, a.importe < 0) + '</div>';
       }).join('');
   }
 
@@ -573,7 +580,7 @@
       let i = 0;
       const linea = function (l) {
         return '<div class="ticket-linea' + (l.total ? ' ticket-total' : '') + '" style="--i:' + (i++) + '">' +
-          '<span>' + esc(l.texto) + '</span><span>' + l.valor + '</span></div>';
+          '<span>' + esc(l.texto) + '</span>' + valorTicket(l.valor, l.negativo) + '</div>';
       };
       return '<div class="ticket-ranura"><div class="ticket" role="group" aria-label="Ticket de cierre de caja">' +
         '<div class="ticket-cabecera">' +

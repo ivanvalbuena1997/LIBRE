@@ -953,6 +953,7 @@ body[data-vista="calle"] main { padding-top: var(--esp-1); }
 }
 .ticket-cabecera .ticket-linea { justify-content: center; }
 .ticket-total { font-weight: 800; font-size: 1.15rem; }
+.ticket-negativo { color: var(--peligro); }
 .ticket-subtitulo { justify-content: center; font-weight: 700; letter-spacing: 0.15em; }
 .ticket-pie {
   margin: 10px 0 12px;
