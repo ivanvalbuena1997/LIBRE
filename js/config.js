@@ -119,6 +119,8 @@
      *   peso           probabilidad de que salga esa categoría (suman 1),
      *                  al encontrar un objeto y en cada candidato
      *   venta          lo que te dan por vender un objeto de esa categoría
+     *                  (Iván, 18-11-2026: rebajado para que equipar
+     *                  compense más que vender; ver docs/analisis-objetos.md)
      *   contratar      precio de un conductor de esa categoría (Iván,
      *                  17-11-2026: el del B más lo que deja de más que un B
      *                  en 40 jornadas al principio de la partida, medido)
@@ -134,15 +136,15 @@
      *                  note más que el nivel)
      */
     categorias: [
-      { id: 'B', nombre: 'B', peso: 0.65, venta: 40, contratar: 400,
+      { id: 'B', nombre: 'B', peso: 0.65, venta: 20, contratar: 400,
         cualidades: 1, defectos: 2, probDefecto: 1, fuerzaCualidad: 1, fuerzaDefecto: 1, hallazgo: 1, aperturaTope: 0, esperaBase: 1 },
-      { id: 'A', nombre: 'A', peso: 0.25, venta: 120, contratar: 850,
+      { id: 'A', nombre: 'A', peso: 0.25, venta: 50, contratar: 850,
         cualidades: 1, defectos: 1, probDefecto: 1, fuerzaCualidad: 1.2, fuerzaDefecto: 0.85, hallazgo: 1.15, aperturaTope: 0.1, esperaBase: 0.95 },
-      { id: 'S', nombre: 'S', peso: 0.075, venta: 400, contratar: 1200,
+      { id: 'S', nombre: 'S', peso: 0.075, venta: 150, contratar: 1200,
         cualidades: 1, defectos: 1, probDefecto: 0.5, fuerzaCualidad: 1.4, fuerzaDefecto: 0.7, hallazgo: 1.3, aperturaTope: 0.2, esperaBase: 0.88 },
-      { id: 'S+', nombre: 'S+', peso: 0.02, venta: 1200, contratar: 1800,
+      { id: 'S+', nombre: 'S+', peso: 0.02, venta: 400, contratar: 1800,
         cualidades: 1, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.6, fuerzaDefecto: 0, hallazgo: 1.5, aperturaTope: 0.3, esperaBase: 0.75 },
-      { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 4000, contratar: 3350,
+      { id: 'L', nombre: 'LEGENDARIO', peso: 0.005, venta: 1200, contratar: 3350,
         cualidades: 2, defectos: 0, probDefecto: 0, fuerzaCualidad: 1.8, fuerzaDefecto: 0, hallazgo: 2, aperturaTope: 0.75, esperaBase: 0.45 }
     ],
 
@@ -744,8 +746,9 @@
         ]
       },
       {
-        // Equilibrio: cada nivel cuesta más o menos lo que valen vendidos los
-        // objetos (sobre todo B y A) que caben de más.
+        // Equilibrio: cada nivel costaba más o menos lo que valían vendidos los
+        // objetos (sobre todo B y A) que caben de más, con la venta de antes
+        // del 18-11-2026 (ahora, más o menos la mitad).
         id: 'taquillas', nombre: 'Taquillas', rama: 'jornada',
         descripcion: 'Taquillas para guardar lo que encuentran tus conductores: el almacén guarda más objetos.',
         niveles: [

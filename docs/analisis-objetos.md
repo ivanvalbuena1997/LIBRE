@@ -54,6 +54,8 @@
 
 ## Lo que dicen los datos
 
+(Con los precios de venta de antes de la propuesta 1, que ya está aplicada.)
+
 1. **Solo valen la espera y las propinas.**
    - Los 8 mejores objetos bajan la espera o suben la propina.
    - Bajas (0,8 % por turno), pinchazos y averías son raros y baratos, así que reducirlos casi no da nada.
@@ -90,7 +92,7 @@
 
 | # | Problema | Propuesta |
 | --- | --- | --- |
-| 1 | Vender gana a equipar | **Bajar la venta:** B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 €. Así un LEGENDARIO equipado se paga en 90–120 jornadas y uno S en unas 25: equipar pasa a ser lo normal. Encontrar objetos bajaría de ~36 € a ~14 € por jornada. |
+| 1 | Vender gana a equipar | **Aplicada el 18-11-2026.** **Bajar la venta:** B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 €. Así un LEGENDARIO equipado se paga en 90–120 jornadas y uno S en unas 25: equipar pasa a ser lo normal. Encontrar objetos bajaría de ~36 € a ~14 € por jornada. Medido con el bot (perfil «siguiente»): el principio no cambia y a los 150 minutos hay 10,1 licencias (antes 10,6) y unos 2.100 € de neto por jornada (antes 2.800: la venta de objetos era una parte grande). |
 | 2 | Objetos muertos con mejoras | Darles un segundo efecto que no anulen las mejoras: Funda (+4 % de propina, «asientos que dan gusto»), Alfombrillas (−3 % de espera, «se sube cualquiera»), Espejo (+8 % de objetos devueltos), Datáfono (−6 % de espera: «¿aceptas tarjeta?», «sí» y se suben). |
 | 3 | Bajas, pinchazos y averías no se notan | Subir sus efectos (por ejemplo, Cojín −40 % de bajas) o añadir a cada uno un poco de espera. Otra opción: que una baja dure más (ahora, 1–5 jornadas). |
 | 4 | El Bocata, flojo para ser LEGENDARIO | Pasar su −12 % de espera a todo el día, no solo al turno de día. |

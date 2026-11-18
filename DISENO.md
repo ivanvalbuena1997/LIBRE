@@ -278,7 +278,7 @@ La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
 - **Encontrarlos:** cada carrera de un conductor tiene un 1,2 % de dar un objeto (más según su categoría). Tú no encuentras, y sin conexión tampoco. Se sortea la categoría con los pesos de la tabla de arriba y, dentro de ella, el objeto. Sale un aviso con su retrato.
 - **Almacén:** guarda 10 objetos sin equipar (hasta 40 con Taquillas). Si está lleno, lo encontrado espera en una **bandeja** hasta que vendes algo: nada se vende solo.
 - **Equipar:** desde la ficha de cada conductor, en sus huecos, sin repetir objeto. Quitarlo lo devuelve al almacén.
-- **Vender:** B 40 €, A 120 €, S 400 €, S+ 1.200 €, LEGENDARIO 4.000 €. Entra en la caja como «Venta de objetos».
+- **Vender:** B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 € (Iván, 18-11-2026; antes, 40 / 120 / 400 / 1.200 / 4.000 €, y vender ganaba a equipar). Entra en la caja como «Venta de objetos».
 - **Combinar** (Iván, 18-11-2026): tres objetos sin equipar de la misma categoría se cambian por uno al azar de la categoría siguiente (los LEGENDARIOS no se combinan). Se gasta el que has tocado y, para completar, primero sus copias y luego los que más se repiten; el panel dice cuáles antes de tocar. Deja hueco en el almacén, así que entra lo que esperaba en la bandeja.
 
 | Categoría | Objeto | Efecto |
