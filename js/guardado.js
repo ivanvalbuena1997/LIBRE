@@ -207,6 +207,32 @@
       const nivel = ['jornada1', 'jornada2', 'jornada3', 'jornada4'].filter(function (id) { return m[id]; }).length;
       ['jornada1', 'jornada2', 'jornada3', 'jornada4'].forEach(function (id) { delete m[id]; });
       if (nivel) m.jornadaLarga = nivel;
+    },
+    // Versión 22 (Iván, 18-11-2026): Bolsas de papel, Rueda de repuesto y
+    // Cámara de seguridad dejan de ser mejoras (y desaparecen los
+    // consumibles). Se devuelve lo pagado (precios de entonces) y cada una
+    // vuelve como objeto en el almacén (o en la bandeja, si no cabe).
+    21: function (estado) {
+      const m = estado.mejoras || {};
+      const inv = estado.inventario || {};
+      const pasan = [
+        { mejora: 'bolsas', precio: 800, objeto: 'bolsaVomito' },
+        { mejora: 'rueda', precio: 300, objeto: 'rueda' },
+        { mejora: 'camara', precio: 1000, objeto: 'camara' }
+      ];
+      let devuelto = (inv.ruedas || 0) * 80 + (inv.bolsas || 0) * 2;
+      estado.objetos = estado.objetos || {};
+      estado.bandeja = estado.bandeja || [];
+      const capacidad = Libre.sim.capacidadAlmacen(estado);
+      pasan.forEach(function (x) {
+        if (!m[x.mejora]) return;
+        delete m[x.mejora];
+        devuelto += x.precio;
+        if (Libre.sim.objetosEnAlmacen(estado) < capacidad) estado.objetos[x.objeto] = (estado.objetos[x.objeto] || 0) + 1;
+        else estado.bandeja.push({ id: x.objeto, conductor: 'la mudanza' });
+      });
+      estado.dinero += devuelto;
+      delete estado.inventario;
     }
   };
 

@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 21,
+    versionGuardado: 22,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -93,7 +93,7 @@
         cochesMinimos: 2           // con menos coches no hay averías
       },
       lluvia: { nombre: 'Lluvia', probJornada: 0.2, horasMin: 1, horasMax: 3, factorDemanda: 2 },
-      // Bolsa del inventario gastada en vez de un vómito (solo sale en el ticket).
+      // Vómito evitado por la Bolsa para vómitos de un conductor (solo sale en el ticket).
       bolsa: { nombre: 'Bolsas usadas' },
       // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.
       esterillas: { nombre: 'Monedas de las esterillas' },
@@ -101,16 +101,6 @@
       finiquito: { nombre: 'Finiquitos' },
       // Objetos vendidos (sale en el ticket con lo que entra).
       venta: { nombre: 'Venta de objetos' }
-    },
-
-    /*
-     * Inventario de consumibles, común a toda la flota. Cada uno se desbloquea
-     * con su mejora; luego se compran unidades hasta el máximo del almacén.
-     * aviso: con estas unidades o menos, la pestaña Flota avisa. Equilibrio.
-     */
-    inventario: {
-      ruedas: { nombre: 'Ruedas de repuesto', unidad: 'rueda', precio: 80, maximo: 10, aviso: 1, mejora: 'rueda' },
-      bolsas: { nombre: 'Bolsas de papel', unidad: 'bolsa', precio: 2, maximo: 50, aviso: 5, mejora: 'bolsas' }
     },
 
     /*
@@ -163,6 +153,12 @@
       // Iván (18-11-2026): tantos objetos de una categoría se combinan en uno
       // al azar de la siguiente. Equilibrio.
       combinar: 3,
+      /*
+       * efecto, además de los factores: bolsa (no vomitan en su taxi: se usa
+       * la bolsa), sinImpagos (nadie se le va sin pagar), rueda (un pinchazo
+       * no cuesta ni le para: cambia la rueda). Iván, 18-11-2026: antes eran
+       * mejoras de toda la flota y anulaban otros objetos.
+       */
       lista: [
         { id: 'ambientador', nombre: 'Ambientador', categoria: 'B', efecto: { propina: 1.1 },
           descripcion: 'Un taxi que huele bien: un 10 % más de propinas.' },
@@ -190,6 +186,10 @@
         { id: 'alfombrillas', nombre: 'Alfombrillas de goma', categoria: 'A', efecto: { limpieza: 0.55 },
           descripcion: 'Se limpian con la manguera: un vómito cuesta un 45 % menos y se para menos rato.' },
 
+        { id: 'camara', nombre: 'Cámara de seguridad', categoria: 'S', efecto: { sinImpagos: true },
+          descripcion: 'Con la cámara a la vista, nadie se va sin pagar de su taxi.' },
+        { id: 'rueda', nombre: 'Rueda de repuesto', categoria: 'S', efecto: { rueda: true },
+          descripcion: 'Si pincha, cambia la rueda y sigue: ni neumático que pagar ni turno perdido.' },
         { id: 'escaner', nombre: 'Radio-escáner', categoria: 'S', efecto: { espera: 0.9 },
           descripcion: 'Se entera antes que nadie de dónde hay clientes: un 10 % menos de espera.' },
         { id: 'herramientas', nombre: 'Kit de herramientas', categoria: 'S', efecto: { averia: 0.65, pinchazo: 0.8 },
@@ -201,6 +201,8 @@
         { id: 'datafono', nombre: 'Datáfono portátil', categoria: 'S', efecto: { sinPagar: 0.5 },
           descripcion: 'Nadie se escapa con la excusa de la tarjeta: la mitad de clientes sin pagar.' },
 
+        { id: 'bolsaVomito', nombre: 'Bolsa para vómitos', categoria: 'S+', efecto: { bolsa: true },
+          descripcion: 'Siempre a mano: si un cliente se marea, no vomita en el coche. Ni limpieza ni rato parado.' },
         { id: 'navegador', nombre: 'Navegador con tráfico en directo', categoria: 'S+', efecto: { espera: 0.86 },
           descripcion: 'Esquiva atascos y llega antes: un 14 % menos de espera entre carreras.' },
         { id: 'silla', nombre: 'Silla ergonómica', categoria: 'S+', efecto: { baja: 0.5, esperaNoche: 0.93 },
@@ -571,7 +573,6 @@
      *                           (sin ella, eligen al azar entre las que tienen clientes)
      *             propinaProb: suma a la probabilidad de propina
      *             propinaImporte: multiplica el importe de la propina
-     *             sinImpagos: nadie se va sin pagar
      *             averiaDias / averiaCoste: multiplican días y coste de una avería
      *             monedasMin / monedasMax: € que encuentra cada conductor al acabar su turno
      *             baja: multiplica la probabilidad de baja de los conductores
@@ -581,7 +582,6 @@
      *             porcentajeConductor: multiplica la parte de cada carrera que se queda el conductor
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
      *             (el efecto del nivel es el total, no se suma al anterior).
-     *             inventario: desbloquea un consumible del inventario (config.inventario)
      * Precios y efectos: Equilibrio. Precios revisados el 16-11-2026 (propuesta C): cada
      * mejora se paga en unas 1–2 h de juego con 6 coches (medido con un bot).
      */
@@ -598,11 +598,6 @@
 
     mejoras: [
       // ---- Rama: Clientes
-      {
-        id: 'bolsas', nombre: 'Bolsas de papel', rama: 'clientes', precio: 800,
-        descripcion: 'Desbloquea las bolsas de papel en el almacén: con una bolsa a mano, el cliente mareado no vomita en el coche.',
-        efecto: { inventario: 'bolsas' }
-      },
       {
         id: 'callejero', nombre: 'Callejero al día', rama: 'clientes', precio: 400,
         descripcion: 'Te sabes todas las calles: un 10 % menos de tiempo buscando cliente.',
@@ -630,12 +625,7 @@
         efecto: { demanda: 1.1 }
       },
       {
-        id: 'camara', nombre: 'Cámara de seguridad', rama: 'clientes', requiere: 'datafono', precio: 1000,
-        descripcion: 'Con la cámara a la vista, ningún cliente se va sin pagar.',
-        efecto: { sinImpagos: true }
-      },
-      {
-        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'camara', precio: 2000,
+        id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'datafono', precio: 2000,
         descripcion: 'Vecinos y oficinas que te llaman a ti: un 8 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.08 }
       },
@@ -694,12 +684,7 @@
       },
       // ---- Rama: Taller y seguros
       {
-        id: 'rueda', nombre: 'Rueda de repuesto', rama: 'taller', precio: 300,
-        descripcion: 'Desbloquea las ruedas de repuesto en el almacén: si un taxi pincha, se cambia la rueda y sigue trabajando sin coste.',
-        efecto: { inventario: 'ruedas' }
-      },
-      {
-        id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller', requiere: 'rueda',
+        id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller',
         descripcion: 'Un mecánico de confianza: las averías duran menos y cuestan menos.',
         niveles: [
           { precio: 300, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },

@@ -793,7 +793,7 @@
    * conductor, que se abre al tocarlo.
    */
 
-  /* Iconos de trazo (24 × 24): turnos y rasgos. Los de objetos y consumibles son
+  /* Iconos de trazo (24 × 24): turnos y rasgos. Los de objetos son
      dibujos aparte en iconos/ (ARCHIVO_ICONO). */
   const ICONOS = {
     dia: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
@@ -827,10 +827,10 @@
   }
 
   /*
-   * Iconos de objetos y consumibles (iconos/*.svg, del paquete de diseño): se
+   * Iconos de objetos (iconos/*.svg, del paquete de diseño): se
    * llaman como el objeto salvo estos. Los dibujos traen sus propios colores.
    */
-  const ARCHIVO_ICONO = { escaner: 'radio', paconi: 'planta', alfombrillas: 'alfombrilla', ruedas: 'rueda', bolsas: 'bolsa' };
+  const ARCHIVO_ICONO = { escaner: 'radio', paconi: 'planta', alfombrillas: 'alfombrilla', bolsaVomito: 'bolsa' };
   function archivoIcono(nombre) {
     if (ARCHIVO_ICONO[nombre]) return ARCHIVO_ICONO[nombre];
     return Libre.sim.buscarObjeto(nombre) ? nombre : null;
@@ -863,7 +863,7 @@
   let eligiendoConductor = null;
   // Conductor con la ficha abierta ('licencia|turno') o null.
   let fichaConductor = null;
-  // Ficha del inventario abierta (id de consumible u objeto) o null.
+  // Objeto del almacén con su panel abierto (id) o null.
   let fichaInventario = null;
 
   // ¿Está abierta la lista para vender objetos mientras contratas?
@@ -929,6 +929,7 @@
       return (v < 0 ? '−' : '+') + Math.abs(v).toLocaleString('es-ES', { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + ' %';
     }
     if (s.clave === 'limpieza') {
+      if (s.factor === 0) return 'Nunca: lleva bolsa';
       return Math.round(s.valor.minutos) + ' min · ' + Math.round(s.valor.costeMin) + '–' + Math.round(s.valor.costeMax) + ' €';
     }
     return porcentaje(s.valor);
@@ -1396,6 +1397,7 @@
     const tipo = NOMBRE_TIPO_FUENTE[f.tipo];
     const quien = (tipo ? tipo + ' ' : '') + f.nombre;
     if (f.anula) return quien + ': lo evita del todo';
+    if (f.nota) return quien + ': ' + f.nota;
     return quien + ' ' + (f.multiplica ? '×' + f.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : cambio(f.factor)) +
       (f.soloTurno ? ' (solo de ' + (f.soloTurno === 'dia' ? 'día' : 'noche') + (f.cuenta ? '' : ', no cuenta') + ')' : '');
   }
@@ -1438,7 +1440,7 @@
             t.paradoHasta > estado.reloj.minutos, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2, t.categoria,
             t.quien === 'conductor' ? Libre.sim.nivelConductor(t) : 0, t.objetos] : null;
         })];
-    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
+    }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando, comparando,
     eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu,
     (estado.reserva || []).map(function (t) {
@@ -1447,16 +1449,6 @@
         t.baja && jornada < t.baja.hasta ? t.baja.hasta : 0];
     })]);
   }
-
-  /*
-   * Inventario: una ficha por consumible (ruedas, bolsas; con barra sobre el
-   * máximo del almacén) y por objeto de conductor. Al tocar una ficha se
-   * abre debajo su explicación y los botones de compra.
-   */
-  const TEXTO_CONSUMIBLE = {
-    ruedas: 'Un pinchazo gasta una y el taxi sigue trabajando, en vez de parar hasta el final del turno.',
-    bolsas: 'Si un cliente se marea se gasta una y el taxi no tiene que parar a limpiar.'
-  };
 
   function equipados(estado, id) {
     let n = 0;
@@ -1533,29 +1525,6 @@
       (usados ? '' : ' disabled') + '>Combinar ' + n + ' → 1 ' + esc(siguiente.nombre) + '</button></div>';
   }
 
-  /*
-   * Consumible (ruedas, bolsas): una fila con su dibujo, cuántas hay sobre el
-   * máximo, la barra y los chips de compra (+1 y +10).
-   */
-  function htmlConsumible(estado, k) {
-    const item = Libre.config.inventario[k];
-    const hay = estado.inventario[k] || 0;
-    const hueco = item.maximo - hay;
-    const bajo = hay <= item.aviso;
-    const chips = [1, 10].filter(function (n) { return n === 1 || hueco > 1; }).map(function (n) {
-      const cuantas = Math.min(n, hueco);
-      return '<button type="button" class="ui-chip-compra ui-tactil" data-accion="comprarInventario" data-args="' + k + '|' + cuantas + '"' +
-        ' data-precio="' + (cuantas * item.precio) + '" aria-label="Comprar ' + cuantas + ' por ' + euros(cuantas * item.precio) + '">' +
-        (n === 1 ? '' : '+' + cuantas + ' · ') + euros(cuantas * item.precio) + '</button>';
-    }).join('');
-    return '<div class="almacen-consumible ui-tarjeta' + (bajo ? ' bajo' : '') + '" data-inventario="' + k + '" title="' + esc(TEXTO_CONSUMIBLE[k] || '') + '">' +
-      '<span class="almacen-consumible-icono">' + icono(k) + '</span>' +
-      '<span class="almacen-consumible-datos"><strong>' + esc(item.nombre) + '</strong><span>' +
-      '<span class="ui-barra ui-barra--marca"><span class="ui-barra-relleno" style="width:' + Math.min(100, hay / item.maximo * 100).toFixed(0) + '%"></span></span>' +
-      '<span class="ui-dinero">' + hay + '<small> / ' + item.maximo + '</small></span></span></span>' +
-      (hueco > 0 ? '<span class="almacen-chips">' + chips + '</span>' : '<span class="almacen-lleno">Lleno</span>') + '</div>';
-  }
-
   /* Botón de vender un objeto (del almacén, o de la bandeja con su posición). */
   function botonVenta(id, deBandeja) {
     const o = Libre.sim.buscarObjeto(id);
@@ -1598,24 +1567,13 @@
   }
 
   function htmlInventario(estado) {
-    const c = Libre.config;
-    const consumibles = Object.keys(c.inventario).filter(function (k) { return Libre.sim.inventarioAbierto(estado, k); })
-      .map(function (k) { return htmlConsumible(estado, k); }).join('');
     // Solo los objetos que tienes sin equipar, de mejor a peor.
     const objetos = objetosDelAlmacen(estado).map(function (o) { return htmlCasillaObjeto(estado, o); }).join('');
     return htmlBandeja(estado) +
-      (consumibles ? '<div class="almacen-consumibles">' + consumibles + '</div>' : '') +
       (objetos
         ? '<div class="almacen-objetos">' + objetos + '</div>'
         : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +
       htmlPanelInventario(estado);
-  }
-
-  function inventarioBajo(estado) {
-    const items = Libre.config.inventario;
-    return Object.keys(items).some(function (k) {
-      return Libre.sim.inventarioAbierto(estado, k) && (estado.inventario[k] || 0) <= items[k].aviso;
-    });
   }
 
   /* «Libra los lunes · fin de semana: días impares» (según letra y paridad). */
@@ -1667,7 +1625,7 @@
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
 
-  /* Pestaña Almacén: consumibles, objetos sin equipar y la bandeja. */
+  /* Pestaña Almacén: objetos sin equipar y la bandeja. */
   const seccionAlmacen = {
     id: 'sec-almacen',
     firma: firmaFlota,
@@ -2063,8 +2021,6 @@
       destellar(document.querySelector('[data-licencia="' + args[0] + '"]'));
     } else if (accion === 'comprarMejora') {
       destellar(document.querySelector('[data-mejora="' + args[0] + '"]'));
-    } else if (accion === 'comprarInventario') {
-      destellar(document.querySelector('[data-inventario="' + args[0] + '"]'));
     }
   }
 
@@ -2115,8 +2071,8 @@
     const hay = {
       calle: !!estado.cierrePendiente,
       conductores: false,
-      // Almacén: consumibles por reponer o objetos esperando en la bandeja.
-      almacen: inventarioBajo(estado) || (estado.bandeja || []).length > 0,
+      // Almacén: objetos esperando en la bandeja.
+      almacen: (estado.bandeja || []).length > 0,
       mejoras: hayMejoraComprable(estado)
     };
     document.querySelectorAll('#sec-conductores [data-precio]').forEach(function (b) {

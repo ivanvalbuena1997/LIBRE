@@ -23,7 +23,6 @@
  *     una letra de libranza que aún no tenga la flota.
  *   - Equipa lo que encuentran sus conductores, de mejor a peor categoría
  *     (cambia uno peor por uno mejor), y vende lo que llega a la bandeja.
- *   - Repone bolsas (hasta 20) y ruedas (hasta 3) cuando las tiene.
  *   Perfiles (PERFILES):
  *   - «siguiente»: compra solo lo que propone la tarjeta «Siguiente»
  *     (Libre.sim.objetivoCompra), en cuanto le llega el dinero.
@@ -219,13 +218,6 @@ function jugar(semilla, perfil) {
     if (PERFILES[perfil].oficina && sim.nivelMejora(e, 'oficina') && sim.conduce(e) && !e.jugador.carrera &&
         sim.dejarDeConducir(e).ok) hito('deja el volante');
     if (turnosCubiertos()) hito('todo cubierto con ' + e.licencias.length + ' licencias');
-    // Consumibles.
-    if (sim.inventarioAbierto(e, 'bolsas') && (e.inventario.bolsas || 0) < 10) {
-      sim.comprarInventario(e, 'bolsas', 20 - (e.inventario.bolsas || 0));
-    }
-    if (sim.inventarioAbierto(e, 'ruedas') && (e.inventario.ruedas || 0) < 2) {
-      sim.comprarInventario(e, 'ruedas', 3 - (e.inventario.ruedas || 0));
-    }
     equipar();
   }
 

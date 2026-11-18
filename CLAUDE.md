@@ -160,10 +160,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sobre su color (`--rareza-*` en `:root`; gris, verde, azul, morado y
   amarillo). Las casillas de objeto llevan además el dibujo sobre un tinte
   de su categoría (`claseFondo()`).
-- Iconos de objetos y consumibles: dibujos SVG en `iconos/` (del paquete de
+- Iconos de objetos: dibujos SVG en `iconos/` (del paquete de
   diseño, con sus propios colores), con `<img>` desde `icono()`. Se llaman
   como el objeto salvo los de `ARCHIVO_ICONO` (escaner → radio, paconi →
-  planta, alfombrillas → alfombrilla, ruedas → rueda, bolsas → bolsa). Los
+  planta, alfombrillas → alfombrilla, bolsaVomito → bolsa). Los
   de turnos y rasgos siguen siendo trazos en `ICONOS`.
 - Experiencia (`turno.xp`): cada carrera terminada de un conductor da
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
@@ -188,7 +188,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   del conductor (`turno.objetos`, sin repetir; 1, 2 en nivel 4 y 3 en nivel
   8). Quitar uno lo devuelve al almacén (no si está lleno). Su efecto entra
   en `factoresConductor()` con los rasgos y el nivel, bajo los mismos topes.
-  Ruedas y bolsas siguen siendo consumibles que se compran. Para probar:
+  Tres efectos no son factores ni tienen tope: `bolsa` (no vomitan en su
+  taxi), `sinImpagos` (nadie se va sin pagar) y `rueda` (un pinchazo no
+  cuesta ni para); `conEfecto(t, clave)` los busca. Son la Bolsa para
+  vómitos, la Cámara de seguridad y la Rueda de repuesto, que hasta el
+  18-11-2026 eran mejoras con consumibles (versión 22 del guardado). Tu
+  turno no lleva objetos: no tiene esas protecciones. Para probar:
   `Libre.forzarEvento('hallazgo', 'S+')` (o el id de un objeto).
 - Despedir (`despedirConductor()`) cuesta el finiquito de
   `costeDespido()`: base más un importe por nivel
@@ -196,10 +201,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
 - Pestañas Almacén y Conductores (antes, juntas en Flota). Almacén
-  (`seccionAlmacen`, maqueta almacen.html; en el código los consumibles
-  siguen siendo `inventario`): título con «Objetos N de M»; los
-  consumibles en filas (dibujo, nombre, barra con N / máximo y chips de
-  compra +1 y +10); los objetos sin equipar en casillas de 3 columnas, de
+  (`seccionAlmacen`, maqueta almacen.html): título con «Objetos N de M»;
+  los objetos sin equipar en casillas de 3 columnas, de
   mejor a peor, sin nombre a la vista (Iván: rareza, ×cantidad y dibujo; el
   nombre va en el título y en el panel). Al tocar una se abre debajo su
   panel (nombre, rareza, descripción, combinar y vender). Con la bandeja llena, arriba
@@ -258,15 +261,15 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket. Sin
   conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
   Sin mejoras, su efecto neto debe quedar cerca de cero (medido con un bot),
-  salvo los vómitos: a propósito (Iván) son un coste que se evita con bolsas
-  (1 % por carrera de noche, 3 % en Ocio nocturno, 1 hora parado). Con 3
-  coches restan un 15 % sin bolsas y un 3 % con ellas.
+  salvo los vómitos: a propósito (Iván) son un coste que se evita con la
+  Bolsa para vómitos (1 % por carrera de noche, 3 % en Ocio nocturno, 1
+  hora parado).
   Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
 - Árbol de mejoras: cada mejora tiene `rama` (`config.ramasMejoras`) y
   `requiere` la anterior de su rama (basta su nivel 1); el orden de la lista
   en la config es el de la rama. Las que no tienen `requiere` abren la rama
-  (puede haber varias: Bolsas y Callejero; Deflectores y Conducción eficiente;
-  Curso de zonas, Taquillas y Esterillas), y la
+  (puede haber varias: Deflectores y Conducción eficiente; Curso de zonas,
+  Taquillas y Esterillas), y la
   La interfaz no inventa requisitos: los lee.
   En pantalla (maqueta mejoras.html): un chip por rama y los nodos en una
   lista vertical (comprada en verde con ✓, disponible en azul con el precio
@@ -275,12 +278,6 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
   la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
   efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven.
-- Inventario de consumibles (`config.inventario`, `estado.inventario`), común
-  a toda la flota: ruedas de repuesto y bolsas de papel. Cada uno se
-  desbloquea con su mejora (efecto `inventario`) y luego se compran unidades
-  hasta el máximo del almacén (`comprarInventario()`). Un pinchazo gasta una
-  rueda si hay; un vómito, una bolsa. Se repone en la pestaña Almacén; con
-  pocas unidades, la pestaña avisa.
 - Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
   hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
   entre un 2 % y un 4 % más que jugando (medido el 17-11-2026 con varias
@@ -326,8 +323,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén y
   Mejoras (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección;
   `body[data-vista]` la pestaña elegida). Una marca roja avisa de compras
-  posibles (Conductores, Mejoras), de consumibles bajos o la bandeja
-  (Almacén) o de un ticket esperando (Calle). La pestaña elegida se recuerda
+  posibles (Conductores, Mejoras), de la bandeja (Almacén) o de un ticket esperando (Calle). La pestaña elegida se recuerda
   en `localStorage` (`libre-vista`), aparte de la partida; las antiguas
   `flota` y `partida` se traducen a `conductores` y `calle`.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
@@ -415,7 +411,7 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
   `docs/analisis-progresion.md`.
 - `node tests/objetos.js [semillas] [jornadas]` tampoco es una prueba: mide
   cuánto deja cada objeto por conductor y jornada (sin mejoras y con
-  bolsas, cámara y propinas). Informe en `docs/analisis-objetos.md`.
+  propinas y otras mejoras). Informe en `docs/analisis-objetos.md`.
 
 ## Forma de trabajar
 

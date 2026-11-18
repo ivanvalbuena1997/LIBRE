@@ -117,10 +117,9 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 ### Almacén
 
 <p>
-<img src="docs/capturas/almacen.jpg" width="250" alt="Almacén: ruedas y bolsas con sus barras y los objetos en casillas">
+<img src="docs/capturas/almacen.jpg" width="250" alt="Almacén: los objetos en casillas (captura anterior: aún salen las ruedas y bolsas, que ya no existen)">
 </p>
 
-- **Consumibles:** ruedas de repuesto y bolsas de papel en filas, con su dibujo, una barra sobre el máximo («6 / 10», en rojo si quedan pocas) y chips de compra de una unidad y de diez.
 - **Objetos sin equipar:** casillas de 3 columnas, de mejor a peor, **sin nombre a la vista** (decisión de Iván): rareza, cantidad y el dibujo sobre el color de su categoría. Al tocar una se abre debajo su panel con el nombre, qué hace, cuántos hay equipados, «Combinar» y «Vender».
 - **Bandeja:** si un conductor encuentra algo con el almacén lleno, arriba aparece en amarillo «Almacén lleno · N por guardar», con lo que espera y la lista para vender.
 
@@ -240,7 +239,7 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 | Madrugador | −12 % de espera de día | Dormilón | +16 % de espera de día |
 | Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
 
-«Limpieza» es el coste y el tiempo parado al limpiar un vómito (solo cuenta si no quedan bolsas).
+«Limpieza» es el coste y el tiempo parado al limpiar un vómito (no cuenta si el conductor lleva la Bolsa para vómitos).
 
 **Experiencia y niveles.** Cada carrera da 1 punto (un conductor hace unas 25–30 por jornada). Cada nivel acorta la espera un 1,5 % (antes un 2,5 %: pesaba más que la categoría); los niveles 4 y 8 abren un hueco más de objeto. **Al llegar al nivel 10** pierde un defecto o, si no tiene ninguno, gana una cualidad nueva.
 
@@ -263,7 +262,7 @@ El nivel 5 llega hacia la quinta jornada y el 10 hacia la 35 (cerca de una hora 
 
 Por ejemplo, la espera de un B de nivel 10 puede bajar hasta ×0,46 y la de un S+ de nivel 10 hasta ×0,33. La ficha enseña el tope de cada stat («su tope ×0,46»).
 
-La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
+Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja a cero los clientes sin pagar, la **Bolsa para vómitos** evita los vómitos y la **Rueda de repuesto** hace que un pinchazo no cueste ni pare.
 
 **Reserva.** Hasta 5 conductores contratados sin turno. No trabajan, no ganan experiencia y no cuestan nada; conservan objetos y nivel.
 
@@ -295,11 +294,14 @@ La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
 | A | Espejo panorámico | −30 % de clientes sin pagar |
 | A | Vitaminas | −30 % de bajas |
 | A | Alfombrillas de goma | Vómito: −45 % de limpieza y menos rato parado |
+| S | Cámara de seguridad | Nadie se va sin pagar de su taxi |
+| S | Rueda de repuesto | Un pinchazo no cuesta ni le para |
 | S | Radio-escáner | −10 % de espera |
 | S | Kit de herramientas | −35 % de averías y −20 % de pinchazos |
 | S | Cargador para clientes | +30 % de propinas y +20 % de objetos devueltos |
 | S | Botiquín | −45 % de bajas |
 | S | Datáfono portátil | La mitad de clientes sin pagar |
+| S+ | Bolsa para vómitos | Nadie vomita en su taxi |
 | S+ | Navegador con tráfico en directo | −14 % de espera |
 | S+ | Silla ergonómica | La mitad de bajas y −7 % de espera de noche |
 | S+ | Nevera con agua fría | +45 % de propinas y −30 % de limpieza |
@@ -308,19 +310,19 @@ La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
 | LEGENDARIO | Bocata de calamares infinito | −60 % de bajas y −12 % de espera de día |
 | LEGENDARIO | Bidón energético | −22 % de espera de noche y −20 % de bajas |
 
-**Consumibles** (comunes a toda la flota, se compran): **ruedas de repuesto** (80 €, hasta 10; un pinchazo gasta una y el taxi sigue) y **bolsas de papel** (2 €, hasta 50; un vómito gasta una y no pasa nada). Cada uno se desbloquea con su mejora; con pocas unidades, la pestaña Almacén avisa.
+**Ya no hay consumibles** (Iván, 18-11-2026): las ruedas de repuesto, las bolsas de papel y la Cámara de seguridad eran mejoras de toda la flota que anulaban otros objetos. Ahora son objetos de un conductor. Las partidas guardadas recuperan lo que pagaron y reciben el objeto.
 
 ### 5.8 Eventos
 
-Van a la caja y salen como incidencias en el ticket. Sin mejoras, su efecto neto queda cerca de cero, salvo los vómitos, que a propósito son un coste que se evita con bolsas.
+Van a la caja y salen como incidencias en el ticket. Sin mejoras, su efecto neto queda cerca de cero, salvo los vómitos, que a propósito son un coste que se evita con la Bolsa para vómitos.
 
 | Evento | Cuándo | Probabilidad | Efecto |
 | --- | --- | --- | --- |
 | Propina | Por carrera (también las tuyas) | 15 % | 5 a 25 % del importe |
 | Sin pagar | Por carrera | 1 % | Se pierde el importe |
 | Objeto devuelto | Por carrera | 1 % | Recompensa de 5 € (paraguas) a 300 € (maletín) |
-| Vómito | Por carrera | 0,08 % de día, 1 % de noche, 3 % en Ocio nocturno | Limpieza de 50 a 90 € y una hora parado (con bolsa, nada) |
-| Pinchazo | Al empezar un turno | 1,5 % | Neumático de 120 € y parado el resto del turno (con rueda de repuesto, nada) |
+| Vómito | Por carrera | 0,08 % de día, 1 % de noche, 3 % en Ocio nocturno | Limpieza de 50 a 90 € y una hora parado (con la Bolsa para vómitos, nada) |
+| Pinchazo | Al empezar un turno | 1,5 % | Neumático de 120 € y parado el resto del turno (con la Rueda de repuesto, nada) |
 | Baja | Al empezar un turno de conductor | 0,8 % | De 1 a 5 jornadas sin trabajar |
 | Avería | Al empezar un turno de conductor, con 2 coches o más | 0,08 % | De 10 a 20 jornadas en el taller y 150 a 400 € |
 | Lluvia | Una vez por jornada | 20 % | De 1 a 3 horas con el doble de demanda |
@@ -334,12 +336,10 @@ Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Bolsas de papel | 800 € | Desbloquea las bolsas en el almacén |
 | Callejero al día | 400 € | −10 % de tiempo buscando cliente |
 | Taxi impecable | 600 € | +5 % de demanda en todas las zonas |
 | Propinas (5 niveles) | 1.350 / 1.980 / 2.700 / 3.600 / 4.500 € | De +3 a +15 puntos de probabilidad y propinas de un 15 a un 80 % mayores |
 | Pago con tarjeta | 1.440 € | +10 % de demanda |
-| Cámara de seguridad | 1.000 € | Nadie se va sin pagar |
 | Clientes de siempre | 2.000 € | +8 % de demanda |
 
 **Ciudad y radio**
@@ -366,7 +366,6 @@ Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Rueda de repuesto | 300 € | Desbloquea las ruedas en el almacén |
 | Mecánico propio (5 niveles) | 300 / 525 / 750 / 1.050 / 1.350 € | Averías de un 15 a un 65 % más cortas y de un 15 a un 60 % más baratas |
 | Póliza de flota | 700 € | −20 % de seguro |
 | Curso de seguridad vial | 675 € | Otro −25 % de seguro |
@@ -438,7 +437,7 @@ Las convenciones de código están en `CLAUDE.md`.
 **16 de noviembre de 2026**
 
 - Los conductores hacen carreras reales y cobran al terminar cada una.
-- Eventos aleatorios: propinas, impagos, objetos devueltos, vómitos (con bolsas), pinchazos (con ruedas de repuesto), bajas, averías y lluvia.
+- Eventos aleatorios: propinas, impagos, objetos devueltos, vómitos, pinchazos, bajas, averías y lluvia.
 - Tarifa 3 con bajada de bandera de 22 € hasta 9 km; espera de 1 a 2 horas en Barajas.
 - Conductores con cualidades y defectos, experiencia hasta el nivel 10, objetos equipables y finiquito al despedir.
 

@@ -68,8 +68,6 @@
       jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial },
       conductoresContratados: 0,
       mejoras: {},
-      // Consumibles de toda la flota (se desbloquean con mejoras).
-      inventario: { ruedas: 0, bolsas: 0 },
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
       objetos: {},
       // Objetos encontrados con el almacén lleno: esperan a que vendas algo.
@@ -246,7 +244,7 @@
     const m = {
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
-      propinaProb: 0, propinaImporte: 1, sinImpagos: false, averiaDias: 1, averiaCoste: 1,
+      propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1,
       pesosCandidatos: null
     };
@@ -265,7 +263,6 @@
       if (e.dejarVolante) m.dejarVolante = true;
       if (e.propinaProb) m.propinaProb += e.propinaProb;
       if (e.propinaImporte) m.propinaImporte *= e.propinaImporte;
-      if (e.sinImpagos) m.sinImpagos = true;
       if (e.averiaDias) m.averiaDias *= e.averiaDias;
       if (e.averiaCoste) m.averiaCoste *= e.averiaCoste;
       if (e.monedasMax) { m.monedasMin = e.monedasMin; m.monedasMax = e.monedasMax; }
@@ -323,26 +320,6 @@
     const e = mejora.niveles ? mejora.niveles[siguiente.nivel - 1].efecto : mejora.efecto;
     if (e.pesosCandidatos) sortearCandidatos(estado);
     return exito(mejora.nombre + (mejora.niveles ? ' nivel ' + siguiente.nivel : '') + ': hecho.');
-  }
-
-  /* ¿Está desbloqueado ese consumible del inventario? */
-  function inventarioAbierto(estado, tipo) {
-    const item = cfg().inventario[tipo];
-    return !!item && nivelMejora(estado, item.mejora) > 0;
-  }
-
-  /* Compra unidades de un consumible, hasta llenar el almacén. */
-  function comprarInventario(estado, tipo, cantidad) {
-    const item = cfg().inventario[tipo];
-    if (!item) return fallo('Ese consumible no existe.');
-    if (!inventarioAbierto(estado, tipo)) return fallo('Antes necesitas la mejora «' + buscarMejora(item.mejora).nombre + '».');
-    const hay = estado.inventario[tipo] || 0;
-    const n = Math.min(Number(cantidad) || 1, item.maximo - hay);
-    if (n <= 0) return fallo('El almacén de ' + item.nombre.toLowerCase() + ' está lleno.');
-    if (estado.dinero < n * item.precio) return fallo('No te llega el dinero.');
-    estado.dinero -= n * item.precio;
-    estado.inventario[tipo] = hay + n;
-    return exito('+' + n + ' ' + item.nombre.toLowerCase() + ' (' + estado.inventario[tipo] + ' en el almacén).');
   }
 
   function zonaDesbloqueada(estado, zonaId) {
@@ -1251,6 +1228,15 @@
   }
 
   /*
+   * El primer aporte del conductor (objeto o rasgo) con un efecto especial
+   * que no es un factor: 'bolsa', 'sinImpagos' o 'rueda'. null si no lo
+   * tiene (y siempre en tu turno).
+   */
+  function conEfecto(t, clave) {
+    return aportesConductor(t).find(function (a) { return a.efecto && a.efecto[clave] === true; }) || null;
+  }
+
+  /*
    * Factores de un conductor sobre cada valor (1 = sin efecto): producto de
    * sus aportes (aportesConductor()). Lo que depende del turno (esperaDia,
    * esperaNoche) mira el turno de la hora actual, que es el suyo mientras
@@ -1344,13 +1330,12 @@
       limite: limite('propina'), fuentes: propina });
 
     const sinPagar = probabilidad('sinPagar', ev.sinPagar.probCarrera);
-    if (m.sinImpagos) {
+    const camara = conEfecto(t, 'sinImpagos');
+    if (camara) {
       sinPagar.valor = 0;
       sinPagar.factor = 0;
       sinPagar.tope = false;
-      mejoras.filter(function (x) { return x.efecto.sinImpagos; }).forEach(function (x) {
-        sinPagar.fuentes.push({ tipo: 'mejora', nombre: x.nombre, factor: 0, anula: true });
-      });
+      sinPagar.fuentes.push({ tipo: camara.tipo, nombre: camara.nombre, factor: 0, anula: true });
     }
     stats.push(sinPagar);
     stats.push(probabilidad('objeto', ev.objeto.probCarrera));
@@ -1362,12 +1347,17 @@
     stats.push(probabilidad('baja', ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
       return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.baja };
     })));
-    stats.push(probabilidad('pinchazo', ev.pinchazo.probTurno));
+    const pinchazo = probabilidad('pinchazo', ev.pinchazo.probTurno);
+    const rueda = conEfecto(t, 'rueda');
+    if (rueda) pinchazo.fuentes.push({ tipo: rueda.tipo, nombre: rueda.nombre, factor: 1, nota: 'cambia la rueda y sigue, sin coste' });
+    stats.push(pinchazo);
     stats.push(probabilidad('averia', ev.averia.probTurno));
 
     const limpieza = fuentesDe('limpieza');
     const brutoLimpieza = producto(limpieza);
-    const l = topeConductor('limpieza', brutoLimpieza, t);
+    const bolsa = conEfecto(t, 'bolsa');
+    if (bolsa) limpieza.push({ tipo: bolsa.tipo, nombre: bolsa.nombre, factor: 0, anula: true });
+    const l = bolsa ? 0 : topeConductor('limpieza', brutoLimpieza, t);
     stats.push({ clave: 'limpieza', factor: l, tope: l !== brutoLimpieza, limite: limite('limpieza'), fuentes: limpieza,
       valor: { costeMin: ev.vomito.costeMin * l, costeMax: ev.vomito.costeMax * l, minutos: ev.vomito.horasParado * 60 * l } });
     return stats;
@@ -1837,7 +1827,7 @@
     const f = factoresConductor(estado, quien);
     const baseProp = ev.propina.probCarrera;
     const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina, quien);
-    if (!m.sinImpagos && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien))) {
+    if (!conEfecto(quien, 'sinImpagos') && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien))) {
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
@@ -1864,10 +1854,10 @@
 
     if (toca(estado, 'vomito', probVomito(estado, carrera))) {
       consumirForzado(estado, 'vomito');
-      if (estado.inventario.bolsas > 0) {
-        // Con una bolsa a mano no pasa nada: se gasta y sale en el ticket.
-        estado.inventario.bolsas--;
-        incidencia(estado, resumen, 'bolsa', 'Un cliente se marea, pero había bolsa: el coche queda limpio.', 0, null, quien);
+      if (conEfecto(quien, 'bolsa')) {
+        // Con la bolsa a mano no pasa nada: sale en el ticket.
+        incidencia(estado, resumen, 'bolsa', 'Un cliente se marea en el taxi de ' + sujeto +
+          ', pero había bolsa: el coche queda limpio.', 0, null, quien);
         return;
       }
       const limpieza = topeConductor('limpieza', f.limpieza, quien);
@@ -2009,11 +1999,9 @@
     const ev = cfg().eventos;
     if (p.tipo === 'pinchazo') {
       const esConductor = turno.quien === 'conductor';
-      if (estado.inventario.ruedas > 0) {
-        estado.inventario.ruedas--;
-        incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
-          ': se cambia la rueda de repuesto y ' + (esConductor ? 'sigue' : 'sigues') + ' trabajando (quedan ' +
-          estado.inventario.ruedas + ').', 0, null, turno);
+      if (conEfecto(turno, 'rueda')) {
+        incidencia(estado, resumen, 'pinchazo', 'Pinchazo en el taxi de ' + turno.nombre +
+          ': cambia la rueda de repuesto y sigue trabajando.', 0, null, turno);
         return;
       }
       pararHastaFinDeTurno(estado, turno, 'pinchazo');
@@ -2377,8 +2365,6 @@
     comprarMejora,
     nivelMejora,
     siguienteNivel,
-    inventarioAbierto,
-    comprarInventario,
     zonaDesbloqueada,
     zonasDisponibles,
     precioTaximetro,
@@ -2429,6 +2415,7 @@
     puedeSaltarDia,
     statsConductor,
     aportesConductor,
+    conEfecto,
     saltarAlCierre,
     cambiarAjuste,
     sumarCierres,

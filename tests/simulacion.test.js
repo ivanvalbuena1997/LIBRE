@@ -540,53 +540,64 @@ prueba('las mejoras por niveles se compran de una en una hasta el máximo', func
   cerca(sim.modificadores(e).propinaImporte, 1.8);
 });
 
-prueba('con cámara nadie se va sin pagar', function () {
+prueba('con la Cámara de seguridad equipada nadie se le va sin pagar', function () {
   const e = flotaDe(1);
   e.reloj.minutos = 22 * 60;
-  comprarConRequisitos(e, 'camara');
+  e.licencias[0].turnos.noche.objetos = ['camara'];
   sim.forzarEvento(e, 'sinPagar');
   const antes = e.totales.carreras;
   for (let i = 0; i < 400 && e.totales.carreras === antes; i++) sim.avanzar(e, 0.1);
   assert.ok(!e.caja.hoy.incidencias.sinPagar);
+  const st = sim.statsConductor(e, e.licencias[0].turnos.noche, 'noche').find(function (x) { return x.clave === 'sinPagar'; });
+  assert.strictEqual(st.valor, 0);
 });
 
-prueba('las ruedas del inventario se gastan en los pinchazos y se reponen', function () {
+prueba('con la Rueda de repuesto equipada un pinchazo no cuesta ni para', function () {
   const e = flotaDe(1);
   e.reloj.minutos = 22 * 60;
-  assert.ok(!sim.comprarInventario(e, 'ruedas', 1).ok, 'sin la mejora no hay inventario de ruedas');
-  comprarConRequisitos(e, 'rueda');
-  assert.ok(sim.comprarInventario(e, 'ruedas', 2).ok);
-  assert.strictEqual(e.inventario.ruedas, 2);
+  e.licencias[0].turnos.noche.objetos = ['rueda'];
   sim.forzarEvento(e, 'pinchazo');
-  assert.strictEqual(e.inventario.ruedas, 1, 'se ha gastado una');
   assert.strictEqual(e.caja.hoy.incidencias.pinchazo.importe, 0, 'sin coste');
   assert.ok(!(e.licencias[0].turnos.noche.paradoHasta > e.reloj.minutos), 'sigue trabajando');
-  assert.ok(sim.comprarInventario(e, 'ruedas', 100).ok);
-  assert.strictEqual(e.inventario.ruedas, config.inventario.ruedas.maximo, 'no pasa del máximo del almacén');
-  assert.ok(!sim.comprarInventario(e, 'ruedas', 1).ok, 'almacén lleno');
 });
 
-prueba('con bolsas en el inventario no hay vómito: se gasta una', function () {
+prueba('con la Bolsa para vómitos equipada no hay vómito', function () {
   const e = flotaDe(1);
   e.reloj.minutos = 22 * 60;
-  comprarConRequisitos(e, 'bolsas');
-  sim.comprarInventario(e, 'bolsas', 3);
+  e.licencias[0].turnos.noche.objetos = ['bolsaVomito'];
   sim.forzarEvento(e, 'vomito');
-  for (let i = 0; i < 400 && e.inventario.bolsas === 3; i++) sim.avanzar(e, 0.1);
-  assert.strictEqual(e.inventario.bolsas, 2);
+  for (let i = 0; i < 400 && !e.caja.hoy.incidencias.bolsa; i++) sim.avanzar(e, 0.1);
   assert.ok(!e.caja.hoy.incidencias.vomito, 'no hay vómito');
   assert.strictEqual(e.caja.hoy.incidencias.bolsa.veces, 1);
 });
 
-prueba('las partidas de la versión 10 pasan sus ruedas de repuesto al inventario', function () {
+prueba('las partidas de la versión 21 cambian Bolsas, Rueda y Cámara por objetos y dinero', function () {
+  const viejo = flotaDe(1);
+  viejo.version = 21;
+  viejo.mejoras.bolsas = 1;
+  viejo.mejoras.camara = 1;
+  viejo.inventario = { ruedas: 2, bolsas: 10 };
+  viejo.objetos = {};
+  const dinero = viejo.dinero;
+  const migrado = globalThis.Libre.guardado.migrar(viejo);
+  cerca(migrado.dinero, dinero + 800 + 1000 + 2 * 80 + 10 * 2);
+  assert.strictEqual(migrado.objetos.bolsaVomito, 1);
+  assert.strictEqual(migrado.objetos.camara, 1);
+  assert.ok(!migrado.objetos.rueda, 'la rueda no estaba comprada');
+  assert.strictEqual(migrado.inventario, undefined);
+  assert.ok(!migrado.mejoras.bolsas && !migrado.mejoras.camara);
+});
+
+prueba('las partidas de la versión 10 cobran sus ruedas de repuesto', function () {
   const viejo = flotaDe(3);
   viejo.licencias[0].ruedaRepuesto = true;
   viejo.licencias[2].ruedaRepuesto = true;
   delete viejo.inventario;
   viejo.version = 10;
+  const dinero = viejo.dinero;
   const migrado = globalThis.Libre.guardado.migrar(viejo);
-  assert.strictEqual(migrado.inventario.ruedas, 2);
-  assert.strictEqual(migrado.inventario.bolsas, 0);
+  assert.strictEqual(migrado.inventario, undefined);
+  assert.ok(migrado.dinero >= dinero + 2 * 80, 'se devuelven las dos ruedas');
   assert.ok(migrado.licencias.every(function (l) { return l.ruedaRepuesto === undefined; }));
 });
 

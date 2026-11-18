@@ -2,8 +2,8 @@
  * Mide cuánto deja cada objeto: 3 licencias, 5 conductores B de nivel 5
  * sin rasgos, todos con el mismo objeto; neto por conductor y jornada
  * frente a no llevar nada. Dos escenarios: «pronto» (sin mejoras) y
- * «tarde» (bolsas y ruedas con existencias, cámara, propinas 3,
- * mecánico 3, deflectores).
+ * «tarde» (Callejero, Taxi impecable, Propinas 3, Pago con tarjeta,
+ * Mecánico 3 y Deflectores).
  *   node tests/objetos.js [semillas] [jornadas]   (16 × 80: unos 6 minutos)
  */
 'use strict';
@@ -26,7 +26,7 @@ function generador(semilla) {
 
 const ESCENARIOS = {
   pronto: {},
-  tarde: { bolsas: 1, rueda: 1, callejero: 1, limpieza: 1, propinas: 3, datafono: 1, camara: 1, mecanico: 3, deflectores: 1 }
+  tarde: { callejero: 1, limpieza: 1, propinas: 3, datafono: 1, mecanico: 3, deflectores: 1 }
 };
 
 function partida(semilla, escenario, objetos) {
@@ -59,8 +59,6 @@ function partida(semilla, escenario, objetos) {
     // Mismo nivel toda la partida y existencias llenas.
     if (i % 40 === 0) {
       conductores.forEach(function (t) { t.xp = c.conductores.niveles.experiencia[4]; });
-      if (ESCENARIOS[escenario].bolsas) e.inventario.bolsas = 50;
-      if (ESCENARIOS[escenario].rueda) e.inventario.ruedas = 10;
       e.objetos = {}; e.bandeja = [];
     }
     sim.avanzar(e, DT);
