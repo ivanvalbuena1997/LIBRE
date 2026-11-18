@@ -343,7 +343,7 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 
 ### 5.9 Mejoras
 
-Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (basta su nivel 1). Precios ajustados para que cada mejora se pague en una o dos horas de juego con 6 coches.
+Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pide nada y cada mejora pide la anterior (basta su nivel 1), con el precio subiendo a lo largo de la rama. Hasta el 18-11 había ramas con dos o tres mejoras sin requisito.
 
 **Clientes**
 
@@ -351,20 +351,22 @@ Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (
 | --- | --- | --- |
 | Callejero al día | 400 € | −10 % de tiempo buscando cliente |
 | Taxi impecable | 600 € | +5 % de demanda en todas las zonas |
+| Publicidad en el taxi (5 niveles) | 900 / 1.800 / 3.200 / 5.000 / 7.500 € | Al cerrar la caja, 0,25 / 0,50 / 0,80 / 1,20 / 1,60 € por cada carrera del día de toda la flota |
 | Propinas (5 niveles) | 1.350 / 1.980 / 2.700 / 3.600 / 4.500 € | De +3 a +15 puntos de probabilidad y propinas de un 15 a un 80 % mayores |
-| Pago con tarjeta | 1.440 € | +10 % de demanda |
+| Pago con tarjeta | 1.500 € | +10 % de demanda |
 | Clientes de siempre | 2.000 € | +8 % de demanda |
 
 **Ciudad y radio**
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Parada en Atocha y Chamartín | 2.500 € | Abre Estaciones |
-| Acreditación de Barajas | 2.000 € | Abre el Aeropuerto |
-| Emisora de radio-taxi | 1.300 € | −30 % de tiempo buscando; cuota de 3 € por coche y día |
-| Parada junto a las salas de fiesta | 2.300 € | En Ocio: la mitad de tiempo buscando y +15 % de demanda |
-| Turnos coordinados en Barajas | 3.000 € | La cola del aeropuerto, a la mitad (30–60 min) |
-| App de pedidos | 4.000 € | Otro −30 % de tiempo buscando |
+| Enchufe en los hoteles | 1.200 € | En el Centro, −25 % de tiempo buscando: los conserjes de los hoteles te llaman |
+| Emisora de radio-taxi | 1.800 € | −30 % de tiempo buscando; cuota de 3 € por coche y día |
+| Parada en Atocha y Chamartín | 2.200 € | Abre Estaciones |
+| Acreditación de Barajas | 2.600 € | Abre el Aeropuerto |
+| Parada junto a las salas de fiesta | 3.000 € | En Ocio: la mitad de tiempo buscando y +15 % de demanda |
+| Turnos coordinados en Barajas | 3.500 € | La cola del aeropuerto, a la mitad (30–60 min) |
+| App de pedidos | 4.500 € | Otro −30 % de tiempo buscando |
 
 **Vehículo**
 
@@ -380,19 +382,19 @@ Cinco ramas. Las que no piden otra abren su rama; las demás piden la anterior (
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
 | Mecánico propio (5 niveles) | 300 / 525 / 750 / 1.050 / 1.350 € | Averías de un 15 a un 65 % más cortas y de un 15 a un 60 % más baratas |
-| Póliza de flota | 700 € | −20 % de seguro |
-| Curso de seguridad vial | 675 € | Otro −25 % de seguro |
+| Curso de seguridad vial | 675 € | −25 % de seguro |
+| Póliza de flota | 900 € | Otro −20 % de seguro |
 
 **Conductores y jornada**
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Curso gestión de zonas | 2.000 € | Los conductores van cada hora a la zona que más deja |
-| Departamento de RRHH (5 niveles, pide el Curso) | 1.500 / 3.500 / 6.000 / 10.000 / 15.000 € | Candidatos de mejor categoría: los B bajan del 65 % al 55, 45, 35, 25 y 15 %; los LEGENDARIOS suben del 0,5 % al 1, 2, 3, 5 y 8 %. Al comprar un nivel salen candidatos nuevos |
-| Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |
 | Sacudir esterillas (5 niveles) | 450 / 720 / 990 / 1.350 / 1.800 € | Cada conductor encuentra de 0,50–2 € a 3–8 € al acabar su turno |
-| Jornada larga (5 niveles) | 400 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |
-| Oficina de gestión | 4.000 € | Puedes dejar el volante y solo gestionar, y tus conductores se quedan el 45 % en vez del 50 % (pide el nivel 1 de Jornada larga) |
+| Jornada larga (5 niveles) | 500 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |
+| Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |
+| Curso gestión de zonas | 2.000 € | Los conductores van cada hora a la zona que más deja |
+| Departamento de RRHH (5 niveles) | 2.500 / 3.500 / 6.000 / 10.000 / 15.000 € | Candidatos de mejor categoría: los B bajan del 65 % al 55, 45, 35, 25 y 15 %; los LEGENDARIOS suben del 0,5 % al 1, 2, 3, 5 y 8 %. Al comprar un nivel salen candidatos nuevos |
+| Oficina de gestión | 4.000 € | Puedes dejar el volante y solo gestionar, y tus conductores se quedan el 45 % en vez del 50 % |
 
 ---
 

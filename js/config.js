@@ -100,6 +100,8 @@
       bolsa: { nombre: 'Bolsas usadas' },
       // Solo con la mejora «Sacudir esterillas»: monedas al final de cada turno.
       esterillas: { nombre: 'Monedas de las esterillas' },
+      // Con la mejora «Publicidad en el taxi»: al cerrar la caja, por cada carrera.
+      publicidad: { nombre: 'Publicidad' },
       // Al despedir a un conductor (sale en el ticket con los gastos).
       finiquito: { nombre: 'Finiquitos' },
       // Objetos vendidos (sale en el ticket con lo que entra).
@@ -289,8 +291,8 @@
      */
     objetivo: {
       mejorasHasta: 0.1,
-      // Con estas licencias o más propone también estas mejoras (en su orden
-      // de rama): para que lleguen conductores mejores (Iván, 18-11-2026).
+      // Con estas licencias o más propone también estas mejoras y lo que piden
+      // antes en su rama: para que lleguen conductores mejores (Iván, 18-11-2026).
       licenciasParaPersonal: 3,
       mejorasPersonal: ['gestionZonas', 'rrhh']
     },
@@ -636,8 +638,8 @@
     /*
      * Mejoras. Cada una se compra una vez.
      *   rama      rama del árbol (ramasMejoras); el orden de la lista es el de la rama.
-     *   requiere  mejora anterior de su rama (basta su nivel 1). Sin requiere, es
-     *             una de las que abren la rama (puede haber más de una).
+     *   requiere  mejora anterior de su rama (basta su nivel 1). Cada rama es
+     *             una cadena (Iván, 18-11-2026): solo la primera no pide nada.
      *   efecto    segundosDia: alarga el día (segundos reales)
      *             consumo / busqueda / cola / demanda: multiplicadores
      *             soloZona: el efecto solo cuenta en esa zona
@@ -654,6 +656,7 @@
      *             baja: multiplica la probabilidad de baja de los conductores
      *                   (junto con su rasgo y sus objetos, bajo el mismo tope)
      *             almacen: objetos de más que caben en el almacén
+     *             publicidad: € por cada carrera del día, al cerrar la caja
      *             pesosCandidatos: probabilidad de cada categoría en los candidatos
      *             porcentajeConductor: multiplica la parte de cada carrera que se queda el conductor
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
@@ -685,7 +688,20 @@
         efecto: { demanda: 1.05 }
       },
       {
-        id: 'propinas', nombre: 'Propinas', rama: 'clientes', requiere: 'limpieza',
+        // Iván, 18-11-2026: un ingreso por cada carrera del día (tuyas y de
+        // tus conductores), que se cobra al cerrar la caja. Equilibrio.
+        id: 'publicidad', nombre: 'Publicidad en el taxi', rama: 'clientes', requiere: 'limpieza',
+        descripcion: 'Anuncios en las puertas y en la luneta: al cerrar la caja cobras por cada carrera del día de toda la flota.',
+        niveles: [
+          { precio: 900, descripcion: '0,25 € por carrera.', efecto: { publicidad: 0.25 } },
+          { precio: 1800, descripcion: '0,50 € por carrera.', efecto: { publicidad: 0.5 } },
+          { precio: 3200, descripcion: '0,80 € por carrera.', efecto: { publicidad: 0.8 } },
+          { precio: 5000, descripcion: '1,20 € por carrera.', efecto: { publicidad: 1.2 } },
+          { precio: 7500, descripcion: '1,60 € por carrera.', efecto: { publicidad: 1.6 } }
+        ]
+      },
+      {
+        id: 'propinas', nombre: 'Propinas', rama: 'clientes', requiere: 'publicidad',
         descripcion: 'Trato de primera: más clientes dejan propina y dejan más.',
         niveles: [
           { precio: 1350, descripcion: '+3 puntos de probabilidad y propinas un 15 % mayores.', efecto: { propinaProb: 0.03, propinaImporte: 1.15 } },
@@ -696,7 +712,7 @@
         ]
       },
       {
-        id: 'datafono', nombre: 'Pago con tarjeta', rama: 'clientes', requiere: 'propinas', precio: 1440,
+        id: 'datafono', nombre: 'Pago con tarjeta', rama: 'clientes', requiere: 'propinas', precio: 1500,
         descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.1 }
       },
@@ -707,32 +723,38 @@
       },
       // ---- Rama: Ciudad y radio
       {
-        id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', rama: 'ciudad', precio: 2500,
-        descripcion: 'Abre la zona de estaciones, con picos al llegar los trenes.',
-        efecto: { desbloqueaZona: 'estaciones' }
+        // Iván, 18-11-2026: los hoteles del centro te llaman. Equilibrio.
+        id: 'hoteles', nombre: 'Enchufe en los hoteles', rama: 'ciudad', precio: 1200,
+        descripcion: 'Los conserjes de los hoteles del centro te llaman cuando tienen un cliente: un 25 % menos de tiempo buscando en el Centro.',
+        efecto: { busqueda: 0.75, soloZona: 'centro' }
       },
       {
-        id: 'aeropuerto', nombre: 'Acreditación de Barajas', rama: 'ciudad', requiere: 'estaciones', precio: 2000,
-        descripcion: 'Abre la zona del aeropuerto, con tarifas fijas de 22 € y 33 €.',
-        efecto: { desbloqueaZona: 'aeropuerto' }
-      },
-      {
-        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'aeropuerto', precio: 1300,
+        id: 'emisora', nombre: 'Emisora de radio-taxi', rama: 'ciudad', requiere: 'hoteles', precio: 1800,
         descripcion: 'Te pasan clientes por radio: un 30 % menos de tiempo buscando. Tiene cuota diaria por coche.',
         efecto: { busqueda: 0.7, cuotaEmisora: true }
       },
       {
-        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'emisora', precio: 2300,
+        id: 'estaciones', nombre: 'Parada en Atocha y Chamartín', rama: 'ciudad', requiere: 'emisora', precio: 2200,
+        descripcion: 'Abre la zona de estaciones, con picos al llegar los trenes.',
+        efecto: { desbloqueaZona: 'estaciones' }
+      },
+      {
+        id: 'aeropuerto', nombre: 'Acreditación de Barajas', rama: 'ciudad', requiere: 'estaciones', precio: 2600,
+        descripcion: 'Abre la zona del aeropuerto, con tarifas fijas de 22 € y 33 €.',
+        efecto: { desbloqueaZona: 'aeropuerto' }
+      },
+      {
+        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'aeropuerto', precio: 3000,
         descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 15 % más de demanda.',
         efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
       },
       {
-        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', rama: 'ciudad', requiere: 'paradaOcio', precio: 3000,
+        id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', rama: 'ciudad', requiere: 'paradaOcio', precio: 3500,
         descripcion: 'La cola del aeropuerto se reduce a la mitad: de 1–2 horas a 30–60 minutos.',
         efecto: { cola: 0.5, soloZona: 'aeropuerto' }
       },
       {
-        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 4000,
+        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 4500,
         descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
         efecto: { busqueda: 0.7 }
       },
@@ -744,7 +766,7 @@
         efecto: { baja: 0.85 }
       },
       {
-        id: 'conduccionEficiente', nombre: 'Curso de conducción eficiente', rama: 'vehiculo', precio: 800,
+        id: 'conduccionEficiente', nombre: 'Curso de conducción eficiente', rama: 'vehiculo', requiere: 'deflectores', precio: 800,
         descripcion: 'Todos tus coches gastan un 10 % menos de combustible.',
         efecto: { consumo: 0.9 }
       },
@@ -771,53 +793,16 @@
         ]
       },
       {
-        id: 'seguroFlota', nombre: 'Póliza de flota', rama: 'taller', requiere: 'mecanico', precio: 700,
-        descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
-        efecto: { seguro: 0.8 }
-      },
-      {
-        id: 'seguridadVial', nombre: 'Curso de seguridad vial', rama: 'taller', requiere: 'seguroFlota', precio: 675,
+        id: 'seguridadVial', nombre: 'Curso de seguridad vial', rama: 'taller', requiere: 'mecanico', precio: 675,
         descripcion: 'Menos partes de accidente: el seguro de cada coche baja otro 25 %.',
         efecto: { seguro: 0.75 }
       },
+      {
+        id: 'seguroFlota', nombre: 'Póliza de flota', rama: 'taller', requiere: 'seguridadVial', precio: 900,
+        descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
+        efecto: { seguro: 0.8 }
+      },
       // ---- Rama: Conductores y jornada
-      {
-        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', precio: 2000,
-        descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
-        efecto: { gestionZonas: true }
-      },
-      {
-        // Iván (18-11-2026): mejores candidatos en el late-game. Cada nivel da
-        // los pesos de las categorías de los candidatos (suman 1; sin la
-        // mejora, los `peso` de config.categorias). No cambia los objetos.
-        // Precios y pesos: Equilibrio.
-        id: 'rrhh', nombre: 'Departamento de RRHH', rama: 'jornada', requiere: 'gestionZonas',
-        descripcion: 'Alguien que hace entrevistas de verdad: los candidatos salen de mejor categoría.',
-        niveles: [
-          { precio: 1500, descripcion: 'B 55 % · A 30 % · S 11 % · S+ 3 % · LEGENDARIO 1 %.',
-            efecto: { pesosCandidatos: { B: 0.55, A: 0.30, S: 0.11, 'S+': 0.03, L: 0.01 } } },
-          { precio: 3500, descripcion: 'B 45 % · A 33 % · S 15 % · S+ 5 % · LEGENDARIO 2 %.',
-            efecto: { pesosCandidatos: { B: 0.45, A: 0.33, S: 0.15, 'S+': 0.05, L: 0.02 } } },
-          { precio: 6000, descripcion: 'B 35 % · A 35 % · S 19 % · S+ 8 % · LEGENDARIO 3 %.',
-            efecto: { pesosCandidatos: { B: 0.35, A: 0.35, S: 0.19, 'S+': 0.08, L: 0.03 } } },
-          { precio: 10000, descripcion: 'B 25 % · A 35 % · S 23 % · S+ 12 % · LEGENDARIO 5 %.',
-            efecto: { pesosCandidatos: { B: 0.25, A: 0.35, S: 0.23, 'S+': 0.12, L: 0.05 } } },
-          { precio: 15000, descripcion: 'B 15 % · A 33 % · S 27 % · S+ 17 % · LEGENDARIO 8 %.',
-            efecto: { pesosCandidatos: { B: 0.15, A: 0.33, S: 0.27, 'S+': 0.17, L: 0.08 } } }
-        ]
-      },
-      {
-        // Equilibrio: cada nivel costaba más o menos lo que valían vendidos los
-        // objetos (sobre todo B y A) que caben de más, con la venta de antes
-        // del 18-11-2026 (ahora, más o menos la mitad).
-        id: 'taquillas', nombre: 'Taquillas', rama: 'jornada',
-        descripcion: 'Taquillas para guardar lo que encuentran tus conductores: el almacén guarda más objetos.',
-        niveles: [
-          { precio: 600, descripcion: 'Almacén de 20 objetos.', efecto: { almacen: 10 } },
-          { precio: 1800, descripcion: 'Almacén de 30 objetos.', efecto: { almacen: 20 } },
-          { precio: 4500, descripcion: 'Almacén de 40 objetos.', efecto: { almacen: 30 } }
-        ]
-      },
       {
         id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',
         descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
@@ -835,7 +820,7 @@
         id: 'jornadaLarga', nombre: 'Jornada larga', rama: 'jornada', requiere: 'esterillas',
         descripcion: 'El día dura más: más carreras con los mismos costes fijos diarios.',
         niveles: [
-          { precio: 400, descripcion: 'El día dura 10 segundos más.', efecto: { segundosDia: 10 } },
+          { precio: 500, descripcion: 'El día dura 10 segundos más.', efecto: { segundosDia: 10 } },
           { precio: 700, descripcion: '20 segundos más en total.', efecto: { segundosDia: 20 } },
           { precio: 1000, descripcion: '30 segundos más en total.', efecto: { segundosDia: 30 } },
           { precio: 1400, descripcion: '45 segundos más en total.', efecto: { segundosDia: 45 } },
@@ -843,9 +828,46 @@
         ]
       },
       {
+        // Equilibrio: cada nivel costaba más o menos lo que valían vendidos los
+        // objetos (sobre todo B y A) que caben de más, con la venta de antes
+        // del 18-11-2026 (ahora, más o menos la mitad).
+        id: 'taquillas', nombre: 'Taquillas', rama: 'jornada', requiere: 'jornadaLarga',
+        descripcion: 'Taquillas para guardar lo que encuentran tus conductores: el almacén guarda más objetos.',
+        niveles: [
+          { precio: 600, descripcion: 'Almacén de 20 objetos.', efecto: { almacen: 10 } },
+          { precio: 1800, descripcion: 'Almacén de 30 objetos.', efecto: { almacen: 20 } },
+          { precio: 4500, descripcion: 'Almacén de 40 objetos.', efecto: { almacen: 30 } }
+        ]
+      },
+      {
+        id: 'gestionZonas', nombre: 'Curso gestión de zonas', rama: 'jornada', requiere: 'taquillas', precio: 2000,
+        descripcion: 'Tus conductores aprenden a moverse: cada hora se van a la zona que más les conviene, en vez de elegir a ojo.',
+        efecto: { gestionZonas: true }
+      },
+      {
+        // Iván (18-11-2026): mejores candidatos en el late-game. Cada nivel da
+        // los pesos de las categorías de los candidatos (suman 1; sin la
+        // mejora, los `peso` de config.categorias). No cambia los objetos.
+        // Precios y pesos: Equilibrio.
+        id: 'rrhh', nombre: 'Departamento de RRHH', rama: 'jornada', requiere: 'gestionZonas',
+        descripcion: 'Alguien que hace entrevistas de verdad: los candidatos salen de mejor categoría.',
+        niveles: [
+          { precio: 2500, descripcion: 'B 55 % · A 30 % · S 11 % · S+ 3 % · LEGENDARIO 1 %.',
+            efecto: { pesosCandidatos: { B: 0.55, A: 0.30, S: 0.11, 'S+': 0.03, L: 0.01 } } },
+          { precio: 3500, descripcion: 'B 45 % · A 33 % · S 15 % · S+ 5 % · LEGENDARIO 2 %.',
+            efecto: { pesosCandidatos: { B: 0.45, A: 0.33, S: 0.15, 'S+': 0.05, L: 0.02 } } },
+          { precio: 6000, descripcion: 'B 35 % · A 35 % · S 19 % · S+ 8 % · LEGENDARIO 3 %.',
+            efecto: { pesosCandidatos: { B: 0.35, A: 0.35, S: 0.19, 'S+': 0.08, L: 0.03 } } },
+          { precio: 10000, descripcion: 'B 25 % · A 35 % · S 23 % · S+ 12 % · LEGENDARIO 5 %.',
+            efecto: { pesosCandidatos: { B: 0.25, A: 0.35, S: 0.23, 'S+': 0.12, L: 0.05 } } },
+          { precio: 15000, descripcion: 'B 15 % · A 33 % · S 27 % · S+ 17 % · LEGENDARIO 8 %.',
+            efecto: { pesosCandidatos: { B: 0.15, A: 0.33, S: 0.27, 'S+': 0.17, L: 0.08 } } }
+        ]
+      },
+      {
         // Iván (18-11-2026): 4.000 € y rebaja lo que se quedan los conductores,
         // para que dejar el volante no sea una trampa. El 0,9 es Equilibrio.
-        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'jornadaLarga', precio: 4000,
+        id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'rrhh', precio: 4000,
         descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota (tu turno queda libre para un conductor). Con la gestoría al día, tus conductores se quedan el 45 % de cada carrera en vez del 50 %.',
         efecto: { dejarVolante: true, porcentajeConductor: 0.9 }
       }

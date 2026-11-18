@@ -274,10 +274,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   Para probar: `Libre.forzarEvento(tipo, arg)` en la consola.
 - Árbol de mejoras: cada mejora tiene `rama` (`config.ramasMejoras`) y
   `requiere` la anterior de su rama (basta su nivel 1); el orden de la lista
-  en la config es el de la rama. Las que no tienen `requiere` abren la rama
-  (puede haber varias: Deflectores y Conducción eficiente; Curso de zonas,
-  Taquillas y Esterillas), y la
-  La interfaz no inventa requisitos: los lee.
+  en la config es el de la rama. Cada rama es una cadena (Iván, 18-11-2026):
+  solo la primera no tiene `requiere` y cada una pide la de antes, con el
+  precio subiendo (hay una prueba). La interfaz no inventa requisitos: los lee.
+  «Publicidad en el taxi» cobra al cerrar la caja por cada carrera del día
+  (incidencia «Publicidad»); «Enchufe en los hoteles» baja la búsqueda en el
+  Centro.
   En pantalla (maqueta mejoras.html): un chip por rama y los nodos en una
   lista vertical (comprada en verde con ✓, disponible en azul con el precio
   en gris si no llega, bloqueada en gris con candado; las de niveles, con

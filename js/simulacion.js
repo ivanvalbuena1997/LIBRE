@@ -246,7 +246,7 @@
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1,
-      pesosCandidatos: null
+      pesosCandidatos: null, publicidad: 0
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -271,6 +271,7 @@
       if (e.baja) m.baja *= e.baja;
       if (e.porcentajeConductor) m.porcentajeConductor *= e.porcentajeConductor;
       if (e.pesosCandidatos) m.pesosCandidatos = e.pesosCandidatos;
+      if (e.publicidad) m.publicidad += e.publicidad;
     });
     return m;
   }
@@ -452,6 +453,13 @@
   /* Cierra la caja del día: cobra los costes fijos y empieza un día nuevo. */
   function cerrarCaja(estado, resumen) {
     gastar(estado, resumen, 'fijos', costesFijosDiarios(estado));
+    // Publicidad en el taxi: un tanto por cada carrera del día (también sin conexión).
+    const porCarrera = modificadores(estado).publicidad;
+    const carreras = Math.round(estado.caja.hoy.carreras);
+    if (porCarrera > 0 && carreras > 0) {
+      incidencia(estado, resumen, 'publicidad', 'Publicidad en el taxi: ' + carreras + ' carreras a ' +
+        Libre.ui_euros(porCarrera) + '.', carreras * porCarrera, 'extras');
+    }
     const cerrada = estado.caja.hoy;
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
@@ -602,7 +610,13 @@
     if (flota.length) return flota;
     const c = cfg();
     const crecer = precioLicencia(estado) + c.vehiculos.modelos[c.vehiculos.modeloInicial].precio;
-    const personal = estado.licencias.length >= c.objetivo.licenciasParaPersonal ? c.objetivo.mejorasPersonal : [];
+    // Las de personal y todo lo que piden antes en su rama.
+    const personal = [];
+    if (estado.licencias.length >= c.objetivo.licenciasParaPersonal) {
+      c.objetivo.mejorasPersonal.forEach(function (id) {
+        for (let m = buscarMejora(id); m; m = m.requiere ? buscarMejora(m.requiere) : null) personal.push(m.id);
+      });
+    }
     return lista.filter(function (x) {
       return x.tipo === 'licencia' ||
         (x.tipo === 'mejora' && (x.precio <= c.objetivo.mejorasHasta * crecer || personal.indexOf(x.mejora) !== -1));

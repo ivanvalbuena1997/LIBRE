@@ -187,13 +187,14 @@ prueba('el aeropuerto está cerrado hasta comprar su mejora y cobra tarifa fija'
   cerca(e.jugador.carrera.importe, config.tarifas.t4.fija);
 });
 
-prueba('Jornada larga: una mejora de 5 niveles; su nivel 1 abre la Oficina de gestión', function () {
+prueba('Jornada larga: una mejora de 5 niveles; la Oficina va al final de su rama', function () {
   const e = sim.crearEstadoInicial(0);
   e.dinero = 100000;
-  assert.ok(!sim.comprarMejora(e, 'oficina').ok, 'sin Jornada larga no hay oficina');
+  assert.ok(!sim.comprarMejora(e, 'oficina').ok, 'sin lo anterior no hay oficina');
   assert.ok(comprarConRequisitos(e, 'jornadaLarga').ok);
   assert.strictEqual(sim.segundosPorDia(e), config.reloj.segundosPorDia + 10);
-  assert.ok(sim.comprarMejora(e, 'oficina').ok, 'con el nivel 1 ya se puede');
+  assert.ok(!sim.comprarMejora(e, 'oficina').ok, 'con Jornada larga sola, todavía no');
+  assert.ok(comprarConRequisitos(e, 'oficina').ok);
   for (let n = 2; n <= 5; n++) assert.ok(sim.comprarMejora(e, 'jornadaLarga').ok, 'nivel ' + n);
   assert.strictEqual(sim.segundosPorDia(e), config.reloj.segundosPorDia + 60);
   assert.ok(!sim.comprarMejora(e, 'jornadaLarga').ok, 'no hay nivel 6');
@@ -1212,7 +1213,7 @@ prueba('el almacén guarda 10 objetos y «Taquillas» lo amplía por niveles', f
   assert.strictEqual(sim.capacidadAlmacen(e), 10);
   const t = config.mejoras.find(function (m) { return m.id === 'taquillas'; });
   t.niveles.forEach(function (n, i) {
-    assert.ok(sim.comprarMejora(e, 'taquillas').ok);
+    assert.ok(comprarConRequisitos(e, 'taquillas').ok);
     assert.strictEqual(sim.capacidadAlmacen(e), 10 + n.efecto.almacen, 'nivel ' + (i + 1));
   });
   assert.strictEqual(sim.capacidadAlmacen(e), 40);
@@ -1507,6 +1508,16 @@ prueba('hallazgo y suerte: objetos y Urraca encuentran más y mejor, con tope', 
   assert.ok(media(['detector']) > media([]) + 0.15, 'con detector, mejores objetos');
 });
 
+prueba('cada rama de mejoras es una cadena: solo la primera no pide nada', function () {
+  config.ramasMejoras.forEach(function (r) {
+    const rama = config.mejoras.filter(function (m) { return m.rama === r.id; });
+    assert.strictEqual(rama.filter(function (m) { return !m.requiere; }).length, 1, r.id + ': una sola raíz');
+    rama.forEach(function (m, i) {
+      if (i > 0) assert.strictEqual(m.requiere, rama[i - 1].id, m.id + ' pide la anterior de su rama');
+    });
+  });
+});
+
 prueba('«Siguiente» propone el Curso de zonas y RRHH a partir de 3 licencias', function () {
   const e = flotaDe(2);
   const ids = function () { return sim.comprasParaObjetivo(e).map(function (x) { return x.mejora; }); };
@@ -1517,9 +1528,24 @@ prueba('«Siguiente» propone el Curso de zonas y RRHH a partir de 3 licencias',
   sim.comprarVehiculo(e, l.id);
   sim.contratarConductor(e, l.id, 'dia');
   sim.contratarConductor(e, l.id, 'noche');
-  assert.ok(ids().indexOf('gestionZonas') !== -1, 'con 3, el Curso');
+  comprarConRequisitos(e, 'jornadaLarga');
+  assert.ok(ids().indexOf('taquillas') !== -1, 'con 3, lo que va antes en su rama (Taquillas, cara para «Siguiente»)');
+  comprarConRequisitos(e, 'taquillas');
+  assert.ok(ids().indexOf('gestionZonas') !== -1, 'y luego el Curso');
   sim.comprarMejora(e, 'gestionZonas');
   assert.ok(ids().indexOf('rrhh') !== -1, 'y luego RRHH');
+});
+
+prueba('Publicidad en el taxi: al cerrar la caja cobra por cada carrera del día', function () {
+  const e = flotaDe(1);
+  e.dinero = 1e6;
+  assert.ok(comprarConRequisitos(e, 'publicidad').ok);
+  const porCarrera = config.mejoras.find(function (m) { return m.id === 'publicidad'; }).niveles[0].efecto.publicidad;
+  for (let i = 0; i < 5000 && !e.caja.ayer; i++) sim.avanzar(e, 0.1);
+  const ayer = e.caja.ayer;
+  assert.ok(ayer.carreras > 0);
+  cerca(ayer.incidencias.publicidad.importe, Math.round(ayer.carreras) * porCarrera);
+  assert.ok(ayer.extras >= ayer.incidencias.publicidad.importe);
 });
 
 console.log(pasadas + ' pruebas correctas');
