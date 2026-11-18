@@ -1700,28 +1700,47 @@
   };
 
   /*
-   * Árbol de mejoras. Una rama por chip; cada mejora es un nodo de la lista,
-   * en el orden de su rama (los requisitos están en la config). Al tocar un
-   * nodo se abre debajo qué hace, cuánto cuesta y el botón de comprar.
+   * Árbol de mejoras (Iván, 18-11-2026): todo en una pantalla. Un punto
+   * principal (el logo) del que salen las cinco ramas en columnas; cada
+   * mejora es un círculo con su icono, unido al anterior de su rama (cada
+   * rama es una cadena: los requisitos están en la config). Al tocar uno se
+   * abre su ficha en una hoja que sube desde abajo.
    * Estados: comprada, disponible, sin dinero y bloqueada.
    */
-  let ramaActual = null;
   let nodoAbierto = null;
-  try { ramaActual = raiz.localStorage.getItem('libre-rama'); } catch (e) { /* sin almacenamiento */ }
+  let enfocarMejora = false;
 
-  function ramaValida() {
-    const ramas = Libre.config.ramasMejoras;
-    if (!ramas.some(function (r) { return r.id === ramaActual; })) ramaActual = ramas[0].id;
-    return ramaActual;
-  }
-
-  // Al cambiar de rama (o al entrar), su chip se desliza a la vista.
-  let centrarRama = true;
-  function elegirRama(id) {
-    ramaActual = id;
-    nodoAbierto = null;
-    centrarRama = true;
-    try { raiz.localStorage.setItem('libre-rama', id); } catch (e) { /* da igual */ }
+  /* Iconos de trazo (24 × 24) de cada mejora. */
+  const ICONOS_MEJORA = {
+    callejero: '<path d="M4 5l5-2 6 2 5-2v16l-5 2-6-2-5 2z"/><path d="M9 3v16M15 5v16"/>',
+    limpieza: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
+    publicidad: '<path d="M3 10v4h4l8 4V6l-8 4z"/><path d="M18 9a4 4 0 0 1 0 6M7 14l1.5 5h3L10 15"/>',
+    propinas: '<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.3c-.4-.9-1.4-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2 0 2.8 5 1.5 5 4.3 0 1.2-1.1 2-2.5 2-1.1 0-2.1-.6-2.5-1.5M12 6v1.8M12 16.2V18"/>',
+    datafono: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/>',
+    clientesFijos: '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14a5 5 0 0 1 4.5 5"/>',
+    hoteles: '<path d="M4 17h16M6 17a6 6 0 0 1 12 0M12 11V8.5M10 8.5h4M3 20h18"/>',
+    emisora: '<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8"/>',
+    estaciones: '<rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 11h12M9 14h.01M15 14h.01M8.5 21l2-4M15.5 21l-2-4"/>',
+    aeropuerto: '<path d="M2.5 15.5l8-3.5V5.5a1.5 1.5 0 0 1 3 0V12l8 3.5V18l-8-2v3.5l2 1.5v1l-3.5-1-3.5 1v-1l2-1.5V16l-8 2z"/>',
+    paradaOcio: '<path d="M5 4h14l-7 8zM12 12v7M8 20h8M15 7.5l3-3.5"/>',
+    colaBarajas: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    app: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+    deflectores: '<path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>',
+    conduccionEficiente: '<path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15zM5 19l7-7"/>',
+    neumaticos: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/>',
+    hibridos: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M12 8.5l-2.5 4h3l-2.5 4"/>',
+    mecanico: '<path d="M15 4a4 4 0 0 0-4.5 5.5L4 16l4 4 6.5-6.5A4 4 0 0 0 20 9l-3 1-2-2 1-3z"/>',
+    seguridadVial: '<path d="M12 3l9 17H3z"/><path d="M12 10v4M12 17h.01"/>',
+    seguroFlota: '<path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+    esterillas: '<ellipse cx="12" cy="6" rx="6" ry="2.5"/><path d="M6 6v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6M6 10v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4M6 14v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4"/>',
+    jornadaLarga: '<circle cx="11" cy="13" r="8"/><path d="M11 9v4l3 2M18 2v4M16 4h4"/>',
+    taquillas: '<rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 3v18M7.5 7h2M14.5 7h2M7.5 10h2M14.5 10h2"/>',
+    gestionZonas: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+    rrhh: '<circle cx="10" cy="8" r="3.5"/><path d="M3 20a7 7 0 0 1 14 0M19.5 8v6M16.5 11h6"/>',
+    oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>'
+  };
+  function iconoMejora(id) {
+    return '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS_MEJORA[id] || ICONOS_MEJORA.limpieza) + '</svg>';
   }
 
   /* Estado de un nodo: 'comprada', 'bloqueada', 'disponible' o 'sinDinero'. */
@@ -1738,13 +1757,24 @@
   }
 
   /* ¿Hay alguna mejora que se pueda comprar ya? Para la marca del menú. */
-  function hayMejoraComprable(estado, rama) {
-    return Libre.config.mejoras.some(function (m) {
-      return (!rama || m.rama === rama) && estadoNodo(estado, m) === 'disponible';
-    });
+  function hayMejoraComprable(estado) {
+    return Libre.config.mejoras.some(function (m) { return estadoNodo(estado, m) === 'disponible'; });
   }
 
-  /* Al abrir un nodo: qué hace, el nivel que toca y el botón de comprar. */
+  /* «1.800 €» (sin céntimos): cabe debajo de un nodo. */
+  function eurosCorto(n) {
+    // Con punto también en los miles de 4 cifras («1.200 €», como el resto del juego).
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €';
+  }
+
+  function htmlNiveles(m, nivel) {
+    return m.niveles
+      ? '<span class="nodo-niveles" aria-label="Nivel ' + nivel + ' de ' + m.niveles.length + '">' +
+        m.niveles.map(function (n, k) { return '<i class="' + (k < nivel ? 'hecho' : '') + '"></i>'; }).join('') + '</span>'
+      : '';
+  }
+
+  /* Qué hace, el nivel que toca y el botón de comprar (o lo que falta). */
   function htmlFicha(estado, m) {
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
     let texto = esc(m.descripcion);
@@ -1758,70 +1788,74 @@
       pie = boton('<span>' + (m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar') + '</span><span>' + euros(siguiente.precio) + '</span>',
         'comprarMejora', [m.id], 'ui-boton ui-boton--principal ui-boton--ancho nodo-comprar', siguiente.precio);
     }
-    return '<div class="nodo-ficha"><p>' + texto + '</p>' + pie + '</div>';
+    return '<p class="mejora-texto">' + texto + '</p>' + pie;
   }
 
-  const ICONO_HECHO = '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-  const ICONO_CANDADO = '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const ICONO_HECHO = '<svg class="icono icono-hecho" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const ICONO_CANDADO = '<svg class="icono icono-candado" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
   /*
-   * Nodo (maqueta mejoras.html): círculo de estado (hecho con ✓, disponible
-   * en azul, bloqueado con candado), nombre, niveles en rayitas y precio.
+   * Nodo: círculo con el icono de la mejora (y una marca: ✓ comprada,
+   * candado bloqueada), debajo las rayitas de sus niveles y el precio de lo
+   * siguiente. La línea de arriba sale verde si lo anterior ya está comprado.
    */
   function htmlNodo(estado, m) {
     const nivel = Libre.sim.nivelMejora(estado, m.id);
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
-    const precio = siguiente ? siguiente.precio : null;
-    const niveles = m.niveles
-      ? '<span class="nodo-niveles" aria-label="Nivel ' + nivel + ' de ' + m.niveles.length + '">' +
-        m.niveles.map(function (n, k) { return '<i class="' + (k < nivel ? 'hecho' : '') + '"></i>'; }).join('') + '</span>'
-      : '';
-    const abierto = nodoAbierto === m.id;
-    return '<li class="nodo" data-mejora="' + m.id + '" data-nodo-estado>' +
-      '<button type="button" class="nodo-cabeza" data-nodo="' + m.id + '" aria-expanded="' + abierto + '">' +
-      '<span class="nodo-punto" aria-hidden="true">' + ICONO_HECHO + ICONO_CANDADO + '</span>' +
-      '<span class="nodo-texto"><span class="nodo-nombre">' + esc(m.nombre) + '</span>' + niveles + '</span>' +
-      '<span class="nodo-precio">' + (precio !== null ? euros(precio) : '') + '</span>' +
-      '</button>' + (abierto ? htmlFicha(estado, m) : '') + '</li>';
+    const unido = !m.requiere || Libre.sim.nivelMejora(estado, m.requiere) > 0;
+    return '<li class="nodo' + (unido ? ' unido' : '') + '" data-mejora="' + m.id + '" data-nodo-estado="' + estadoNodo(estado, m) + '">' +
+      '<button type="button" class="nodo-boton" data-nodo="' + m.id + '" aria-label="' + esc(m.nombre) +
+      (m.niveles ? ', nivel ' + nivel + ' de ' + m.niveles.length : '') + '">' +
+      iconoMejora(m.id) + '<span class="nodo-marca">' + ICONO_HECHO + ICONO_CANDADO + '</span></button>' +
+      htmlNiveles(m, nivel) +
+      '<span class="nodo-precio">' + (siguiente ? eurosCorto(siguiente.precio) : 'Hecha') + '</span></li>';
+  }
+
+  /* Hoja con la ficha de la mejora tocada. */
+  function htmlHojaMejora(estado) {
+    const m = nodoAbierto && Libre.config.mejoras.find(function (x) { return x.id === nodoAbierto; });
+    if (!m) return '';
+    const rama = Libre.config.ramasMejoras.find(function (r) { return r.id === m.rama; });
+    const nivel = Libre.sim.nivelMejora(estado, m.id);
+    return '<div class="hoja-fondo" data-cerrar-mejora></div>' +
+      '<div class="hoja hoja-mejora" role="dialog" aria-modal="true" aria-labelledby="mejora-titulo" data-mejora="' + m.id +
+      '" data-nodo-estado="' + estadoNodo(estado, m) + '">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="mejora-cabecera"><span class="mejora-icono">' + iconoMejora(m.id) + '</span>' +
+      '<span class="mejora-quien"><h3 id="mejora-titulo">' + esc(m.nombre) + '</h3><span>' + esc(rama ? rama.nombre : '') +
+      (m.niveles ? ' · nivel ' + nivel + ' de ' + m.niveles.length : '') + '</span>' + htmlNiveles(m, nivel) + '</span>' +
+      botonCerrarHoja('data-cerrar-mejora', 'Cerrar') + '</div>' + htmlFicha(estado, m) + '</div>';
   }
 
   const seccionMejoras = {
     id: 'sec-mejoras',
     firma: function (estado) {
-      return JSON.stringify([ramaValida(), nodoAbierto, estado.mejoras]);
+      return JSON.stringify([nodoAbierto, estado.mejoras]);
     },
     html: function (estado) {
       const c = Libre.config;
-      const rama = ramaValida();
-      const pestanas = c.ramasMejoras.map(function (r) {
-        return '<button type="button" class="ui-chip-rama ui-tactil" data-rama="' + r.id + '" aria-pressed="' + (r.id === rama) + '">' +
-          esc(r.nombre) + '<i class="marca-rama" data-marca-rama="' + r.id + '"></i></button>';
+      const columnas = c.ramasMejoras.map(function (r) {
+        const nodos = c.mejoras.filter(function (m) { return m.rama === r.id; }).map(function (m) {
+          return htmlNodo(estado, m);
+        }).join('');
+        return '<div class="arbol-rama"><span class="arbol-rama-nombre">' + esc(r.corto || r.nombre) + '</span>' +
+          '<ol aria-label="' + esc(r.nombre) + '">' + nodos + '</ol></div>';
       }).join('');
-      // Al rehacer la sección la fila de ramas vuelve al principio: se recentra.
-      centrarRama = true;
-      // Lista vertical en el orden de la config (el de la rama).
-      const nodos = c.mejoras.filter(function (m) { return m.rama === rama; }).map(function (m) {
-        return htmlNodo(estado, m);
-      }).join('');
-      return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Mejoras</h2></div>' +
-        '<div class="ramas" role="group" aria-label="Ramas de mejoras">' + pestanas + '</div>' +
-        '<ol class="rama">' + nodos + '</ol>';
+      return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Mejoras</h2>' +
+        '<span>' + Object.keys(estado.mejoras).filter(function (k) { return estado.mejoras[k]; }).length + ' de ' + c.mejoras.length + '</span></div>' +
+        '<div class="arbol"><div class="arbol-raiz"><img src="docs/logo/libre-icono.svg" alt="Libre"></div>' +
+        '<div class="arbol-ramas">' + columnas + '</div></div>' + htmlHojaMejora(estado);
     },
     actualizar: function (estado) {
       // El dinero cambia cada fotograma: el estado de cada nodo se pinta aquí.
-      Libre.config.mejoras.forEach(function (m) {
-        const nodo = document.querySelector('.nodo[data-mejora="' + m.id + '"]');
-        if (nodo) nodo.dataset.nodoEstado = estadoNodo(estado, m);
+      document.querySelectorAll('#sec-mejoras [data-nodo-estado]').forEach(function (el) {
+        const m = Libre.config.mejoras.find(function (x) { return x.id === el.dataset.mejora; });
+        if (m) el.dataset.nodoEstado = estadoNodo(estado, m);
       });
-      document.querySelectorAll('[data-marca-rama]').forEach(function (marca) {
-        marca.classList.toggle('visible', hayMejoraComprable(estado, marca.dataset.marcaRama));
-      });
-      const elegida = document.querySelector('.ramas [aria-pressed="true"]');
-      if (centrarRama && elegida && elegida.offsetParent) {
-        centrarRama = false;
-        const fila = elegida.parentNode;
-        const e = elegida.getBoundingClientRect(), f = fila.getBoundingClientRect();
-        fila.scrollLeft += (e.left - f.left) - (f.width - e.width) / 2;
+      if (enfocarMejora) {
+        enfocarMejora = false;
+        const cerrar = document.querySelector('.hoja-mejora .hoja-cerrar');
+        if (cerrar) cerrar.focus({ preventScroll: true });
       }
     }
   };
@@ -2398,15 +2432,15 @@
         accionPartida(opciones.partida, botonPartida.dataset.partida);
         return;
       }
-      const pestanaRama = ev.target.closest('[data-rama]');
-      if (pestanaRama) {
-        elegirRama(pestanaRama.dataset.rama);
+      const nodo = ev.target.closest('[data-nodo]');
+      if (nodo) {
+        nodoAbierto = nodo.dataset.nodo;
+        enfocarMejora = true;
         opciones.redibujar();
         return;
       }
-      const nodo = ev.target.closest('[data-nodo]');
-      if (nodo) {
-        nodoAbierto = nodoAbierto === nodo.dataset.nodo ? null : nodo.dataset.nodo;
+      if (ev.target.closest('[data-cerrar-mejora]')) {
+        nodoAbierto = null;
         opciones.redibujar();
         return;
       }
@@ -2417,8 +2451,8 @@
         if (objetivo.dataset.objetivoMejora) {
           // En el árbol: abre su rama y su ficha.
           const m = Libre.config.mejoras.find(function (x) { return x.id === objetivo.dataset.objetivoMejora; });
-          elegirRama(m.rama);
           nodoAbierto = m.id;
+          enfocarMejora = true;
           cambiarVista('mejoras');
           opciones.redibujar();
         }
@@ -2597,6 +2631,14 @@
       }
       if (ev.key === 'Escape' && eligiendoConductor) {
         cerrarCandidatos();
+        return;
+      }
+      if (ev.key === 'Escape' && nodoAbierto && vistaActual === 'mejoras') {
+        const id = nodoAbierto;
+        nodoAbierto = null;
+        opciones.redibujar();
+        const origen = document.querySelector('[data-nodo="' + id + '"]');
+        if (origen) origen.focus({ preventScroll: true });
         return;
       }
       if (ev.key === 'Escape' && fichaConductor) {

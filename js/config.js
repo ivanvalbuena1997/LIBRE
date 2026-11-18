@@ -668,11 +668,12 @@
      * Ramas del árbol de mejoras, en el orden de las pestañas.
      */
     ramasMejoras: [
-      { id: 'clientes', nombre: 'Clientes' },
-      { id: 'ciudad', nombre: 'Ciudad y radio' },
-      { id: 'vehiculo', nombre: 'Vehículo' },
-      { id: 'taller', nombre: 'Taller y seguros' },
-      { id: 'jornada', nombre: 'Conductores y jornada' }
+      // corto: el nombre que cabe encima de su columna en el árbol.
+      { id: 'clientes', nombre: 'Clientes', corto: 'Clientes' },
+      { id: 'ciudad', nombre: 'Ciudad y radio', corto: 'Ciudad' },
+      { id: 'vehiculo', nombre: 'Vehículo', corto: 'Coche' },
+      { id: 'taller', nombre: 'Taller y seguros', corto: 'Taller' },
+      { id: 'jornada', nombre: 'Conductores y jornada', corto: 'Equipo' }
     ],
 
     mejoras: [

@@ -126,10 +126,10 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 ### Mejoras
 
 <p>
-<img src="docs/capturas/mejoras.jpg" width="250" alt="Mejoras: rama Conductores y jornada con Jornada larga abierta">
+<img src="docs/capturas/mejoras.jpg" width="250" alt="Mejoras: el árbol con el logo arriba y las cinco ramas en columnas">
 </p>
 
-Un chip por rama (la elegida, en azul) y debajo los nodos de esa rama en una lista vertical. Cada nodo tiene un círculo de estado: **comprado** (verde con ✓), **disponible** (azul; el precio en gris si aún no llega el dinero) o **bloqueado** (gris con candado). Las mejoras por niveles llevan una rayita por nivel. Al tocar un nodo se abre debajo qué hace, el nivel que toca y el botón «Comprar nivel 3 · 1.000,00 €».
+Todo el árbol en una pantalla (Iván, 18-11-2026): arriba el logo, del que salen las cinco ramas en columnas (Clientes, Ciudad, Coche, Taller y Equipo). Cada mejora es un círculo con su icono, unido al de antes por una línea (verde si lo de antes está comprado), con las rayitas de sus niveles y el precio de lo siguiente debajo. Estados: **comprada** (verde con ✓), **disponible** (azul relleno), **sin dinero** (azul claro, precio en gris) y **bloqueada** (gris con candado). Al tocar una sube su ficha desde abajo: icono, nombre, rama, nivel, qué hace y «Comprar nivel 3 · 1.000,00 €»; se cierra con ×, el fondo o Escape.
 
 ### Ticket de cierre y ajustes
 

@@ -280,10 +280,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   «Publicidad en el taxi» cobra al cerrar la caja por cada carrera del día
   (incidencia «Publicidad»); «Enchufe en los hoteles» baja la búsqueda en el
   Centro.
-  En pantalla (maqueta mejoras.html): un chip por rama y los nodos en una
-  lista vertical (comprada en verde con ✓, disponible en azul con el precio
-  en gris si no llega, bloqueada en gris con candado; las de niveles, con
-  rayitas); al tocar uno se abre debajo qué hace y «Comprar nivel N · precio».
+  En pantalla (Iván, 18-11-2026): el árbol entero, sin chips. Del logo salen
+  las cinco ramas en columnas (`corto` de `config.ramasMejoras`); cada
+  mejora es un círculo con su icono de trazo (`ICONOS_MEJORA`; una mejora
+  nueva necesita el suyo), unido al de antes (línea verde si está comprado),
+  con rayitas de nivel y precio corto (`eurosCorto()`). Estados: comprada
+  (verde con ✓), disponible (azul), sin dinero y bloqueada (candado). Al
+  tocar uno sube su hoja (`nodoAbierto`, `htmlHojaMejora()`): qué hace y
+  «Comprar nivel N · precio»; se cierra con ×, el fondo o Escape.
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
   la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
   efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven.
