@@ -130,7 +130,18 @@ prueba('el conductor trabaja solo y tu turno sigue siendo a clic', function () {
   const deDia = sim.avanzar(e, config.reloj.segundosPorDia / 24 * 2);   // 8:00 a 10:00
   assert.strictEqual(deDia.carreras, 0, 'sin tus clics tu turno no factura');
   e.reloj.minutos = 20 * 60;
-  const deNoche = sim.avanzar(e, config.reloj.segundosPorDia / 24 * 2);
+  // Sin bajas ni pinchazos al empezar su turno (pasan a menudo y lo pararían).
+  const ev = config.eventos;
+  const antes = [ev.baja.probTurno, ev.pinchazo.probTurno];
+  ev.baja.probTurno = 0;
+  ev.pinchazo.probTurno = 0;
+  let deNoche;
+  try {
+    deNoche = sim.avanzar(e, config.reloj.segundosPorDia / 24 * 2);
+  } finally {
+    ev.baja.probTurno = antes[0];
+    ev.pinchazo.probTurno = antes[1];
+  }
   assert.ok(deNoche.carreras > 0, 'el conductor de noche trabaja solo');
   assert.ok(deNoche.conductores > 0, 'y cobra su parte');
 });
