@@ -254,9 +254,9 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 | Madrugador | −12 % de espera de día | Dormilón | +16 % de espera de día |
 | Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
 | Urraca (18-11-2026) | +20 % de objetos encontrados y un 15 % de que suban de categoría | Desastre | −40 % de objetos encontrados |
-| Anfibio (18-11-2026) | cobra ×3,5 en las carreras que empiezan lloviendo | — | |
+| Anfibio (18-11-2026) | cobra ×3,5 en las carreras que empiezan lloviendo | Azucarillo | no trabaja mientras llueve: se queda en el coche hasta que escampa |
 
-**Anfibio** (Iván, 18-11-2026): solo cuenta con lluvia, que cae en un 20 % de las jornadas durante 1–3 horas (unos 12 minutos por turno de media; sin conexión no llueve). Por eso el multiplicador es alto: medido con un bot (480 partidas por valor), ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y **×3,5 +5 %**, lo mismo que las demás cualidades. Da días de lluvia muy buenos y el resto, nada.
+**Anfibio** (Iván, 18-11-2026): solo cuenta con lluvia, que cae en un 20 % de las jornadas durante 1–3 horas (unos 12 minutos por turno de media; sin conexión no llueve). Por eso el multiplicador es alto: medido con un bot (480 partidas por valor), ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y **×3,5 +5 %**, lo mismo que las demás cualidades. Da días de lluvia muy buenos y el resto, nada. Su opuesto, **Azucarillo** («¡que no es de azúcar!»), solo tiene ese efecto, sin nada más (Iván): mientras llueve se queda parado, con el chip «Lluvia» en «Tus taxis hoy», y vuelve en cuanto escampa.
 
 «Limpieza» es el coste y el tiempo parado al limpiar un vómito (no cuenta si el conductor lleva la Bolsa para vómitos).
 

@@ -421,7 +421,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   destellan al cobrar y llevan a su licencia en Conductores. Más de 6 taxis:
   «Ver los N restantes». Los datos salen de `taxisDeLaFlota()`.
 - Taxis parados: la simulación guarda `motivoParada` ('pinchazo',
-  'vomito') junto a `paradoHasta`, solo para enseñarlo.
+  'vomito', 'lluvia') junto a `paradoHasta`, solo para enseñarlo.
+- Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
+  `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
+  conductores) deja parado hasta que escampa al que no lleva carrera, y el
+  final de la lluvia es un punto de parada de `avanzar()` para que vuelva
+  enseguida. En sus stats, la de la lluvia sale como «No trabaja».
+  `reforzar()` deja tal cual los efectos que no son números.
 - Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
   fuera, con tope en la config. Sin conductores contratados, o si se cerró
   con el ticket en pantalla, el reloj no avanza. Tu turno no produce fuera. Con pausa al cierre, resuelve los

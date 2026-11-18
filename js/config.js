@@ -388,7 +388,7 @@
         // (un 20 % de las jornadas, 1–3 horas), así que el multiplicador es alto
         // para que valga como las demás cualidades (medido con un bot).
         // Medido: ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y ×3,5 +5 % (480 partidas).
-        { id: 'anfibio', nombre: 'Anfibio', opuesto: null, efecto: { importeLluvia: 3.5 },
+        { id: 'anfibio', nombre: 'Anfibio', opuesto: 'azucarillo', efecto: { importeLluvia: 3.5 },
           descripcion: 'Bajo la lluvia está en su salsa: cobra 3,5 veces más en las carreras que empiezan lloviendo.' }
       ],
       defectos: [
@@ -411,7 +411,11 @@
         { id: 'aprovechado', nombre: 'Aprovechado', efecto: { objeto: 0.3, propina: 0.4 },
           descripcion: 'Lo que se olvidan, se lo queda: un 70 % menos de objetos devueltos y un 60 % menos de propinas.' },
         { id: 'desastre', nombre: 'Desastre', efecto: { hallazgo: 0.6 },
-          descripcion: 'Lo que encuentra, lo pierde por el camino: un 40 % menos de objetos encontrados.' }
+          descripcion: 'Lo que encuentra, lo pierde por el camino: un 40 % menos de objetos encontrados.' },
+        // Iván, 18-11-2026: opuesto de Anfibio. Solo la lluvia: mientras llueve
+        // se queda parado en el coche (paraConLluvia, sin factor ni tope).
+        { id: 'azucarillo', nombre: 'Azucarillo', efecto: { paraConLluvia: true },
+          descripcion: '¡Que no es de azúcar! Mientras llueve no coge clientes: se queda en el coche hasta que escampa.' }
       ],
 
       /*

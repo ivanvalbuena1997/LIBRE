@@ -1703,4 +1703,26 @@ prueba('Anfibio cobra más en las carreras que empiezan lloviendo', function () 
   assert.ok(!sim.statsConductor(e, t, 'noche').some(function (x) { return x.clave === 'importeLluvia'; }));
 });
 
+prueba('Azucarillo no trabaja mientras llueve y vuelve al escampar', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;                     // noche: trabaja el conductor
+  const t = e.licencias[0].turnos.noche;
+  Object.assign(t, { categoria: 'B', cualidad: 'buho', cualidad2: null, defecto: 'azucarillo', defecto2: null, objetos: [], carrera: null });
+  const desde = e.reloj.minutos, hasta = desde + 90;
+  e.lluvia = { jornada: sim.jornadaDe(desde), desde: desde, hasta: hasta, avisada: true };
+  sim.avanzar(e, segundosDe(e, 1));
+  assert.strictEqual(t.paradoHasta, hasta, 'parado hasta que escampa');
+  assert.strictEqual(t.motivoParada, 'lluvia');
+  assert.ok(!t.carrera, 'sin carrera mientras llueve');
+  sim.avanzar(e, segundosDe(e, 89));
+  assert.ok(!t.carrera, 'aún llueve');
+  sim.avanzar(e, segundosDe(e, 1.01));
+  assert.ok(t.carrera, 'escampa y vuelve a trabajar enseguida');
+  // Sus estadísticas: con lluvia no trabaja.
+  const st = sim.statsConductor(e, t, 'noche').find(function (x) { return x.clave === 'importeLluvia'; });
+  assert.strictEqual(st.factor, 0);
+  // Nunca sale con Anfibio.
+  assert.strictEqual(config.conductores.cualidades.find(function (q) { return q.id === 'anfibio'; }).opuesto, 'azucarillo');
+});
+
 console.log(pasadas + ' pruebas correctas');

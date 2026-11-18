@@ -256,7 +256,7 @@
       '</dl>';
   }
 
-  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza' };
+  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia' };
   const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
 
   /*
@@ -837,7 +837,9 @@
     // Urraca: un pájaro con un brillo (lo que encuentra).
     urraca: '<path d="M3 15c3 0 5-2 6-5 1-3 3-4 5-4 2.5 0 4 1.5 4 3.5L21 11l-3 1c-.5 3-3 5.5-7 5.5H8l-3 2.5v-3.5"/><circle cx="15" cy="9" r=".6"/><path d="M5 4v3M3.5 5.5h3"/>',
     // Desastre: un bolsillo roto por el que se cae algo.
-    desastre: '<path d="M5 4h14v8a7 7 0 0 1-7 7 7 7 0 0 1-7-7z"/><path d="M10 13l2 2 2-2 2 2"/><circle cx="12" cy="22" r=".8"/>'
+    desastre: '<path d="M5 4h14v8a7 7 0 0 1-7 7 7 7 0 0 1-7-7z"/><path d="M10 13l2 2 2-2 2 2"/><circle cx="12" cy="22" r=".8"/>',
+    // Azucarillo: una nube con gotas y un terrón de azúcar.
+    azucarillo: '<path d="M7 13a4 4 0 0 1 .5-8A5 5 0 0 1 17 6a3.5 3.5 0 0 1 0 7z"/><path d="M8 16v2M12 16v2"/><rect x="14.5" y="16" width="5" height="5" rx="1"/>'
   };
 
   /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
@@ -950,7 +952,7 @@
       if (Math.abs(v) < 0.05) return 'Normal';
       return (v < 0 ? '−' : '+') + Math.abs(v).toLocaleString('es-ES', { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + ' %';
     }
-    if (s.clave === 'importeLluvia') return '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 });
+    if (s.clave === 'importeLluvia') return s.factor === 0 ? 'No trabaja' : '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 });
     if (s.clave === 'limpieza') {
       if (s.factor === 0) return 'Nunca: lleva bolsa';
       return Math.round(s.valor.minutos) + ' min · ' + Math.round(s.valor.costeMin) + '–' + Math.round(s.valor.costeMax) + ' €';
@@ -1565,7 +1567,9 @@
   function textoStat(s) {
     if (s.clave === 'espera') return s.factor === 1 ? 'Normal' : cambio(s.factor);
     if (s.clave === 'suerte') return porcentaje(s.valor) + ' de lo que encuentra';
-    if (s.clave === 'importeLluvia') return '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' si llueve';
+    if (s.clave === 'importeLluvia') {
+      return s.factor === 0 ? 'No trabaja si llueve' : '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' si llueve';
+    }
     if (s.clave === 'limpieza') {
       return euros(s.valor.costeMin) + '–' + euros(s.valor.costeMax) + ' · ' + Math.round(s.valor.minutos) + ' min parado';
     }

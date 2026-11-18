@@ -1362,7 +1362,10 @@
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
     function reforzar(efecto, fuerza) {
       const e = {};
-      Object.keys(efecto || {}).forEach(function (k) { e[k] = 1 + (efecto[k] - 1) * fuerza; });
+      // Los efectos sí/no (como paraConLluvia) no se refuerzan: pasan tal cual.
+      Object.keys(efecto || {}).forEach(function (k) {
+        e[k] = typeof efecto[k] === 'number' ? 1 + (efecto[k] - 1) * fuerza : efecto[k];
+      });
       return e;
     }
     cualidadesDe(t).forEach(function (id) {
@@ -1510,7 +1513,12 @@
         .concat(hallazgo) });
     // Lo que cobra con lluvia (Anfibio): solo si algo lo cambia.
     const lluvia = fuentesDe('importeLluvia');
-    if (lluvia.length) {
+    const azucarillo = conEfecto(t, 'paraConLluvia');
+    if (azucarillo) {
+      // Azucarillo: con lluvia no trabaja (cobra 0), tenga lo que tenga.
+      stats.push({ clave: 'importeLluvia', valor: 0, factor: 0, tope: false,
+        fuentes: lluvia.concat([{ tipo: azucarillo.tipo, nombre: azucarillo.nombre, factor: 0, nota: 'no trabaja mientras llueve' }]) });
+    } else if (lluvia.length) {
       const brutoLluvia = producto(lluvia);
       const factorLluvia = topeConductor('importeLluvia', brutoLluvia, t);
       stats.push({ clave: 'importeLluvia', valor: factorLluvia, factor: factorLluvia, tope: factorLluvia !== brutoLluvia,
@@ -1902,6 +1910,7 @@
    */
   function empezarCarrerasConductores(estado, resumen) {
     sortearInicioDeTurnos(estado, resumen);
+    pararPorLluvia(estado);
     asignarZonasConductores(estado);
     const info = infoReloj(estado.reloj.minutos);
     const grupos = cochesPorZona(estado, info);
@@ -2072,6 +2081,24 @@
    * (al ritmo real de siempre: con jornadas largas el reloj va más lento).
    * `motivo` ('vomito', 'pinchazo') solo sirve para enseñarlo en pantalla.
    */
+  /*
+   * Azucarillo (paraConLluvia): mientras llueve, el conductor que no lleva
+   * una carrera se queda parado hasta que escampa (motivo 'lluvia').
+   */
+  function pararPorLluvia(estado) {
+    const ahora = estado.reloj.minutos;
+    if (!lloviendo(estado, ahora)) return;
+    estado.licencias.forEach(function (lic) {
+      TURNOS.forEach(function (tn) {
+        const t = lic.turnos[tn];
+        if (!t || t.quien !== 'conductor' || t.carrera || !conEfecto(t, 'paraConLluvia')) return;
+        if ((t.paradoHasta || 0) >= estado.lluvia.hasta) return;
+        t.paradoHasta = estado.lluvia.hasta;
+        t.motivoParada = 'lluvia';
+      });
+    });
+  }
+
   function pararUnRato(estado, quien, minutos, motivo) {
     const hasta = estado.reloj.minutos + minutos / factorJornada(estado);
     const datos = quien.quien === 'conductor' ? quien : estado.jugador;
@@ -2436,6 +2463,8 @@
       });
       if (!agregado && estado.lluvia && !estado.lluvia.avisada &&
           estado.lluvia.desde > ahora && estado.lluvia.desde < limite) limite = estado.lluvia.desde;
+      // Al escampar, los que estaban parados por la lluvia (Azucarillo) vuelven ya.
+      if (!agregado && estado.lluvia && estado.lluvia.hasta > ahora && estado.lluvia.hasta < limite) limite = estado.lluvia.hasta;
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
