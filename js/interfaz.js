@@ -954,8 +954,16 @@
     const celda = function (texto, mejor) {
       return '<span class="comp-valor' + (mejor ? ' mejor' : '') + '">' + esc(texto) + (mejor ? ' <span aria-label="mejor">▲</span>' : '') + '</span>';
     };
-    const filas = sa.map(function (s, i) {
-      const o = sb[i];
+    // Algunas stats solo salen si cuentan (la suerte): se emparejan por clave
+    // y a quien no la tiene se le pone la normal (factor 1, 0 %).
+    const claves = sa.map(function (s) { return s.clave; });
+    sb.forEach(function (s) { if (claves.indexOf(s.clave) === -1) claves.push(s.clave); });
+    const deClave = function (lista, clave) {
+      return lista.find(function (s) { return s.clave === clave; }) || { clave, factor: 1, valor: 0, fuentes: [] };
+    };
+    const filas = claves.map(function (clave) {
+      const s = deClave(sa, clave);
+      const o = deClave(sb, clave);
       let mejor = 0;
       if (Math.abs(s.factor - o.factor) > 1e-6) mejor = (s.factor > o.factor) === !!MAS_ES_MEJOR[s.clave] ? 1 : 2;
       if (mejor === 1) ganaA++;
@@ -963,7 +971,7 @@
       return '<div class="comp-fila"><span class="comp-nombre">' + esc(NOMBRE_STAT[s.clave]) + '</span>' +
         celda(textoStatCorto(s), mejor === 1) + celda(textoStatCorto(o), mejor === 2) + '</div>';
     }).join('');
-    const total = sa.length;
+    const total = claves.length;
     const resumen = ganaA === ganaB
       ? 'Empatan: ' + ganaA + ' y ' + ganaB + ' de ' + total + ' estadísticas'
       : (ganaA > ganaB ? a.t.nombre + ' es mejor en ' + ganaA : b.t.nombre + ' es mejor en ' + ganaB) + ' de ' + total + ' estadísticas' +
