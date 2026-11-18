@@ -1610,6 +1610,26 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .candidato-pie > .ui-boton--principal { flex: 1.5; }
 .candidato-falta { margin: calc(-1 * var(--esp-1)) 0 0; font-size: var(--t-mini); font-weight: 800; color: var(--peligro); }
 
+/* Comparar dos conductores: dos columnas, el mejor de cada fila en verde */
+.hoja-comparar { display: flex; flex-direction: column; gap: var(--esp-4); }
+.eligiendo-comparar [data-ficha-conductor] { outline: 2px dashed var(--marca); outline-offset: 2px; }
+.eligiendo-comparar .cogido { outline: 3px solid var(--marca); outline-offset: 2px; background: var(--tinte-azul); }
+.comp-cabezas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--esp-3); }
+.comp-quien { display: flex; flex-direction: column; align-items: center; gap: var(--esp-1); min-width: 0; text-align: center; }
+.comp-quien .cara-foto .retrato { width: 56px; height: 56px; }
+.comp-quien strong { font-family: var(--letra-titulo); font-weight: 800; font-size: var(--t-seccion); line-height: 1.1; }
+.comp-categoria { display: flex; align-items: center; gap: var(--esp-2); font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); }
+.comp-quien small { font-size: var(--t-mini); color: var(--tinta-suave); }
+.comp-resumen { margin: 0; padding: var(--esp-3) var(--esp-4); border-radius: var(--r-control); background: var(--tinte-azul); color: var(--marca); font-weight: 800; font-size: var(--t-pequeno); text-align: center; }
+.comp-tabla { display: flex; flex-direction: column; }
+.comp-fila { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--esp-3); row-gap: 2px; padding: var(--esp-2) 0; border-top: 1px solid var(--linea); }
+.comp-nombre { grid-column: 1 / -1; font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); text-align: center; }
+.comp-valor { padding: 2px var(--esp-2); border-radius: var(--r-insignia); font-family: var(--letra-titulo); font-weight: 800; font-size: var(--t-normal); text-align: center; font-variant-numeric: tabular-nums; }
+.comp-valor.mejor { background: var(--tinte-verde); color: var(--dinero); }
+.comp-fila--texto .comp-valor { font-family: var(--letra-cuerpo); font-size: var(--t-pequeno); line-height: 1.35; }
+.comp-nota { margin: 0; font-size: var(--t-mini); color: var(--tinta-suave); }
+.candidato-comparar { width: 100%; min-height: 44px; border: 2px solid var(--linea); border-radius: var(--r-boton); background: var(--tarjeta); color: var(--tinta); font-family: var(--letra-cuerpo); font-weight: 800; font-size: var(--t-pequeno); }
+
 /* Selector de objetos: casillas como las del mosaico de la ficha */
 button.ficha-objeto {
   font: inherit;

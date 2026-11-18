@@ -920,6 +920,132 @@
   }
 
   /*
+   * Comparar dos conductores (o un candidato con uno de los tuyos): hoja con
+   * las dos caras arriba y una fila por estadística (las mismas cuentas que
+   * la ficha, statsConductor()), con el mejor de los dos en verde y «▲».
+   * Encima, cuántas gana cada uno; debajo, rasgos, objetos y lo hecho. Con
+   * el día cerrado, «Intercambiarlos». comparando: [clave, clave]; un
+   * candidato es 'candidato|i'.
+   */
+  let comparando = null;
+
+  /* Lo que hace falta para comparar a alguien: su turno, dónde está y qué es. */
+  function aComparar(estado, clave) {
+    const c = Libre.config;
+    if (clave.indexOf('candidato|') === 0) {
+      const x = Libre.sim.candidatos(estado)[Number(clave.split('|')[1])];
+      return x ? { t: x, turno: null, donde: 'Candidato · ' + euros(Libre.sim.precioCandidato(x)), candidato: true } : null;
+    }
+    const x = conductorDe(estado, clave);
+    if (!x) return null;
+    return {
+      t: x.t, turno: x.enReserva ? null : x.turno, candidato: false,
+      donde: x.enReserva ? 'Reserva' : Libre.sim.textoLicencia(x.lic) + ' · ' + c.turnos[x.turno].nombre
+    };
+  }
+
+  /* Valor corto de una estadística, para que quepan dos por fila. */
+  function textoStatCorto(s) {
+    if (s.clave === 'espera') {
+      // Con una cifra decimal si el cambio es pequeño, para que se vea la diferencia.
+      const v = (s.factor - 1) * 100;
+      if (Math.abs(v) < 0.05) return 'Normal';
+      return (v < 0 ? '−' : '+') + Math.abs(v).toLocaleString('es-ES', { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + ' %';
+    }
+    if (s.clave === 'limpieza') {
+      return Math.round(s.valor.minutos) + ' min · ' + Math.round(s.valor.costeMin) + '–' + Math.round(s.valor.costeMax) + ' €';
+    }
+    return porcentaje(s.valor);
+  }
+
+  function htmlCabezaComparar(x) {
+    const cat = Libre.sim.buscarCategoria(x.t.categoria);
+    return '<div class="comp-quien"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.t.retrato) + '</span>' +
+      htmlCirculos(x.t) + '</span><strong>' + esc(x.t.nombre) + '</strong>' +
+      '<span class="comp-categoria">' + (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') +
+      ' Nivel ' + Libre.sim.nivelConductor(x.t) + '</span><small>' + esc(x.donde) + '</small></div>';
+  }
+
+  function htmlHojaComparar(estado) {
+    if (!comparando) return '';
+    const a = aComparar(estado, comparando[0]);
+    const b = aComparar(estado, comparando[1]);
+    if (!a || !b) { comparando = null; return ''; }
+    const sa = Libre.sim.statsConductor(estado, a.t, a.turno);
+    const sb = Libre.sim.statsConductor(estado, b.t, b.turno);
+    let ganaA = 0, ganaB = 0;
+    const celda = function (texto, mejor) {
+      return '<span class="comp-valor' + (mejor ? ' mejor' : '') + '">' + esc(texto) + (mejor ? ' <span aria-label="mejor">▲</span>' : '') + '</span>';
+    };
+    const filas = sa.map(function (s, i) {
+      const o = sb[i];
+      let mejor = 0;
+      if (Math.abs(s.factor - o.factor) > 1e-6) mejor = (s.factor > o.factor) === !!MAS_ES_MEJOR[s.clave] ? 1 : 2;
+      if (mejor === 1) ganaA++;
+      if (mejor === 2) ganaB++;
+      return '<div class="comp-fila"><span class="comp-nombre">' + esc(NOMBRE_STAT[s.clave]) + '</span>' +
+        celda(textoStatCorto(s), mejor === 1) + celda(textoStatCorto(o), mejor === 2) + '</div>';
+    }).join('');
+    const total = sa.length;
+    const resumen = ganaA === ganaB
+      ? 'Empatan: ' + ganaA + ' y ' + ganaB + ' de ' + total + ' estadísticas'
+      : (ganaA > ganaB ? a.t.nombre + ' es mejor en ' + ganaA : b.t.nombre + ' es mejor en ' + ganaB) + ' de ' + total + ' estadísticas' +
+        (Math.min(ganaA, ganaB) ? '; ' + (ganaA > ganaB ? b.t.nombre : a.t.nombre) + ', en ' + Math.min(ganaA, ganaB) : '');
+    const rasgos = function (x) {
+      return Libre.sim.cualidadesDe(x.t).map(function (id) { return '+ ' + Libre.sim.buscarRasgo(id).nombre; })
+        .concat(Libre.sim.defectosDe(x.t).map(function (id) { return '− ' + Libre.sim.buscarRasgo(id).nombre; })).join('<br>') || '—';
+    };
+    const objetos = function (x) {
+      return (x.t.objetos || []).map(function (id) { return esc(Libre.sim.buscarObjeto(id).nombre); }).join('<br>') || '—';
+    };
+    const hecho = function (x, campo) {
+      if (x.candidato) return '—';
+      return campo === 'carreras' ? numero(Math.floor(x.t.carreras || 0)) : euros(x.t.facturado || 0);
+    };
+    const fila = function (nombre, va, vb) {
+      return '<div class="comp-fila comp-fila--texto"><span class="comp-nombre">' + nombre + '</span>' +
+        '<span class="comp-valor">' + va + '</span><span class="comp-valor">' + vb + '</span></div>';
+    };
+    const intercambiar = Libre.sim.enPausa(estado) && !a.candidato && !b.candidato;
+    return '<div class="hoja-fondo hoja-encima" data-cerrar-comparar></div>' +
+      '<div class="hoja hoja-encima hoja-comparar" role="dialog" aria-modal="true" aria-labelledby="comparar-titulo">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="hoja-cabecera"><h3 id="comparar-titulo">Comparar</h3>' +
+      botonCerrarHoja('data-cerrar-comparar', 'Cerrar la comparación') + '</div>' +
+      '<div class="comp-cabezas">' + htmlCabezaComparar(a) + htmlCabezaComparar(b) + '</div>' +
+      '<p class="comp-resumen">' + esc(resumen) + '</p>' +
+      '<div class="comp-tabla">' + filas +
+      fila('Rasgos', rasgos(a), rasgos(b)) + fila('Objetos', objetos(a), objetos(b)) +
+      fila('Carreras', hecho(a, 'carreras'), hecho(b, 'carreras')) + fila('Facturado', hecho(a, 'facturado'), hecho(b, 'facturado')) +
+      '</div>' +
+      '<p class="comp-nota">Cada uno en su turno: lo que es solo de día o de noche cuenta en el suyo (en la reserva y en los candidatos, no cuenta).</p>' +
+      (intercambiar ? '<button type="button" class="ui-boton ui-boton--secundario ui-boton--ancho" data-intercambiar>Intercambiarlos</button>' : '') +
+      '</div>';
+  }
+
+  /* «Comparar con…» de un candidato: la lista de tus conductores. */
+  function htmlCompararCandidato(estado, i) {
+    const todos = Libre.sim.todosLosConductores(estado);
+    if (todos.length === 0) return '';
+    const c = Libre.config;
+    const opciones = [];
+    estado.licencias.forEach(function (l) {
+      ['dia', 'noche'].forEach(function (tn) {
+        const t = l.turnos[tn];
+        if (t && t.quien === 'conductor') {
+          opciones.push('<option value="' + l.id + '|' + tn + '">' + esc(t.nombre) + ' · ' + esc(Libre.sim.textoLicencia(l)) + ' · ' +
+            esc(c.turnos[tn].nombre) + '</option>');
+        }
+      });
+    });
+    (estado.reserva || []).forEach(function (t, k) {
+      opciones.push('<option value="reserva|' + k + '">' + esc(t.nombre) + ' · Reserva</option>');
+    });
+    return '<select class="candidato-comparar" data-comparar-candidato="' + i + '" aria-label="Comparar con uno de tus conductores">' +
+      '<option value="" selected disabled>Comparar con…</option>' + opciones.join('') + '</select>';
+  }
+
+  /*
    * Hoja de candidatos para un turno vacío (o para la reserva): una tarjeta
    * por candidato con su retrato, rareza, rasgos y su precio (según la
    * categoría). Si no te llega, cuánto falta, y al pie la opción de vender
@@ -956,6 +1082,7 @@
           : '') +
         '</div>' +
         (estado.dinero < precio ? '<p class="candidato-falta">Te faltan ' + euros(precio - estado.dinero) + '</p>' : '') +
+        htmlCompararCandidato(estado, i) +
         '</div>';
     }).join('');
     const hayObjetos = Libre.sim.objetosEnAlmacen(estado) > 0;
@@ -1201,6 +1328,9 @@
         ? 'Con el Curso gestión de zonas va cada hora a la que más te deja.'
         : 'Elige su propia zona, al azar entre las que tienen clientes.') + '"><span>Ahora en</span><strong>' + esc(zona) + '</strong></div>' +
       '</div>' +
+      (Libre.sim.todosLosConductores(estado).length > 1
+        ? '<button type="button" class="ui-boton ui-boton--secundario ui-boton--ancho" data-comparar="' + fichaConductor + '">' +
+          'Comparar con otro conductor</button>' : '') +
       '<div class="ficha-acciones">' + htmlMoverConductor(estado, x) +
       boton('Despedir · ' + euros(coste), 'despedirConductor', [licId, turno], 'ui-boton ui-boton--peligro', coste) + '</div>' +
       (pausa ? '' : '<p class="ficha-nota">Cambiar de sitio solo entre días: cuando se cierre la caja.</p>') +
@@ -1333,7 +1463,7 @@
             t.quien === 'conductor' ? Libre.sim.nivelConductor(t) : 0, t.objetos] : null;
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.inventario, estado.objetos, estado.bandeja, eligiendoConductor,
-    eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando,
+    eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando, comparando,
     eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu,
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2,
@@ -1563,7 +1693,7 @@
         '<p class="ayuda">' + ayuda + '</p>' + htmlReserva(estado) +
         '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) + '</div>' +
-        htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado);
+        htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado) + htmlHojaComparar(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
@@ -1583,7 +1713,7 @@
       }
       if (enfocarHoja) {
         // El botón de cerrar de la hoja recién abierta (la de encima).
-        const sel = { ficha: '.hoja-ficha', candidatos: '.hoja-candidatos', equipar: '.hoja-equipar' }[enfocarHoja];
+        const sel = { ficha: '.hoja-ficha', candidatos: '.hoja-candidatos', equipar: '.hoja-equipar', comparar: '.hoja-comparar' }[enfocarHoja];
         enfocarHoja = null;
         const cerrar = document.querySelector(sel + ' .hoja-cerrar');
         if (cerrar) cerrar.focus({ preventScroll: true });
@@ -2021,6 +2151,7 @@
     objetivoId = null;
     eligiendoConductor = null;
     equipando = null;
+    comparando = null;
     fichaConductor = null;
     fichaInventario = null;
     ajustesAbiertos = false;
@@ -2052,13 +2183,15 @@
   const MS_PULSACION_LARGA = 450;
   let arrastre = null;
   let ignorarClic = false;
-  // Conductor cogido: { origen: 'licencia|turno', nombre } o null.
+  // Conductor cogido: { origen: 'licencia|turno', nombre, modo } o null.
+  // modo 'mover' (solo con el día cerrado) o 'comparar' (siempre: solo mira).
   let cogido = null;
 
-  function coger(origen) {
+  function coger(origen, modo) {
+    modo = modo || 'mover';
     const x = estadoActual && conductorDe(estadoActual, origen);
-    if (!x || !Libre.sim.enPausa(estadoActual)) return;
-    cogido = { origen, nombre: x.t.nombre };
+    if (!x || (modo === 'mover' && !Libre.sim.enPausa(estadoActual))) return;
+    cogido = { origen, nombre: x.t.nombre, modo };
     pintarCogido();
   }
 
@@ -2070,13 +2203,16 @@
 
   /* Marca al cogido, resalta los destinos y enseña la barra (también tras redibujar). */
   function pintarCogido() {
-    document.body.classList.toggle('eligiendo-destino', !!cogido);
+    document.body.classList.toggle('eligiendo-destino', !!cogido && cogido.modo === 'mover');
+    document.body.classList.toggle('eligiendo-comparar', !!cogido && cogido.modo === 'comparar');
     document.querySelectorAll('.cogido').forEach(function (el) { el.classList.remove('cogido'); });
     const barra = $('barra-cogido');
     if (!cogido) { barra.classList.add('oculto'); return; }
     const origen = document.querySelector('[data-ficha-conductor="' + cogido.origen + '"]');
     if (origen) origen.classList.add('cogido');
-    barra.querySelector('span').textContent = 'Toca dónde poner a ' + cogido.nombre;
+    barra.querySelector('span').textContent = cogido.modo === 'comparar'
+      ? 'Toca a otro conductor para comparar con ' + cogido.nombre
+      : 'Toca dónde poner a ' + cogido.nombre;
     barra.classList.remove('oculto');
   }
 
@@ -2189,14 +2325,24 @@
       ev.stopImmediatePropagation();
       ev.preventDefault();
     }, true);
-    // Con uno cogido, el siguiente toque dice dónde va (antes que cualquier otro clic).
+    // Con uno cogido, el siguiente toque dice dónde va, o con quién se compara
+    // (antes que cualquier otro clic).
     main.addEventListener('click', function (ev) {
       if (!cogido) return;
       ev.stopImmediatePropagation();
       ev.preventDefault();
-      const destino = ev.target.closest('[data-destino]');
       const origen = cogido.origen;
+      const modo = cogido.modo;
       soltarCogido();
+      if (modo === 'comparar') {
+        const otro = ev.target.closest('[data-ficha-conductor]');
+        if (otro && otro.dataset.fichaConductor !== origen) {
+          comparando = [origen, otro.dataset.fichaConductor];
+          opciones.alComparar();
+        }
+        return;
+      }
+      const destino = ev.target.closest('[data-destino]');
       if (destino && destino.dataset.destino !== origen) moverA(origen, destino.dataset.destino);
     }, true);
     $('barra-cogido').addEventListener('click', function (ev) {
@@ -2325,6 +2471,24 @@
         cerrarCandidatos();
         return;
       }
+      if (ev.target.closest('[data-cerrar-comparar]')) {
+        cerrarComparar();
+        return;
+      }
+      if (ev.target.closest('[data-intercambiar]')) {
+        const par = comparando;
+        comparando = null;
+        ejecutar('moverConductor', par[0].split('|').concat([par[1]]));
+        opciones.redibujar();
+        return;
+      }
+      const botonComparar = ev.target.closest('[data-comparar]');
+      if (botonComparar) {
+        fichaConductor = null;
+        opciones.redibujar();
+        coger(botonComparar.dataset.comparar, 'comparar');
+        return;
+      }
       const botonCoger = ev.target.closest('[data-coger]');
       if (botonCoger) {
         fichaConductor = null;
@@ -2401,7 +2565,23 @@
       if (resultado && resultado.ok) destelloTrasCompra(el.dataset.accion, args);
     });
 
-    iniciarArrastre(opciones);
+    // La comparación se abre encima de lo que haya (candidatos) y enfoca su ×.
+    function abrirComparar() {
+      enfocarHoja = 'comparar';
+      opciones.redibujar();
+    }
+    function cerrarComparar() {
+      comparando = null;
+      opciones.redibujar();
+    }
+    iniciarArrastre({ redibujar: opciones.redibujar, alComparar: abrirComparar });
+
+    main.addEventListener('change', function (ev) {
+      const el = ev.target.closest('[data-comparar-candidato]');
+      if (!el || !el.value) return;
+      comparando = ['candidato|' + el.dataset.compararCandidato, el.value];
+      abrirComparar();
+    });
 
     // Al cerrar los candidatos, el foco vuelve al hueco que los abrió.
     function cerrarCandidatos() {
@@ -2420,6 +2600,10 @@
       }
       if (ev.key === 'Escape' && cogido) {
         soltarCogido();
+        return;
+      }
+      if (ev.key === 'Escape' && comparando) {
+        cerrarComparar();
         return;
       }
       // Escape cierra la hoja de encima: el selector de objetos, luego los candidatos o la ficha.
@@ -2507,7 +2691,7 @@
 
     // Cogido para moverlo: solo con el día cerrado; si no, se suelta. Tras
     // redibujar, se vuelve a marcar.
-    if (cogido && !Libre.sim.enPausa(estado)) soltarCogido();
+    if (cogido && cogido.modo === 'mover' && !Libre.sim.enPausa(estado)) soltarCogido();
     else if (cogido && !document.querySelector('.cogido')) pintarCogido();
 
     vigilarCobros(estado);

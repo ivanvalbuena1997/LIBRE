@@ -224,6 +224,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`htmlHojaCandidatos()`): una tarjeta por candidato con retrato, rareza,
   rasgos (las mismas filas que la ficha, `htmlFilasRasgos()`), «Contratar»
   y «A la reserva», «Te faltan…» y, al pie, vender objetos para contratar.
+  Cada candidato lleva «Comparar con…» (lista de tus conductores).
+  Comparar (`comparando`, `htmlHojaComparar()`): desde la ficha, «Comparar
+  con otro conductor» coge al conductor en modo 'comparar' (vale durante
+  la jornada; se toca a otro). Hoja encima con las dos caras, el resumen
+  de cuántas stats gana cada uno, una fila por stat de `statsConductor()`
+  (el mejor en verde con «▲»; cada uno en su turno, null en reserva y
+  candidatos) y rasgos, objetos, carreras y facturado; con el día cerrado,
+  «Intercambiarlos». Un candidato es la clave 'candidato|i'.
   Escape cierra la hoja de encima. Tocar «TÚ», tu zona y opciones.
 - Estadísticas de la ficha (`htmlStatsConductor()`, Iván 17-11-2026): todas
   las stats con su valor real (probabilidad por carrera o por turno; la
