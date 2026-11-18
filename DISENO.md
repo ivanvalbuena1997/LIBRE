@@ -375,6 +375,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Deflectores de viento | 350 € | −15 % de bajas: los conductores ventilan sin corrientes |
 | Curso de conducción eficiente | 800 € | −10 % de combustible |
 | Neumáticos de bajo consumo | 900 € | −8 % de combustible |
+| Mampara y asientos de cuero | 1.800 € | +6 % de demanda en todas las zonas: más clientes eligen tus taxis |
 | Flota híbrida | 4.000 € | −35 % de combustible |
 
 **Taller y seguros**
@@ -384,6 +385,8 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Mecánico propio (5 niveles) | 300 / 525 / 750 / 1.050 / 1.350 € | Averías de un 15 a un 65 % más cortas y de un 15 a un 60 % más baratas |
 | Curso de seguridad vial | 675 € | −25 % de seguro |
 | Póliza de flota | 900 € | Otro −20 % de seguro |
+| Grúa propia | 1.200 € | Un pinchazo sin rueda de repuesto para solo una hora (no el resto del turno) y el neumático cuesta la mitad |
+| Leasing de coches | 2.500 € | Cada coche cuesta un 30 % menos (1.050 € en vez de 1.500 €) |
 
 **Conductores y jornada**
 

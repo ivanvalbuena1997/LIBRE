@@ -657,6 +657,9 @@
      *                   (junto con su rasgo y sus objetos, bajo el mismo tope)
      *             almacen: objetos de más que caben en el almacén
      *             publicidad: € por cada carrera del día, al cerrar la caja
+     *             pinchazoHoras / pinchazoCoste: un pinchazo sin rueda para esas
+     *                           horas (no el resto del turno) y multiplica su coste
+     *             precioCoche: multiplica el precio de cada coche
      *             pesosCandidatos: probabilidad de cada categoría en los candidatos
      *             porcentajeConductor: multiplica la parte de cada carrera que se queda el conductor
      *   niveles   mejora por niveles: cada nivel tiene su precio y su efecto
@@ -777,7 +780,13 @@
         efecto: { consumo: 0.92 }
       },
       {
-        id: 'hibridos', nombre: 'Flota híbrida', rama: 'vehiculo', requiere: 'neumaticos', precio: 4000,
+        // Iván, 18-11-2026. Equilibrio.
+        id: 'mampara', nombre: 'Mampara y asientos de cuero', rama: 'vehiculo', requiere: 'neumaticos', precio: 1800,
+        descripcion: 'Coches de categoría: más clientes eligen tus taxis, un 6 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.06 }
+      },
+      {
+        id: 'hibridos', nombre: 'Flota híbrida', rama: 'vehiculo', requiere: 'mampara', precio: 4000,
         descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
         efecto: { consumo: 0.65 }
       },
@@ -802,6 +811,17 @@
         id: 'seguroFlota', nombre: 'Póliza de flota', rama: 'taller', requiere: 'seguridadVial', precio: 900,
         descripcion: 'Aseguras todos los taxis juntos: el seguro de cada coche baja un 20 %.',
         efecto: { seguro: 0.8 }
+      },
+      {
+        // Iván, 18-11-2026. Equilibrio.
+        id: 'grua', nombre: 'Grúa propia', rama: 'taller', requiere: 'seguroFlota', precio: 1200,
+        descripcion: 'Si un taxi pincha sin rueda de repuesto, tu grúa lo lleva al taller: solo una hora parado (no el resto del turno) y el neumático a mitad de precio.',
+        efecto: { pinchazoHoras: 1, pinchazoCoste: 0.5 }
+      },
+      {
+        id: 'leasing', nombre: 'Leasing de coches', rama: 'taller', requiere: 'grua', precio: 2500,
+        descripcion: 'Un acuerdo con el concesionario: cada coche nuevo te cuesta un 30 % menos.',
+        efecto: { precioCoche: 0.7 }
       },
       // ---- Rama: Conductores y jornada
       {

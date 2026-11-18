@@ -1559,4 +1559,38 @@ prueba('Publicidad en el taxi: al cerrar la caja cobra por cada carrera del día
   assert.ok(ayer.extras >= ayer.incidencias.publicidad.importe);
 });
 
+prueba('Grúa propia: un pinchazo sin rueda para una hora y cuesta la mitad', function () {
+  const e = flotaDe(1);
+  e.reloj.minutos = 22 * 60;
+  e.dinero = 1e6;
+  assert.ok(comprarConRequisitos(e, 'grua').ok);
+  const t = e.licencias[0].turnos.noche;
+  t.objetos = [];
+  sim.forzarEvento(e, 'pinchazo');
+  cerca(e.caja.hoy.incidencias.pinchazo.importe, -config.eventos.pinchazo.coste * 0.5);
+  const horas = (t.paradoHasta - e.reloj.minutos) * sim.factorJornada(e) / 60;
+  cerca(horas, 1, 0.01);
+});
+
+prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
+  const e = sim.crearEstadoInicial(0);
+  const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;
+  cerca(sim.precioCoche(e), base);
+  e.dinero = 1e6;
+  assert.ok(comprarConRequisitos(e, 'leasing').ok);
+  cerca(sim.precioCoche(e), base * 0.7);
+  sim.comprarLicencia(e);
+  const antes = e.dinero;
+  assert.ok(sim.comprarVehiculo(e, e.licencias[1].id).ok);
+  cerca(antes - e.dinero, base * 0.7);
+});
+
+prueba('Mampara y asientos de cuero: un 6 % más de demanda', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e6;
+  const antes = sim.modificadores(e).demanda;
+  assert.ok(comprarConRequisitos(e, 'mampara').ok);
+  cerca(sim.modificadores(e).demanda, antes * 1.06);
+});
+
 console.log(pasadas + ' pruebas correctas');

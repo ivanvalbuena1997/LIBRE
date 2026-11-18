@@ -279,7 +279,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   precio subiendo (hay una prueba). La interfaz no inventa requisitos: los lee.
   «Publicidad en el taxi» cobra al cerrar la caja por cada carrera del día
   (incidencia «Publicidad»); «Enchufe en los hoteles» baja la búsqueda en el
-  Centro.
+  Centro. «Grúa propia» deja un pinchazo sin rueda en una hora parado
+  (`pinchazoHoras`) y a mitad de precio; «Leasing de coches» abarata cada
+  coche (`precioCoche()`); «Mampara y asientos de cuero» sube la demanda.
   En pantalla (Iván, 18-11-2026): el árbol entero, sin chips. Del logo salen
   las cinco ramas en columnas (`corto` de `config.ramasMejoras`); cada
   mejora es un círculo con su icono de trazo (`ICONOS_MEJORA`; una mejora

@@ -1624,7 +1624,6 @@
    */
   function htmlLicencia(estado, lic) {
     const c = Libre.config;
-    const modeloCompra = c.vehiculos.modelos[c.vehiculos.modeloInicial];
     const tuAbierto = ['dia', 'noche'].find(function (t) {
       return panelTu === lic.id + '|' + t && lic.turnos[t] && lic.turnos[t].quien === 'jugador';
     });
@@ -1635,7 +1634,7 @@
       (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Libra</span>' : '') + '</div>' +
       (lic.vehiculo
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
-        : '<div class="licencia-sin-coche">' + botonCompra('Coche', modeloCompra.precio, 'comprarVehiculo', [lic.id]) + '</div>') +
+        : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) + '</div>') +
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
 
@@ -1737,6 +1736,9 @@
     taquillas: '<rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M12 3v18M7.5 7h2M14.5 7h2M7.5 10h2M14.5 10h2"/>',
     gestionZonas: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
     rrhh: '<circle cx="10" cy="8" r="3.5"/><path d="M3 20a7 7 0 0 1 14 0M19.5 8v6M16.5 11h6"/>',
+    mampara: '<path d="M7 3.5h4.5a2 2 0 0 1 2 2.2L12.8 13H18a2 2 0 0 1 2 2v3H7.5L5.5 6a2.2 2.2 0 0 1 1.5-2.5z"/><path d="M8 18v3M18 18v3"/>',
+    grua: '<path d="M3 17h11V9H8l-3 4H3z"/><path d="M14 13l6-8M20 5v8"/><path d="M20 13a1.5 1.5 0 1 1-1.5 1.5"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="11.5" cy="17.5" r="1.8"/>',
+    leasing: '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>',
     oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>'
   };
   function iconoMejora(id) {

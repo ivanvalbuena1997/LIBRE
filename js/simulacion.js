@@ -246,7 +246,7 @@
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1,
-      pesosCandidatos: null, publicidad: 0
+      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -272,6 +272,9 @@
       if (e.porcentajeConductor) m.porcentajeConductor *= e.porcentajeConductor;
       if (e.pesosCandidatos) m.pesosCandidatos = e.pesosCandidatos;
       if (e.publicidad) m.publicidad += e.publicidad;
+      if (e.pinchazoHoras) m.pinchazoHoras = e.pinchazoHoras;
+      if (e.pinchazoCoste) m.pinchazoCoste *= e.pinchazoCoste;
+      if (e.precioCoche) m.precioCoche *= e.precioCoche;
     });
     return m;
   }
@@ -577,7 +580,7 @@
     estado.licencias.forEach(function (lic) {
       if (!lic.vehiculo) {
         lista.push({ id: 'coche-' + lic.id, tipo: 'coche', licenciaId: lic.id,
-          precio: c.vehiculos.modelos[c.vehiculos.modeloInicial].precio });
+          precio: precioCoche(estado) });
         return;
       }
       ['dia', 'noche'].forEach(function (turno) {
@@ -609,7 +612,7 @@
     const flota = lista.filter(function (x) { return x.tipo === 'coche' || x.tipo === 'conductor'; });
     if (flota.length) return flota;
     const c = cfg();
-    const crecer = precioLicencia(estado) + c.vehiculos.modelos[c.vehiculos.modeloInicial].precio;
+    const crecer = precioLicencia(estado) + precioCoche(estado);
     // Las de personal y todo lo que piden antes en su rama, solo su nivel 1:
     // lo justo para abrirlas (los demás niveles, si son baratos).
     const personal = [];
@@ -659,14 +662,21 @@
     return exito('Licencia ' + textoLicencia(licencia) + ' comprada. Ahora necesita un coche.');
   }
 
+  /* Lo que cuesta un coche (el Leasing lo abarata). */
+  function precioCoche(estado) {
+    const c = cfg();
+    return c.vehiculos.modelos[c.vehiculos.modeloInicial].precio * modificadores(estado).precioCoche;
+  }
+
   function comprarVehiculo(estado, licenciaId) {
     const c = cfg();
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic) return fallo('Esa licencia no existe.');
     if (lic.vehiculo) return fallo('Esa licencia ya tiene coche.');
     const modelo = c.vehiculos.modelos[c.vehiculos.modeloInicial];
-    if (estado.dinero < modelo.precio) return fallo('No te llega el dinero.');
-    estado.dinero -= modelo.precio;
+    const precio = precioCoche(estado);
+    if (estado.dinero < precio) return fallo('No te llega el dinero.');
+    estado.dinero -= precio;
     lic.vehiculo = c.vehiculos.modeloInicial;
     return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. Contrata conductores para sus turnos.');
   }
@@ -2048,10 +2058,20 @@
           ': cambia la rueda de repuesto y sigue trabajando.', 0, null, turno);
         return;
       }
+      const m = modificadores(estado);
+      const coste = ev.pinchazo.coste * m.pinchazoCoste;
+      if (m.pinchazoHoras) {
+        // Con la Grúa propia: un rato en el taller, no el resto del turno.
+        pararUnRato(estado, turno, m.pinchazoHoras * 60, 'pinchazo');
+        incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
+          ': la grúa lo lleva al taller, neumático de ' + Libre.ui_euros(coste) + ' y ' +
+          (m.pinchazoHoras === 1 ? 'una hora' : m.pinchazoHoras + ' horas') + ' parado.', -coste, 'otros', turno);
+        return;
+      }
       pararHastaFinDeTurno(estado, turno, 'pinchazo');
       incidencia(estado, resumen, 'pinchazo', 'Pinchazo' + (esConductor ? ' en el taxi de ' + turno.nombre : '') +
-        ': neumático de ' + Libre.ui_euros(ev.pinchazo.coste) + ' y ' + (esConductor ? 'no factura' : 'no facturas') +
-        ' más hoy.', -ev.pinchazo.coste, 'otros', turno);
+        ': neumático de ' + Libre.ui_euros(coste) + ' y ' + (esConductor ? 'no factura' : 'no facturas') +
+        ' más hoy.', -coste, 'otros', turno);
     } else if (p.tipo === 'averia') {
       if (!averiaPosible(estado, lic)) return;
       aplicarAveria(estado, resumen, lic);
@@ -2444,6 +2464,7 @@
     sortearNumeroLicencia,
     comprarLicencia,
     comprarVehiculo,
+    precioCoche,
     cambiarTurnoJugador,
     contratarConductor,
     despedirConductor,

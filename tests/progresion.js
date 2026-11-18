@@ -188,7 +188,7 @@ function jugar(semilla, perfil) {
       // mucho la parte de eso que diga su perfil. El gestor, en cuanto puede, va a por la
       // Oficina de gestión antes que nada.
       const precioB = c.categorias[0].contratar;
-      const expansion = sim.precioLicencia(e) + c.vehiculos.modelos[c.vehiculos.modeloInicial].precio + 2 * precioB;
+      const expansion = sim.precioLicencia(e) + sim.precioCoche(e) + 2 * precioB;
       const mejoras = [];
       c.mejoras.forEach(function (m) {
         if (m.requiere && !sim.nivelMejora(e, m.requiere)) return;
