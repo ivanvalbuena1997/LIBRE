@@ -302,7 +302,7 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | --- | --- | --- | --- |
 | B | Mapa del Metro de 1998 | Ninguno (sirve para combinar) | No sale ni la línea 8. Lo guardas por si vuelve 1998. |
 | B | Perrito del salpicadero | +8 % de propinas, −3 % de espera | Asiente a todo lo que dice el cliente. El cliente lo agradece. |
-| B | Rosario del retrovisor | −40 % de clientes sin pagar, +6 % de propinas | Nadie se va sin pagar delante de la Virgen de la Paloma. |
+| B | Rosario del retrovisor | −40 % de clientes sin pagar, +6 % de propinas | Lo único que importa es la familia… y que el cliente pague. |
 | B | Ambientador | +15 % de propinas | Pino del bosque. O eso dice la etiqueta. |
 | B | Cojín lumbar | −25 % de bajas | Doce horas sentado. Tu espalda te lo agradece por escrito. |
 | B | Termo de café | −6 % de espera de noche | A las cuatro de la mañana, el café es un derecho fundamental. |

@@ -174,7 +174,7 @@
           frase: 'Asiente a todo lo que dice el cliente. El cliente lo agradece.' },
         { id: 'rosario', nombre: 'Rosario del retrovisor', categoria: 'B', efecto: { sinPagar: 0.6, propina: 1.06 },
           descripcion: 'Un 40 % menos de clientes sin pagar y un 6 % más de propinas.',
-          frase: 'Nadie se va sin pagar delante de la Virgen de la Paloma.' },
+          frase: 'Lo único que importa es la familia… y que el cliente pague.' },
         { id: 'ambientador', nombre: 'Ambientador', categoria: 'B', efecto: { propina: 1.15 },
           descripcion: 'Un taxi que huele bien: un 15 % más de propinas.',
           frase: 'Pino del bosque. O eso dice la etiqueta.' },
