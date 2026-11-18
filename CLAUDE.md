@@ -195,8 +195,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   18-11-2026 eran mejoras con consumibles (versión 22 del guardado). Tu
   turno no lleva objetos: no tiene esas protecciones. Para probar:
   `Libre.forzarEvento('hallazgo', 'S+')` (o el id de un objeto).
-  Cada objeto lleva `frase` (su chiste, en el panel del Almacén). Dos
-  factores más (Iván, 18-11-2026): `hallazgo` (probabilidad de encontrar,
+  Cada objeto lleva `frase` (su chiste, en el panel del Almacén). Tres
+  factores más (Iván, 18-11-2026): `importeLluvia` (Anfibio: multiplica el
+  importe de la carrera de un conductor si el cliente sube lloviendo, en
+  `empezarCarrerasConductores()`; tope [1, 3,5] y sale en sus stats solo si
+  algo lo cambia), `hallazgo` (probabilidad de encontrar,
   con tope) y `suerte` (1,15 = un 15 % de que lo encontrado suba una
   categoría: `probSubir()`); los usan Linterna, Gato, Detector y la
   cualidad Urraca (su opuesto, Desastre).

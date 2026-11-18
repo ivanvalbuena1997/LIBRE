@@ -254,6 +254,9 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 | Madrugador | −12 % de espera de día | Dormilón | +16 % de espera de día |
 | Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
 | Urraca (18-11-2026) | +20 % de objetos encontrados y un 15 % de que suban de categoría | Desastre | −40 % de objetos encontrados |
+| Anfibio (18-11-2026) | cobra ×3,5 en las carreras que empiezan lloviendo | — | |
+
+**Anfibio** (Iván, 18-11-2026): solo cuenta con lluvia, que cae en un 20 % de las jornadas durante 1–3 horas (unos 12 minutos por turno de media; sin conexión no llueve). Por eso el multiplicador es alto: medido con un bot (480 partidas por valor), ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y **×3,5 +5 %**, lo mismo que las demás cualidades. Da días de lluvia muy buenos y el resto, nada.
 
 «Limpieza» es el coste y el tiempo parado al limpiar un vómito (no cuenta si el conductor lleva la Bolsa para vómitos).
 
@@ -275,6 +278,7 @@ El nivel 5 llega hacia la quinta jornada y el 10 hacia la 35 (cerca de una hora 
 | Objetos devueltos | ×0,3 | ×2 | ×4 |
 | Sin pagar, bajas, pinchazos, averías | ×2 | ×0,3 | ×0,05 |
 | Limpieza de un vómito | ×1,5 | ×0,4 | ×0,15 |
+| Lo que cobra con lluvia (Anfibio) | ×1 | ×3,5 | ×6 |
 
 Por ejemplo, la espera de un B de nivel 10 puede bajar hasta ×0,46 y la de un S+ de nivel 10 hasta ×0,33. La ficha enseña el tope de cada stat («su tope ×0,46»).
 

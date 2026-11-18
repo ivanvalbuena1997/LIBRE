@@ -387,8 +387,9 @@
         // Iván, 18-11-2026: solo cuenta en las carreras que empiezan con lluvia
         // (un 20 % de las jornadas, 1–3 horas), así que el multiplicador es alto
         // para que valga como las demás cualidades (medido con un bot).
-        { id: 'anfibio', nombre: 'Anfibio', opuesto: null, efecto: { importeLluvia: 2.5 },
-          descripcion: 'Bajo la lluvia está en su salsa: cobra 2,5 veces más en las carreras que empiezan lloviendo.' }
+        // Medido: ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y ×3,5 +5 % (480 partidas).
+        { id: 'anfibio', nombre: 'Anfibio', opuesto: null, efecto: { importeLluvia: 3.5 },
+          descripcion: 'Bajo la lluvia está en su salsa: cobra 3,5 veces más en las carreras que empiezan lloviendo.' }
       ],
       defectos: [
         { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.25, espera: 1.08 },
@@ -452,7 +453,7 @@
         hallazgo: [0.3, 2.5],
         suerte: [1, 1.4],
         // Lo que cobra en las carreras con lluvia (Anfibio): nunca baja de 1.
-        importeLluvia: [1, 3]
+        importeLluvia: [1, 3.5]
       },
       /*
        * Topes que crecen (Equilibrio, Iván 17-11-2026): los de arriba son los
