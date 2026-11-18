@@ -1,22 +1,30 @@
 /*
- * Mide cuánto deja cada objeto: 3 licencias, 5 conductores B de nivel 5
- * sin rasgos, todos con el mismo objeto; neto por conductor y jornada
- * frente a no llevar nada. Dos escenarios: «pronto» (sin mejoras) y
- * «tarde» (Callejero, Taxi impecable, Propinas 3, Pago con tarjeta,
- * Mecánico 3 y Deflectores).
- *   node tests/objetos.js [semillas] [jornadas]   (16 × 80: unos 6 minutos)
+ * Libre · cuánto deja cada objeto (y algunos rasgos). No es una prueba: es
+ * una medida para equilibrar.
+ *
+ * Flota de 3 licencias con 5 conductores B de nivel 5 sin rasgos (tu
+ * turno, vacío); todos llevan lo mismo. Se compara con la misma flota sin
+ * nada: € de neto por conductor y jornada, y aparte el valor de venta de
+ * lo que encuentran (los objetos encontrados no se equipan ni se venden
+ * durante la medida). Dos momentos: «pronto» (sin mejoras) y «tarde»
+ * (Callejero, Taxi impecable, Propinas 3, Pago con tarjeta, Mecánico 3 y
+ * Deflectores).
+ *
+ *   node tests/objetos.js [semillas] [jornadas] [json]   (16 × 80: unos 8 minutos)
  */
 'use strict';
-const RAIZ = require('path').join(__dirname, '..');
-require(RAIZ + '/js/config.js');
-require(RAIZ + '/js/simulacion.js');
+require('../js/config.js');
+require('../js/simulacion.js');
 const sim = globalThis.Libre.sim;
 const c = globalThis.Libre.config;
 c.licencias.libranza = false;
 
 const SEMILLAS = Number(process.argv[2]) || 6;
 const JORNADAS = Number(process.argv[3]) || 40;
+const JSON_BRUTO = process.argv[4] === 'json';
 const DT = 0.25;
+const VENTA = {};
+c.categorias.forEach(function (k) { VENTA[k.id] = k.venta; });
 
 function generador(semilla) {
   let s = semilla % 2147483647;
@@ -29,7 +37,16 @@ const ESCENARIOS = {
   tarde: { callejero: 1, limpieza: 1, propinas: 3, datafono: 1, mecanico: 3, deflectores: 1 }
 };
 
-function partida(semilla, escenario, objetos) {
+// Qué se mide: cada objeto y, para comparar, unos rasgos.
+const PRUEBAS = c.objetos.lista.map(function (o) {
+  return { id: o.id, nombre: o.nombre, cat: o.categoria, objetos: [o.id] };
+}).concat(['urraca', 'conoceCiudad', 'simpatico'].map(function (id) {
+  return { id, nombre: 'Cualidad ' + sim.buscarRasgo(id).nombre, cat: 'rasgo', cualidad: id };
+})).concat(['desastre', 'lento'].map(function (id) {
+  return { id, nombre: 'Defecto ' + sim.buscarRasgo(id).nombre, cat: 'rasgo', defecto: id };
+}));
+
+function partida(semilla, escenario, prueba) {
   const rng = generador(semilla * 31 + 7);
   const e = sim.crearEstadoInicial(0, rng);
   e.azar = semilla * 7919 + 1;
@@ -45,56 +62,69 @@ function partida(semilla, escenario, objetos) {
     ['dia', 'noche'].forEach(function (tn) {
       const t = l.turnos[tn];
       if (!t || t.quien !== 'conductor') return;
-      Object.assign(t, { categoria: 'B', cualidad: null, cualidad2: null, cualidad3: null, defecto: null, defecto2: null,
-        xp: c.conductores.niveles.experiencia[4], objetos: objetos.slice() });
+      Object.assign(t, { categoria: 'B', cualidad: prueba.cualidad || null, cualidad2: null, cualidad3: null,
+        defecto: prueba.defecto || null, defecto2: null,
+        xp: c.conductores.niveles.experiencia[4], objetos: (prueba.objetos || []).slice() });
       conductores.push(t);
     });
   });
   e.ajustes.pararAlCierre = false;
   e.dinero = 0;
   const netos = [];
-  let ultimo = null;
+  let ultimo = null, hallado = 0;
   const pasos = Math.round(JORNADAS * sim.segundosPorDia(e) / DT);
   for (let i = 0; i < pasos; i++) {
-    // Mismo nivel toda la partida y existencias llenas.
+    // Mismo nivel toda la partida; lo encontrado se cuenta y se tira.
     if (i % 40 === 0) {
       conductores.forEach(function (t) { t.xp = c.conductores.niveles.experiencia[4]; });
       e.objetos = {}; e.bandeja = [];
     }
-    sim.avanzar(e, DT);
+    const r = sim.avanzar(e, DT);
+    (r.eventos || []).forEach(function (ev) { if (ev.tipo === 'hallazgo') hallado += VENTA[ev.categoria]; });
     if (e.caja.ayer && e.caja.ayer.dia !== ultimo) {
       ultimo = e.caja.ayer.dia;
-      // Los consumibles repuestos no cuentan: el coste está en «otros».
       netos.push(sim.netoCaja(e.caja.ayer));
     }
   }
   const media = netos.reduce(function (a, b) { return a + b; }, 0) / netos.length;
-  return media / conductores.length;
+  return { neto: media / conductores.length, hallado: hallado / JORNADAS / conductores.length };
 }
 
-const lista = [{ id: null, nombre: '(nada)', categoria: '-' }].concat(c.objetos.lista);
 const out = {};
 const inicio = Date.now();
 Object.keys(ESCENARIOS).forEach(function (esc) {
   out[esc] = {};
   const base = [];
-  for (let s = 1; s <= SEMILLAS; s++) base.push(partida(s, esc, []));
+  for (let s = 1; s <= SEMILLAS; s++) base.push(partida(s, esc, {}));
   out[esc].base = base;
-  c.objetos.lista.forEach(function (o) {
+  PRUEBAS.forEach(function (p) {
     const vs = [];
-    for (let s = 1; s <= SEMILLAS; s++) vs.push(partida(s, esc, [o.id]) - base[s - 1]);
-    out[esc][o.id] = vs;
+    for (let s = 1; s <= SEMILLAS; s++) {
+      const r = partida(s, esc, p);
+      vs.push({ neto: r.neto - base[s - 1].neto, hallado: r.hallado - base[s - 1].hallado });
+    }
+    out[esc][p.id] = vs;
   });
 });
 const media = function (v) { return v.reduce(function (a, b) { return a + b; }, 0) / v.length; };
-const de = function (v) { const m = media(v); return Math.sqrt(v.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / (v.length - 1) / v.length); };
-console.log('Base (neto por conductor y jornada): pronto ' + media(out.pronto.base).toFixed(1) + ' € · tarde ' + media(out.tarde.base).toFixed(1) + ' €');
-console.log('| Objeto | Cat | Pronto €/jornada (±) | % | Tarde €/jornada (±) | % |');
-c.objetos.lista.forEach(function (o) {
-  const p = out.pronto[o.id], t = out.tarde[o.id];
-  console.log('| ' + o.nombre + ' | ' + o.categoria + ' | ' + media(p).toFixed(2) + ' (' + de(p).toFixed(2) + ') | ' +
-    (100 * media(p) / media(out.pronto.base)).toFixed(1) + ' | ' + media(t).toFixed(2) + ' (' + de(t).toFixed(2) + ') | ' +
-    (100 * media(t) / media(out.tarde.base)).toFixed(1) + ' |');
+const de = function (v) {
+  const m = media(v);
+  return Math.sqrt(v.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / (v.length - 1) / v.length);
+};
+const f = function (n) { return n.toFixed(1).replace('.', ','); };
+['pronto', 'tarde'].forEach(function (esc) {
+  const b = out[esc].base;
+  console.log('Base ' + esc + ': neto ' + f(media(b.map(function (x) { return x.neto; }))) + ' € y encuentra ' +
+    f(media(b.map(function (x) { return x.hallado; }))) + ' € por conductor y jornada');
 });
-console.log('(' + Math.round((Date.now() - inicio) / 1000) + ' s)');
-console.log(JSON.stringify(out));
+console.log('| Qué | Cat. | Pronto: neto (±) | Pronto: encontrado | Tarde: neto (±) | Tarde: encontrado | Tarde: total |');
+console.log('| --- | --- | --- | --- | --- | --- | --- |');
+PRUEBAS.forEach(function (p) {
+  const pr = out.pronto[p.id], ta = out.tarde[p.id];
+  const n = function (v) { return v.map(function (x) { return x.neto; }); };
+  const h = function (v) { return v.map(function (x) { return x.hallado; }); };
+  console.log('| ' + p.nombre + ' | ' + p.cat + ' | ' + f(media(n(pr))) + ' (' + f(de(n(pr))) + ') | ' + f(media(h(pr))) + ' | ' +
+    f(media(n(ta))) + ' (' + f(de(n(ta))) + ') | ' + f(media(h(ta))) + ' | ' + f(media(n(ta)) + media(h(ta))) + ' |');
+});
+console.log('_' + Math.round((Date.now() - inicio) / 1000) + ' s_');
+if (JSON_BRUTO) console.log(JSON.stringify(out));

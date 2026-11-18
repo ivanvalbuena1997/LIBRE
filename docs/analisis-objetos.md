@@ -1,136 +1,123 @@
-# Revisión de objetos
+# Revisión de objetos (2.ª medición)
 
-18 de noviembre de 2026 · medido con un script aparte (no es una prueba del proyecto).
+18 de noviembre de 2026, por la tarde, con todos los cambios del día aplicados:
+
+- **Objetos y precios:**
+  - Venta rebajada: B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 €.
+  - Bolsa, Cámara y Rueda pasan de mejoras a objetos.
+  - 37 objetos con su frase y la cualidad Urraca (con su opuesto, Desastre).
+- **Sucesos:** pinchazos 4 %, bajas 2 % y averías 0,3 % por turno; clientes sin pagar 2 % por carrera.
+- **Ritmo:** licencia a 2.500 €, «Siguiente» hacia crecer, RRHH, Oficina con el 45 % y combinar.
+
+La primera medición (con los precios y reglas de la mañana) está en el historial de git.
 
 ## Cómo se ha medido
 
-- Flota de 3 licencias con **5 conductores B de nivel 5, sin rasgos** (tu turno, vacío). Todos llevan el mismo objeto.
-- Se compara con la misma flota sin objetos: **€ de neto por conductor y jornada**. Son 80 jornadas y 16 semillas por objeto, con la libranza apagada. Se mantiene el nivel y no se cuenta lo que encuentran.
-- **Dos momentos de la partida:**
-  - **Pronto:** sin mejoras. Base: 107 € por conductor y jornada.
-  - **Tarde:** Bolsas y Ruedas con existencias, Cámara de seguridad, Propinas 3, Mecánico 3, Callejero, Taxi impecable, Pago con tarjeta y Deflectores. Base: 137 €.
-- **Ruido:** las cifras llevan entre paréntesis su error (±). Por debajo de ±1 € no hay diferencia clara entre objetos.
-- **Turno:** los objetos de solo día o solo noche se miden en toda la flota. En un conductor de su turno valen **el doble** de lo que pone la tabla.
+Lo mide `node tests/objetos.js 16 80`, en unos 8 minutos:
 
-## Resultados
+- **La flota:** 3 licencias con **5 conductores B de nivel 5, sin rasgos**, todos con lo mismo. Se compara con la misma flota sin nada.
+- **El tamaño:** 16 semillas de 80 jornadas.
+- **Neto:** € por conductor y jornada.
+- **Encontrado:** lo que vale vendido lo que encuentran (Linterna, Gato, Detector y Urraca viven de esto). No se cuenta en el neto.
+- **Dos momentos:**
+  - **Pronto:** sin mejoras. Base: 97 € de neto y 14 € encontrados.
+  - **Tarde:** Callejero, Taxi impecable, Propinas 3, Pago con tarjeta, Mecánico 3 y Deflectores. Base: 115 € y 17 €.
+- **Ruido:** cada cifra tiene unos ±1,5 €. **Diferencias de menos de 3 € no son seguras**, y los B quedan casi todos dentro del ruido.
+- **Turno:** lo que vale solo de día o solo de noche se reparte entre toda la flota. En un conductor de su turno vale **el doble**.
 
-| Objeto | Cat. | Pronto, € por jornada | Tarde, € por jornada | Tarde, % |
+## Resultados (momento «tarde»)
+
+| Objeto | Cat. | Neto | Encontrado | **Total** |
 | --- | --- | --- | --- | --- |
-| Planta de Paconi | L | 8,3 (±0,7) | **13,2** (±0,9) | 9,6 |
-| Bidón energético | L | 8,2 (±1,4) | **10,1** (±0,9) | 7,3 (de noche, ~15 %) |
-| Navegador con tráfico | S+ | 4,7 (±1,7) | **8,6** (±0,8) | 6,3 |
-| Nevera con agua fría | S+ | 3,5 (±0,9) | **7,2** (±1,3) | 5,3 |
-| Radio-escáner | S | 3,0 (±1,8) | **7,0** (±0,9) | 5,1 |
-| Cargador para clientes | S | 2,4 (±1,3) | 4,4 (±2,0) | 3,2 |
-| Silla ergonómica | S+ | 2,6 (±1,6) | 4,4 (±1,2) | 3,2 |
-| GPS | A | 2,3 (±1,3) | 4,1 (±1,3) | 3,0 |
-| Caramelos | A | 1,3 (±0,8) | 3,3 (±1,1) | 2,4 |
-| Ambientador | B | −0,5 (±1,2) | 2,7 (±1,1) | 2,0 |
-| Bocata de calamares | L | 4,6 (±1,1) | 2,7 (±1,3) | 2,0 (de día, ~4 %) |
-| Callejero de papel | B | 1,2 (±1,6) | 1,9 (±1,5) | 1,4 |
-| Botiquín | S | 0,7 (±1,3) | 1,3 (±0,7) | 1,0 |
-| Gafas de sol | B | −0,1 (±1,0) | 1,3 (±1,0) | 0,9 |
-| Termo de café | B | 2,0 (±1,1) | 1,0 (±1,1) | 0,7 |
-| Vitaminas | A | 0,4 (±0,5) | 0,8 (±0,6) | 0,6 |
-| Kit de herramientas | S | 0,1 (±0,7) | 0,8 (±0,5) | 0,6 |
-| Detector de baches | S+ | 0,1 (±0,9) | 0,7 (±0,6) | 0,5 |
-| Cojín lumbar | B | 0,7 (±0,3) | 0,5 (±0,3) | 0,3 |
-| Manómetro | A | 1,0 (±0,6) | 0,2 (±0,1) | 0,1 |
-| Alfombrillas de goma | A | 2,7 (±1,9) | **0** | 0 |
-| Funda de asientos | B | 1,1 (±1,3) | **0** | 0 |
-| Espejo panorámico | A | −0,2 (±1,4) | **0** | 0 |
-| Datáfono portátil | S | −0,2 (±1,5) | **0** | 0 |
+| Detector de metales | S+ | −0,1 | +26,3 | **+26,2** |
+| Gato de la suerte | S+ | +3,2 | +11,5 | **+14,6** |
+| Porción de pizza | L | +12,8 | +1,0 | **+13,8** |
+| Planta de Paconi | L | +11,6 | +0,9 | **+12,5** |
+| Navegador con tráfico | S+ | +7,5 | +0,9 | **+8,5** |
+| Nevera con agua fría | S+ | +9,6 | −1,1 | **+8,5** |
+| Bidón energético | L | +8,0 | −0,1 | **+7,9** (de noche, ~16) |
+| Bolsa para vómitos | S+ | +7,3 | −1,4 | **+5,9** (de noche, ~12) |
+| Linterna de bolsillo | A | +0,6 | +4,9 | **+5,6** |
+| Silla ergonómica | S+ | +4,8 | +0,8 | **+5,6** |
+| Bocata de calamares | L | +5,2 | +0,3 | **+5,5** (de día, ~11) |
+| Rueda de repuesto | S | +5,7 | −0,5 | **+5,2** |
+| Radio-escáner | S | +5,2 | 0 | **+5,2** |
+| Bufanda mitad y mitad | S | +4,9 | +0,1 | **+5,0** |
+| Botiquín | S | +3,9 | +0,5 | +4,4 |
+| Calcetines de la suerte | S | +4,0 | +0,2 | +4,2 |
+| Cargador para clientes | S | +5,3 | −1,5 | +3,7 |
+| Detector de baches | S+ | +3,6 | −0,2 | +3,4 |
+| Alfombrillas de goma | A | +4,7 | −1,7 | +3,0 |
+| Vitaminas | A | +3,1 | −0,4 | +2,7 |
+| GPS | A | +2,0 | −0,2 | +1,9 |
+| Chicles de menta | A | +2,7 | −0,9 | +1,8 |
+| Callejero de papel | B | +2,1 | −0,3 | +1,7 |
+| Kit de herramientas | S | +1,7 | −0,2 | +1,5 |
+| Caramelos | A | +2,9 | −1,4 | +1,5 |
+| Cámara de seguridad | S | +2,4 | −1,2 | +1,2 |
+| Cojín lumbar | B | +1,6 | −0,4 | +1,2 |
+| Manómetro | A | +2,1 | −0,9 | +1,1 |
+| Espejo panorámico | A | +0,3 | −0,3 | 0 |
+| Mapa del Metro de 1998 | B | 0 | 0 | 0 (a propósito) |
+| Ambientador, Perrito, Rosario, Termo, Gafas, Funda | B | | | entre −2 y +1 (ruido) |
+| Datáfono portátil | S | +0,2 | −1,3 | −1,1 (ruido) |
 
-## Tierlist por rentabilidad (momento «tarde», cuando ya equipas)
+**Rasgos, para comparar:**
 
-| Tier | Objetos | Por qué |
-| --- | --- | --- |
-| **S** (más de 8 €) | Planta de Paconi · Bidón energético · Navegador | Espera y propinas a la vez; el Bidón, en un conductor de noche, es el mejor del juego |
-| **A** (5–8 €) | Nevera · Radio-escáner | Mucha propina o mucha espera |
-| **B** (3–5 €) | Cargador · Silla ergonómica · GPS · Caramelos | Buenos de relleno |
-| **C** (1–3 €) | Ambientador · Bocata (de día, ~5 €) · Callejero · Botiquín · Gafas · Termo | Solo si sobra hueco; los de turno, en su turno |
-| **D** (menos de 1 €) | Vitaminas · Kit de herramientas · Detector de baches · Cojín · Manómetro | Bajas, pinchazos y averías pasan poco y cuestan poco: casi no se notan |
-| **Muertos con mejoras** | Funda · Alfombrillas (con Bolsas) · Espejo · Datáfono (con la Cámara) | Su único efecto queda en cero |
+| Rasgo | Total |
+| --- | --- |
+| Simpático | +9,5 |
+| Conoce la ciudad | +7,3 |
+| **Urraca** | **+6,0** (casi todo en lo que encuentra) |
+| **Desastre** | **−6,0** |
+| Lento | −8,6 |
 
-## Lo que dicen los datos
+La Urraca y el Desastre quedan donde deben, a la altura de los otros rasgos.
 
-(Con los precios de venta de antes de la propuesta 1, que ya está aplicada.)
+## Tierlist
 
-1. **Solo valen la espera y las propinas.**
-   - Los 8 mejores objetos bajan la espera o suben la propina.
-   - Bajas (0,8 % por turno), pinchazos y averías son raros y baratos, así que reducirlos casi no da nada.
-   - Un Detector de baches S+ deja lo mismo que un Cojín B.
-2. **Cuatro objetos se mueren con las mejoras.**
-   - Con Bolsas no hay vómitos sin bolsa, así que Funda y Alfombrillas no hacen nada.
-   - Con la Cámara nadie se va sin pagar, así que Espejo y Datáfono tampoco.
-   - El Datáfono es S y vale 0 € en cuanto tienes la Cámara (1.000 €).
-3. **La categoría no ordena bien.**
-   - El Bocata (LEGENDARIO) deja menos que la Nevera (S+) y el Escáner (S).
-   - Ambientador (B) y Kit de herramientas (S) dejan lo mismo.
-4. **Vender casi siempre gana a equipar.**
-   - Para que equipar compense, el objeto tiene que dejar su precio de venta antes de que termine la partida (unas 90 jornadas en 150 minutos):
-     - Un LEGENDARIO se vende por 4.000 €. La Paconi tarda unas 300 jornadas en dejar eso en un conductor.
-     - Un S+ (1.200 €) tarda unas 140 jornadas; un S (400 €), unas 57.
-     - Un A (120 €) tarda unas 30 jornadas y un B (40 €), unas 20.
-   - Lo racional es **vender todo lo S o mejor** y equipar solo B y A. Es justo al revés de lo que pide el juego.
-5. **Encontrar objetos vale más que llevarlos.**
-   - Un conductor hace unas 23 carreras por jornada y encuentra algo en el 1,2 % de ellas, unos 0,28 objetos por jornada.
-   - El valor medio de venta es de 130 €, así que eso son **unos 36 € por jornada y conductor**: un tercio de lo que deja (107 €).
-   - Ningún objeto equipado se acerca a esa cifra. Por eso una cualidad para encontrar mejores objetos sería, con estos precios, la más fuerte del juego.
-6. **Combinar no cambia el valor de venta:**
+| Tier | Objetos |
+| --- | --- |
+| **S** (más de 12 €) | Detector de metales · Gato de la suerte · Porción de pizza · Planta de Paconi |
+| **A** (7–12 €) | Navegador · Nevera · Bidón energético (en un conductor de noche, S) |
+| **B** (4,5–7 €) | Bolsa para vómitos (de noche, A) · Linterna · Silla ergonómica · Bocata (de día, A) · Rueda de repuesto · Radio-escáner · Bufanda |
+| **C** (2,5–4,5 €) | Botiquín · Calcetines · Cargador · Detector de baches · Alfombrillas · Vitaminas |
+| **D** (menos de 2,5 €) | GPS · Chicles · Callejero · Kit de herramientas · Caramelos · Cámara de seguridad · Cojín · Manómetro · Espejo · Datáfono · todos los B · Mapa del Metro |
 
-   | Combinación | Venta antes | Venta después |
-   | --- | --- | --- |
-   | 3 B → 1 A | 120 € | 120 € |
-   | 3 A → 1 S | 360 € | 400 € |
-   | 3 S → 1 S+ | 1.200 € | 1.200 € |
-   | 3 S+ → 1 L | 3.600 € | 4.000 € |
+## Qué ha cambiado y qué se ve
 
-   Está bien: combinar no es una forma de hacer dinero. Pero si vender sigue siendo lo mejor, combinar solo sirve para coleccionar.
+1. **Ya no hay objetos muertos.**
+   - Sin las mejoras de Bolsas y Cámara, la Funda, las Alfombrillas (+3 €), el Espejo y el Datáfono vuelven a hacer algo.
+   - Con más pinchazos y bajas, los que los reducen ya se notan: Botiquín +4,4 €, Detector de baches +3,4 €, Vitaminas +2,7 € (antes, entre 0 y 1 €).
+2. **La Rueda (+5,2 €) y la Bolsa (+5,9 €; ~12 € de noche) valen lo que su categoría.**
+3. **La Cámara se queda corta para ser S** (+1,2 €). Un cliente que no paga solo te quita la mitad del importe, porque el conductor tampoco cobra su parte. Con un 2 % de impagos, evitarlos da poco.
+4. **El Detector de metales está roto** (+26 €, el doble que la Pizza). Encuentra un 80 % más y un 30 % sube de categoría. El Gato (+15 €) también se pasa un poco para S+. Lo que encuentran vale además para combinar, así que en la partida pesan aún más.
+5. **Los LEGENDARIOS:** la Pizza y la Paconi son los mejores objetos «normales». El Bocata sigue flojo (+5,5 €), aunque en un conductor de día ronda +11 €.
+6. **Los B quedan todos entre −2 y +2 €**, dentro del ruido. Es lo esperable (sus efectos son de un 2–10 %), pero la diferencia con la A es pequeña.
 
-## Propuestas de ajuste (sin aplicar)
+## Progresión con todo aplicado
+
+Medido con el bot (`node tests/progresion.js`, 10 semillas):
+
+| Perfil | 2.ª licencia | 3 licencias | A los 150 min |
+| --- | --- | --- | --- |
+| **Sigue «Siguiente»** | minuto 22 | minuto 45 | 9,5 licencias · 1.820 € de neto por jornada |
+| Flota | 26 | 49 | 9,2 licencias · 1.830 € |
+| Equilibrado (mejoras baratas primero) | 107 | 126 | 4 licencias · 1.000 € |
+| Gestor (deja el volante) | — | — | 1 licencia · 420 € |
+
+- **Esta mañana** (antes de todos los cambios), la 2.ª licencia llegaba al minuto 33 en el mejor caso y al 109 siguiendo la tarjeta.
+- **A los 150 minutos** hay algo menos de neto que a mediodía (1.820 € frente a 2.100 €), porque los sucesos ahora cuestan más.
+- **Oficina de gestión:** dejar el volante baja el neto un 7 % (antes, un 30 %). El bot gestor sigue con una licencia porque gasta en mejoras baratas, no por la Oficina.
+- **Casi todos los conductores siguen siendo B** (17 de 18 a los 150 minutos). «Siguiente» no propone RRHH (1.500 €), porque no cuenta como crecer, y el bot no lo compra.
+
+## Propuestas (sin aplicar)
 
 | # | Problema | Propuesta |
 | --- | --- | --- |
-| 1 | Vender gana a equipar | **Aplicada el 18-11-2026.** **Bajar la venta:** B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 €. Así un LEGENDARIO equipado se paga en 90–120 jornadas y uno S en unas 25: equipar pasa a ser lo normal. Encontrar objetos bajaría de ~36 € a ~14 € por jornada. Medido con el bot (perfil «siguiente»): el principio no cambia y a los 150 minutos hay 10,1 licencias (antes 10,6) y unos 2.100 € de neto por jornada (antes 2.800: la venta de objetos era una parte grande). |
-| 2 | Objetos muertos con mejoras | Darles un segundo efecto que no anulen las mejoras: Funda (+4 % de propina, «asientos que dan gusto»), Alfombrillas (−3 % de espera, «se sube cualquiera»), Espejo (+8 % de objetos devueltos), Datáfono (−6 % de espera: «¿aceptas tarjeta?», «sí» y se suben). |
-| 3 | Bajas, pinchazos y averías no se notan | Subir sus efectos (por ejemplo, Cojín −40 % de bajas) o añadir a cada uno un poco de espera. Otra opción: que una baja dure más (ahora, 1–5 jornadas). |
-| 4 | El Bocata, flojo para ser LEGENDARIO | Pasar su −12 % de espera a todo el día, no solo al turno de día. |
-| 5 | Detector de baches y Kit, flojos | Que también bajen la espera (−5 %): «menos rato en el taller, más en la calle». |
-
-## Propuesta: 10 objetos nuevos y una cualidad
-
-Pensados para tres cosas:
-
-- **Combinar:** un objeto inútil a propósito y otros con ventaja e inconveniente.
-- **Rellenar huecos:** objetos de noche y de propina que no se mueren con las mejoras.
-- **Dos efectos nuevos para encontrar objetos:**
-  - `hallazgo`: probabilidad de encontrar.
-  - `suerte`: probabilidad de que lo encontrado suba una categoría.
-
-| # | Objeto | Cat. | Efecto | Texto (el toque gracioso) |
-| --- | --- | --- | --- | --- |
-| 1 | **Mapa del Metro de 1998** | B | Ninguno | «No sale ni la línea 8. No sirve para nada, pero tres juntos se cambian por algo útil.» El objeto inútil, para combinar. |
-| 2 | **Perrito del salpicadero** | B | +6 % de propina, −2 % de espera | «Asiente a todo lo que dice el cliente. El cliente lo agradece.» |
-| 3 | **Rosario del retrovisor** | B | −25 % sin pagar, +4 % de propina | «Nadie se va sin pagar delante de la Virgen de la Paloma.» |
-| 4 | **Casete de grandes éxitos de la verbena** | A | −6 % de espera de noche, +10 % de propina | «A las cinco de la mañana, todo el taxi se lo sabe.» |
-| 5 | **Linterna de bolsillo** | A | +40 % de hallazgo | «Mira debajo de los asientos. Lo que sale de ahí, mejor no preguntar.» |
-| 6 | **Calcetines de la suerte (sin lavar)** | S | −13 % de espera, −15 % de propina | «Nunca fallan. El cliente lo nota, pero se sube igual.» Tiene ventaja e inconveniente. |
-| 7 | **Bufanda mitad y mitad** | S | +35 % de propina, −4 % de espera de día | «Media de cada equipo: nadie se baja enfadado del taxi.» |
-| 8 | **Gato de la suerte** | S+ | +30 % de propina, +40 % de hallazgo, +15 % de suerte | «Mueve la patita todo el día. Algo hace.» |
-| 9 | **Detector de metales** | S+ | +80 % de hallazgo, +30 % de suerte | «Pita con cada moneda, cada llave… y a veces con algo que vale la pena.» |
-| 10 | **Parpusa de chulapo** | L | −12 % de espera, +40 % de propina, +50 % de hallazgo | «Con ella puesta, Madrid entero te para por la calle. Y te cuentan dónde se perdió algo.» |
-
-### Cualidad nueva: Urraca (con su defecto opuesto, Desastre)
-
-- **Urraca:** «Ve brillar cualquier cosa». Encuentra un 25 % más de objetos y uno de cada cinco sube de categoría (`hallazgo` y `suerte`).
-- **Desastre:** «Lo que encuentra, lo pierde por el camino». Encuentra la mitad y tarda un 4 % más entre carreras.
-
-**Ojo:** con los precios de venta de ahora, la Urraca valdría unos +10 € por jornada, el doble que las otras cualidades (+5 %). Con la venta rebajada (propuesta 1) se queda en ~+4 €, que es lo que debe. **Recomiendo decidir primero la propuesta 1** y luego ajustar la Urraca con el bot.
-
-### Qué haría falta en el código
-
-- **Dos efectos nuevos** (`hallazgo` y `suerte`), con sus topes, en las stats de la ficha (`statsConductor`) y en `hallazgo()`.
-- **Diez dibujos nuevos** en `iconos/`, con el mismo estilo.
-- **Una prueba** de que los objetos nuevos encajan con la tabla de stats.
-- La lista sube de 24 a 34 objetos (B 9, A 8, S 7, S+ 6, L 4), así que combinar da más variedad.
+| 1 | Detector de metales roto | Bajarlo a un 30 % más de hallazgo y un 15 % de suerte (unos +11 €). |
+| 2 | El Gato se pasa un poco | Un 20 % más de hallazgo en vez de un 40 % (unos +10 €). |
+| 3 | Cámara floja para S | Bajarla a A, o que además dé un +10 % de propinas («el cliente se porta mejor si sabe que le graban»). |
+| 4 | El Bocata, flojo para LEGENDARIO | Que su −12 % de espera valga de día y de noche. |
+| 5 | Casi todos los conductores son B | Que «Siguiente» proponga RRHH cuando tienes 3 licencias o más. |
+| 6 | Los B no se distinguen | Subir algo sus efectos (por ejemplo, Ambientador +15 %) o dejarlos como relleno para combinar, que ahora tiene sentido. |
