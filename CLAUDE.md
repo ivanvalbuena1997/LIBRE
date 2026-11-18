@@ -413,6 +413,9 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
   30/60/90/120/150 minutos y cuándo llega cada hito (unos 25 s). Sirve para
   medir cambios de equilibrio; el último informe está en
   `docs/analisis-progresion.md`.
+- `node tests/objetos.js [semillas] [jornadas]` tampoco es una prueba: mide
+  cuánto deja cada objeto por conductor y jornada (sin mejoras y con
+  bolsas, cámara y propinas). Informe en `docs/analisis-objetos.md`.
 
 ## Forma de trabajar
 
