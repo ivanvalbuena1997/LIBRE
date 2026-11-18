@@ -214,6 +214,15 @@
       ]
     },
 
+    /*
+     * Tarjeta «Siguiente» (Iván, 18-11-2026: que señale lo que hace crecer).
+     * Equilibrio: con la flota cubierta, solo propone mejoras que cuestan
+     * como mucho esta parte de crecer (la próxima licencia y su coche).
+     */
+    objetivo: {
+      mejorasHasta: 0.1
+    },
+
     sinConexion: {
       maximoHoras: 8,              // Equilibrio: horas reales que se recuperan como mucho.
       minimoSegundos: 10           // Por debajo de esto no se muestra el resumen.

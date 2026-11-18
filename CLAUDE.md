@@ -314,6 +314,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   a `avanzar()` con el tiempo hasta las 7:00 (no es otra forma de mover el
   reloj). El taxímetro tiene entonces un tercer modo, **libranza**, que es el
   botón: «HOY LIBRAS · Toca para saltar al cierre ›».
+- Tarjeta «Siguiente»: la propone `Libre.sim.objetivoCompra(estado, fija)`
+  (coche o conductor que falte; si no, licencia o mejoras de hasta
+  `config.objetivo.mejorasHasta` de crecer). La interfaz solo le pone nombre
+  y destino (`decorarCompra()`) y recuerda la fija. El bot la usa en su
+  perfil «siguiente».
 - Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén y
   Mejoras (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección;
   `body[data-vista]` la pestaña elegida). Una marca roja avisa de compras

@@ -572,6 +572,74 @@
     return l.precioBase * Math.pow(l.factorSubida, estado.licencias.length - 1);
   }
 
+  // ------------------------------------------------- Siguiente compra
+
+  /*
+   * Todo lo que se puede comprar ahora, sin decidir nada:
+   *   { id, tipo: 'coche' | 'conductor' | 'mejora' | 'licencia', precio,
+   *     licenciaId, turno, mejora, nivel }
+   * La interfaz le pone nombre y a dónde lleva.
+   */
+  function comprasPosibles(estado) {
+    const c = cfg();
+    const lista = [];
+    const conductor = Math.min.apply(null, candidatos(estado).map(precioCandidato));
+    estado.licencias.forEach(function (lic) {
+      if (!lic.vehiculo) {
+        lista.push({ id: 'coche-' + lic.id, tipo: 'coche', licenciaId: lic.id,
+          precio: c.vehiculos.modelos[c.vehiculos.modeloInicial].precio });
+        return;
+      }
+      ['dia', 'noche'].forEach(function (turno) {
+        if (lic.turnos[turno]) return;
+        lista.push({ id: 'conductor-' + lic.id + '-' + turno, tipo: 'conductor', licenciaId: lic.id, turno, precio: conductor });
+      });
+    });
+    c.mejoras.forEach(function (m) {
+      const siguiente = siguienteNivel(estado, m.id);
+      if (!siguiente || (m.requiere && !nivelMejora(estado, m.requiere))) return;
+      lista.push({ id: 'mejora-' + m.id + '-' + siguiente.nivel, tipo: 'mejora', mejora: m.id,
+        nivel: siguiente.nivel, precio: siguiente.precio });
+    });
+    if (estado.licencias.length < c.licencias.maximo) {
+      lista.push({ id: 'licencia-' + (estado.licencias.length + 1), tipo: 'licencia', precio: precioLicencia(estado) });
+    }
+    return lista;
+  }
+
+  /*
+   * Compras que la tarjeta «Siguiente» puede proponer (Iván, 18-11-2026: lo
+   * que hace crecer). Si falta un coche o hay un turno libre, solo eso. Si
+   * no, la licencia y las mejoras que cuestan como mucho
+   * `config.objetivo.mejorasHasta` de crecer (licencia y coche).
+   */
+  function comprasParaObjetivo(estado) {
+    const lista = comprasPosibles(estado);
+    const flota = lista.filter(function (x) { return x.tipo === 'coche' || x.tipo === 'conductor'; });
+    if (flota.length) return flota;
+    const c = cfg();
+    const crecer = precioLicencia(estado) + c.vehiculos.modelos[c.vehiculos.modeloInicial].precio;
+    return lista.filter(function (x) {
+      return x.tipo === 'licencia' || (x.tipo === 'mejora' && x.precio <= c.objetivo.mejorasHasta * crecer);
+    });
+  }
+
+  /*
+   * La compra que propone «Siguiente»: de las de comprasParaObjetivo(), la
+   * más barata que aún no puedes pagar (o la más barata, si llegas a todas).
+   * `fija`: id de la que ya se estaba enseñando; se mantiene mientras siga
+   * en la lista, para que la barra se ponga verde en vez de saltar a otra.
+   */
+  function objetivoCompra(estado, fija) {
+    const lista = comprasParaObjetivo(estado);
+    if (lista.length === 0) return null;
+    const sigue = fija && lista.find(function (x) { return x.id === fija; });
+    if (sigue) return sigue;
+    // sort es estable: a igual precio gana el primero de la lista.
+    const porPrecio = lista.slice().sort(function (a, b) { return a.precio - b.precio; });
+    return porPrecio.find(function (x) { return x.precio > estado.dinero; }) || porPrecio[0];
+  }
+
   /*
    * Compra una licencia con la placa `indice` de placasEnVenta() (la primera
    * si no se dice). `rng` ya no se usa: las placas salen del azar de la partida.
@@ -2258,7 +2326,12 @@
     rendimientoZona,
     elegirZona,
     precioLicencia,
+    comprasPosibles,
+    comprasParaObjetivo,
+    objetivoCompra,
     textoLicencia,
+    buscarLicencia,
+    buscarMejora,
     letraLicencia,
     libra,
     placasEnVenta,

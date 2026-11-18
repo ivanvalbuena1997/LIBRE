@@ -426,66 +426,42 @@
   }
 
   /*
-   * Objetivo: la compra más barata que aún no puedes pagar. Se queda fija
-   * hasta que la compras (o deja de existir); así, cuando llega el dinero,
-   * la barra se pone verde en vez de saltar a otra compra.
+   * Objetivo: lo que propone Libre.sim.objetivoCompra() (lo que hace crecer
+   * la flota: coche, conductor o licencia, y solo mejoras baratas). Se queda
+   * fijo hasta que lo compras (o deja de estar entre lo propuesto); así,
+   * cuando llega el dinero, la barra se pone verde en vez de saltar a otra.
    */
   let objetivoId = null;
 
-  /* Todo lo que se puede comprar ahora: { id, nombre, precio, selector }. */
-  function comprasPosibles(estado) {
+  /* Nombre y a dónde lleva cada compra de la simulación. */
+  function decorarCompra(estado, x) {
     const c = Libre.config;
-    const lista = [];
-    estado.licencias.forEach(function (lic) {
-      if (!lic.vehiculo) {
-        lista.push({
-          id: 'coche-' + lic.id, nombre: 'Coche para la licencia ' + Libre.sim.textoLicencia(lic),
-          precio: c.vehiculos.modelos[c.vehiculos.modeloInicial].precio,
-          selector: '[data-licencia="' + lic.id + '"]'
-        });
-        return;
-      }
-      ['dia', 'noche'].forEach(function (turno) {
-        if (lic.turnos[turno]) return;
-        lista.push({
-          id: 'conductor-' + lic.id + '-' + turno,
-          nombre: Libre.sim.hayConductores(estado)
-            ? 'Conductor de ' + c.turnos[turno].nombre.toLowerCase() + ' (licencia ' + Libre.sim.textoLicencia(lic) + ')'
-            : 'Tu primer conductor',
-          precio: precioMasBarato(estado),
-          selector: '[data-elegir-conductor="' + lic.id + '|' + turno + '"]'
-        });
-      });
-    });
-    c.mejoras.forEach(function (m) {
-      const siguiente = Libre.sim.siguienteNivel(estado, m.id);
-      if (!siguiente || (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere))) return;
-      lista.push({
-        id: 'mejora-' + m.id + '-' + siguiente.nivel,
-        nombre: m.nombre + (m.niveles ? ' ' + siguiente.nivel : ''),
-        precio: siguiente.precio, selector: '[data-mejora="' + m.id + '"]', mejora: m.id
-      });
-    });
-    if (estado.licencias.length < c.licencias.maximo) {
-      lista.push({
-        id: 'licencia-' + (estado.licencias.length + 1), nombre: 'Nueva licencia',
-        precio: Libre.sim.precioLicencia(estado), selector: '[data-elegir-placa]'
-      });
+    const lic = x.licenciaId ? Libre.sim.buscarLicencia(estado, x.licenciaId) : null;
+    if (x.tipo === 'coche') {
+      return Object.assign({ nombre: 'Coche para la licencia ' + Libre.sim.textoLicencia(lic),
+        selector: '[data-licencia="' + x.licenciaId + '"]' }, x);
     }
-    return lista;
+    if (x.tipo === 'conductor') {
+      return Object.assign({
+        nombre: Libre.sim.hayConductores(estado)
+          ? 'Conductor de ' + c.turnos[x.turno].nombre.toLowerCase() + ' (licencia ' + Libre.sim.textoLicencia(lic) + ')'
+          : 'Tu primer conductor',
+        selector: '[data-elegir-conductor="' + x.licenciaId + '|' + x.turno + '"]'
+      }, x);
+    }
+    if (x.tipo === 'mejora') {
+      const m = Libre.sim.buscarMejora(x.mejora);
+      return Object.assign({ nombre: m.nombre + (m.niveles ? ' ' + x.nivel : ''),
+        selector: '[data-mejora="' + x.mejora + '"]' }, x);
+    }
+    return Object.assign({ nombre: 'Nueva licencia', selector: '[data-elegir-placa]' }, x);
   }
 
   function objetivoActual(estado) {
-    const lista = comprasPosibles(estado);
-    if (lista.length === 0) return null;
-    let objetivo = lista.find(function (x) { return x.id === objetivoId; });
-    if (!objetivo) {
-      // sort es estable: a igual precio gana el primero de la lista.
-      const porPrecio = lista.slice().sort(function (a, b) { return a.precio - b.precio; });
-      objetivo = porPrecio.find(function (x) { return x.precio > estado.dinero; }) || porPrecio[0];
-      objetivoId = objetivo.id;
-    }
-    return objetivo;
+    const o = Libre.sim.objetivoCompra(estado, objetivoId);
+    if (!o) return null;
+    objetivoId = o.id;
+    return decorarCompra(estado, o);
   }
 
   const seccionObjetivo = {

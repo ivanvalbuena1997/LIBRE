@@ -1381,4 +1381,31 @@ prueba('la Oficina de gestión rebaja lo que se quedan los conductores', functio
   assert.ok(sim.porcentajeConductor(e) < config.conductores.porcentaje);
 });
 
+prueba('«Siguiente» propone crecer: flota primero, luego licencia y solo mejoras baratas', function () {
+  const e = sim.crearEstadoInicial(0, function () { return 0.5; });
+  e.dinero = 0;
+  // Con un turno libre, solo el conductor.
+  assert.strictEqual(sim.objetivoCompra(e).tipo, 'conductor');
+  e.dinero = 1e6;
+  sim.contratarConductor(e, e.licencias[0].id, 'noche');
+  e.dinero = 0;
+  const crecer = sim.precioLicencia(e) + config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;
+  const lista = sim.comprasParaObjetivo(e);
+  assert.ok(lista.some(function (x) { return x.tipo === 'licencia'; }));
+  assert.ok(lista.every(function (x) { return x.tipo === 'licencia' || x.precio <= config.objetivo.mejorasHasta * crecer; }),
+    'ninguna mejora cara');
+  // Con todas las mejoras baratas compradas, la licencia.
+  e.dinero = 1e6;
+  lista.forEach(function (x) { if (x.tipo === 'mejora') sim.comprarMejora(e, x.mejora); });
+  for (let i = 0; i < 20; i++) {
+    sim.comprasParaObjetivo(e).forEach(function (x) { if (x.tipo === 'mejora') sim.comprarMejora(e, x.mejora); });
+  }
+  e.dinero = 0;
+  assert.strictEqual(sim.objetivoCompra(e).tipo, 'licencia');
+  // Al comprarla, el coche que le falta pasa delante.
+  e.dinero = 1e6;
+  sim.comprarLicencia(e);
+  assert.strictEqual(sim.objetivoCompra(e, 'licencia-2').tipo, 'coche', 'la fija ya no vale si falta un coche');
+});
+
 console.log(pasadas + ' pruebas correctas');

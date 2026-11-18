@@ -24,7 +24,9 @@
  *   - Equipa lo que encuentran sus conductores, de mejor a peor categoría
  *     (cambia uno peor por uno mejor), y vende lo que llega a la bandeja.
  *   - Repone bolsas (hasta 20) y ruedas (hasta 3) cuando las tiene.
- *   Tres perfiles (PERFILES):
+ *   Perfiles (PERFILES):
+ *   - «siguiente»: compra solo lo que propone la tarjeta «Siguiente»
+ *     (Libre.sim.objetivoCompra), en cuanto le llega el dinero.
  *   - «equilibrado»: conduce toda la partida; mejoras de hasta el 30 % de
  *     lo que cuesta crecer.
  *   - «flota»: igual, pero solo mejoras de hasta el 10 %: casi todo a
@@ -52,6 +54,7 @@ const LEER_TICKET = 3;           // s hasta «Arrancar día siguiente»
 const MIRAR_TIENDA = 2;          // cada cuántos s mira qué comprar
 const ORDEN_CAT = c.categorias.map(function (x) { return x.id; });
 const PERFILES = {
+  siguiente: { sigue: true },
   equilibrado: { ratio: 0.3, oficina: false, zonas: false },
   flota: { ratio: 0.1, oficina: false, zonas: false },
   zonas: { ratio: 0.1, oficina: false, zonas: true },
@@ -120,9 +123,48 @@ function jugar(semilla, perfil) {
 
   function letrasFlota() { return e.licencias.map(function (l) { return sim.letraLicencia(l.numero); }); }
 
+  function comprarLicencia() {
+    const placas = sim.placasEnVenta(e);
+    const letras = letrasFlota();
+    let indice = placas.findIndex(function (n) { return letras.indexOf(sim.letraLicencia(n)) === -1; });
+    if (indice < 0) indice = 0;
+    if (sim.comprarLicencia(e, rng, indice).ok) { hito('licencias ' + e.licencias.length); return true; }
+    return false;
+  }
+
+  function contratarMejor(licenciaId, tn) {
+    const cands = sim.candidatos(e).map(function (x, i) { return { x, i, p: sim.precioCandidato(x) }; })
+      .filter(function (k) { return k.p <= e.dinero; })
+      .sort(function (a, b) { return rangoCat(b.x.categoria) - rangoCat(a.x.categoria) || a.p - b.p; });
+    if (cands.length && sim.contratarConductor(e, licenciaId, tn, cands[0].i).ok) {
+      hito('conductores ' + conductores().length);
+      if (rangoCat(cands[0].x.categoria) >= rangoCat('S')) hito('primer S o mejor');
+      return true;
+    }
+    return false;
+  }
+
+  /* Perfil «siguiente»: lo que diga la tarjeta, en cuanto llega el dinero. */
+  let fija = null;
+  function comprarObjetivo() {
+    for (let vueltas = 0; vueltas < 20; vueltas++) {
+      const o = sim.objetivoCompra(e, fija);
+      fija = o ? o.id : null;
+      if (!o || o.precio > e.dinero) return;
+      let ok = false;
+      if (o.tipo === 'coche') ok = sim.comprarVehiculo(e, o.licenciaId).ok;
+      else if (o.tipo === 'conductor') ok = contratarMejor(o.licenciaId, o.turno);
+      else if (o.tipo === 'mejora') { ok = sim.comprarMejora(e, o.mejora).ok; if (ok) hito('mejora ' + o.mejora); }
+      else ok = comprarLicencia();
+      if (!ok) return;
+      fija = null;
+    }
+  }
+
   function comprar() {
     let algo = true;
     let vueltas = 0;
+    if (PERFILES[perfil].sigue) { comprarObjetivo(); algo = false; }
     while (algo && vueltas++ < 20) {
       algo = false;
       // Coches que faltan (si no llega, ahorra para él).
@@ -137,16 +179,8 @@ function jugar(semilla, perfil) {
         if (!l.vehiculo) continue;
         for (const tn of ['dia', 'noche']) {
           if (l.turnos[tn]) continue;
-          const cands = sim.candidatos(e).map(function (x, i) { return { x, i, p: sim.precioCandidato(x) }; })
-            .filter(function (k) { return k.p <= e.dinero; })
-            .sort(function (a, b) { return rangoCat(b.x.categoria) - rangoCat(a.x.categoria) || a.p - b.p; });
-          if (cands.length && sim.contratarConductor(e, l.id, tn, cands[0].i).ok) {
-            algo = true;
-            hito('conductores ' + conductores().length);
-            if (rangoCat(cands[0].x.categoria) >= rangoCat('S')) hito('primer S o mejor');
-          } else {
-            ahorrar = true;
-          }
+          if (contratarMejor(l.id, tn)) algo = true;
+          else ahorrar = true;
         }
       }
       if (ahorrar) break;
@@ -177,11 +211,7 @@ function jugar(semilla, perfil) {
       if (m && m.precio <= e.dinero) {
         if (sim.comprarMejora(e, m.id).ok) { algo = true; hito('mejora ' + m.id); }
       } else if (e.licencias.length < c.licencias.maximo && sim.precioLicencia(e) <= e.dinero) {
-        const placas = sim.placasEnVenta(e);
-        const letras = letrasFlota();
-        let indice = placas.findIndex(function (n) { return letras.indexOf(sim.letraLicencia(n)) === -1; });
-        if (indice < 0) indice = 0;
-        if (sim.comprarLicencia(e, rng, indice).ok) { algo = true; hito('licencias ' + e.licencias.length); }
+        if (comprarLicencia()) algo = true;
       }
     }
     // El gestor deja el volante en cuanto tiene la Oficina (con pasajero no
