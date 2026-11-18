@@ -610,7 +610,8 @@
     if (flota.length) return flota;
     const c = cfg();
     const crecer = precioLicencia(estado) + c.vehiculos.modelos[c.vehiculos.modeloInicial].precio;
-    // Las de personal y todo lo que piden antes en su rama.
+    // Las de personal y todo lo que piden antes en su rama, solo su nivel 1:
+    // lo justo para abrirlas (los demás niveles, si son baratos).
     const personal = [];
     if (estado.licencias.length >= c.objetivo.licenciasParaPersonal) {
       c.objetivo.mejorasPersonal.forEach(function (id) {
@@ -619,7 +620,7 @@
     }
     return lista.filter(function (x) {
       return x.tipo === 'licencia' ||
-        (x.tipo === 'mejora' && (x.precio <= c.objetivo.mejorasHasta * crecer || personal.indexOf(x.mejora) !== -1));
+        (x.tipo === 'mejora' && (x.precio <= c.objetivo.mejorasHasta * crecer || (x.nivel === 1 && personal.indexOf(x.mejora) !== -1)));
     });
   }
 
