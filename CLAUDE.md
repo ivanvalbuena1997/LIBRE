@@ -340,12 +340,25 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   zonas y RRHH). La interfaz solo le pone nombre
   y destino (`decorarCompra()`) y recuerda la fija. El bot la usa en su
   perfil «siguiente».
-- Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén y
-  Mejoras (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección;
+- Menú inferior fijo (78 px) con pestañas Calle, Conductores, Almacén,
+  Mejoras y Estadísticas (`VISTA_DE` en `interfaz.js` dice a qué pestaña va cada sección;
   `body[data-vista]` la pestaña elegida). Una marca roja avisa de compras
   posibles (Conductores, Mejoras), de la bandeja (Almacén) o de un ticket esperando (Calle). La pestaña elegida se recuerda
   en `localStorage` (`libre-vista`), aparte de la partida; las antiguas
   `flota` y `partida` se traducen a `conductores` y `calle`.
+- Estadísticas (`seccionEstadisticas`, Iván 18-11-2026): tres cifras
+  (`estado.totales` y `estado.mejorDia`), facturación por día (barras en
+  HTML, raya del neto; tocar una la elige: `diaEstadistica`), media diaria
+  (`Libre.sim.mediasDiarias()`: tú y los conductores con turno, entre las
+  jornadas que estuvieron en la flota) y top 10 (`clasificacionConductores()`,
+  con los despedidos de `estado.exConductores`). Datos: al cerrar la caja,
+  `registrarDia()` guarda en `estado.historial` (como mucho
+  `config.estadisticas.dias`, 30) lo que entró, el neto, las carreras, lo
+  tuyo (`tu`, null sin turno) y lo de cada conductor con turno
+  (`conductores: { id: euros }`, de `caja.hoy.porConductor` y `caja.hoy.tuyo`,
+  que apunta `apuntarFacturado()`). Cada conductor lleva un `id` fijo
+  (`estado.ultimoIdConductor`). Fuera de su pestaña no se dibuja. Medallas
+  con `--medalla-oro`, `--medalla-plata` y `--medalla-bronce`.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
   hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
   Escape).

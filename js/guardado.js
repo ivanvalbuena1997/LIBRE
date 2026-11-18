@@ -233,6 +233,24 @@
       });
       estado.dinero += devuelto;
       delete estado.inventario;
+    },
+    // Pestaña Estadísticas (18-11-2026): historial de jornadas, mejor día,
+    // despedidos e id fijo de cada conductor. Lo de antes no se puede
+    // reconstruir: el historial empieza con el último cierre (sin el reparto
+    // por conductor).
+    22: function (estado) {
+      const ayer = estado.caja && estado.caja.ayer;
+      estado.historial = ayer ? [{
+        dia: ayer.dia, ingresos: ayer.ingresos, extras: ayer.extras || 0, neto: Libre.sim.netoCaja(ayer),
+        carreras: ayer.carreras, tu: null, conductores: {}
+      }] : [];
+      estado.mejorDia = ayer ? { dia: ayer.dia, ingresos: ayer.ingresos } : null;
+      estado.exConductores = [];
+      let id = 0;
+      Libre.sim.todosLosConductores(estado).forEach(function (x) { x.t.id = ++id; });
+      estado.ultimoIdConductor = id;
+      estado.caja.hoy.porConductor = {};
+      estado.caja.hoy.tuyo = 0;
     }
   };
 

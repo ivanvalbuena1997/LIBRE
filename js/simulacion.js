@@ -36,7 +36,9 @@
     return {
       dia, carreras: 0, km: 0, ingresos: 0, extras: 0,
       combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {},
-      licencias: []   // números de las licencias que han facturado (para el ticket)
+      licencias: [],  // números de las licencias que han facturado (para el ticket)
+      // Lo facturado por cada conductor ({ id: euros }) y por ti (Estadísticas).
+      porConductor: {}, tuyo: 0
     };
   }
 
@@ -76,6 +78,13 @@
       reserva: [],
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0 },
+      // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
+      // mejor día de la partida y los despedidos que entran en el top.
+      historial: [],
+      mejorDia: null,
+      exConductores: [],
+      // Cada conductor contratado lleva un id fijo (para el historial).
+      ultimoIdConductor: 0,
       // Pausa al cierre del día: mientras no sea null el reloj está parado y
       // guarda el ticket por enseñar (los días que cubre y sus sumas).
       cierrePendiente: null,
@@ -464,12 +473,111 @@
         Libre.ui_euros(porCarrera) + '.', carreras * porCarrera, 'extras');
     }
     const cerrada = estado.caja.hoy;
+    registrarDia(estado, cerrada);
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
     estado.licencias.forEach(function (l) { l.facturadoJornada = 0; });
     // Cada día se presentan otros candidatos (Iván, 17-11-2026).
     sortearCandidatos(estado);
     resumen.cierres.push(cerrada);
+  }
+
+  // ------------------------------------------------------- Estadísticas
+
+  /*
+   * Al cerrar la caja se guarda un resumen de la jornada en el historial
+   * (como mucho config.estadisticas.dias): lo que entró, el neto, las
+   * carreras, lo tuyo (null si no tenías turno) y lo de cada conductor que
+   * tenía turno ese día (0 si no facturó: libranza, baja…). La reserva no
+   * cuenta: no está en la flota.
+   */
+  function registrarDia(estado, caja) {
+    const porConductor = {};
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const t = l.turnos[tn];
+        if (t && t.quien === 'conductor' && t.id) porConductor[t.id] = (caja.porConductor || {})[t.id] || 0;
+      });
+    });
+    const registro = {
+      dia: caja.dia, ingresos: caja.ingresos, extras: caja.extras || 0, neto: netoCaja(caja),
+      carreras: caja.carreras, tu: ubicacionJugador(estado) ? caja.tuyo || 0 : null, conductores: porConductor
+    };
+    estado.historial = estado.historial || [];
+    estado.historial.push(registro);
+    const sobran = estado.historial.length - cfg().estadisticas.dias;
+    if (sobran > 0) estado.historial.splice(0, sobran);
+    if (!estado.mejorDia || caja.ingresos > estado.mejorDia.ingresos) {
+      estado.mejorDia = { dia: caja.dia, ingresos: caja.ingresos };
+    }
+  }
+
+  /* Apunta en la caja de hoy lo que acaba de facturar un turno (tuyo o de un conductor). */
+  function apuntarFacturado(estado, turno, importe) {
+    if (!(importe > 0)) return;
+    const caja = estado.caja.hoy;
+    if (turno.quien === 'jugador') { caja.tuyo = (caja.tuyo || 0) + importe; return; }
+    if (!turno.id) return;
+    caja.porConductor = caja.porConductor || {};
+    caja.porConductor[turno.id] = (caja.porConductor[turno.id] || 0) + importe;
+  }
+
+  /*
+   * Media diaria de los últimos días del historial: la tuya y la de cada
+   * conductor con turno ahora, entre las jornadas que estuvo en la flota.
+   * { tu: { media, dias } | null, conductores: [{ t, licenciaId, turno, media, dias }] },
+   * de mayor a menor (los que aún no tienen jornadas, al final con media null).
+   */
+  function mediasDiarias(estado) {
+    const historial = estado.historial || [];
+    const media = function (valores) {
+      return valores.length ? { media: valores.reduce(function (a, b) { return a + b; }, 0) / valores.length, dias: valores.length } : null;
+    };
+    const tuyos = historial.filter(function (r) { return r.tu !== null && r.tu !== undefined; }).map(function (r) { return r.tu; });
+    const conductores = [];
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const t = l.turnos[tn];
+        if (!t || t.quien !== 'conductor') return;
+        const valores = historial.filter(function (r) { return r.conductores && r.conductores[t.id] !== undefined; })
+          .map(function (r) { return r.conductores[t.id]; });
+        const m = media(valores);
+        conductores.push({ t, licenciaId: l.id, turno: tn, media: m ? m.media : null, dias: m ? m.dias : 0 });
+      });
+    });
+    conductores.sort(function (a, b) { return (b.media === null ? -1 : b.media) - (a.media === null ? -1 : a.media); });
+    return { tu: media(tuyos), conductores };
+  }
+
+  /* Ficha resumida de un conductor para la clasificación. */
+  function resumenConductor(t) {
+    return {
+      id: t.id || null, nombre: t.nombre, retrato: t.retrato, categoria: t.categoria, xp: t.xp || 0,
+      carreras: t.carreras || 0, facturado: t.facturado || 0
+    };
+  }
+
+  /*
+   * Los mejores conductores de la partida por facturado total (como mucho
+   * config.estadisticas.top): los de ahora (en turno o en la reserva) y los
+   * despedidos que se guardaron. Cada uno con despedido, licenciaId y turno.
+   */
+  function clasificacionConductores(estado) {
+    const lista = todosLosConductores(estado).map(function (x) {
+      return Object.assign(resumenConductor(x.t), { despedido: false, licenciaId: x.licenciaId, turno: x.turno });
+    }).concat((estado.exConductores || []).map(function (x) {
+      return Object.assign({}, x, { despedido: true, licenciaId: null, turno: null });
+    }));
+    lista.sort(function (a, b) { return b.facturado - a.facturado; });
+    return lista.slice(0, cfg().estadisticas.top);
+  }
+
+  /* Al despedir: se guarda en exConductores si entra entre los mejores despedidos. */
+  function recordarDespedido(estado, t) {
+    const lista = estado.exConductores = estado.exConductores || [];
+    lista.push(resumenConductor(t));
+    lista.sort(function (a, b) { return b.facturado - a.facturado; });
+    lista.splice(cfg().estadisticas.top);
   }
 
   // --------------------------------------------------- Pausa al cierre
@@ -715,7 +823,7 @@
     const primero = !hayConductores(estado);
     estado.dinero -= precio;
     estado.conductoresContratados++;
-    lic.turnos[turno] = nuevoConductor(candidato, otro ? otro.zona : c.zonaInicial);
+    lic.turnos[turno] = nuevoConductor(estado, candidato, otro ? otro.zona : c.zonaInicial);
     sortearCandidatos(estado);
 
     if (primero) {
@@ -726,8 +834,10 @@
   }
 
   /* Un conductor recién contratado a partir de su candidato. */
-  function nuevoConductor(candidato, zona) {
+  function nuevoConductor(estado, candidato, zona) {
+    estado.ultimoIdConductor = (estado.ultimoIdConductor || 0) + 1;
     return {
+      id: estado.ultimoIdConductor,
       quien: 'conductor', nombre: candidato.nombre, retrato: candidato.retrato, zona,
       categoria: candidato.categoria, cualidad: candidato.cualidad, cualidad2: candidato.cualidad2 || null,
       cualidad3: null, defecto: candidato.defecto, defecto2: candidato.defecto2 || null,
@@ -751,7 +861,7 @@
     if (estado.dinero < precio) return fallo('No te llega el dinero: ' + candidato.nombre + ' cuesta ' + Libre.ui_euros(precio) + '.');
     estado.dinero -= precio;
     estado.conductoresContratados++;
-    estado.reserva.push(nuevoConductor(candidato, c.zonaInicial));
+    estado.reserva.push(nuevoConductor(estado, candidato, c.zonaInicial));
     sortearCandidatos(estado);
     return exito(candidato.nombre + ' entra en la reserva. Dale un turno al cerrar el día.');
   }
@@ -1493,6 +1603,7 @@
       else estado.bandeja.push({ id, conductor: t.nombre });
     });
     incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
+    recordarDespedido(estado, t);
     // Si estaba en una carrera, se pierde: se va con el cliente.
     if (licenciaId === 'reserva') estado.reserva.splice(Number(turno), 1);
     else buscarLicencia(estado, licenciaId).turnos[turno] = null;
@@ -1696,6 +1807,7 @@
     eventosDeCarrera(estado, resumen, carrera, { quien: 'jugador', nombre: 'Tú' });
     const u = ubicacionJugador(estado);
     if (u) sumarFacturado(estado, buscarLicencia(estado, u.licenciaId), estado.totales.ingresos - antes);
+    apuntarFacturado(estado, { quien: 'jugador' }, estado.totales.ingresos - antes);
   }
 
   /* Lo que lleva facturado cada taxi en la jornada (para la lista de taxis). */
@@ -1825,6 +1937,7 @@
     sumarFacturado(estado, estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }), cobrado);
     turno.carreras = (turno.carreras || 0) + 1;
     turno.facturado = (turno.facturado || 0) + cobrado;
+    apuntarFacturado(estado, turno, cobrado);
     ganarExperiencia(estado, resumen, turno, cfg().conductores.niveles.porCarrera);
     hallazgo(estado, resumen, turno);
   }
@@ -2225,6 +2338,7 @@
       coches.forEach(function (x, i) {
         const parte = pesos[i] / (k * coches.length);
         sumarFacturado(estado, x.licencia, ingresos * parte);
+        apuntarFacturado(estado, x.turno, ingresos * parte);
         if (x.turno.quien !== 'conductor') return;
         x.turno.carreras = (x.turno.carreras || 0) + viajes * parte;
         x.turno.facturado = (x.turno.facturado || 0) + ingresos * parte;
@@ -2420,6 +2534,8 @@
   }
 
   Libre.sim = {
+    mediasDiarias,
+    clasificacionConductores,
     MIN_DIA,
     crearEstadoInicial,
     infoReloj,

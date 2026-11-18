@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 22,
+    versionGuardado: 23,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -296,6 +296,14 @@
       licenciasParaPersonal: 3,
       mejorasPersonal: ['gestionZonas', 'rrhh']
     },
+
+    /*
+     * Pestaña Estadísticas (Iván, 18-11-2026). Equilibrio.
+     *   dias: jornadas que se guardan en el historial (y que enseñan los
+     *         gráficos de facturación por día y de medias)
+     *   top:  conductores en la clasificación histórica
+     */
+    estadisticas: { dias: 30, top: 10 },
 
     sinConexion: {
       maximoHoras: 8,              // Equilibrio: horas reales que se recuperan como mucho.

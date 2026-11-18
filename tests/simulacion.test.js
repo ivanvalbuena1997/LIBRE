@@ -1593,4 +1593,63 @@ prueba('Mampara y asientos de cuero: un 6 % más de demanda', function () {
   cerca(sim.modificadores(e).demanda, antes * 1.06);
 });
 
+prueba('estadísticas: cada jornada cerrada va al historial con lo de cada uno', function () {
+  const e = flotaDe(2);
+  const ids = sim.todosLosConductores(e).map(function (x) { return x.t.id; });
+  assert.strictEqual(new Set(ids).size, ids.length, 'cada conductor con su id');
+  sim.avanzar(e, segundosDe(e, 24 * 60));
+  assert.strictEqual(e.historial.length, 1);
+  const r = e.historial[0];
+  cerca(r.ingresos, e.caja.ayer.ingresos);
+  cerca(r.neto, sim.netoCaja(e.caja.ayer));
+  assert.strictEqual(r.tu, 0, 'tienes turno pero no has conducido');
+  // Lo de los conductores y lo tuyo suman lo que entró en la caja.
+  const suma = Object.keys(r.conductores).reduce(function (a, k) { return a + r.conductores[k]; }, r.tu);
+  cerca(suma, r.ingresos, 0.01);
+  assert.ok(e.mejorDia && e.mejorDia.ingresos === r.ingresos);
+  const m = sim.mediasDiarias(e);
+  assert.strictEqual(m.conductores.length, 3);
+  assert.strictEqual(m.conductores[0].dias, 1);
+  assert.ok(m.conductores[0].media >= m.conductores[2].media, 'de mayor a menor');
+  assert.deepStrictEqual(m.tu, { media: 0, dias: 1 });
+});
+
+prueba('estadísticas: el historial guarda como mucho los días de la config', function () {
+  const e = flotaDe(1);
+  const dias = config.estadisticas.dias;
+  sim.avanzar(e, segundosDe(e, 24 * 60 * (dias + 3)), { agregado: true });
+  assert.strictEqual(e.historial.length, dias);
+  assert.ok(e.historial[dias - 1].dia > e.historial[0].dia);
+  assert.ok(e.historial.some(function (r) { return Object.keys(r.conductores).length === 1 && r.ingresos > 0; }),
+    'sin conexión también se apunta lo del conductor');
+});
+
+prueba('estadísticas: la clasificación guarda a los despedidos', function () {
+  const e = flotaDe(1);
+  const noche = e.licencias[0].turnos.noche;
+  noche.facturado = 5000;
+  e.dinero = 1e6;
+  assert.ok(sim.despedirConductor(e, 1, 'noche').ok);
+  const top = sim.clasificacionConductores(e);
+  assert.strictEqual(top[0].nombre, noche.nombre);
+  assert.strictEqual(top[0].despedido, true);
+  assert.ok(top.length <= config.estadisticas.top);
+});
+
+prueba('migración a la versión 23: historial, ids y despedidos', function () {
+  require('../js/guardado.js');
+  const e = flotaDe(1);
+  e.version = 22;
+  sim.todosLosConductores(e).forEach(function (x) { delete x.t.id; });
+  delete e.historial; delete e.mejorDia; delete e.exConductores; delete e.ultimoIdConductor;
+  e.caja.ayer = Object.assign({}, e.caja.hoy, { dia: 3, ingresos: 900 });
+  const m = globalThis.Libre.guardado.migrar(e);
+  assert.strictEqual(m.historial.length, 1);
+  assert.strictEqual(m.mejorDia.ingresos, 900);
+  assert.deepStrictEqual(sim.todosLosConductores(m).map(function (x) { return x.t.id; }), [1]);
+  assert.strictEqual(m.ultimoIdConductor, 1);
+  assert.ok(sim.contratarAReserva(m, 0).ok);
+  assert.strictEqual(m.reserva[0].id, 2, 'los nuevos no repiten id');
+});
+
 console.log(pasadas + ' pruebas correctas');

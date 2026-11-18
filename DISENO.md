@@ -65,7 +65,7 @@ Datos reales que el juego aún no usa: tarifa 7 (recorridos de menos de 1.450 m,
 
 ## 4. Pantallas
 
-El juego es una sola columna, pensada para un móvil en vertical (390 × 844 de referencia). Arriba va siempre la **cabecera con la calle**; abajo, un menú fijo de cuatro pestañas: **Calle**, **Conductores**, **Almacén** y **Mejoras**. Los ajustes y la partida no son una pestaña: los abre el **engranaje** de la cabecera. Una marca roja en una pestaña avisa de que hay algo que comprar (Conductores, Mejoras), objetos esperando en la bandeja (Almacén), o un ticket por leer (Calle).
+El juego es una sola columna, pensada para un móvil en vertical (390 × 844 de referencia). Arriba va siempre la **cabecera con la calle**; abajo, un menú fijo de cinco pestañas: **Calle**, **Conductores**, **Almacén**, **Mejoras** y **Estadísticas**. Los ajustes y la partida no son una pestaña: los abre el **engranaje** de la cabecera. Una marca roja en una pestaña avisa de que hay algo que comprar (Conductores, Mejoras), objetos esperando en la bandeja (Almacén), o un ticket por leer (Calle).
 
 ### Cabecera
 
@@ -130,6 +130,21 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 </p>
 
 Todo el árbol en una pantalla (Iván, 18-11-2026): arriba el logo, del que salen las cinco ramas en columnas (Clientes, Ciudad, Coche, Taller y Equipo). Cada mejora es un círculo con su icono, unido al de antes por una línea (verde si lo de antes está comprado), con las rayitas de sus niveles y el precio de lo siguiente debajo. Estados: **comprada** (verde con ✓), **disponible** (azul relleno), **sin dinero** (azul claro, precio en gris) y **bloqueada** (gris con candado). Al tocar una sube su ficha desde abajo: icono, nombre, rama, nivel, qué hace y «Comprar nivel 3 · 1.000,00 €»; se cierra con ×, el fondo o Escape.
+
+### Estadísticas
+
+<p>
+<img src="docs/capturas/estadisticas.jpg" width="250" alt="Estadísticas: tres cifras, la facturación de cada día y la media diaria de cada uno">
+</p>
+
+Pestaña nueva del 18-11-2026 (Iván). De arriba abajo:
+
+- **Tres cifras de la partida:** lo facturado, las carreras y el mejor día (con su fecha).
+- **Facturación por día:** una barra verde por cada uno de los últimos 30 días, con una raya para el neto (roja si ese día se perdió dinero; entonces baja del cero). Tocar una barra enseña debajo su día, lo facturado, el neto y las carreras; al entrar está elegido el último.
+- **Media diaria:** tú (barra azul, arriba) y cada conductor que tiene turno ahora (barras verdes, de mayor a menor), con lo que facturó de media por jornada en los últimos 30 días, contando solo las jornadas que estuvo en la flota (las de baja o libranza cuentan; la reserva, no). Al lado, cuántas jornadas lleva la cuenta.
+- **Mejores conductores:** los diez que más han facturado en la partida, con medalla de oro, plata y bronce para los tres primeros. Entran también los despedidos (atenuados, con el chip «Despedido»). Tocar a uno que sigue contigo abre su ficha en Conductores.
+
+Los días se guardan desde esta versión: en una partida de antes, el historial empieza con el último cierre. Sin ningún día cerrado, cada bloque dice qué hace falta para llenarlo.
 
 ### Ticket de cierre y ajustes
 
@@ -476,6 +491,10 @@ Las convenciones de código están en `CLAUDE.md`.
   - Dibujos propios para los 24 objetos y los 2 consumibles de entonces (hoy, 37 objetos y ningún consumible).
   - Sonidos sintetizados desde cero (cobro, propina, nivel, objeto, avería, ticket y tic), mudos hasta el primer toque, con sonido y volumen en Ajustes.
   - Sin cambios en la simulación ni en el formato de guardado.
+
+**18 de noviembre de 2026**
+
+- Pestaña **Estadísticas**, la quinta (Iván): facturación por día y media diaria de los últimos 30 días (de los conductores que hay en la flota en ese momento, no una media de cada día) y el top 10 histórico de conductores, con los despedidos. La partida guarda desde ahora el historial de jornadas, el mejor día, los despedidos que entran en el top y un número fijo por conductor (versión 23 del guardado).
 
 ---
 
