@@ -505,17 +505,25 @@
     return null;
   }
 
+  /*
+   * Líneas del ticket en tres bloques, de arriba abajo (Iván, 18-11-2026):
+   * la actividad (sin dinero), las cuentas de la jornada y el neto, que va
+   * al final, debajo de las incidencias, porque ya las cuenta.
+   */
   function lineasTicket(t) {
-    const neto = Libre.sim.netoCaja(t);
-    return [
-      { texto: 'Carreras', valor: String(Math.floor(t.carreras)) },
-      { texto: 'Kilómetros', valor: numero(t.km || 0) + ' km' },
-      { texto: 'Recaudación', valor: euros(t.ingresos) },
-      { texto: 'Combustible', valor: '−' + euros(t.combustible) },
-      { texto: 'Conductores', valor: '−' + euros(t.conductores) },
-      { texto: 'Costes fijos', valor: '−' + euros(t.fijos) },
-      { texto: 'Neto', valor: euros(neto), total: true }
-    ];
+    return {
+      actividad: [
+        { texto: 'Carreras', valor: String(Math.floor(t.carreras)) },
+        { texto: 'Kilómetros', valor: numero(t.km || 0) + ' km' }
+      ],
+      cuentas: [
+        { texto: 'Recaudación', valor: '+' + euros(t.ingresos) },
+        { texto: 'Combustible', valor: '−' + euros(t.combustible) },
+        { texto: 'Conductores', valor: '−' + euros(t.conductores) },
+        { texto: 'Costes fijos', valor: '−' + euros(t.fijos) }
+      ],
+      neto: { texto: 'Neto', valor: euros(Libre.sim.netoCaja(t)), total: true }
+    };
   }
 
   /*
@@ -574,10 +582,12 @@
         '<div class="ticket-linea" style="--i:' + (i++) + '">' + esc(fechaTicket(t.datos)) + '</div>' +
         '</div>' +
         '<div class="ticket-separador"></div>' +
-        lineas.filter(function (l) { return !l.total; }).map(linea).join('') +
-        '<div class="ticket-separador doble"></div>' +
-        lineas.filter(function (l) { return l.total; }).map(linea).join('') +
+        lineas.actividad.map(linea).join('') +
+        '<div class="ticket-separador"></div>' +
+        lineas.cuentas.map(linea).join('') +
         htmlIncidencias(t.datos, function () { return i++; }) +
+        '<div class="ticket-separador doble"></div>' +
+        linea(lineas.neto) +
         '</div></div>' +
         '<div class="ticket-pie" style="--i:' + (i++) + '">' +
         (t.pausa

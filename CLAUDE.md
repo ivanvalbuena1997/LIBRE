@@ -306,9 +306,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `importeEnCurso()` (solo lectura) da lo que marca el taxímetro en vivo.
 - El ticket de cierre va dentro de la página, justo debajo del taxímetro, y
   desaparece al arrancar el día (no tapa la página: en pausa se compra).
-  Aspecto de papel térmico; sus líneas son carreras, kilómetros, recaudación,
-  combustible, conductores, costes fijos y neto, en ese orden (Iván), y debajo
-  el bloque de incidencias. No añadir líneas de ticket inventadas. En la
+  Aspecto de papel térmico, en bloques separados (Iván, 18-11-2026): carreras
+  y kilómetros; recaudación, combustible, conductores y costes fijos; el
+  bloque de incidencias, y al final, tras la doble raya, el neto (que ya
+  cuenta las incidencias; «Sin pagar» no, es dinero que no entró).
+  `lineasTicket()` da los bloques. No añadir líneas de ticket inventadas. En la
   cabecera, las licencias que trabajaron (facturaron) esos días: la caja
   las apunta en `caja.licencias` (`sumarFacturado()`) y `sumarCierres()`
   junta las de varios días.

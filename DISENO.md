@@ -138,7 +138,7 @@ Todo el árbol en una pantalla (Iván, 18-11-2026): arriba el logo, del que sale
 <img src="docs/capturas/ajustes.jpg" width="250" alt="Hoja de ajustes y partida: parar al cierre, sonido y volumen">
 </p>
 
-- **Ticket de cierre** (izquierda): aparece en Calle al acabar la jornada, en papel térmico con letra de máquina (Courier Prime). Cabecera con las licencias que trabajaron; carreras, kilómetros, recaudación, combustible, conductores, costes fijos y neto (en ese orden); debajo, las incidencias. El juego se para hasta «Arrancar día siguiente».
+- **Ticket de cierre** (izquierda): aparece en Calle al acabar la jornada, en papel térmico con letra de máquina (Courier Prime). Cabecera con las licencias que trabajaron y, en bloques separados por rayas: carreras y kilómetros; recaudación, combustible, conductores y costes fijos; las incidencias, y abajo del todo, tras una doble raya, el **neto**, que ya las cuenta. El juego se para hasta «Arrancar día siguiente».
 - **Ajustes y partida** (derecha), desde el engranaje: parar al cierre del día, sonido sí o no y volumen, y exportar, importar o borrar la partida.
 
 ### Sistema visual
