@@ -1113,28 +1113,8 @@
     if (!Libre.sim.enPausa(estado)) {
       return '<button type="button" class="ui-boton ui-boton--secundario" disabled>Cambiar de sitio</button>';
     }
-    const c = Libre.config;
-    const opciones = [];
-    estado.licencias.forEach(function (l) {
-      if (!l.vehiculo) return;
-      ['dia', 'noche'].forEach(function (tn) {
-        const otro = l.turnos[tn];
-        if (otro && otro.quien === 'jugador') return;
-        if (!x.enReserva && l.id === x.licId && tn === x.turno) return;
-        opciones.push('<option value="' + l.id + '|' + tn + '">Licencia ' + esc(Libre.sim.textoLicencia(l)) + ' · ' +
-          esc(c.turnos[tn].nombre) + (otro ? ' (cambiar con ' + esc(otro.nombre) + ')' : ' (libre)') + '</option>');
-      });
-    });
-    if (!x.enReserva && (estado.reserva || []).length < c.conductores.reserva) opciones.push('<option value="reserva">A la reserva</option>');
-    if (!x.enReserva) {
-      (estado.reserva || []).forEach(function (r, i) {
-        opciones.push('<option value="reserva|' + i + '">Reserva (cambiar con ' + esc(r.nombre) + ')</option>');
-      });
-    }
-    // El botón lleva encima el selector nativo, invisible: al tocarlo se abre la lista.
-    return '<span class="ui-boton ui-boton--secundario con-selector">Cambiar de sitio' +
-      '<select data-cambio="moverConductor" data-args="' + x.licId + '|' + x.turno + '" aria-label="Cambiar de sitio">' +
-      '<option value="" selected disabled>Mover a…</option>' + opciones.join('') + '</select></span>';
+    // Cierra la ficha y deja al conductor «cogido»: se toca dónde ponerlo.
+    return '<button type="button" class="ui-boton ui-boton--secundario" data-coger="' + fichaConductor + '">Cambiar de sitio</button>';
   }
 
   /* Lo que cambia su categoría: cualidad reforzada y defecto suavizado. */
@@ -1573,8 +1553,8 @@
       const ayuda = !hayAlguno
         ? 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.'
         : Libre.sim.enPausa(estado)
-          ? 'Día cerrado: arrastra a un conductor sobre otro, un turno libre o la reserva para reorganizarlos ' +
-            '(en el móvil, mantén pulsado su retrato). También desde su ficha.'
+          ? 'Día cerrado: arrastra a un conductor sobre otro, un turno libre o la reserva para reorganizarlos. ' +
+            'En el móvil, mantén pulsado su retrato y toca dónde ponerlo (o «Cambiar de sitio» en su ficha).'
           : 'Tus conductores trabajan solos y se quedan el ' + Math.round(c.conductores.porcentaje * 100) +
             ' % de lo que recaudan. Toca uno para ver su ficha; al cerrar el día podrás cambiarlos de sitio.';
       const n = estado.licencias.length;
@@ -1976,6 +1956,7 @@
   } catch (e) { /* sin almacenamiento: se empieza en Calle */ }
 
   function cambiarVista(vista) {
+    soltarCogido();
     vistaActual = vista;
     try { raiz.localStorage.setItem(CLAVE_VISTA, vista); } catch (e) { /* da igual */ }
     aplicarVista();
@@ -2043,6 +2024,7 @@
     fichaConductor = null;
     fichaInventario = null;
     ajustesAbiertos = false;
+    cogido = null;
     eligiendoPlaca = false;
     panelTu = null;
     flotantes.porLicencia = null;
@@ -2053,19 +2035,58 @@
   }
 
   /*
-   * Arrastrar conductores (solo con el día cerrado: las filas llevan
-   * data-arrastrable y los sitios donde soltar, data-destino). Con ratón,
-   * empieza al mover unos píxeles; con el dedo, tras mantener pulsado medio
-   * segundo (si mueve antes, es que desplaza la página). Al soltar sobre un
-   * destino se llama a moverConductor. Un retrato sigue al puntero (sin
-   * animación: solo se coloca donde está el dedo).
+   * Mover conductores entre jornadas (con el día cerrado: las caras llevan
+   * data-arrastrable y los sitios donde ponerlos, data-destino). Dos formas,
+   * que se mezclan:
+   *   - Arrastrar: con ratón, empieza al mover unos píxeles; con el dedo,
+   *     tras mantener pulsado medio segundo. Un retrato sigue al puntero y al
+   *     soltar sobre un destino se llama a moverConductor.
+   *   - Coger y tocar: con el dedo, mantener pulsado «coge» al conductor (y
+   *     el móvil vibra un poco). Si el navegador se queda el gesto para
+   *     desplazar la página (cancela el arrastre), o se suelta sin moverlo,
+   *     sigue cogido: una barra dice «Toca dónde poner a…» y basta tocar el
+   *     destino. «Cambiar de sitio» de la ficha también lo coge.
+   * Tocar fuera de un destino, el mismo conductor, «Cancelar» o Escape lo
+   * suelta sin moverlo.
    */
   const MS_PULSACION_LARGA = 450;
   let arrastre = null;
   let ignorarClic = false;
+  // Conductor cogido: { origen: 'licencia|turno', nombre } o null.
+  let cogido = null;
+
+  function coger(origen) {
+    const x = estadoActual && conductorDe(estadoActual, origen);
+    if (!x || !Libre.sim.enPausa(estadoActual)) return;
+    cogido = { origen, nombre: x.t.nombre };
+    pintarCogido();
+  }
+
+  function soltarCogido() {
+    if (!cogido) return;
+    cogido = null;
+    pintarCogido();
+  }
+
+  /* Marca al cogido, resalta los destinos y enseña la barra (también tras redibujar). */
+  function pintarCogido() {
+    document.body.classList.toggle('eligiendo-destino', !!cogido);
+    document.querySelectorAll('.cogido').forEach(function (el) { el.classList.remove('cogido'); });
+    const barra = $('barra-cogido');
+    if (!cogido) { barra.classList.add('oculto'); return; }
+    const origen = document.querySelector('[data-ficha-conductor="' + cogido.origen + '"]');
+    if (origen) origen.classList.add('cogido');
+    barra.querySelector('span').textContent = 'Toca dónde poner a ' + cogido.nombre;
+    barra.classList.remove('oculto');
+  }
 
   function iniciarArrastre(opciones) {
     const main = $('juego');
+
+    function moverA(origen, destino) {
+      ejecutar('moverConductor', origen.split('|').concat([destino]));
+      opciones.redibujar();
+    }
 
     function marcarDestino(x, y) {
       document.querySelectorAll('.destino-activo').forEach(function (d) { d.classList.remove('destino-activo'); });
@@ -2079,6 +2100,8 @@
       if (!arrastre) return;
       arrastre.activo = true;
       clearTimeout(arrastre.temporizador);
+      // Con el dedo, un toque de vibración al cogerlo (si el móvil puede).
+      if (!arrastre.raton && navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { /* da igual */ } }
       const fantasma = document.createElement('div');
       fantasma.className = 'fantasma-arrastre';
       fantasma.innerHTML = arrastre.fila.querySelector('.retrato').outerHTML;
@@ -2105,7 +2128,14 @@
       arrastre = null;
     }
 
+    /* El clic que sigue a soltar no abre la ficha (si no llega, no se queda colgado). */
+    function saltarClic() {
+      ignorarClic = true;
+      setTimeout(function () { ignorarClic = false; }, 0);
+    }
+
     main.addEventListener('pointerdown', function (ev) {
+      if (cogido) return;   // con uno cogido, se toca el destino
       const fila = ev.target.closest('[data-arrastrable]');
       if (!fila || ev.button > 0) return;
       arrastre = { fila, origen: fila.dataset.fichaConductor, x: ev.clientX, y: ev.clientY, activo: false, raton: ev.pointerType === 'mouse' };
@@ -2134,27 +2164,44 @@
       if (arrastre.activo) {
         const destino = marcarDestino(ev.clientX, ev.clientY);
         const origen = arrastre.origen;
-        ignorarClic = true;   // el clic que sigue no abre la ficha
-        setTimeout(function () { ignorarClic = false; }, 0);   // si no llega ese clic, no se queda colgado
+        const conDedo = !arrastre.raton;
+        saltarClic();
         terminar();
-        if (destino && destino.dataset.destino !== origen) {
-          ejecutar('moverConductor', origen.split('|').concat([destino.dataset.destino]));
-          opciones.redibujar();
-        }
+        if (destino && destino.dataset.destino !== origen) moverA(origen, destino.dataset.destino);
+        else if (conDedo) coger(origen);   // soltado sin destino: queda cogido
         return;
       }
       terminar();
     });
-    document.addEventListener('pointercancel', terminar);
+    // El navegador se ha quedado el gesto (para desplazar): si ya estaba cogido, sigue cogido.
+    document.addEventListener('pointercancel', function () {
+      if (!arrastre) return;
+      const origen = arrastre.activo && !arrastre.raton ? arrastre.origen : null;
+      terminar();
+      if (origen) { saltarClic(); coger(origen); }
+    });
     main.addEventListener('contextmenu', function (ev) {
-      if (arrastre) ev.preventDefault();
+      if (arrastre || cogido) ev.preventDefault();
     });
     main.addEventListener('click', function (ev) {
       if (!ignorarClic) return;
       ignorarClic = false;
-      ev.stopPropagation();
+      ev.stopImmediatePropagation();
       ev.preventDefault();
     }, true);
+    // Con uno cogido, el siguiente toque dice dónde va (antes que cualquier otro clic).
+    main.addEventListener('click', function (ev) {
+      if (!cogido) return;
+      ev.stopImmediatePropagation();
+      ev.preventDefault();
+      const destino = ev.target.closest('[data-destino]');
+      const origen = cogido.origen;
+      soltarCogido();
+      if (destino && destino.dataset.destino !== origen) moverA(origen, destino.dataset.destino);
+    }, true);
+    $('barra-cogido').addEventListener('click', function (ev) {
+      if (ev.target.closest('[data-soltar]')) soltarCogido();
+    });
   }
 
   /* Despedir siempre pide confirmación, con el nombre y el finiquito. */
@@ -2278,6 +2325,13 @@
         cerrarCandidatos();
         return;
       }
+      const botonCoger = ev.target.closest('[data-coger]');
+      if (botonCoger) {
+        fichaConductor = null;
+        opciones.redibujar();
+        coger(botonCoger.dataset.coger);
+        return;
+      }
       const abrirEquipar = ev.target.closest('[data-equipar]');
       if (abrirEquipar) {
         equipando = abrirEquipar.dataset.equipar;
@@ -2364,6 +2418,10 @@
         abrirAjustes(false);
         return;
       }
+      if (ev.key === 'Escape' && cogido) {
+        soltarCogido();
+        return;
+      }
       // Escape cierra la hoja de encima: el selector de objetos, luego los candidatos o la ficha.
       if (ev.key === 'Escape' && equipando) {
         equipando = null;
@@ -2398,7 +2456,6 @@
       const el = ev.target.closest('[data-cambio]');
       if (!el) return;
       const valor = el.type === 'checkbox' ? String(el.checked) : el.value;
-      if (el.dataset.cambio === 'moverConductor') fichaConductor = null;
       ejecutar(el.dataset.cambio, el.dataset.args.split('|').concat([valor]));
     });
   }
@@ -2447,6 +2504,11 @@
     secciones.forEach(function (s) {
       if (s.actualizar && !$(s.id).classList.contains('oculto')) s.actualizar(estado);
     });
+
+    // Cogido para moverlo: solo con el día cerrado; si no, se suelta. Tras
+    // redibujar, se vuelve a marcar.
+    if (cogido && !Libre.sim.enPausa(estado)) soltarCogido();
+    else if (cogido && !document.querySelector('.cogido')) pintarCogido();
 
     vigilarCobros(estado);
     vigilarCierres(estado);

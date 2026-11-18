@@ -147,8 +147,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   esperando; baja, objetos y nivel van con ellos y la avería se queda en el
   coche. En Conductores: arrastrar el retrato (ratón: al mover; dedo: tras
   mantener pulsado 450 ms) sobre un conductor, un turno libre o la reserva
-  (`data-arrastrable` y `data-destino`, solo en pausa), o el selector
-  «Mover a…» de la ficha.
+  (`data-arrastrable` y `data-destino`, solo en pausa). Coger y tocar
+  (`cogido`, para el móvil, donde el navegador puede quedarse el gesto para
+  desplazar): mantener pulsado coge al conductor y, si se suelta sin destino
+  o el navegador cancela el arrastre (`pointercancel`), sigue cogido; la
+  barra «Toca dónde poner a…» (`#barra-cogido`) y tocar el destino lo
+  mueven. «Cambiar de sitio» de la ficha también lo coge. Tocar fuera,
+  «Cancelar», Escape o cambiar de pestaña lo sueltan.
 - Rareza (categoría) en pantalla: insignia `ui-rareza` (`claseRareza()`,
   `etiquetaCategoria()`): la letra o el nombre (B, A, S, S+, LEGENDARIO)
   sobre su color (`--rareza-*` en `:root`; gris, verde, azul, morado y
@@ -213,8 +218,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   mejor a peor; los que ya lleva, atenuados; tocar uno lo equipa y vuelve a
   la ficha, carreras, facturado y zona (solo lectura), y los
   botones «Cambiar de sitio» (desactivado durante la jornada, con una línea
-  que lo explica) y «Despedir · finiquito». «Cambiar de sitio» lleva
-  encima el selector nativo invisible (`.con-selector`). Tocar un turno
+  que lo explica) y «Despedir · finiquito». «Cambiar de sitio» cierra la
+  ficha y coge al conductor (ver «Reorganizar»). Tocar un turno
   libre o un hueco de la reserva («+») abre los candidatos en una hoja
   (`htmlHojaCandidatos()`): una tarjeta por candidato con retrato, rareza,
   rasgos (las mismas filas que la ficha, `htmlFilasRasgos()`), «Contratar»

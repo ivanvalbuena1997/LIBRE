@@ -1103,6 +1103,42 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .arrastrando [data-destino] { outline: 2px dashed var(--tinta-suave); outline-offset: 2px; }
 .arrastrando .destino-activo { outline: 3px solid var(--marca); background: var(--tinte-azul); }
 .cara.arrastrado { opacity: 0.4; }
+
+/* Coger y tocar: el cogido marcado, los destinos resaltados y la barra con «Cancelar». */
+.eligiendo-destino [data-destino] { outline: 2px dashed var(--marca); outline-offset: 2px; }
+.eligiendo-destino .cogido { outline: 3px solid var(--marca); outline-offset: 2px; background: var(--tinte-azul); }
+.barra-cogido {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--alto-menu) + 12px + env(safe-area-inset-bottom));
+  z-index: 25;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--esp-4);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: var(--esp-1) var(--esp-1) var(--esp-1) var(--margen);
+  border-radius: var(--r-pastilla);
+  background: var(--tinta);
+  color: var(--sobre-color);
+  box-shadow: 0 6px 18px var(--sombra-hoja);
+  font-family: var(--letra-cuerpo);
+  font-weight: 800;
+  font-size: var(--t-normal);
+}
+.barra-cogido span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra-cogido button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--esp-6);
+  border: 0;
+  border-radius: var(--r-pastilla);
+  background: var(--tarjeta);
+  color: var(--tinta);
+  font: inherit;
+  cursor: pointer;
+}
 .fantasma-arrastre {
   position: fixed;
   z-index: 50;
@@ -1585,18 +1621,6 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .ficha-objeto-cantidad { position: absolute; top: 6px; right: 8px; font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); }
 .hoja-equipar .ficha-objetos { align-content: start; }
 
-/* Selector nativo invisible encima de un botón o casilla: al tocar se abre la lista */
-.con-selector { position: relative; cursor: pointer; }
-.con-selector select {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-.con-selector:focus-within { outline: 3px solid var(--marca); outline-offset: 2px; }
 
 
 /* Retratos */
