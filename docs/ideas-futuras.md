@@ -14,3 +14,6 @@ y, si cambia el alcance, actualizar DISENO.md («Alcance de la versión actual»
   retratos (`js/retratos.js`).
 - [ ] **Alquilar coche.** Poder alquilar uno cuando tienes una licencia sin
   coche, como alternativa a comprarlo.
+- [ ] **Conductores de ETT.** Contratar a un conductor temporal por un precio
+  reducido que solo trabaja unas jornadas, para no tener el coche parado
+  mientras encuentras a uno fijo.
