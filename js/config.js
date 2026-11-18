@@ -383,7 +383,12 @@
           descripcion: 'Taxi siempre impecable: limpiar un vómito le cuesta la mitad y un 45 % más de propinas.' },
         // Iván, 18-11-2026. Equilibrio: cerca de +5 % con la venta de objetos rebajada.
         { id: 'urraca', nombre: 'Urraca', opuesto: 'desastre', efecto: { hallazgo: 1.2, suerte: 1.15 },
-          descripcion: 'Ve brillar cualquier cosa: encuentra un 20 % más de objetos y un 15 % de lo que encuentra sube de categoría.' }
+          descripcion: 'Ve brillar cualquier cosa: encuentra un 20 % más de objetos y un 15 % de lo que encuentra sube de categoría.' },
+        // Iván, 18-11-2026: solo cuenta en las carreras que empiezan con lluvia
+        // (un 20 % de las jornadas, 1–3 horas), así que el multiplicador es alto
+        // para que valga como las demás cualidades (medido con un bot).
+        { id: 'anfibio', nombre: 'Anfibio', opuesto: null, efecto: { importeLluvia: 2.5 },
+          descripcion: 'Bajo la lluvia está en su salsa: cobra 2,5 veces más en las carreras que empiezan lloviendo.' }
       ],
       defectos: [
         { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.25, espera: 1.08 },
@@ -445,7 +450,9 @@
         // Iván, 18-11-2026: encontrar objetos (probabilidad) y suerte (1,15 =
         // un 15 % de lo encontrado sube una categoría; nunca baja de 1).
         hallazgo: [0.3, 2.5],
-        suerte: [1, 1.4]
+        suerte: [1, 1.4],
+        // Lo que cobra en las carreras con lluvia (Anfibio): nunca baja de 1.
+        importeLluvia: [1, 3]
       },
       /*
        * Topes que crecen (Equilibrio, Iván 17-11-2026): los de arriba son los
@@ -457,7 +464,7 @@
        */
       topesAbiertos: {
         porNivel: 0.25,
-        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15, hallazgo: 4, suerte: 1.7 }
+        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15, hallazgo: 4, suerte: 1.7, importeLluvia: 6 }
       },
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).

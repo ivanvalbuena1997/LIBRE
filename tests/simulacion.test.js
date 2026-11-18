@@ -1676,4 +1676,31 @@ prueba('estadísticas: los días de libranza no cuentan para la media', function
   }
 });
 
+prueba('Anfibio cobra más en las carreras que empiezan lloviendo', function () {
+  function primeraCarrera(cualidad, llueve) {
+    const e = flotaDe(1);
+    e.azar = 31;
+    e.reloj.minutos = 22 * 60;                     // noche: trabaja el conductor
+    const t = e.licencias[0].turnos.noche;
+    Object.assign(t, { categoria: 'B', cualidad: cualidad, cualidad2: null, defecto: null, defecto2: null, objetos: [] });
+    e.lluvia = llueve ? { jornada: sim.jornadaDe(e.reloj.minutos), desde: 0, hasta: 1e9, avisada: true }
+      : { jornada: sim.jornadaDe(e.reloj.minutos), desde: 0, hasta: 0, avisada: true };
+    sim.avanzar(e, 0.01);
+    return t.carrera.importe;
+  }
+  const factor = rasgo('anfibio', 'importeLluvia');
+  assert.ok(factor > 1);
+  cerca(primeraCarrera('anfibio', true), primeraCarrera(null, true) * factor, 1e-6);
+  cerca(primeraCarrera('anfibio', false), primeraCarrera(null, false), 1e-6);
+  // Sale en sus estadísticas, con su tope.
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  Object.assign(t, { categoria: 'B', cualidad: 'anfibio', cualidad2: null, defecto: null, defecto2: null });
+  const st = sim.statsConductor(e, t, 'noche').find(function (x) { return x.clave === 'importeLluvia'; });
+  cerca(st.factor, Math.min(factor, sim.topesDe('importeLluvia', t)[1]));
+  // Sin Anfibio no sale esa stat.
+  t.cualidad = 'honrado';
+  assert.ok(!sim.statsConductor(e, t, 'noche').some(function (x) { return x.clave === 'importeLluvia'; }));
+});
+
 console.log(pasadas + ' pruebas correctas');

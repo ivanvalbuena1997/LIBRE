@@ -832,7 +832,8 @@
     trasnochador: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M6 10v4"/>',
     pulcro: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
     guarro: '<path d="M8 6c2-2 6-2 8 0 3 1 4 5 2 7 1 3-2 6-5 5-2 2-6 1-6-2-3-1-4-5-1-7 0-1 1-2 2-3z"/><circle cx="19.5" cy="19.5" r="1"/>',
-    aprovechado: '<circle cx="15" cy="7" r="3.5"/><path d="M3 15h4l3 2h5a1.5 1.5 0 0 0 0-3h-3M7 15v5M3 20h4l9-1 5-4a1.5 1.5 0 0 0-2-2l-4 2.5"/>'
+    aprovechado: '<circle cx="15" cy="7" r="3.5"/><path d="M3 15h4l3 2h5a1.5 1.5 0 0 0 0-3h-3M7 15v5M3 20h4l9-1 5-4a1.5 1.5 0 0 0-2-2l-4 2.5"/>',
+    anfibio: '<path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z"/><path d="M2 20c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0"/>'
   };
 
   /* Etiqueta con el nombre de la categoría (B, A, S, S+, LEGENDARIO). */
@@ -945,6 +946,7 @@
       if (Math.abs(v) < 0.05) return 'Normal';
       return (v < 0 ? '−' : '+') + Math.abs(v).toLocaleString('es-ES', { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + ' %';
     }
+    if (s.clave === 'importeLluvia') return '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 });
     if (s.clave === 'limpieza') {
       if (s.factor === 0) return 'Nunca: lleva bolsa';
       return Math.round(s.valor.minutos) + ' min · ' + Math.round(s.valor.costeMin) + '–' + Math.round(s.valor.costeMax) + ' €';
@@ -1516,7 +1518,8 @@
   const NOMBRE_EFECTO = {
     espera: 'espera', esperaDia: 'espera de día', esperaNoche: 'espera de noche', propina: 'propinas',
     sinPagar: 'sin pagar', objeto: 'objetos devueltos', baja: 'bajas', pinchazo: 'pinchazos',
-    averia: 'averías', limpieza: 'limpieza', hallazgo: 'objetos encontrados', suerte: 'de encontrar algo mejor'
+    averia: 'averías', limpieza: 'limpieza', hallazgo: 'objetos encontrados', suerte: 'de encontrar algo mejor',
+    importeLluvia: 'lo que cobra con lluvia'
   };
   // Efectos que no son un porcentaje.
   const TEXTO_EFECTO_ESPECIAL = { bolsa: 'nadie vomita en su taxi', sinImpagos: 'nadie se va sin pagar', rueda: 'pinchazos sin coste' };
@@ -1537,9 +1540,10 @@
   const NOMBRE_STAT = {
     espera: 'Espera entre carreras', propina: 'Propina', sinPagar: 'Se va sin pagar',
     objeto: 'Devuelve un olvido', hallazgo: 'Encuentra un objeto', baja: 'Baja',
-    pinchazo: 'Pinchazo', averia: 'Avería', limpieza: 'Limpiar un vómito', suerte: 'Encuentra algo mejor'
+    pinchazo: 'Pinchazo', averia: 'Avería', limpieza: 'Limpiar un vómito', suerte: 'Encuentra algo mejor',
+    importeLluvia: 'Cobra con lluvia'
   };
-  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true };
+  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true, importeLluvia: true };
   const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '' };
 
   /* Porcentaje legible con las cifras justas: «18 %», «0,8 %», «0,08 %». */
@@ -1557,6 +1561,7 @@
   function textoStat(s) {
     if (s.clave === 'espera') return s.factor === 1 ? 'Normal' : cambio(s.factor);
     if (s.clave === 'suerte') return porcentaje(s.valor) + ' de lo que encuentra';
+    if (s.clave === 'importeLluvia') return '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' si llueve';
     if (s.clave === 'limpieza') {
       return euros(s.valor.costeMin) + '–' + euros(s.valor.costeMax) + ' · ' + Math.round(s.valor.minutos) + ' min parado';
     }

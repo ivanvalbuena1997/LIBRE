@@ -1346,7 +1346,7 @@
     return exito(buscarObjeto(id).nombre + ' vuelve al almacén.');
   }
 
-  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza', 'hallazgo', 'suerte'];
+  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza', 'hallazgo', 'suerte', 'importeLluvia'];
 
   /*
    * De dónde salen los factores de un conductor: una lista de aportes
@@ -1508,6 +1508,14 @@
       factor: cat.hallazgo * factorHallazgo, tope: factorHallazgo !== brutoHallazgo, limite: limite('hallazgo'),
       fuentes: (cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo, multiplica: true }])
         .concat(hallazgo) });
+    // Lo que cobra con lluvia (Anfibio): solo si algo lo cambia.
+    const lluvia = fuentesDe('importeLluvia');
+    if (lluvia.length) {
+      const brutoLluvia = producto(lluvia);
+      const factorLluvia = topeConductor('importeLluvia', brutoLluvia, t);
+      stats.push({ clave: 'importeLluvia', valor: factorLluvia, factor: factorLluvia, tope: factorLluvia !== brutoLluvia,
+        limite: limite('importeLluvia'), fuentes: lluvia });
+    }
     const suerte = fuentesDe('suerte');
     if (suerte.length) {
       const brutoSuerte = producto(suerte);
@@ -1536,7 +1544,7 @@
   }
 
   /* Lo que conviene que sea alto (el resto, cuanto más bajo, mejor). */
-  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true };
+  const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true, importeLluvia: true };
 
   /* Apertura de los topes de un conductor (0 a 1): categoría y nivel. */
   function aperturaTopes(t) {
@@ -1911,6 +1919,10 @@
         }
         const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera, x.turno);
         const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar', fe);
+        // Anfibio: cobra más si el cliente sube con lluvia (al acabar la espera).
+        if (lloviendo(estado, carrera.finEspera)) {
+          carrera.importe *= topeConductor('importeLluvia', factoresConductor(estado, x.turno).importeLluvia, x.turno);
+        }
         // En una parada con cola (Barajas: 1–2 h) se guarda el turno aunque pase
         // de la hora; sin cola, la espera se corta en la hora (no tiene memoria).
         x.turno.carrera = carrera.finEspera > finHora && !cfg().zonas[zonaId].colaMin
