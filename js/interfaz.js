@@ -1500,7 +1500,37 @@
       esc(Libre.sim.buscarCategoria(o.categoria).nombre) + '</span></span></div>' +
       '<p>' + esc(o.descripcion) + '</p>' +
       '<p class="almacen-panel-nota">' + hay + ' sin equipar' + (puestos ? ' · ' + puestos + (puestos === 1 ? ' equipado' : ' equipados') : '') +
-      '. Se equipa desde la ficha de cada conductor.</p>' + botonVenta(o.id) + '</div>';
+      '. Se equipa desde la ficha de cada conductor.</p>' + htmlCombinar(estado, o) + botonVenta(o.id) + '</div>';
+  }
+
+  /*
+   * Combinar (Iván, 18-11-2026): qué se gasta y el botón, o lo que falta.
+   * Los LEGENDARIOS no tienen categoría siguiente: no sale nada.
+   */
+  function htmlCombinar(estado, o) {
+    const siguiente = Libre.sim.categoriaSiguiente(o.categoria);
+    if (!siguiente) return '';
+    const n = Libre.config.objetos.combinar;
+    const cat = Libre.sim.buscarCategoria(o.categoria).nombre;
+    const usados = Libre.sim.objetosParaCombinar(estado, o.id);
+    let nota;
+    if (usados) {
+      const cuenta = {};
+      usados.forEach(function (id) { cuenta[id] = (cuenta[id] || 0) + 1; });
+      nota = 'Se gastan ' + Object.keys(cuenta).map(function (id) {
+        return (cuenta[id] > 1 ? cuenta[id] + ' × ' : '') + Libre.sim.buscarObjeto(id).nombre;
+      }).join(', ') + '.';
+    } else {
+      const hay = Libre.config.objetos.lista.reduce(function (s, x) {
+        return s + (x.categoria === o.categoria ? (estado.objetos[x.id] || 0) : 0);
+      }, 0);
+      nota = 'Te ' + (n - hay === 1 ? 'falta 1' : 'faltan ' + (n - hay)) + ' de categoría ' + cat + ' sin equipar.';
+    }
+    return '<div class="almacen-combinar">' +
+      '<p><strong>Combinar</strong> ' + n + ' de categoría ' + esc(cat) + ' por uno al azar de categoría ' +
+      '<span class="' + claseRareza(siguiente.id) + '">' + esc(siguiente.nombre) + '</span>. ' + esc(nota) + '</p>' +
+      '<button type="button" class="ui-boton ui-boton--principal boton-combinar" data-accion="combinarObjetos" data-args="' + o.id + '"' +
+      (usados ? '' : ' disabled') + '>Combinar ' + n + ' → 1 ' + esc(siguiente.nombre) + '</button></div>';
   }
 
   /*
@@ -2531,6 +2561,12 @@
           el.dataset.accion === 'conducir')) {
         eligiendoConductor = null;
         ventaParaContratar = false;
+        opciones.redibujar();
+      }
+      if (resultado && resultado.ok && el.dataset.accion === 'combinarObjetos') {
+        // Se abre el panel de lo que ha salido.
+        fichaInventario = resultado.objeto;
+        sonar('objeto');
         opciones.redibujar();
       }
       if (resultado && resultado.ok && el.dataset.accion === 'equiparObjeto') {

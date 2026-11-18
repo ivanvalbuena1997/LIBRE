@@ -1433,4 +1433,28 @@ prueba('RRHH: cada nivel suma 1 y sube la categoría de los candidatos (no la de
   cerca(sim.pesosCandidatos(e).B, rrhh.niveles[rrhh.niveles.length - 1].efecto.pesosCandidatos.B);
 });
 
+prueba('combinar: 3 objetos de una categoría dan uno al azar de la siguiente', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.objetos = { ambientador: 2, cojin: 1, termo: 1, gps: 1 };
+  // Gasta las copias del elegido y luego el que más se repite.
+  assert.deepStrictEqual(sim.objetosParaCombinar(e, 'cojin'), ['cojin', 'ambientador', 'ambientador']);
+  assert.strictEqual(sim.objetosParaCombinar(e, 'gps'), null, 'con un A solo no hay bastantes');
+  const r = sim.combinarObjetos(e, 'cojin');
+  assert.ok(r.ok, r.mensaje);
+  assert.strictEqual(sim.buscarObjeto(r.objeto).categoria, 'A');
+  assert.strictEqual(e.objetos.ambientador, 0);
+  assert.strictEqual(e.objetos.cojin, 0);
+  assert.strictEqual(e.objetos.termo, 1, 'el resto sigue');
+  assert.strictEqual(sim.objetosEnAlmacen(e), 3);
+  // Los LEGENDARIOS no se combinan.
+  e.objetos = { paconi: 3 };
+  assert.ok(!sim.combinarObjetos(e, 'paconi').ok);
+  // Al dejar hueco entra lo de la bandeja.
+  e.objetos = { ambientador: 10 };
+  e.bandeja = [{ id: 'gps', conductor: 'Ana' }];
+  assert.ok(sim.combinarObjetos(e, 'ambientador').ok);
+  assert.strictEqual(e.bandeja.length, 0);
+  assert.strictEqual(e.objetos.gps >= 1, true);
+});
+
 console.log(pasadas + ' pruebas correctas');

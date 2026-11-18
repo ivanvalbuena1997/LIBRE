@@ -121,7 +121,7 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 </p>
 
 - **Consumibles:** ruedas de repuesto y bolsas de papel en filas, con su dibujo, una barra sobre el máximo («6 / 10», en rojo si quedan pocas) y chips de compra de una unidad y de diez.
-- **Objetos sin equipar:** casillas de 3 columnas, de mejor a peor, **sin nombre a la vista** (decisión de Iván): rareza, cantidad y el dibujo sobre el color de su categoría. Al tocar una se abre debajo su panel con el nombre, qué hace, cuántos hay equipados y «Vender».
+- **Objetos sin equipar:** casillas de 3 columnas, de mejor a peor, **sin nombre a la vista** (decisión de Iván): rareza, cantidad y el dibujo sobre el color de su categoría. Al tocar una se abre debajo su panel con el nombre, qué hace, cuántos hay equipados, «Combinar» y «Vender».
 - **Bandeja:** si un conductor encuentra algo con el almacén lleno, arriba aparece en amarillo «Almacén lleno · N por guardar», con lo que espera y la lista para vender.
 
 ### Mejoras
@@ -279,6 +279,7 @@ La Cámara de seguridad sigue dejando a cero los clientes sin pagar.
 - **Almacén:** guarda 10 objetos sin equipar (hasta 40 con Taquillas). Si está lleno, lo encontrado espera en una **bandeja** hasta que vendes algo: nada se vende solo.
 - **Equipar:** desde la ficha de cada conductor, en sus huecos, sin repetir objeto. Quitarlo lo devuelve al almacén.
 - **Vender:** B 40 €, A 120 €, S 400 €, S+ 1.200 €, LEGENDARIO 4.000 €. Entra en la caja como «Venta de objetos».
+- **Combinar** (Iván, 18-11-2026): tres objetos sin equipar de la misma categoría se cambian por uno al azar de la categoría siguiente (los LEGENDARIOS no se combinan). Se gasta el que has tocado y, para completar, primero sus copias y luego los que más se repiten; el panel dice cuáles antes de tocar. Deja hueco en el almacén, así que entra lo que esperaba en la bandeja.
 
 | Categoría | Objeto | Efecto |
 | --- | --- | --- |

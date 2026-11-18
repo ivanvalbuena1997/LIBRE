@@ -180,6 +180,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`estado.objetos`, como mucho `capacidadAlmacen()` sin equipar: 10, y
   hasta 40 con la mejora «Taquillas» de Conductores y jornada) y, si está
   lleno, a `estado.bandeja` hasta que vendas algo (nada se vende solo).
+  `combinarObjetos()` cambia `config.objetos.combinar` (3) sin equipar de
+  una categoría por uno al azar de la siguiente (`objetosParaCombinar()`
+  dice cuáles se gastan: el tocado, sus copias y los más repetidos).
   `venderObjeto()` vende uno del almacén o de la bandeja por el precio de
   su categoría (incidencia «Venta de objetos»). Se equipan en los huecos
   del conductor (`turno.objetos`, sin repetir; 1, 2 en nivel 4 y 3 en nivel
@@ -199,7 +202,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   compra +1 y +10); los objetos sin equipar en casillas de 3 columnas, de
   mejor a peor, sin nombre a la vista (Iván: rareza, ×cantidad y dibujo; el
   nombre va en el título y en el panel). Al tocar una se abre debajo su
-  panel (nombre, rareza, descripción y vender). Con la bandeja llena, arriba
+  panel (nombre, rareza, descripción, combinar y vender). Con la bandeja llena, arriba
   sale lo que espera y la lista para vender. En Conductores (`seccionConductores`,
   maquetas conductores.html y ficha-conductor.html): título y número de
   licencias, la reserva (tarjeta discontinua con sus 5 huecos: caras de 44

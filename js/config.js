@@ -158,6 +158,9 @@
     objetos: {
       almacen: 10,                 // Equilibrio: sin mejoras; «Taquillas» lo amplía.
       probHallazgo: 0.012,
+      // Iván (18-11-2026): tantos objetos de una categoría se combinan en uno
+      // al azar de la siguiente. Equilibrio.
+      combinar: 3,
       lista: [
         { id: 'ambientador', nombre: 'Ambientador', categoria: 'B', efecto: { propina: 1.1 },
           descripcion: 'Un taxi que huele bien: un 10 % más de propinas.' },

@@ -1125,6 +1125,62 @@
     return exito('Vendes ' + o.nombre + ' por ' + Libre.ui_euros(precio) + '.');
   }
 
+  /* Categoría siguiente a la de un objeto (null si ya es la mejor). */
+  function categoriaSiguiente(id) {
+    const lista = cfg().categorias;
+    const i = lista.findIndex(function (c) { return c.id === id; });
+    return i >= 0 && i < lista.length - 1 ? lista[i + 1] : null;
+  }
+
+  /*
+   * Los objetos sin equipar que se gastan al combinar `id` (Iván,
+   * 18-11-2026): él y otros de su categoría hasta juntar
+   * `config.objetos.combinar`, primero sus copias y luego los que más se
+   * repiten. Devuelve la lista de ids (con repetidos) o null si no hay
+   * bastantes o ya es de la mejor categoría.
+   */
+  function objetosParaCombinar(estado, id) {
+    const o = buscarObjeto(id);
+    const n = cfg().objetos.combinar;
+    const hay = estado.objetos || {};
+    if (!o || !categoriaSiguiente(o.categoria) || !(hay[id] > 0)) return null;
+    const usados = [];
+    for (let i = 0; i < Math.min(hay[id], n); i++) usados.push(id);
+    const otros = cfg().objetos.lista
+      .filter(function (x) { return x.categoria === o.categoria && x.id !== id && hay[x.id] > 0; })
+      .sort(function (a, b) { return hay[b.id] - hay[a.id]; });
+    for (const x of otros) {
+      for (let i = 0; i < hay[x.id] && usados.length < n; i++) usados.push(x.id);
+    }
+    return usados.length >= n ? usados : null;
+  }
+
+  /*
+   * Combina objetos sin equipar de la misma categoría en uno al azar de la
+   * categoría siguiente (ver objetosParaCombinar). Deja hueco en el
+   * almacén, así que entra lo que esperaba en la bandeja.
+   */
+  function combinarObjetos(estado, id) {
+    const o = buscarObjeto(id);
+    if (!o) return fallo('Ese objeto no existe.');
+    const siguiente = categoriaSiguiente(o.categoria);
+    if (!siguiente) return fallo('Los LEGENDARIOS no se combinan: ya son lo mejor.');
+    const usados = objetosParaCombinar(estado, id);
+    if (!usados) {
+      return fallo('Para combinar necesitas ' + cfg().objetos.combinar + ' objetos de categoría ' +
+        buscarCategoria(o.categoria).nombre + ' sin equipar.');
+    }
+    usados.forEach(function (x) { estado.objetos[x]--; });
+    const posibles = cfg().objetos.lista.filter(function (x) { return x.categoria === siguiente.id; });
+    const nuevo = posibles[Math.floor(azar(estado) * posibles.length)];
+    estado.objetos[nuevo.id] = (estado.objetos[nuevo.id] || 0) + 1;
+    guardarBandeja(estado);
+    const r = exito('Combinas ' + usados.length + ' objetos ' + buscarCategoria(o.categoria).nombre +
+      ' y sale ' + nuevo.nombre + ' (' + siguiente.nombre + ').');
+    r.objeto = nuevo.id;
+    return r;
+  }
+
   /* Del almacén a un conductor: hueco libre y sin repetir objeto. */
   function equiparObjeto(estado, licenciaId, turno, id) {
     const t = turnoConductor(estado, licenciaId, turno);
@@ -2400,6 +2456,9 @@
     objetosEnAlmacen,
     capacidadAlmacen,
     venderObjeto,
+    categoriaSiguiente,
+    objetosParaCombinar,
+    combinarObjetos,
     equiparObjeto,
     quitarObjeto,
     progresoConductor,
