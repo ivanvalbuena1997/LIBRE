@@ -1725,7 +1725,7 @@ prueba('Azucarillo no trabaja mientras llueve y vuelve al escampar', function ()
   assert.strictEqual(config.conductores.cualidades.find(function (q) { return q.id === 'anfibio'; }).opuesto, 'azucarillo');
 });
 
-prueba('lluvia: chubascos cortos casi siempre y alguna tormenta larga', function () {
+prueba('lluvia: chubascos cortos y tormentas largas, más chubascos', function () {
   const ev = config.eventos.lluvia;
   const e = sim.crearEstadoInicial(0);
   e.azar = 77;
@@ -1742,7 +1742,7 @@ prueba('lluvia: chubascos cortos casi siempre y alguna tormenta larga', function
     assert.ok(horas >= t.horasMin - 1e-9 && horas <= t.horasMax + 1e-9, l.tipo + ' de ' + horas + ' h');
     vistas[l.tipo]++;
   }
-  assert.ok(vistas.chubasco > vistas.tormenta * 2 && vistas.tormenta > 0, JSON.stringify(vistas));
+  assert.ok(vistas.chubasco > vistas.tormenta && vistas.tormenta > 0, JSON.stringify(vistas));
   // Partidas de la versión 23: la lluvia ya sorteada se queda como chubasco.
   require('../js/guardado.js');
   const viejo = sim.crearEstadoInicial(0);

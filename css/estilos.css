@@ -102,6 +102,13 @@
   --coche-franja: #d0382a;
   --coche-faro: #ffe9a8;
   --lluvia: #a9c6de;
+  --esc-tormenta-cielo: #1d2440;   /* tormenta: el cielo se oscurece */
+  --esc-relampago: #eef3ff;        /* el destello que lo ilumina */
+  --esc-rayo: #fff4bf;
+  --esc-nube-tormenta: #8b93a7;
+  --esc-viento: #ffffff;
+  --esc-hoja: #c98a3a;
+  --esc-hoja-b: #7f9a3e;
   /* Cabecera de noche: textos claros sobre velo oscuro */
   --noche-texto: #f3f6ff;
   --noche-suave: #c9d3f5;
@@ -388,6 +395,25 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-lluvia { display: none; }
 .lloviendo .esc-lluvia { display: inline; }
 .esc-gota { fill: none; stroke: var(--lluvia); stroke-width: 1.2; stroke-linecap: round; }
+/* Tormenta (clase .tormenta en la cabecera, además de .lloviendo). Sin
+   animación (reducir movimiento) destellos, rayos, viento y hojas no se ven. */
+.esc-tormenta { display: none; }
+.tormenta .esc-tormenta { display: inline; }
+.tormenta .esc-lluvia { display: none; }
+.esc-oscuro { fill: var(--esc-tormenta-cielo); opacity: 0.62; }
+.esc-relampago { fill: var(--esc-relampago); opacity: 0; }
+.esc-rayo { fill: var(--esc-rayo); opacity: 0; }
+.esc-gota-fuerte { stroke-width: 1.4; }
+.esc-viento { fill: none; stroke: var(--esc-viento); stroke-width: 1.5; stroke-linecap: round; opacity: 0; }
+.tormenta .esc-nube { display: block; fill: var(--esc-nube-tormenta); opacity: 0.95; }
+.esc-hoja { position: absolute; left: -30px; display: none; fill: var(--esc-hoja); stroke: var(--esc-hoja); stroke-width: 0.8; }
+.esc-hoja-b { fill: var(--esc-hoja-b); stroke: var(--esc-hoja-b); }
+.tormenta .esc-hoja { display: block; }
+/* Con tormenta, las nubes tapan el sol, la luna y las estrellas. */
+.tormenta .esc-dia, .noche.tormenta .esc-noche { display: none; }
+.esc-hoja-1 { bottom: 40px; } .esc-hoja-2 { bottom: 92px; } .esc-hoja-3 { bottom: 64px; }
+.esc-hoja-4 { bottom: 128px; } .esc-hoja-5 { bottom: 24px; } .esc-hoja-6 { bottom: 104px; }
+@media (prefers-reduced-motion: reduce) { .esc-hoja { display: none !important; } }
 
 .esc-nube { position: absolute; left: -80px; fill: var(--esc-nube); opacity: 0.9; }
 .esc-nube-1 { bottom: 199px; }
@@ -415,6 +441,17 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 @keyframes sol-late { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
 @keyframes ventana { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes llover { to { transform: translateY(40px); } }
+/* Tormenta: un destello doble cada 7 s (muy por debajo de 3 por segundo) y
+   un rayo cada vez, alternando sitio; lluvia inclinada, viento y hojas. */
+@keyframes relampago { 0%, 86%, 100% { opacity: 0; } 87% { opacity: 0.55; } 88.5% { opacity: 0.08; } 90% { opacity: 0.45; } 94% { opacity: 0; } }
+@keyframes rayo { 0%, 43%, 100% { opacity: 0; } 43.5% { opacity: 1; } 44.2% { opacity: 0.2; } 45% { opacity: 1; } 47% { opacity: 0; } }
+@keyframes llover-fuerte { to { transform: translate(-24px, 48px); } }
+@keyframes viento { 0% { transform: translateX(140px); opacity: 0; } 25%, 70% { opacity: 0.55; } 100% { transform: translateX(-180px); opacity: 0; } }
+@keyframes hoja-vuela {
+  0% { left: 100%; transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(240deg); }
+  100% { left: -30px; transform: translateY(12px) rotate(520deg); }
+}
 .an-taxi { animation: taxi-pasa 16s linear infinite; }
 .an-nube { animation: nube-pasa 40s linear infinite; }
 .an-nube2 { animation: nube-pasa 55s linear infinite; animation-delay: -20s; }
@@ -422,6 +459,18 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .noche .an-v1 { animation: ventana 4s ease-in-out infinite; }
 .noche .an-v2 { animation: ventana 6s ease-in-out infinite; animation-delay: -2s; }
 .an-lluvia { animation: llover 0.5s linear infinite; }
+.an-relampago { animation: relampago 7s linear infinite; }
+.an-rayo { animation: rayo 14s linear infinite; }
+.an-rayo2 { animation: rayo 14s linear infinite; animation-delay: -7s; }
+.an-lluvia-fuerte { animation: llover-fuerte 0.32s linear infinite; }
+.an-viento { animation: viento 2.4s linear infinite; }
+.an-viento2 { animation: viento 3.1s linear infinite; animation-delay: -1.3s; }
+.an-hoja { animation: hoja-vuela 4.2s linear infinite; }
+.esc-hoja-2 { animation-duration: 5.1s; animation-delay: -1.7s; }
+.esc-hoja-3 { animation-duration: 3.6s; animation-delay: -2.4s; }
+.esc-hoja-4 { animation-duration: 4.8s; animation-delay: -3.3s; }
+.esc-hoja-5 { animation-duration: 3.9s; animation-delay: -0.8s; }
+.esc-hoja-6 { animation-duration: 5.6s; animation-delay: -4.1s; }
 
 /* Chips pequeños de texto (se usan en varias pantallas) */
 .chip {

@@ -192,7 +192,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 | Estaciones | Mejora Parada en Atocha y Chamartín | Picos con la llegada de los trenes; cola corta de unos 6 min | 3 km (35 %), 6 km (45 %), 11 km (20 %) |
 | Aeropuerto | Mejora Acreditación de Barajas | Carreras caras con tarifa fija; cola de 1 a 2 horas en la parada | 60 % tarifa 4 (33 €), 40 % tarifa 3 a 7, 18 o 32 km |
 
-**Lluvia** (Iván, 18-11-2026): el 25 % de las jornadas llueve, y la demanda se duplica en todas las zonas mientras dura. Tres de cada cuatro veces es un **chubasco** (de 30 minutos a 1 hora) y una de cada cuatro una **tormenta** (de 3 a 5 horas); el aviso dice cuál. De media llueve lo mismo que antes, cuando eran 1–3 horas en el 20 % de las jornadas (unas 0,4 horas por jornada).
+**Lluvia** (Iván, 18-11-2026): el 25 % de las jornadas llueve, y la demanda se duplica en todas las zonas mientras dura. El 65 % de las veces es un **chubasco** (de 30 minutos a 1 hora) y el 35 % una **tormenta** (de 3 a 5 horas; Iván); el aviso dice cuál. De media, unas 0,47 horas de lluvia por jornada (antes, con 1–3 horas en el 20 % de las jornadas, unas 0,4). La tormenta tiene su propia escena en la cabecera: cielo oscuro sin sol ni luna, relámpagos que lo iluminan con un rayo, más lluvia inclinada, viento y hojas volando (todo fuera con «reducir movimiento», salvo el cielo oscuro).
 
 ### 5.3 Carreras
 
@@ -254,9 +254,9 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 | Madrugador | −12 % de espera de día | Dormilón | +16 % de espera de día |
 | Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
 | Urraca (18-11-2026) | +20 % de objetos encontrados y un 15 % de que suban de categoría | Desastre | −40 % de objetos encontrados |
-| Anfibio (18-11-2026) | cobra ×3,5 en las carreras que empiezan lloviendo | Azucarillo | no trabaja mientras llueve: se queda en el coche hasta que escampa |
+| Anfibio (18-11-2026) | cobra ×3,1 en las carreras que empiezan lloviendo | Azucarillo | no trabaja mientras llueve: se queda en el coche hasta que escampa |
 
-**Anfibio** (Iván, 18-11-2026): solo cuenta con lluvia (unos 12 minutos por turno de media; sin conexión no llueve). Por eso el multiplicador es alto: medido con un bot (480 partidas por valor), ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y **×3,5 +5 %**, lo mismo que las demás cualidades. Da días de lluvia muy buenos y el resto, nada. Su opuesto, **Azucarillo** («¡que no es de azúcar!»), solo tiene ese efecto, sin nada más (Iván): mientras llueve se queda parado, con el chip «Lluvia» en «Tus taxis hoy», y vuelve en cuanto escampa.
+**Anfibio** (Iván, 18-11-2026): solo cuenta con lluvia (unos 14 minutos por turno de media; sin conexión no llueve). Por eso el multiplicador es alto: medido con un bot (480 partidas por valor, con un 35 % de tormentas), ×2 vale +2,3 %, ×3 +4,7 % y ×3,5 +5,8 %; **×3,1 queda en +5 %**, lo mismo que las demás cualidades. Da días de lluvia muy buenos y el resto, nada. Su opuesto, **Azucarillo** («¡que no es de azúcar!»), solo tiene ese efecto, sin nada más (Iván): mientras llueve se queda parado, con el chip «Lluvia» en «Tus taxis hoy», y vuelve en cuanto escampa.
 
 «Limpieza» es el coste y el tiempo parado al limpiar un vómito (no cuenta si el conductor lleva la Bolsa para vómitos).
 
@@ -278,7 +278,7 @@ El nivel 5 llega hacia la quinta jornada y el 10 hacia la 35 (cerca de una hora 
 | Objetos devueltos | ×0,3 | ×2 | ×4 |
 | Sin pagar, bajas, pinchazos, averías | ×2 | ×0,3 | ×0,05 |
 | Limpieza de un vómito | ×1,5 | ×0,4 | ×0,15 |
-| Lo que cobra con lluvia (Anfibio) | ×1 | ×3,5 | ×6 |
+| Lo que cobra con lluvia (Anfibio) | ×1 | ×3,1 | ×6 |
 
 Por ejemplo, la espera de un B de nivel 10 puede bajar hasta ×0,46 y la de un S+ de nivel 10 hasta ×0,33. La ficha enseña el tope de cada stat («su tope ×0,46»).
 
@@ -357,7 +357,7 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 | Pinchazo | Al empezar un turno | 4 % | Neumático de 120 € y parado el resto del turno (con la Rueda de repuesto, nada) |
 | Baja | Al empezar un turno de conductor | 2 % | De 1 a 5 jornadas sin trabajar |
 | Avería | Al empezar un turno de conductor, con 2 coches o más | 0,3 % | De 3 a 8 jornadas en el taller y 150 a 400 € |
-| Lluvia | Una vez por jornada | 25 % | Chubasco (3 de cada 4, de 30 min a 1 h) o tormenta (1 de cada 4, de 3 a 5 h), con el doble de demanda |
+| Lluvia | Una vez por jornada | 25 % | Chubasco (65 %, de 30 min a 1 h) o tormenta (35 %, de 3 a 5 h), con el doble de demanda |
 | Objeto encontrado | Por carrera de conductor | 1,2 % | Un objeto para el almacén (ver 5.7) |
 
 ### 5.9 Mejoras

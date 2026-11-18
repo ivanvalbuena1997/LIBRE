@@ -4,8 +4,9 @@
  * La calle de fondo de la cabecera (maqueta libre-rework/maquetas/
  * cabecera-dia-noche.html): cielo que sigue el reloj del juego, sol o luna
  * y estrellas, edificios con ventanas que se encienden de noche, acera,
- * asfalto, nubes y un taxi que pasa. Lluvia cuando llueve. Es puro adorno:
- * no enseña datos de la partida.
+ * asfalto, nubes y un taxi que pasa. Lluvia cuando llueve y, si es tormenta
+ * (Iván, 18-11-2026), cielo oscuro, relámpagos con rayos, más lluvia,
+ * viento y hojas volando. Es puro adorno: no enseña datos de la partida.
  *
  * Módulo independiente con dos funciones, para poder cambiarlo por otra vista
  * (un mapa, por ejemplo) sin tocar el resto de la pantalla:
@@ -23,8 +24,9 @@
  *
  * Colores: variables CSS del :root (ver estilos.css). El cielo se interpola
  * en JS, así que lee esas variables una vez y las mezcla.
- * Movimiento: animaciones CSS (taxi, nubes, sol, ventanas, estrellas y
- * lluvia), anuladas con prefers-reduced-motion.
+ * Movimiento: animaciones CSS (taxi, nubes, sol, ventanas, estrellas,
+ * lluvia y la tormenta), anuladas con prefers-reduced-motion: sin
+ * movimiento no hay destellos y la tormenta es solo el cielo oscuro.
  */
 (function (raiz) {
   'use strict';
@@ -72,8 +74,19 @@
       '<mask id="esc-creciente"><circle cx="' + (CENTRO + 250) + '" cy="62" r="24" class="esc-mascara-si"/><circle cx="' + (CENTRO + 261) + '" cy="56" r="21" class="esc-mascara-no"/></mask>' +
       '<pattern id="esc-gotas" width="40" height="40" patternUnits="userSpaceOnUse">' +
       '<path class="esc-gota" d="M8 4l-2 6M28 14l-2 6M18 26l-2 6M36 32l-2 6"/></pattern>' +
+      // Tormenta: más gotas y más largas, inclinadas por el viento.
+      '<pattern id="esc-gotas-fuerte" width="24" height="24" patternUnits="userSpaceOnUse">' +
+      '<path class="esc-gota esc-gota-fuerte" d="M8 1l-4 9M20 7l-4 9M14 15l-4 9M3 17l-3 6"/></pattern>' +
       '</defs>' +
       '<rect x="0" y="0" width="' + ANCHO + '" height="250" fill="url(#esc-cielo)"/>' +
+      // Tormenta, detrás de los edificios: cielo oscuro, el destello que lo
+      // ilumina y dos rayos que caen por turnos (sincronizados con el destello).
+      '<g class="esc-tormenta">' +
+      '<rect class="esc-oscuro" x="0" y="0" width="' + ANCHO + '" height="250"/>' +
+      '<rect class="esc-relampago an-relampago" x="0" y="0" width="' + ANCHO + '" height="250"/>' +
+      '<path class="esc-rayo an-rayo" d="' + rayo(CENTRO + 110, 34) + '"/>' +
+      '<path class="esc-rayo an-rayo2" d="' + rayo(CENTRO + 300, 40) + '"/>' +
+      '</g>' +
       '<g class="esc-dia">' +
       '<circle class="esc-sol an-sol" cx="' + (CENTRO + 250) + '" cy="74" r="46"/>' +
       '<circle class="esc-sol" cx="' + (CENTRO + 250) + '" cy="74" r="28"/></g>' +
@@ -84,7 +97,37 @@
       '<rect class="esc-asfalto" x="0" y="206" width="' + ANCHO + '" height="44"/>' +
       '<path class="esc-raya" d="' + rayas() + '"/>' +
       '<g class="esc-lluvia"><rect class="an-lluvia" x="0" y="-10" width="' + ANCHO + '" height="260" fill="url(#esc-gotas)"/></g>' +
+      '<g class="esc-tormenta">' +
+      '<rect class="an-lluvia-fuerte" x="0" y="-48" width="' + (ANCHO + 48) + '" height="300" fill="url(#esc-gotas-fuerte)"/>' +
+      '<path class="esc-viento an-viento" d="' + viento(0) + '"/>' +
+      '<path class="esc-viento an-viento2" d="' + viento(70) + '"/>' +
+      '</g>' +
       '</svg>';
+  }
+
+  /* Un rayo en zigzag que baja desde (x, y) hasta los tejados. */
+  function rayo(x, y) {
+    return 'M' + x + ' ' + y + 'l-16 38h13l-20 44l34-52h-13l17-30z';
+  }
+
+  /* Rachas de viento: rayas horizontales repartidas por cada tramo. */
+  function viento(desfase) {
+    let d = '';
+    for (let i = 0; i < TRAMOS; i++) {
+      const x = i * TRAMO + desfase;
+      d += 'M' + (x + 20) + ' 112h70M' + (x + 150) + ' 146h90M' + (x + 260) + ' 98h56M' + (x + 90) + ' 182h60';
+    }
+    return d;
+  }
+
+  /* Hojas que el viento arrastra por la cabecera (solo con tormenta). */
+  function hojas() {
+    let html = '';
+    for (let i = 0; i < 6; i++) {
+      html += '<svg class="esc-hoja esc-hoja-' + (i + 1) + (i % 2 ? ' esc-hoja-b' : '') + ' an-hoja" width="14" height="10" viewBox="0 0 14 10" aria-hidden="true" focusable="false">' +
+        '<path d="M1 5C3 1 9 0 13 2C11 7 6 10 1 5zM1 5l8-2"/></svg>';
+    }
+    return html;
   }
 
   /* Rayas discontinuas del centro de la calzada. */
@@ -162,7 +205,7 @@
   // ------------------------------------------------------------- Interfaz
 
   function montar(contenedor) {
-    contenedor.innerHTML = escena() + nubes() + taxi();
+    contenedor.innerHTML = escena() + nubes() + taxi() + hojas();
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
@@ -180,7 +223,9 @@
     contenedor.style.backgroundColor = bajo;
     const noche = hora >= 20.5 || hora < 7;
     contenedor.classList.toggle('noche', noche);
-    contenedor.classList.toggle('lloviendo', Libre.sim.lloviendo(estado, minutos));
+    const llueve = Libre.sim.lloviendo(estado, minutos);
+    contenedor.classList.toggle('lloviendo', llueve);
+    contenedor.classList.toggle('tormenta', llueve && !!estado.lluvia && estado.lluvia.tipo === 'tormenta');
     contenedor.dataset.momento = noche ? 'noche' : 'dia';
   }
 

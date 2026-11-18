@@ -198,7 +198,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   Cada objeto lleva `frase` (su chiste, en el panel del Almacén). Tres
   factores más (Iván, 18-11-2026): `importeLluvia` (Anfibio: multiplica el
   importe de la carrera de un conductor si el cliente sube lloviendo, en
-  `empezarCarrerasConductores()`; tope [1, 3,5] y sale en sus stats solo si
+  `empezarCarrerasConductores()`; tope [1, 3,1] y sale en sus stats solo si
   algo lo cambia), `hallazgo` (probabilidad de encontrar,
   con tope) y `suerte` (1,15 = un 15 % de que lo encontrado suba una
   categoría: `probSubir()`); los usan Linterna, Gato, Detector y la
@@ -387,7 +387,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`cajaAbierta`), y se cierra con su ×.
 - Escena de la cabecera (`js/ambiente.js`): cielo según la hora, sol o
   luna y estrellas, edificios con ventanas que se encienden de noche, nubes,
-  un taxi que pasa y lluvia. Se dibuja a escala 1 pegada abajo (la cabecera
+  un taxi que pasa y lluvia; con tormenta (clase `.tormenta`, Iván
+  18-11-2026) el cielo se oscurece sin sol ni luna y hay relámpagos con
+  rayo (un destello doble cada 7 s), lluvia inclinada, viento y hojas. Se dibuja a escala 1 pegada abajo (la cabecera
   compacta enseña solo la calle). Es un módulo aparte con
   `montar(contenedor)` y `dibujar(contenedor, estado)`, que deja
   `contenedor.dataset.momento` ('dia' o 'noche'); para cambiarla por otra

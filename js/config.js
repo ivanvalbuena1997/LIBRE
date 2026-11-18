@@ -95,15 +95,14 @@
         costeMin: 150, costeMax: 400,
         cochesMinimos: 2           // con menos coches no hay averías
       },
-      // Lluvia (Iván, 18-11-2026): chubascos casi siempre y de vez en cuando
-      // una tormenta larga. Mezcla elegida para que llueva lo mismo de media
-      // que antes (un 20 % de las jornadas, de 1 a 3 horas): unas 0,4 horas
-      // por jornada. Cada tipo: peso (lo que sale) y duración en horas.
+      // Lluvia (Iván, 18-11-2026): chubascos y tormentas largas (Iván: un 35 %
+      // de tormentas). Unas 0,47 horas de lluvia por jornada de media.
+      // Cada tipo: peso (lo que sale) y duración en horas.
       lluvia: {
         nombre: 'Lluvia', probJornada: 0.25, factorDemanda: 2,
         tipos: {
-          chubasco: { nombre: 'Chubasco', peso: 0.75, horasMin: 0.5, horasMax: 1 },
-          tormenta: { nombre: 'Tormenta', peso: 0.25, horasMin: 3, horasMax: 5 }
+          chubasco: { nombre: 'Chubasco', peso: 0.65, horasMin: 0.5, horasMax: 1 },
+          tormenta: { nombre: 'Tormenta', peso: 0.35, horasMin: 3, horasMax: 5 }
         }
       },
       // Vómito evitado por la Bolsa para vómitos de un conductor (solo sale en el ticket).
@@ -397,9 +396,10 @@
         // Iván, 18-11-2026: solo cuenta en las carreras que empiezan con lluvia
         // (un 20 % de las jornadas, 1–3 horas), así que el multiplicador es alto
         // para que valga como las demás cualidades (medido con un bot).
-        // Medido: ×2 vale +2 %, ×2,5 +3 %, ×3 +4,1 % y ×3,5 +5 % (480 partidas).
-        { id: 'anfibio', nombre: 'Anfibio', opuesto: 'azucarillo', efecto: { importeLluvia: 3.5 },
-          descripcion: 'Bajo la lluvia está en su salsa: cobra 3,5 veces más en las carreras que empiezan lloviendo.' }
+        // Medido con un 35 % de tormentas (480 partidas): ×2 vale +2,3 %,
+        // ×3 +4,7 % y ×3,5 +5,8 %; ×3,1 queda en +5 %, como las demás.
+        { id: 'anfibio', nombre: 'Anfibio', opuesto: 'azucarillo', efecto: { importeLluvia: 3.1 },
+          descripcion: 'Bajo la lluvia está en su salsa: cobra 3,1 veces más en las carreras que empiezan lloviendo.' }
       ],
       defectos: [
         { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.25, espera: 1.08 },
@@ -467,7 +467,7 @@
         hallazgo: [0.3, 2.5],
         suerte: [1, 1.4],
         // Lo que cobra en las carreras con lluvia (Anfibio): nunca baja de 1.
-        importeLluvia: [1, 3.5]
+        importeLluvia: [1, 3.1]
       },
       /*
        * Topes que crecen (Equilibrio, Iván 17-11-2026): los de arriba son los
