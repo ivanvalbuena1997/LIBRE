@@ -278,7 +278,7 @@
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
-      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, porcentajeConductor: 1,
+      monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
       pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1
     };
     cfg().mejoras.forEach(function (mejora) {
@@ -302,6 +302,7 @@
       if (e.gestionZonas) m.gestionZonas = true;
       if (e.almacen) m.almacen += e.almacen;
       if (e.baja) m.baja *= e.baja;
+      if (e.pinchazo) m.pinchazo *= e.pinchazo;
       if (e.porcentajeConductor) m.porcentajeConductor *= e.porcentajeConductor;
       if (e.pesosCandidatos) m.pesosCandidatos = e.pesosCandidatos;
       if (e.publicidad) m.publicidad += e.publicidad;
@@ -1559,7 +1560,9 @@
     stats.push(probabilidad('baja', ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
       return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.baja };
     })));
-    const pinchazo = probabilidad('pinchazo', ev.pinchazo.probTurno);
+    const pinchazo = probabilidad('pinchazo', ev.pinchazo.probTurno, mejoras.filter(function (x) { return x.efecto.pinchazo; }).map(function (x) {
+      return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.pinchazo };
+    }));
     const rueda = conEfecto(t, 'rueda');
     if (rueda) pinchazo.fuentes.push({ tipo: rueda.tipo, nombre: rueda.nombre, factor: 1, nota: 'cambia la rueda y sigue, sin coste' });
     stats.push(pinchazo);
@@ -2187,7 +2190,7 @@
       if (!lic.vehiculo || !t || t.sorteado === clave) return;
       t.sorteado = clave;
       if (t.quien === 'jugador') {
-        if (azar(estado) < ev.pinchazo.probTurno) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
+        if (azar(estado) < ev.pinchazo.probTurno * modificadores(estado).pinchazo) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
         return;
       }
       if (!puedeTrabajar(estado, lic, t, ahora)) return;
@@ -2200,7 +2203,7 @@
           (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null, t);
         return;
       }
-      if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo, t)) {
+      if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo * modificadores(estado).pinchazo, t)) {
         t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
       } else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia, t)) {
         t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };

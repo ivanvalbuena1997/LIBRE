@@ -815,8 +815,14 @@
         efecto: { consumo: 0.92 }
       },
       {
+        // Iván, 19-11-2026: los pinchazos de toda la flota (también tu turno).
+        id: 'neumaticosAltaGama', nombre: 'Neumáticos de alta gama', rama: 'vehiculo', requiere: 'neumaticos', precio: 1300,
+        descripcion: 'Resisten mejor los baches y los cristales: toda la flota pincha un 35 % menos.',
+        efecto: { pinchazo: 0.65 }
+      },
+      {
         // Iván, 18-11-2026. Equilibrio.
-        id: 'mampara', nombre: 'Mampara y asientos de cuero', rama: 'vehiculo', requiere: 'neumaticos', precio: 1800,
+        id: 'mampara', nombre: 'Mampara y asientos de cuero', rama: 'vehiculo', requiere: 'neumaticosAltaGama', precio: 1800,
         descripcion: 'Coches de categoría: más clientes eligen tus taxis, un 6 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.06 }
       },
