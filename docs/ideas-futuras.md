@@ -77,6 +77,11 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 15. [ ] **Anécdotas reales.** Cosas que nos han pasado de verdad, convertidas
     en situaciones o eventos del juego. Encaja con la 13.
 
+### 🌳 Mejoras nuevas
+
+17. [ ] **Modo incógnito.** Una mejora nueva para el árbol (apuntada por Iván
+    el 19-11-2026). Qué hace, en qué rama va y cuánto cuesta: **por definir**.
+
 ### 🖥️ Interfaz y experiencia de usuario
 
 Ninguna pendiente.
