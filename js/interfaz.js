@@ -157,6 +157,16 @@
   }
   let modoAnterior = null;
 
+  /* Por qué no trabajas hoy, en el modo libranza: libras, sin coche o en el taller. */
+  function textoSalto(estado) {
+    const u = Libre.sim.ubicacionJugador(estado);
+    const lic = u && estado.licencias.find(function (l) { return l.id === u.licenciaId; });
+    const motivo = lic && !Libre.sim.libra(estado, lic) ? Libre.sim.motivoSinCoche(estado, lic) : null;
+    if (motivo === 'sinCoche') return { etiqueta: 'SIN COCHE', aria: 'Tu licencia no tiene coche: saltar al cierre de caja' };
+    if (motivo === 'taller') return { etiqueta: 'COCHE EN EL TALLER', aria: 'Tu coche está en el taller: saltar al cierre de caja' };
+    return { etiqueta: 'HOY LIBRAS', aria: 'Hoy libras: saltar al cierre de caja' };
+  }
+
   /* «2 ocupados · 2 libres · 1 parado» (sin los grupos vacíos). */
   function resumenFlota(taxis) {
     const n = { ocupado: 0, libre: 0, parado: 0 };
@@ -182,7 +192,7 @@
       }
       if (modo === 'libranza') {
         return '<button type="button" class="taximetro taximetro-boton' + clase + '" data-accion="saltarAlCierre" ' +
-          'aria-label="Hoy libras: saltar al cierre de caja">' + htmlDisplay() + '</button>';
+          'aria-label="' + esc(textoSalto(estado).aria) + '">' + htmlDisplay() + '</button>';
       }
       return '<button type="button" class="taximetro taximetro-boton' + clase + '" data-accion="buscarCliente" ' +
         'aria-label="Taxímetro: buscar cliente">' + htmlDisplay() + '</button>';
@@ -192,7 +202,7 @@
       const info = Libre.sim.infoReloj(estado.reloj.minutos);
 
       if (modoTaximetro(estado) === 'libranza') {
-        pintarDisplay(0, 'HOY LIBRAS', 'Toca para saltar al cierre ›', 'libre', chipTarifa(info.tarifa));
+        pintarDisplay(0, textoSalto(estado).etiqueta, 'Toca para saltar al cierre ›', 'libre', chipTarifa(info.tarifa));
         $('tx-estado').classList.remove('latido');
         $('carrera-barra').style.width = '0%';
         return;
@@ -219,9 +229,14 @@
       const libras = Libre.sim.libra(estado, estado.licencias.find(function (l) {
         return l.id === Libre.sim.ubicacionJugador(estado).licenciaId;
       }));
-      boton.disabled = !!carrera || pausa || !enTurno || libras;
+      const sinCoche = Libre.sim.motivoSinCoche(estado, estado.licencias.find(function (l) {
+        return l.id === Libre.sim.ubicacionJugador(estado).licenciaId;
+      }));
+      boton.disabled = !!carrera || pausa || !enTurno || libras || !!sinCoche;
       const estadoTexto = pausa ? 'Día cerrado'
         : libras ? 'Hoy libra tu licencia: descansas'
+        : sinCoche === 'sinCoche' ? 'Tu licencia no tiene coche'
+        : sinCoche === 'taller' ? 'Tu coche está en el taller'
         : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
         : carrera ? c.zonas[carrera.zona].textoEspera + '…'
         : parado ? 'Parado hasta las ' + horaDe(estado.jugador.paradoHasta)
@@ -231,7 +246,7 @@
         conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : 'IMPORTE',
         estadoTexto, conPasajero ? 'ocupado' : 'libre', chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
       // Latido suave mientras el taxi espera a que lo toques.
-      $('tx-estado').classList.toggle('latido', !pausa && !carrera && enTurno && !libras);
+      $('tx-estado').classList.toggle('latido', !pausa && !carrera && enTurno && !libras && !sinCoche);
 
       const barra = $('carrera-barra');
       const p = carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
@@ -650,7 +665,7 @@
   const colaAvisos = [];
   let ultimoAviso = 0;
   // Qué sonido lleva cada evento de la simulación (los demás, ninguno).
-  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia' };
+  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia' };
 
   /* Toca un sonido (js/sonidos.js), si el módulo está cargado. */
   function sonar(nombre) {
@@ -899,6 +914,7 @@
   let eligiendoConductor = null;
   // Conductor con la ficha abierta ('licencia|turno') o null.
   let fichaConductor = null;
+  let cocheAbierto = null;   // id de la licencia cuya hoja del coche está abierta
   // Objeto del almacén con su panel abierto (id) o null.
   let fichaInventario = null;
 
@@ -1485,6 +1501,7 @@
       (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
       '<div class="ficha-objetos">' + casillas.join('') + '</div></div>' +
       htmlStatsConductor(estado, t, x.enReserva ? null : turno) +
+      htmlCocheEnFicha(estado, x.enReserva ? null : lic) +
       '<div class="ficha-datos">' +
       '<div><span>Carreras</span><strong id="ficha-carreras"></strong></div>' +
       '<div><span>Facturado</span><strong id="ficha-facturado"></strong></div>' +
@@ -1563,7 +1580,7 @@
     importeLluvia: 'Cobra con lluvia'
   };
   const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true, importeLluvia: true };
-  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '' };
+  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '', coche: '' };
 
   /* Porcentaje legible con las cifras justas: «18 %», «0,8 %», «0,08 %». */
   function porcentaje(p) {
@@ -1617,6 +1634,15 @@
       '<div class="stats-lista">' + filas + '</div></div>';
   }
 
+  /* En la ficha del conductor: el coche que lleva, su riesgo de avería definitiva y la hoja del coche. */
+  function htmlCocheEnFicha(estado, lic) {
+    const e = Libre.sim.estadoCoche(estado, lic);
+    if (!e) return '';
+    return '<button type="button" class="ficha-coche coche--' + e.nivel + '" data-coche="' + lic.id + '">' +
+      '<span>Su coche · ' + numero(Math.floor(e.km)) + ' km · ' + NIVEL_COCHE[e.nivel] + '</span>' +
+      '<strong>Avería definitiva ' + porcentaje(e.probRotura) + ' ›</strong></button>';
+  }
+
   /* «168 / 219 XP» o «Máximo» (al lado de la barra de la ficha). */
   function textoXpCorto(p) {
     return p.hasta === null ? 'Máximo' : Math.floor(p.xp) + ' / ' + p.hasta + ' XP';
@@ -1639,7 +1665,12 @@
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando, comparando,
-    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu,
+    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu, cocheAbierto,
+    estado.licencias.map(function (l) {
+      const e = Libre.sim.estadoCoche(estado, l);
+      // Abierta, la hoja cambia con cada 1.000 km; cerrada, solo el color del estado.
+      return e ? (cocheAbierto === l.id ? [e.nivel, Math.floor(e.km / 1000)] : e.nivel) : null;
+    }),
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2,
         Libre.sim.nivelConductor(t), t.objetos,
@@ -1817,12 +1848,54 @@
       esc(Libre.sim.textoLicencia(lic)) + '</span>' +
       (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Libra</span>' : '') + '</div>' +
       // Kilometraje del coche (Iván, 19-11-2026); el bucle lo pone al día.
-      (lic.vehiculo ? '<div class="licencia-km">' + esc(Libre.config.vehiculos.modelos[lic.vehiculo].nombre) + ' · ' +
-        '<span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</div>' : '') +
+      // Tocarlo abre la hoja del coche (idea 7): estado, riesgo y «Renovar».
+      (lic.vehiculo ? '<button type="button" class="licencia-km coche--' + Libre.sim.estadoCoche(estado, lic).nivel +
+        '" data-coche="' + lic.id + '" aria-label="Ver el coche de la licencia ' + esc(Libre.sim.textoLicencia(lic)) + '">' +
+        esc(Libre.config.vehiculos.modelos[lic.vehiculo].nombre) + ' · ' +
+        '<span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</button>' : '') +
       (lic.vehiculo
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
         : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) + '</div>') +
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
+  }
+
+  /*
+   * Hoja del coche de una licencia (idea 7, Iván 19-11-2026): km, estado,
+   * averías por los km, riesgo de avería definitiva, lo que te dan por él y
+   * «Renovar» (con el día cerrado).
+   */
+  const NIVEL_COCHE = { nuevo: 'Nuevo', rodado: 'Rodado', gastado: 'Gastado', limite: 'Al límite' };
+  function htmlHojaCoche(estado) {
+    const lic = cocheAbierto && estado.licencias.find(function (l) { return l.id === cocheAbierto; });
+    const e = Libre.sim.estadoCoche(estado, lic);
+    if (!e) return '';
+    const ev = Libre.config.eventos;
+    const fila = function (nombre, valor, desglose, clase) {
+      return '<div class="stat' + (clase || '') + '"><span class="stat-nombre">' + esc(nombre) + '</span>' +
+        '<strong class="stat-valor">' + esc(valor) + '</strong>' + (desglose ? '<small class="stat-desglose">' + esc(desglose) + '</small>' : '') + '</div>';
+    };
+    const mal = e.nivel === 'gastado' || e.nivel === 'limite' ? ' stat--mal' : '';
+    const pausa = Libre.sim.enPausa(estado);
+    return '<div class="hoja-fondo" data-cerrar-coche></div>' +
+      '<div class="hoja hoja-coche" role="dialog" aria-modal="true" aria-labelledby="coche-titulo">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="hoja-cabecera"><h3 id="coche-titulo">' + esc(Libre.config.vehiculos.modelos[lic.vehiculo].nombre) +
+      ' · ' + esc(Libre.sim.textoLicencia(lic)) + '</h3>' + botonCerrarHoja('data-cerrar-coche', 'Cerrar') + '</div>' +
+      '<div class="stats-lista">' +
+      fila('Kilómetros', numero(Math.floor(e.km)) + ' km', '', '') +
+      fila('Estado', NIVEL_COCHE[e.nivel], e.probRotura > 0 ? 'Cuantos más km, más se rompe' :
+        'Sin riesgo de avería definitiva hasta los ' + numero(ev.rotura.kmDesde) + ' km', mal) +
+      fila('Avería definitiva', porcentaje(e.probRotura) + ' de los turnos',
+        'Va al desguace (' + euros(ev.rotura.chatarra) + ' de chatarra) y tienes que comprar otro coche', e.probRotura > 0 ? ' stat--mal' : '') +
+      fila('Averías', porcentaje(ev.averia.probTurno * e.factorAveria) + ' de los turnos',
+        'Kilómetros del coche ' + cambio(e.factorAveria) + ' (y lo que cambie cada conductor)', e.factorAveria > 1 ? ' stat--mal' : '') +
+      fila('Te dan por él', euros(e.venta), 'Menos cuantos más km tenga; como poco, la chatarra', '') +
+      '</div>' +
+      boton('Renovar coche · ' + euros(e.precioRenovar), 'renovarCoche', [lic.id], 'ui-boton ui-boton--principal ui-boton--ancho', e.precioRenovar)
+        .replace('<button ', '<button data-solo-pausa ') +
+      '<p class="coche-nota">' + (pausa ? 'Compras uno nuevo a 0 km y vendes este.'
+        : 'Solo puedes renovarlo con el día cerrado: cuando se cierre la caja.') + '</p>' +
+      '</div>';
   }
 
   /* Pestaña Almacén: objetos sin equipar y la bandeja. */
@@ -1843,6 +1916,7 @@
     html: function (estado) {
       const c = Libre.config;
       if (fichaConductor && !conductorDe(estado, fichaConductor)) fichaConductor = null;
+      if (cocheAbierto && !Libre.sim.estadoCoche(estado, estado.licencias.find(function (l) { return l.id === cocheAbierto; }))) cocheAbierto = null;
       const hayAlguno = Libre.sim.todosLosConductores(estado).length > 0;
       const ayuda = !hayAlguno
         ? 'Contrata a tu primer conductor para el otro turno: el taxi trabajará solo también cuando tú no conduces.'
@@ -1857,7 +1931,8 @@
         '<p class="ayuda">' + ayuda + '</p>' + htmlReserva(estado) +
         '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) + '</div>' +
-        htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado) + htmlHojaComparar(estado);
+        htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado) + htmlHojaComparar(estado) +
+        htmlHojaCoche(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
@@ -2669,6 +2744,21 @@
         opciones.redibujar();
         return;
       }
+      const coche = ev.target.closest('[data-coche]');
+      if (coche) {
+        fichaConductor = null;
+        cocheAbierto = Number(coche.dataset.coche);
+        opciones.redibujar();
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-coche]')) {
+        const id = cocheAbierto;
+        cocheAbierto = null;
+        opciones.redibujar();
+        const origen = document.querySelector('[data-coche="' + id + '"]');
+        if (origen) origen.focus({ preventScroll: true });
+        return;
+      }
       if (ev.target.closest('[data-cerrar-ficha]')) {
         fichaConductor = null;
         opciones.redibujar();
@@ -2823,6 +2913,14 @@
         soltarCogido();
         return;
       }
+      if (ev.key === 'Escape' && cocheAbierto) {
+        const id = cocheAbierto;
+        cocheAbierto = null;
+        opciones.redibujar();
+        const origen = document.querySelector('[data-coche="' + id + '"]');
+        if (origen) origen.focus({ preventScroll: true });
+        return;
+      }
       if (ev.key === 'Escape' && comparando) {
         cerrarComparar();
         return;
@@ -2910,8 +3008,10 @@
       }
     });
 
+    // data-solo-pausa: además, solo con el día cerrado (Renovar coche).
+    const pausa = Libre.sim.enPausa(estado);
     document.querySelectorAll('[data-precio]').forEach(function (b) {
-      b.disabled = estado.dinero < Number(b.dataset.precio);
+      b.disabled = estado.dinero < Number(b.dataset.precio) || (b.hasAttribute('data-solo-pausa') && !pausa);
     });
 
     secciones.forEach(function (s) {

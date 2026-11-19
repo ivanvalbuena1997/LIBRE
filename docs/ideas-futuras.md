@@ -27,14 +27,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 5. [ ] **Alquilar coche.** Poder alquilar uno cuando tienes una licencia sin
    coche, como alternativa a comprarlo.
 6. [x] **Kilometraje de cada coche.** Hecho el 19-11-2026 (ver «Hechas»).
-7. [ ] **Avería definitiva.** Una probabilidad de que el coche se rompa del
-   todo según su uso y sus kilómetros, que obligue a comprar otro. Se apoya en
-   la 6 (hace falta guardar los kilómetros de cada coche).
-   Decidido con Iván (19-11-2026): también se puede romper tu coche (pero
-   nunca dejar la partida bloqueada); las averías normales también aumentan
-   con los km; habrá «Renovar coche», que vende el viejo por menos cuantos
-   más km tenga. Pendiente: si se suben los km por jornada
-   ([analisis-km.md](analisis-km.md)) y los umbrales.
+7. [x] **Avería definitiva.** Hecho el 19-11-2026 (ver «Hechas»).
 8. [ ] **Skin del coche.** Más adelante en la partida, personalizar el aspecto
    del coche si conduces tú.
 
@@ -92,6 +85,13 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **7. Avería definitiva** (🚗, 19-11-2026). Desde 130.000 km el coche
+  puede romperse del todo (también el tuyo, sin bloquear nunca la partida):
+  va al desguace por 50 € y la licencia se queda sin coche. Las averías
+  normales suben con los km. «Renovar coche» en la hoja del coche (tocar
+  sus km), con el día cerrado: el viejo vale menos cuantos más km. Antes,
+  la velocidad en vacío pasó a 72 km/h ([analisis-km.md](analisis-km.md)).
 
 - [x] **6. Kilometraje de cada coche** (🚗, 19-11-2026). Cada coche lleva sus
   km bajo la placa de su licencia; el inicial sale usado (85.000–100.000 km)

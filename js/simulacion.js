@@ -1566,7 +1566,16 @@
     const rueda = conEfecto(t, 'rueda');
     if (rueda) pinchazo.fuentes.push({ tipo: rueda.tipo, nombre: rueda.nombre, factor: 1, nota: 'cambia la rueda y sigue, sin coste' });
     stats.push(pinchazo);
-    stats.push(probabilidad('averia', ev.averia.probTurno));
+    // Las averías suben con los km del coche que lleva (no en la reserva ni en candidatos).
+    const averia = probabilidad('averia', ev.averia.probTurno);
+    const suLicencia = turno && estado.licencias.find(function (l) { return l.turnos[turno] === t; });
+    const fk = suLicencia ? factorAveriaKm(suLicencia) : 1;
+    if (fk !== 1) {
+      averia.valor *= fk;
+      averia.factor *= fk;
+      averia.fuentes.push({ tipo: 'coche', nombre: 'Kilómetros del coche', factor: fk });
+    }
+    stats.push(averia);
 
     const limpieza = fuentesDe('limpieza');
     const brutoLimpieza = producto(limpieza);
@@ -1807,6 +1816,9 @@
     if (libra(estado, buscarLicencia(estado, u.licenciaId))) {
       return fallo('Hoy libra tu licencia: descansas hasta mañana a las 7:00.');
     }
+    const sinCoche = motivoSinCoche(estado, buscarLicencia(estado, u.licenciaId));
+    if (sinCoche === 'sinCoche') return fallo('Tu licencia no tiene coche: cómprale uno en Conductores.');
+    if (sinCoche === 'taller') return fallo('Tu coche está en el taller.');
     if (!jugadorEnTurno(estado)) {
       const t = c.turnos[ubicacionJugador(estado).turno];
       return fallo('Fuera de tu turno: trabajas de ' + t.nombre.toLowerCase() + ', de ' +
@@ -2190,7 +2202,12 @@
       if (!lic.vehiculo || !t || t.sorteado === clave) return;
       t.sorteado = clave;
       if (t.quien === 'jugador') {
+        // Tu coche: pinchazo, avería definitiva y avería normal (sin rasgos).
         if (azar(estado) < ev.pinchazo.probTurno * modificadores(estado).pinchazo) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
+        else if (tocaRotura(estado, lic)) t.pendiente = { tipo: 'rotura', minuto: entre(estado, ahora, fin) };
+        else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * factorAveriaKm(lic)) {
+          t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
+        }
         return;
       }
       if (!puedeTrabajar(estado, lic, t, ahora)) return;
@@ -2205,27 +2222,132 @@
       }
       if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo * modificadores(estado).pinchazo, t)) {
         t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
-      } else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia, t)) {
+      } else if (tocaRotura(estado, lic)) {
+        t.pendiente = { tipo: 'rotura', minuto: entre(estado, ahora, fin) };
+      } else if (averiaPosible(estado, lic) &&
+        azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia, t) * factorAveriaKm(lic)) {
         t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
       }
     });
   }
 
   /*
-   * Solo hay averías con 2 coches o más, nunca en el coche que conduces tú y
-   * nunca si dejaría la flota sin ningún coche en marcha.
+   * Solo hay averías con 2 coches o más y nunca si dejaría la flota sin
+   * ningún coche en marcha. Desde el 19-11-2026 (Iván) también en tu coche.
    */
   function averiaPosible(estado, lic) {
     const jornada = jornadaDe(estado.reloj.minutos);
     const conCoche = estado.licencias.filter(function (l) { return !!l.vehiculo; });
     if (conCoche.length < cfg().eventos.averia.cochesMinimos) return false;
-    if (TURNOS.some(function (t) { return lic.turnos[t] && lic.turnos[t].quien === 'jugador'; })) return false;
+    if (!lic.vehiculo) return false;
     if (lic.averia && jornada < lic.averia.hasta) return false;
     const enMarcha = conCoche.filter(function (l) { return l !== lic && !(l.averia && jornada < l.averia.hasta); });
     return enMarcha.length > 0;
   }
 
-  /* Turnos con un evento pendiente (pinchazo o avería) para esta hora. */
+  // ------------------------------------------------- Desgaste del coche
+
+  /* Las averías normales suben con los km del coche (×2 a kmDoble). */
+  function factorAveriaKm(lic) {
+    const a = cfg().eventos.averia;
+    return Math.min(a.factorKmMax, 1 + (lic && lic.km || 0) / a.kmDoble);
+  }
+
+  /* Probabilidad por turno de avería definitiva según los km (0 hasta kmDesde). */
+  function probRotura(lic) {
+    const r = cfg().eventos.rotura;
+    if (!lic || !lic.vehiculo) return 0;
+    const x = Math.max(0, ((lic.km || 0) - r.kmDesde) / (r.kmMax - r.kmDesde));
+    return Math.min(r.probMax, r.probMax * x * x);
+  }
+
+  /* ¿Hay en la flota otro coche que pueda trabajar (con coche y sin avería)? */
+  function otroCocheEnMarcha(estado, lic) {
+    const jornada = jornadaDe(estado.reloj.minutos);
+    return estado.licencias.some(function (l) {
+      return l !== lic && l.vehiculo && !(l.averia && jornada < l.averia.hasta);
+    });
+  }
+
+  /*
+   * ¿Se puede romper del todo? Con coche y fuera del taller. Nunca si deja
+   * la flota sin coche en marcha y no te llega para comprar otro: la
+   * partida no se puede quedar bloqueada.
+   */
+  function roturaPosible(estado, lic) {
+    if (!lic.vehiculo) return false;
+    if (lic.averia && jornadaDe(estado.reloj.minutos) < lic.averia.hasta) return false;
+    return otroCocheEnMarcha(estado, lic) || estado.dinero >= precioCoche(estado);
+  }
+
+  /* Sorteo de la avería definitiva al empezar un turno (sin azar si no hay riesgo). */
+  function tocaRotura(estado, lic) {
+    const p = probRotura(lic);
+    return p > 0 && roturaPosible(estado, lic) && azar(estado) < p;
+  }
+
+  /* El coche va al desguace: la licencia se queda sin coche hasta comprar otro. */
+  function aplicarRotura(estado, resumen, lic) {
+    const chatarra = cfg().eventos.rotura.chatarra;
+    const km = Math.floor(lic.km || 0);
+    lic.vehiculo = null;
+    lic.averia = null;
+    TURNOS.forEach(function (t) {
+      const x = lic.turnos[t];
+      if (!x) return;
+      if (x.quien === 'jugador') estado.jugador.carrera = null;
+      else { x.carrera = null; x.pendiente = null; }
+    });
+    incidencia(estado, resumen, 'rotura', 'Avería definitiva: el taxi ' + textoLicencia(lic) + ' (' +
+      km.toLocaleString('es-ES') + ' km) no tiene arreglo y va al desguace. Te dan ' + Libre.ui_euros(chatarra) +
+      ' por la chatarra. Compra otro coche para esa licencia.', chatarra, 'extras');
+  }
+
+  /* Lo que te dan por el coche de una licencia si lo renuevas. */
+  function valorVentaCoche(estado, lic) {
+    const v = cfg().vehiculos.venta;
+    const valor = precioCoche(estado) * v.fraccion * (1 - (lic.km || 0) / v.kmSinValor);
+    return Math.max(cfg().eventos.rotura.chatarra, Math.round(valor));
+  }
+
+  /*
+   * Cómo está el coche de una licencia (solo lectura, para la interfaz):
+   * { km, nivel: 'nuevo'|'rodado'|'gastado'|'limite', factorAveria,
+   *   probRotura, venta, precioRenovar } o null si no tiene coche.
+   */
+  function estadoCoche(estado, lic) {
+    if (!lic || !lic.vehiculo) return null;
+    const v = cfg().vehiculos;
+    const p = probRotura(lic);
+    const km = lic.km || 0;
+    const venta = valorVentaCoche(estado, lic);
+    return {
+      km, probRotura: p, factorAveria: factorAveriaKm(lic), venta,
+      precioRenovar: Math.max(0, precioCoche(estado) - venta),
+      nivel: p >= v.probLimite ? 'limite' : p > 0 ? 'gastado' : km < v.kmNuevo ? 'nuevo' : 'rodado'
+    };
+  }
+
+  /*
+   * Renovar el coche de una licencia: compras uno nuevo (0 km) y vendes el
+   * viejo por valorVentaCoche(). Solo con el día cerrado, como reorganizar
+   * conductores. Si estaba en el taller, el nuevo sale sin avería.
+   */
+  function renovarCoche(estado, licenciaId) {
+    const lic = buscarLicencia(estado, licenciaId);
+    if (!lic) return fallo('Esa licencia no existe.');
+    if (!lic.vehiculo) return fallo('Esa licencia no tiene coche: cómprale uno.');
+    if (!enPausa(estado)) return fallo('Solo puedes renovar el coche con el día cerrado.');
+    const venta = valorVentaCoche(estado, lic);
+    const precio = Math.max(0, precioCoche(estado) - venta);
+    if (estado.dinero < precio) return fallo('No te llega el dinero.');
+    estado.dinero -= precio;
+    lic.km = 0;
+    lic.averia = null;
+    return exito('Coche nuevo en la licencia ' + textoLicencia(lic) + '. Por el viejo te dan ' + Libre.ui_euros(venta) + '.');
+  }
+
+  /* Turnos con un evento pendiente (pinchazo, avería o avería definitiva) para esta hora. */
   function turnosConPendiente(estado) {
     const lista = [];
     estado.licencias.forEach(function (lic) {
@@ -2265,6 +2387,9 @@
     } else if (p.tipo === 'averia') {
       if (!averiaPosible(estado, lic)) return;
       aplicarAveria(estado, resumen, lic);
+    } else if (p.tipo === 'rotura') {
+      if (!roturaPosible(estado, lic)) return;
+      aplicarRotura(estado, resumen, lic);
     }
   }
 
@@ -2274,7 +2399,12 @@
     const jornadas = Math.max(1, Math.round(enteroEntre(estado, ev.jornadasMin, ev.jornadasMax) * m.averiaDias));
     const coste = entre(estado, ev.costeMin, ev.costeMax) * m.averiaCoste;
     lic.averia = { hasta: jornadaDe(estado.reloj.minutos) + jornadas };
-    TURNOS.forEach(function (t) { if (lic.turnos[t]) lic.turnos[t].carrera = null; });
+    TURNOS.forEach(function (t) {
+      const x = lic.turnos[t];
+      if (!x) return;
+      if (x.quien === 'jugador') estado.jugador.carrera = null;
+      else x.carrera = null;
+    });
     incidencia(estado, resumen, 'averia', 'Avería en el taxi ' + textoLicencia(lic) + ': ' + jornadas +
       ' jornadas en el taller y ' + Libre.ui_euros(coste) + ' de reparación.', -coste, 'otros');
   }
@@ -2334,7 +2464,7 @@
    */
   function forzarEvento(estado, tipo, arg) {
     const resumen = resumenVacio();
-    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'hallazgo', 'lluvia', 'pinchazo', 'baja', 'averia'];
+    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'hallazgo', 'lluvia', 'pinchazo', 'baja', 'averia', 'rotura'];
     if (tipos.indexOf(tipo) === -1) return { ok: false, mensaje: 'Eventos: ' + tipos.join(', '), eventos: [] };
     if (tipo === 'hallazgo') {
       estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
@@ -2349,6 +2479,13 @@
       estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
       sortearLluvia(estado);
       avisarLluvia(estado, resumen);
+      return { ok: true, mensaje: '', eventos: resumen.eventos };
+    }
+    if (tipo === 'rotura') {
+      // Avería definitiva: al coche que tú digas (id de licencia) o al primero que pueda.
+      const lic = arg ? buscarLicencia(estado, arg) : estado.licencias.find(function (l) { return roturaPosible(estado, l); });
+      if (!lic || !roturaPosible(estado, lic)) return { ok: false, mensaje: 'Ahora no hay coche que se pueda romper.', eventos: [] };
+      aplicarRotura(estado, resumen, lic);
       return { ok: true, mensaje: '', eventos: resumen.eventos };
     }
     // Pinchazo, baja y avería: al primer conductor que pueda (o a ti, el pinchazo).
@@ -2539,7 +2676,8 @@
   }
 
   /*
-   * ¿Puedes saltar al cierre? Solo el día que libra tu licencia, si ningún
+   * ¿Puedes saltar al cierre? Solo el día que libra tu licencia (o si tu
+   * coche está en el taller o se rompió: motivoSinCoche()), si ningún
    * taxi de la flota puede trabajar en esa jornada (por libranza, baja o
    * avería) y no tienes otra licencia a la que pasarte: con coche, que no
    * libre y con un turno libre, y con la «Oficina de gestión» para dejar el
@@ -2551,7 +2689,7 @@
     if (!u) return false;
     const ahora = estado.reloj.minutos;
     const suya = buscarLicencia(estado, u.licenciaId);
-    if (!libra(estado, suya, ahora)) return false;
+    if (!libra(estado, suya, ahora) && !motivoSinCoche(estado, suya)) return false;
     if (turnosConCarrera(estado).length > 0) return false;
     const alguienTrabaja = estado.licencias.some(function (lic) {
       return lic.vehiculo && TURNOS.some(function (t) {
@@ -2565,6 +2703,14 @@
       return lic !== suya && lic.vehiculo && !libra(estado, lic, ahora) &&
         TURNOS.some(function (t) { return !lic.turnos[t]; });
     });
+  }
+
+  /* Por qué tu licencia no puede trabajar por el coche: 'sinCoche', 'taller' o null. */
+  function motivoSinCoche(estado, lic) {
+    if (!lic) return null;
+    if (!lic.vehiculo) return 'sinCoche';
+    if (lic.averia && jornadaDe(estado.reloj.minutos) < lic.averia.hasta) return 'taller';
+    return null;
   }
 
   /*
@@ -2682,6 +2828,13 @@
     arrancarDia,
     puedeSaltarDia,
     kmCocheUsado,
+    factorAveriaKm,
+    probRotura,
+    roturaPosible,
+    valorVentaCoche,
+    estadoCoche,
+    renovarCoche,
+    motivoSinCoche,
     statsConductor,
     aportesConductor,
     conEfecto,

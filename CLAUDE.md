@@ -264,7 +264,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   la tuya, sí.
 - Eventos (`config.eventos`): por carrera (propina, sin pagar, objeto
   devuelto, vómito; también en las tuyas), al empezar cada turno (baja,
-  pinchazo y avería en conductores; en el tuyo solo pinchazo) y lluvia una
+  pinchazo, avería y avería definitiva; en el tuyo, sin baja) y lluvia una
   vez por jornada como mucho: chubasco o tormenta (`estado.lluvia.tipo`,
   sorteado por pesos de `config.eventos.lluvia.tipos`, cada uno con su
   duración; versión 24 del guardado). Van a la caja como `extras` (dinero que entra), `otros`
@@ -337,6 +337,27 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `config.vehiculos.kmInicialMin` y `kmInicialMax`); `comprarVehiculo()`
   lo pone a 0. En Conductores, bajo la placa (`.licencia-km`, al día en
   `actualizar` con `data-km-licencia`).
+- Desgaste del coche (idea 7, Iván 19-11-2026): `factorAveriaKm(lic)`
+  multiplica la avería normal (`eventos.averia.kmDoble`, `factorKmMax`) y
+  `probRotura(lic)` da la avería definitiva por turno (`eventos.rotura`:
+  0 hasta `kmDesde`, cuadrática hasta `probMax` en `kmMax`). Las dos se
+  sortean al empezar cada turno (`sortearInicioDeTurnos()`, pendiente
+  'rotura'), también en el tuyo, y sin azar si no hay riesgo
+  (`tocaRotura()`). `aplicarRotura()` deja `lic.vehiculo = null` (la
+  licencia sin coche ya existía), cobra la chatarra (incidencia 'rotura')
+  y para lo que hubiera en curso. `roturaPosible()`: nunca si deja la flota
+  sin coche en marcha y no te llega para otro (la partida no se bloquea).
+  `averiaPosible()` ya no excluye tu licencia. Sin coche o en el taller
+  (`motivoSinCoche()`), `buscarCliente()` falla y `puedeSaltarDia()` deja
+  saltar como en la libranza (el taxímetro lo dice con `textoSalto()`).
+  `estadoCoche()` (solo lectura) da km, nivel ('nuevo', 'rodado',
+  'gastado', 'limite'), factores, `venta` y `precioRenovar`;
+  `renovarCoche()` (solo en pausa) compra uno a 0 km y vende el viejo
+  (`valorVentaCoche()`, `config.vehiculos.venta`). En pantalla: los km de
+  la licencia son un botón (`data-coche`) que abre la hoja del coche
+  (`cocheAbierto`, `htmlHojaCoche()`); la ficha del conductor lo enlaza
+  (`htmlCocheEnFicha()`). Botones con `data-solo-pausa`: el bucle los
+  desactiva también fuera de la pausa, además de por precio.
 - Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia
   no trabaja esa jornada (los dos turnos, también el tuyo): entre semana el
   día de su letra; en fin de semana, si la paridad de su número no coincide

@@ -1807,4 +1807,136 @@ prueba('Neumáticos de alta gama: menos pinchazos en toda la flota, tras los de 
   cerca(despues, antes * m.efecto.pinchazo);
 });
 
+// --------------------------------------------------------- Desgaste del coche (idea 7)
+
+prueba('desgaste: las averías suben con los km y la definitiva empieza en kmDesde', function () {
+  const a = config.eventos.averia, r = config.eventos.rotura;
+  const lic = { vehiculo: 'turismo', km: 0 };
+  cerca(sim.factorAveriaKm(lic), 1);
+  lic.km = a.kmDoble;
+  cerca(sim.factorAveriaKm(lic), 2);
+  lic.km = 10 * a.kmDoble;
+  cerca(sim.factorAveriaKm(lic), a.factorKmMax);
+  lic.km = r.kmDesde - 1;
+  assert.strictEqual(sim.probRotura(lic), 0, 'sin riesgo antes de kmDesde');
+  lic.km = (r.kmDesde + r.kmMax) / 2;
+  cerca(sim.probRotura(lic), r.probMax / 4);
+  lic.km = r.kmMax * 2;
+  cerca(sim.probRotura(lic), r.probMax);
+  assert.strictEqual(sim.probRotura({ vehiculo: null, km: r.kmMax }), 0, 'sin coche, nada');
+});
+
+prueba('avería definitiva: la licencia se queda sin coche, cobras la chatarra y nadie trabaja en ella', function () {
+  const e = flotaDe(2);
+  e.reloj.minutos = 22 * 60;
+  const lic = e.licencias[1];
+  lic.km = 250000;
+  const dinero = e.dinero;
+  const r = sim.forzarEvento(e, 'rotura', lic.id);
+  assert.ok(r.ok);
+  assert.strictEqual(lic.vehiculo, null);
+  assert.strictEqual(e.caja.hoy.incidencias.rotura.importe, config.eventos.rotura.chatarra);
+  cerca(e.dinero, dinero + config.eventos.rotura.chatarra);
+  assert.ok(r.eventos.some(function (ev) { return ev.tipo === 'rotura'; }));
+  // Sin coche no hay carreras en esa licencia.
+  for (let i = 0; i < 200; i++) sim.avanzar(e, 0.1);
+  assert.ok(!lic.turnos.noche.carrera, 'su conductor no trabaja');
+  // Un coche nuevo, a 0 km, y vuelve a trabajar.
+  assert.ok(sim.comprarVehiculo(e, lic.id).ok);
+  assert.strictEqual(lic.km, 0);
+});
+
+prueba('avería definitiva: nunca deja la partida bloqueada; también tu coche', function () {
+  const e = flotaDe(1);
+  const lic = e.licencias[0];
+  lic.km = 300000;
+  e.dinero = sim.precioCoche(e) - 1;
+  assert.ok(!sim.roturaPosible(e, lic), 'único coche y sin dinero para otro: no se rompe');
+  assert.ok(!sim.forzarEvento(e, 'rotura').ok);
+  e.dinero = sim.precioCoche(e);
+  assert.ok(sim.roturaPosible(e, lic), 'si te llega para otro, sí');
+  // Se rompe el tuyo: no puedes buscar cliente y, si nadie trabaja, saltas al cierre.
+  e.reloj.minutos = 10 * 60;   // tu turno (día)
+  assert.ok(sim.forzarEvento(e, 'rotura').ok);
+  const busca = sim.buscarCliente(e, azarFijo(0.5));
+  assert.ok(!busca.ok && /no tiene coche/.test(busca.mensaje), busca.mensaje);
+  assert.ok(sim.puedeSaltarDia(e), 'sin coche y sin nadie trabajando, puedes saltar al cierre');
+  // Con dos coches, el tuyo se puede romper aunque no tengas dinero (queda el otro).
+  const f = flotaDe(2);
+  f.licencias[0].km = 300000;
+  f.dinero = 0;
+  assert.ok(sim.roturaPosible(f, f.licencias[0]));
+});
+
+prueba('avería definitiva: con muchos km llega sola al empezar los turnos', function () {
+  const e = flotaDe(2);
+  e.licencias.forEach(function (l) { l.km = config.eventos.rotura.kmMax; });
+  e.reloj.minutos = 9 * 60;
+  let rota = false;
+  for (let d = 0; d < 120 && !rota; d++) {
+    sim.avanzar(e, DIA());
+    rota = e.licencias.some(function (l) { return !l.vehiculo; });
+  }
+  assert.ok(rota, 'en 120 jornadas al 3 % por turno se rompe alguno');
+});
+
+prueba('averías normales: también en tu coche y más con los km (también en las stats)', function () {
+  const e = flotaDe(2);
+  e.reloj.minutos = 10 * 60;
+  const tuya = e.licencias[0];
+  assert.ok(sim.ubicacionJugador(e).licenciaId === tuya.id);
+  // Antes nunca le tocaba a tu licencia; ahora sí, con dos coches.
+  e.licencias[1].averia = { hasta: sim.jornadaDe(e.reloj.minutos) + 5 };
+  assert.ok(!sim.forzarEvento(e, 'averia').ok, 'no deja la flota sin coche en marcha');
+  e.licencias[1].averia = null;
+  e.licencias[1].turnos.dia = null; e.licencias[1].turnos.noche = null;
+  assert.ok(sim.forzarEvento(e, 'averia').ok);
+  assert.ok(tuya.averia, 'le toca a tu coche');
+  assert.ok(/taller/.test(sim.buscarCliente(e, azarFijo(0.5)).mensaje));
+  // Stats: las averías del conductor llevan los km de su coche.
+  const g = flotaDe(1);
+  const t = g.licencias[0].turnos.noche;
+  t.cualidad = null; t.cualidad2 = null; t.defecto = null; t.defecto2 = null; t.objetos = [];
+  g.licencias[0].km = 0;
+  const base = sim.statsConductor(g, t, 'noche').find(function (x) { return x.clave === 'averia'; }).valor;
+  g.licencias[0].km = config.eventos.averia.kmDoble;
+  const st = sim.statsConductor(g, t, 'noche').find(function (x) { return x.clave === 'averia'; });
+  cerca(st.valor, base * 2);
+  assert.ok(st.fuentes.some(function (f) { return f.tipo === 'coche'; }));
+});
+
+prueba('renovar coche: solo con el día cerrado; el viejo vale menos cuantos más km', function () {
+  const e = flotaDe(1);
+  const lic = e.licencias[0];
+  const v = config.vehiculos.venta, chatarra = config.eventos.rotura.chatarra;
+  lic.km = 0;
+  cerca(sim.valorVentaCoche(e, lic), Math.round(sim.precioCoche(e) * v.fraccion));
+  lic.km = 92000;
+  const a92 = sim.valorVentaCoche(e, lic);
+  lic.km = 200000;
+  const a200 = sim.valorVentaCoche(e, lic);
+  assert.ok(a92 > a200 && a200 >= chatarra, a92 + ' > ' + a200);
+  lic.km = 1e6;
+  assert.strictEqual(sim.valorVentaCoche(e, lic), chatarra);
+  lic.km = 150000;
+  assert.ok(!sim.renovarCoche(e, lic.id).ok, 'en plena jornada no');
+  e.cierrePendiente = { dias: 1 };
+  lic.averia = { hasta: sim.jornadaDe(e.reloj.minutos) + 3 };
+  const venta = sim.valorVentaCoche(e, lic);
+  const dinero = e.dinero;
+  const r = sim.renovarCoche(e, lic.id);
+  assert.ok(r.ok, r.mensaje);
+  cerca(e.dinero, dinero - (sim.precioCoche(e) - venta));
+  assert.strictEqual(lic.km, 0);
+  assert.strictEqual(lic.averia, null, 'el nuevo sale sin avería');
+  e.dinero = 0;
+  lic.km = 150000;
+  assert.ok(!sim.renovarCoche(e, lic.id).ok, 'sin dinero no');
+  // Estado del coche para la pantalla.
+  lic.km = 0; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'nuevo');
+  lic.km = 100000; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'rodado');
+  lic.km = config.eventos.rotura.kmDesde + 10000; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'gastado');
+  lic.km = config.eventos.rotura.kmMax; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'limite');
+});
+
 console.log(pasadas + ' pruebas correctas');

@@ -1334,6 +1334,27 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 /* Con candidatos o tu panel abiertos, la licencia ocupa la fila entera. */
 .licencia.abierta { grid-column: 1 / -1; }
 .licencia-km { margin-top: 2px; font-size: var(--t-micro); font-weight: 700; color: var(--tinta-suave); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Los km son un botón que abre la hoja del coche (idea 7). Se ve igual que
+   una línea de texto; la zona que se puede tocar crece hacia arriba y abajo. */
+button.licencia-km { position: relative; display: block; max-width: 100%; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; font-family: inherit; font-size: var(--t-micro); line-height: inherit; text-align: left; cursor: pointer; overflow: visible; }
+button.licencia-km::after { content: ''; position: absolute; inset: -12px -4px; }
+button.licencia-km:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
+.coche--gastado { color: var(--aviso); }
+.coche--limite { color: var(--peligro); }
+.licencia-km.coche--gastado, .licencia-km.coche--limite { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.ficha-coche {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; min-height: 44px; padding: var(--esp-3) var(--esp-4); line-height: 1.3;
+  border: 1px solid var(--linea); border-radius: var(--r-control); background: var(--tarjeta); color: var(--tinta);
+  font-family: inherit; font-size: var(--t-pequeno); text-align: left; cursor: pointer;
+}
+.ficha-coche span { font-weight: 700; color: var(--tinta-suave); }
+.ficha-coche strong { font-weight: 800; }
+.hoja-coche .ui-boton { margin-top: var(--esp-4); }
+.coche-nota { margin: var(--esp-2) 0 0; font-size: var(--t-mini); color: var(--tinta-suave); text-align: center; }
+.ficha-coche.coche--gastado strong { color: var(--aviso); }
+.ficha-coche.coche--limite strong { color: var(--peligro); }
+.ficha-coche.coche--nuevo strong, .ficha-coche.coche--rodado strong { color: var(--tinta); }
 .licencia-placa { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-1); min-width: 0; }
 .licencia-turnos { display: flex; gap: var(--esp-2); }
 .licencia-sin-coche .boton-compra { width: 100%; }

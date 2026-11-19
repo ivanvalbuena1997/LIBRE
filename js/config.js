@@ -93,7 +93,23 @@
       averia: {
         nombre: 'Averías', probTurno: 0.003, jornadasMin: 3, jornadasMax: 8,
         costeMin: 150, costeMax: 400,
-        cochesMinimos: 2           // con menos coches no hay averías
+        cochesMinimos: 2,          // con menos coches no hay averías
+        // Iván, 19-11-2026: con los km del coche hay más averías. La
+        // probabilidad se multiplica por 1 + km / kmDoble (×2 a los 200.000
+        // km), como mucho por factorKmMax. Vale también para tu coche.
+        kmDoble: 200000,
+        factorKmMax: 2.5
+      },
+      // Avería definitiva (idea 7, Iván, 19-11-2026): el coche va al desguace
+      // y la licencia se queda sin coche. Sin riesgo hasta kmDesde; luego la
+      // probabilidad por turno sube como el cuadrado de lo andado hasta
+      // probMax en kmMax. Equilibrio: con ~630 km por jornada trabajada, el
+      // coche inicial (~92.000 km) aguanta de media ~157 jornadas (~4,4 h de
+      // juego) y uno nuevo ~300. Nunca deja la flota sin coche en marcha si
+      // no te llega para comprar otro.
+      rotura: {
+        nombre: 'Averías definitivas', kmDesde: 130000, kmMax: 230000, probMax: 0.03,
+        chatarra: 50               // € que te dan en el desguace
       },
       // Lluvia (Iván, 18-11-2026): chubascos y tormentas largas (Iván: un 35 %
       // de tormentas). Unas 0,47 horas de lluvia por jornada de media.
@@ -552,6 +568,15 @@
       // segunda mano; los que compras salen nuevos, a 0 km.
       kmInicialMin: 85000,
       kmInicialMax: 100000,
+      // Renovar coche (Iván, 19-11-2026): el viejo se vende por la mitad del
+      // precio de un coche, menos cuantos más km tenga (nada a kmSinValor),
+      // y nunca por menos que la chatarra (eventos.rotura.chatarra).
+      venta: { fraccion: 0.5, kmSinValor: 230000 },
+      // Estado del coche que se ve en pantalla: «Nuevo» hasta kmNuevo;
+      // «Rodado» hasta que hay riesgo de avería definitiva; «Gastado» con
+      // riesgo y «Al límite» desde probLimite por turno.
+      kmNuevo: 20000,
+      probLimite: 0.01,
       // Un solo modelo en la primera versión.
       modelos: {
         turismo: {
