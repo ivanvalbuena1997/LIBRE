@@ -256,6 +256,15 @@
     // ya estaba sorteada se queda como chubasco.
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
+    },
+    // 24 → 25: kilometraje de cada coche (Iván, 19-11-2026). El de la primera
+    // licencia es el coche de segunda mano del principio; los demás, nuevos
+    // desde que llegan. Lo rodado hasta hoy no se sabe: empieza a contar ya.
+    24: function (estado) {
+      estado.licencias.forEach(function (l, i) {
+        if (typeof l.km !== 'number') l.km = l.vehiculo && i === 0 ? Libre.sim.kmCocheUsado() : 0;
+      });
+      if (typeof estado.totales.km !== 'number') estado.totales.km = 0;
     }
   };
 

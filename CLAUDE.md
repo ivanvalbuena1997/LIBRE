@@ -326,6 +326,15 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `config.licencias.digitosPlaca` (5) cifras rellenando con ceros (`00607-L`, Iván). Al comprar eliges entre
   las placas de `placasEnVenta()` (letras distintas; se guardan hasta que
   compras).
+- Kilometraje (Iván, 19-11-2026; versión 25 del guardado): `lic.km` son
+  los km del coche de esa licencia y `estado.totales.km` los de toda la
+  partida. Solo se suman con `sumarKm()`, en los mismos sitios que
+  `caja.hoy.km` (carrera tuya, de conductor o tramo en vacío; sin conexión,
+  repartidos entre los coches de la zona), así que cuadran con el ticket.
+  El coche inicial sale usado (`kmCocheUsado()`, entre
+  `config.vehiculos.kmInicialMin` y `kmInicialMax`); `comprarVehiculo()`
+  lo pone a 0. En Conductores, bajo la placa (`.licencia-km`, al día en
+  `actualizar` con `data-km-licencia`).
 - Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia
   no trabaja esa jornada (los dos turnos, también el tuyo): entre semana el
   día de su letra; en fin de semana, si la paridad de su número no coincide
@@ -352,8 +361,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   posibles (Conductores, Mejoras), de la bandeja (Almacén) o de un ticket esperando (Calle). La pestaña elegida se recuerda
   en `localStorage` (`libre-vista`), aparte de la partida; las antiguas
   `flota` y `partida` se traducen a `conductores` y `calle`.
-- Estadísticas (`seccionEstadisticas`, Iván 18-11-2026): tres cifras
-  (`estado.totales` y `estado.mejorDia`), facturación por día (barras en
+- Estadísticas (`seccionEstadisticas`, Iván 18-11-2026): cuatro cifras
+  (`estado.totales`, con `totales.km`, y `estado.mejorDia`), facturación por día (barras en
   HTML, raya del neto; tocar una la elige: `diaEstadistica`), media diaria
   (`Libre.sim.mediasDiarias()`: tú y los conductores con turno, entre las
   jornadas que estuvieron en la flota; las de libranza de su licencia no se

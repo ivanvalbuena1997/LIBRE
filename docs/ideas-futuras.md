@@ -26,8 +26,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
    cambiarlo allí.
 5. [ ] **Alquilar coche.** Poder alquilar uno cuando tienes una licencia sin
    coche, como alternativa a comprarlo.
-6. [ ] **Kilometraje de cada coche.** Enseñar los kilómetros acumulados de
-   cada vehículo.
+6. [x] **Kilometraje de cada coche.** Hecho el 19-11-2026 (ver «Hechas»).
 7. [ ] **Avería definitiva.** Una probabilidad de que el coche se rompa del
    todo según su uso y sus kilómetros, que obligue a comprar otro. Se apoya en
    la 6 (hace falta guardar los kilómetros de cada coche).
@@ -67,6 +66,9 @@ Ninguna pendiente.
 
 ## Hechas
 
+- [x] **6. Kilometraje de cada coche** (🚗, 19-11-2026). Cada coche lleva sus
+  km bajo la placa de su licencia; el inicial sale usado (85.000–100.000 km)
+  y los comprados, nuevos. Estadísticas suma los km de la flota.
 - [x] **Avisos de conductores solo en su sitio** (🖥️, 19-11-2026). Los
   mensajes de lo que les pasa a los conductores (subir de nivel, encontrar un
   objeto, bajas, averías…) salen solo en Calle y Conductores.

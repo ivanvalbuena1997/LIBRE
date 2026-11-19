@@ -1201,6 +1201,7 @@
       cifra('Facturado', eurosCorto(estado.totales.ingresos), 'en la partida') +
       cifra('Carreras', numero(Math.floor(estado.totales.carreras)), 'en la partida') +
       cifra('Mejor día', mejor ? eurosCorto(mejor.ingresos) : '—', mejor ? nombreDia(mejor.dia) : 'sin cerrar') +
+      cifra('Km recorridos', numero(Math.floor(estado.totales.km || 0)) + ' km', 'por tu flota') +
       '</div>';
   }
 
@@ -1298,7 +1299,7 @@
       const h = estado.historial || [];
       // Se redibuja al cerrar un día, al cambiar la flota o cada 20 € facturados.
       return JSON.stringify([h.length, h.length ? h[h.length - 1].dia : -1, diaEstadistica,
-        Math.floor(estado.totales.ingresos / 20), (estado.exConductores || []).length,
+        Math.floor(estado.totales.ingresos / 20), Math.floor((estado.totales.km || 0) / 100), (estado.exConductores || []).length,
         Libre.sim.todosLosConductores(estado).map(function (x) { return x.t.id + '@' + x.licenciaId + x.turno; })]);
     },
     html: function (estado) {
@@ -1815,6 +1816,9 @@
       '<div class="licencia-placa"><span class="placa" title="' + esc(textoLibranza(lic.numero)) + '">' +
       esc(Libre.sim.textoLicencia(lic)) + '</span>' +
       (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Libra</span>' : '') + '</div>' +
+      // Kilometraje del coche (Iván, 19-11-2026); el bucle lo pone al día.
+      (lic.vehiculo ? '<div class="licencia-km">' + esc(Libre.config.vehiculos.modelos[lic.vehiculo].nombre) + ' · ' +
+        '<span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</div>' : '') +
       (lic.vehiculo
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
         : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) + '</div>') +
@@ -1857,6 +1861,11 @@
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
+      document.querySelectorAll('#sec-conductores [data-km-licencia]').forEach(function (el) {
+        const lic = estado.licencias.find(function (l) { return String(l.id) === el.dataset.kmLicencia; });
+        const texto = lic ? numero(Math.floor(lic.km || 0)) : '';
+        if (el.textContent !== texto) el.textContent = texto;
+      });
       document.querySelectorAll('#sec-conductores [data-xp]').forEach(function (barra) {
         const x = conductorDe(estado, barra.dataset.xp);
         if (!x) return;

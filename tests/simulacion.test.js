@@ -1752,4 +1752,43 @@ prueba('lluvia: chubascos cortos y tormentas largas, más chubascos', function (
   assert.strictEqual(migrado.lluvia.tipo, 'chubasco');
 });
 
+prueba('kilometraje: coche inicial usado, los comprados nuevos, y cuadra con el ticket', function () {
+  const v = config.vehiculos;
+  // El primero, de segunda mano en su rango; los que compras, a 0 km.
+  for (let i = 0; i < 20; i++) {
+    const km = sim.crearEstadoInicial(0).licencias[0].km;
+    assert.ok(km >= v.kmInicialMin && km <= v.kmInicialMax && km === Math.round(km), 'inicial: ' + km);
+  }
+  const e = flotaDe(2);
+  assert.strictEqual(e.licencias[1].km, 0, 'comprado nuevo');
+  // Los km de los coches suben lo mismo que los del ticket (jugando).
+  const antes = e.licencias.reduce(function (s, l) { return s + l.km; }, 0);
+  const totalAntes = e.totales.km;
+  e.reloj.minutos = 9 * 60;
+  let kmCaja = 0;
+  for (let i = 0; i < 2 * DIA() * 10; i++) sim.avanzar(e, 0.1).cierres.forEach(function (c) { kmCaja += c.km; });
+  kmCaja += e.caja.hoy.km;
+  const despues = e.licencias.reduce(function (s, l) { return s + l.km; }, 0);
+  assert.ok(despues - antes > 0, 'los coches suman km');
+  cerca(despues - antes, kmCaja, 1e-6);
+  cerca(e.totales.km - totalAntes, kmCaja, 1e-6);
+  // Sin conexión, igual: se reparten entre los coches de cada zona.
+  const f = flotaDe(2);
+  const fAntes = f.licencias.reduce(function (s, l) { return s + l.km; }, 0);
+  const r = sim.avanzar(f, 2 * DIA(), { sinPausa: true, agregado: true });
+  let kmFuera = f.caja.hoy.km;
+  r.cierres.forEach(function (c) { kmFuera += c.km; });
+  cerca(f.licencias.reduce(function (s, l) { return s + l.km; }, 0) - fAntes, kmFuera, 1e-6);
+  // Partidas de la versión 24: el primer coche, usado; los demás, desde 0.
+  require('../js/guardado.js');
+  const viejo = flotaDe(2);
+  viejo.version = 24;
+  viejo.licencias.forEach(function (l) { delete l.km; });
+  delete viejo.totales.km;
+  const m = globalThis.Libre.guardado.migrar(JSON.parse(JSON.stringify(viejo)));
+  assert.ok(m.licencias[0].km >= v.kmInicialMin && m.licencias[0].km <= v.kmInicialMax);
+  assert.strictEqual(m.licencias[1].km, 0);
+  assert.strictEqual(m.totales.km, 0);
+});
+
 console.log(pasadas + ' pruebas correctas');

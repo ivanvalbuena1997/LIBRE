@@ -59,6 +59,7 @@
           id: 1,
           numero: 0,              // se sortea abajo
           vehiculo: c.vehiculos.modeloInicial,
+          km: 0,                  // de segunda mano: se sortea abajo
           turnos: {
             dia: { quien: 'jugador', nombre: 'Tú', zona: c.zonaInicial },
             noche: null
@@ -77,7 +78,7 @@
       // Conductores contratados que no trabajan: esperan a que les des un turno.
       reserva: [],
       caja: { hoy: cajaVacia(0), ayer: null },
-      totales: { carreras: 0, ingresos: 0 },
+      totales: { carreras: 0, ingresos: 0, km: 0 },
       // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
       // mejor día de la partida y los despedidos que entran en el top.
       historial: [],
@@ -100,9 +101,31 @@
       ultimaMarca: ahoraMs || 0
     };
     estado.licencias[0].numero = sortearNumeroLicencia(estado, rng);
+    estado.licencias[0].km = kmCocheUsado(rng);
     // Los tres candidatos que verás al contratar.
     sortearCandidatos(estado);
     return estado;
+  }
+
+  /* Km del coche de segunda mano con el que empiezas (entero, en su rango). */
+  function kmCocheUsado(rng) {
+    const v = cfg().vehiculos;
+    return Math.round(v.kmInicialMin + (rng || Math.random)() * (v.kmInicialMax - v.kmInicialMin));
+  }
+
+  /*
+   * Suma kilómetros al coche de una licencia y a los de toda la partida
+   * (estado.totales.km, que no se pierden aunque cambie el coche).
+   */
+  function sumarKm(estado, lic, km) {
+    if (!lic || !(km > 0)) return;
+    lic.km = (lic.km || 0) + km;
+    estado.totales.km = (estado.totales.km || 0) + km;
+  }
+
+  /* La licencia en la que está un turno (conductor o tú). */
+  function licenciaDelTurno(estado, turno) {
+    return estado.licencias.find(function (l) { return l.turnos.dia === turno || l.turnos.noche === turno; }) || null;
   }
 
   // ------------------------------------------------------------------- Azar
@@ -794,6 +817,7 @@
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
     lic.vehiculo = c.vehiculos.modeloInicial;
+    lic.km = 0;   // los coches que compras salen nuevos
     return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. Contrata conductores para sus turnos.');
   }
 
@@ -1827,6 +1851,8 @@
     };
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + (carrera.kmVacio || 0);
+    const enLicencia = ubicacionJugador(estado);
+    sumarKm(estado, enLicencia && buscarLicencia(estado, enLicencia.licenciaId), carrera.km + (carrera.kmVacio || 0));
     const antes = estado.totales.ingresos;
     eventosDeCarrera(estado, resumen, carrera, { quien: 'jugador', nombre: 'Tú' });
     const u = ubicacionJugador(estado);
@@ -1959,6 +1985,7 @@
     turno.carrera = null;
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + carrera.kmVacio;
+    sumarKm(estado, licenciaDelTurno(estado, turno), carrera.km + carrera.kmVacio);
     if (carrera.vacio) return;
     const antes = estado.totales.ingresos;
     eventosDeCarrera(estado, resumen, carrera, turno);
@@ -2406,6 +2433,8 @@
       });
       gastar(estado, resumen, 'combustible', r.kmHora * horas * k * costeKmMedio);
       estado.caja.hoy.km += r.kmHora * horas * k;
+      // Sin conexión, los km de la zona se reparten entre sus coches.
+      coches.forEach(function (x) { sumarKm(estado, x.licencia, r.kmHora * horas * k / coches.length); });
       if (conConductor > 0 && ingresos > 0) {
         gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * porcentajeConductor(estado));
       }
@@ -2649,6 +2678,7 @@
     enPausa,
     arrancarDia,
     puedeSaltarDia,
+    kmCocheUsado,
     statsConductor,
     aportesConductor,
     conEfecto,

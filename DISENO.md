@@ -139,7 +139,7 @@ Todo el árbol en una pantalla (Iván, 18-11-2026): arriba el logo, del que sale
 
 Pestaña nueva del 18-11-2026 (Iván). De arriba abajo:
 
-- **Tres cifras de la partida:** lo facturado, las carreras y el mejor día (con su fecha).
+- **Cuatro cifras de la partida:** lo facturado, las carreras, el mejor día (con su fecha) y los km recorridos por tu flota (sin contar los que traía el coche de segunda mano; no se pierden aunque cambie un coche).
 - **Facturación por día:** una barra verde por cada uno de los últimos 30 días, con una raya para el neto (roja si ese día se perdió dinero; entonces baja del cero). Tocar una barra enseña debajo su día, lo facturado, el neto y las carreras; al entrar está elegido el último.
 - **Media diaria:** tú (barra azul, arriba) y cada conductor que tiene turno ahora (barras verdes, de mayor a menor), con lo que facturó de media por jornada en los últimos 30 días, contando solo las jornadas que estuvo en la flota (los días de libranza de su licencia no cuentan, para no bajarle la media; los de baja o avería, sí; la reserva no entra). Al lado, cuántas jornadas lleva la cuenta.
 - **Mejores conductores:** los diez que más han facturado en la partida, con medalla de oro, plata y bronce para los tres primeros. Entran también los despedidos (atenuados, con el chip «Despedido»). Tocar a uno que sigue contigo abre su ficha en Conductores.
@@ -205,6 +205,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 - **Licencia:** 2.500 € la segunda y un 15 % más cara cada siguiente, hasta las 15.812 de Madrid. Al comprarla eliges entre **dos placas con letras distintas**, cada una con su libranza.
 - **Coche:** 1.500 € (un solo modelo, Turismo). Sin coche, la licencia no trabaja.
+- **Kilometraje** (Iván, 19-11-2026): cada coche lleva sus km, que se ven bajo la placa de su licencia («Turismo · 92.391 km»). El coche con el que empiezas es de **segunda mano**, con entre 85.000 y 100.000 km; los que compras salen **nuevos, a 0 km**. Suman lo mismo que la línea «Kilómetros» del ticket: con cliente, buscándolo y en vacío (sin conexión, los de cada zona se reparten entre sus coches). Un coche con dos conductores hace unos 245 km por jornada en el juego (unas 100 jornadas, ~24.500 km; medido). En la realidad un taxi a doble turno hace 550–750 km al día (dato de Iván): el juego va a la mitad y por eso también gasta la mitad de combustible; queda por revisar. Sirve de base a la avería definitiva (idea 7 de docs/ideas-futuras.md).
 - **Libranza:** el día que le toca, la licencia no trabaja en ninguno de sus dos turnos, tampoco el tuyo. Cada licencia libra unos 2 de cada 7 días (su día de semana y la mitad de los fines de semana). Los costes fijos se pagan igual: elegir bien la placa reparte las libranzas de la flota.
 - **Saltar el día de libranza:** si libra tu licencia y ese día no puede trabajar nadie (no hay conductores, o sus licencias también libran o están de baja o averiadas) y no tienes otra licencia a la que pasarte, el taxímetro ofrece **saltar al cierre**: el reloj corre de golpe hasta las 7:00, se pagan los costes fijos y sale el ticket del día. Cuenta como licencia a la que pasarte una con coche, que no libre ese día y con un turno libre, si tienes la Oficina de gestión (sin ella no puedes dejar tu turno). Si hay flota trabajando, el día corre normal.
 

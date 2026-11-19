@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 24,
+    versionGuardado: 25,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -543,6 +543,10 @@
 
     vehiculos: {
       modeloInicial: 'turismo',
+      // Kilometraje (Iván, 19-11-2026): el coche con el que empiezas es de
+      // segunda mano; los que compras salen nuevos, a 0 km.
+      kmInicialMin: 85000,
+      kmInicialMax: 100000,
       // Un solo modelo en la primera versión.
       modelos: {
         turismo: {
