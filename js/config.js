@@ -793,7 +793,7 @@
         efecto: { cola: 0.5, soloZona: 'aeropuerto' }
       },
       {
-        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 4500,
+        id: 'app', nombre: 'App de pedidos', rama: 'ciudad', requiere: 'colaBarajas', precio: 4050,   // −10 % (Iván, 19-11-2026)
         descripcion: 'Los clientes te piden por el móvil: otro 30 % menos de tiempo buscando.',
         efecto: { busqueda: 0.7 }
       },
@@ -822,7 +822,7 @@
       },
       {
         // Iván, 18-11-2026. Equilibrio.
-        id: 'mampara', nombre: 'Mampara y asientos de cuero', rama: 'vehiculo', requiere: 'neumaticosAltaGama', precio: 1800,
+        id: 'mampara', nombre: 'Mampara y asientos de cuero', rama: 'vehiculo', requiere: 'neumaticosAltaGama', precio: 1620,   // −10 % (Iván, 19-11-2026)
         descripcion: 'Coches de categoría: más clientes eligen tus taxis, un 6 % más de demanda en todas las zonas.',
         efecto: { demanda: 1.06 }
       },
@@ -835,12 +835,14 @@
       {
         id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller',
         descripcion: 'Un mecánico de confianza: las averías duran menos y cuestan menos.',
+        // Iván, 19-11-2026: un 10 % más barato en cada nivel, para que se pague
+        // un 10 % antes (medido: 392 jornadas con 4 conductores; ahora ~350).
         niveles: [
-          { precio: 300, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },
-          { precio: 525, descripcion: 'Un 30 % más cortas y baratas.', efecto: { averiaDias: 0.7, averiaCoste: 0.7 } },
-          { precio: 750, descripcion: 'Un 45 % más cortas y un 40 % más baratas.', efecto: { averiaDias: 0.55, averiaCoste: 0.6 } },
-          { precio: 1050, descripcion: 'Un 55 % más cortas y la mitad de caras.', efecto: { averiaDias: 0.45, averiaCoste: 0.5 } },
-          { precio: 1350, descripcion: 'Un 65 % más cortas y un 60 % más baratas.', efecto: { averiaDias: 0.35, averiaCoste: 0.4 } }
+          { precio: 270, descripcion: 'Averías un 15 % más cortas y baratas.', efecto: { averiaDias: 0.85, averiaCoste: 0.85 } },
+          { precio: 470, descripcion: 'Un 30 % más cortas y baratas.', efecto: { averiaDias: 0.7, averiaCoste: 0.7 } },
+          { precio: 675, descripcion: 'Un 45 % más cortas y un 40 % más baratas.', efecto: { averiaDias: 0.55, averiaCoste: 0.6 } },
+          { precio: 945, descripcion: 'Un 55 % más cortas y la mitad de caras.', efecto: { averiaDias: 0.45, averiaCoste: 0.5 } },
+          { precio: 1215, descripcion: 'Un 65 % más cortas y un 60 % más baratas.', efecto: { averiaDias: 0.35, averiaCoste: 0.4 } }
         ]
       },
       {

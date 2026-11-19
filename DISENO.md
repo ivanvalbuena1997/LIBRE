@@ -366,6 +366,8 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 
 Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pide nada y cada mejora pide la anterior (basta su nivel 1), con el precio subiendo a lo largo de la rama. Hasta el 18-11 había ramas con dos o tres mejoras sin requisito.
 
+**No todas valen lo mismo, a propósito** (Iván, 19-11-2026): elegir bien qué comprar es parte del juego. Medido con un bot (4 conductores B, cada mejora sobre las anteriores de su rama, 240 partidas), la mayoría se paga en 30–200 jornadas; la Jornada larga, en 10–17; algunas, en más de 300. La **Acreditación de Barajas** hace perder dinero mientras los conductores eligen zona al azar (se quedan en su cola de 1–2 horas) y se queda así a propósito: las decisiones tienen consecuencias; lo arreglan los Turnos coordinados o el Curso de zonas. El 19-11 bajaron un 10 % de precio, para pagarse un 10 % antes, el Mecánico propio, la Mampara y la App de pedidos.
+
 **Clientes**
 
 | Mejora | Precio | Efecto |
@@ -387,7 +389,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Acreditación de Barajas | 2.600 € | Abre el Aeropuerto |
 | Parada junto a las salas de fiesta | 3.000 € | En Ocio: la mitad de tiempo buscando y +15 % de demanda |
 | Turnos coordinados en Barajas | 3.500 € | La cola del aeropuerto, a la mitad (30–60 min) |
-| App de pedidos | 4.500 € | Otro −30 % de tiempo buscando |
+| App de pedidos | 4.050 € | Otro −30 % de tiempo buscando |
 
 **Vehículo**
 
@@ -397,14 +399,14 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Curso de conducción eficiente | 800 € | −10 % de combustible |
 | Neumáticos de bajo consumo | 900 € | −8 % de combustible |
 | Neumáticos de alta gama (19-11-2026) | 1.300 € | −35 % de pinchazos en toda la flota, también tu turno (medido: se paga en unas 150 jornadas con 4 conductores, como sus vecinas) |
-| Mampara y asientos de cuero | 1.800 € | +6 % de demanda en todas las zonas: más clientes eligen tus taxis |
+| Mampara y asientos de cuero | 1.620 € | +6 % de demanda en todas las zonas: más clientes eligen tus taxis |
 | Flota híbrida | 4.000 € | −35 % de combustible |
 
 **Taller y seguros**
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Mecánico propio (5 niveles) | 300 / 525 / 750 / 1.050 / 1.350 € | Averías de un 15 a un 65 % más cortas y de un 15 a un 60 % más baratas |
+| Mecánico propio (5 niveles) | 270 / 470 / 675 / 945 / 1.215 € | Averías de un 15 a un 65 % más cortas y de un 15 a un 60 % más baratas |
 | Curso de seguridad vial | 675 € | −25 % de seguro |
 | Póliza de flota | 900 € | Otro −20 % de seguro |
 | Grúa propia | 1.200 € | Un pinchazo sin rueda de repuesto para solo una hora (no el resto del turno) y el neumático cuesta la mitad |
