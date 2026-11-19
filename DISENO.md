@@ -366,7 +366,7 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 
 Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pide nada y cada mejora pide la anterior (basta su nivel 1), con el precio subiendo a lo largo de la rama. Hasta el 18-11 había ramas con dos o tres mejoras sin requisito.
 
-**No todas valen lo mismo, a propósito** (Iván, 19-11-2026): elegir bien qué comprar es parte del juego. Medido con un bot (4 conductores B, cada mejora sobre las anteriores de su rama, 240 partidas), la mayoría se paga en 30–200 jornadas; la Jornada larga, en 10–17; algunas, en más de 300. La **Acreditación de Barajas** hace perder dinero mientras los conductores eligen zona al azar (se quedan en su cola de 1–2 horas) y se queda así a propósito: las decisiones tienen consecuencias; lo arreglan los Turnos coordinados o el Curso de zonas. El 19-11 bajaron un 10 % de precio, para pagarse un 10 % antes, el Mecánico propio, la Mampara y la App de pedidos.
+**No todas valen lo mismo, a propósito** (Iván, 19-11-2026): elegir bien qué comprar es parte del juego. Medido con un bot (4 conductores B, cada mejora sobre las anteriores de su rama, 240 partidas), la mayoría se paga en 30–200 jornadas; la Jornada larga, en 10–17; algunas, en más de 300. La **Acreditación de Barajas** hace perder dinero mientras los conductores eligen zona al azar (se quedan en su cola de 1–2 horas) y se queda así a propósito: las decisiones tienen consecuencias; lo arreglan los Turnos coordinados o el Curso de zonas. El 19-11 bajaron un 10 % de precio, para pagarse un 10 % antes, el Mecánico propio, la Mampara y la App de pedidos; la Parada junto a las salas de fiesta, además, pasó de +15 % a +30 % de demanda en Ocio.
 
 **Clientes**
 
@@ -387,7 +387,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Emisora de radio-taxi | 1.800 € | −30 % de tiempo buscando; cuota de 3 € por coche y día |
 | Parada en Atocha y Chamartín | 2.200 € | Abre Estaciones |
 | Acreditación de Barajas | 2.600 € | Abre el Aeropuerto |
-| Parada junto a las salas de fiesta | 3.000 € | En Ocio: la mitad de tiempo buscando y +15 % de demanda |
+| Parada junto a las salas de fiesta | 2.700 € | En Ocio: la mitad de tiempo buscando y +30 % de demanda (19-11-2026: antes 3.000 € y +15 %). Brilla con el Curso de zonas (se paga en ~210 jornadas con 4 conductores); sin él casi nadie va a Ocio y apenas rinde |
 | Turnos coordinados en Barajas | 3.500 € | La cola del aeropuerto, a la mitad (30–60 min) |
 | App de pedidos | 4.050 € | Otro −30 % de tiempo buscando |
 

@@ -783,9 +783,12 @@
         efecto: { desbloqueaZona: 'aeropuerto' }
       },
       {
-        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'aeropuerto', precio: 3000,
-        descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 15 % más de demanda.',
-        efecto: { busqueda: 0.5, demanda: 1.15, soloZona: 'ocio' }
+        // Iván, 19-11-2026: −10 % de precio y +30 % de demanda (antes 3.000 € y
+        // +15 %). Medido: con el Curso de zonas se paga en ~210 jornadas (4
+        // conductores); sin él apenas rinde, porque casi nadie va a Ocio.
+        id: 'paradaOcio', nombre: 'Parada junto a las salas de fiesta', rama: 'ciudad', requiere: 'aeropuerto', precio: 2700,
+        descripcion: 'En ocio nocturno: la mitad de tiempo buscando y un 30 % más de demanda.',
+        efecto: { busqueda: 0.5, demanda: 1.3, soloZona: 'ocio' }
       },
       {
         id: 'colaBarajas', nombre: 'Turnos coordinados en Barajas', rama: 'ciudad', requiere: 'paradaOcio', precio: 3500,
