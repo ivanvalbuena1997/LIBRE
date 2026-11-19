@@ -638,6 +638,15 @@
    * no cabe queda solo en el ticket. Las propinas van en el importe flotante.
    */
   const MS_ENTRE_AVISOS = 3000;
+  /*
+   * Los avisos de los conductores (nivel, objeto encontrado, baja, pinchazo…)
+   * solo salen en su apartado (Iván, 19-11-2026): en estas pestañas. En las
+   * demás se descartan (suena el sonido igual; lo que cuesta va al ticket).
+   */
+  const VISTAS_AVISOS_CONDUCTOR = ['conductores', 'calle'];
+  function avisoVisible(ev) {
+    return !ev.conductor || VISTAS_AVISOS_CONDUCTOR.indexOf(vistaActual) !== -1;
+  }
   const colaAvisos = [];
   let ultimoAviso = 0;
   // Qué sonido lleva cada evento de la simulación (los demás, ninguno).
@@ -653,6 +662,7 @@
       if (SONIDO_EVENTO[ev.tipo]) sonar(SONIDO_EVENTO[ev.tipo]);
       if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
       if (ev.tipo === 'esterillas' || ev.tipo === 'bolsa') return;
+      if (!avisoVisible(ev)) return;
       if (colaAvisos.length < 3) colaAvisos.push(ev);
     });
     soltarAviso();
@@ -661,6 +671,8 @@
     if (colaAvisos.length === 0 || Date.now() - ultimoAviso < MS_ENTRE_AVISOS) return;
     ultimoAviso = Date.now();
     const ev = colaAvisos.shift();
+    // Si cambiaste de pestaña mientras esperaba, ya no toca enseñarlo.
+    if (!avisoVisible(ev)) { ultimoAviso = 0; soltarAviso(); return; }
     mostrarMensaje(ev.texto, ev.retrato, ev.tipo === 'hallazgo' ? ev.categoria : null);
   }
 

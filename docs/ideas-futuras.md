@@ -62,6 +62,6 @@ y, si cambia el alcance, actualizar DISENO.md («Alcance de la versión actual»
 
 ### 🖥️ Interfaz y experiencia de usuario
 
-- [ ] **Avisos de conductores solo en su sitio.** Que los mensajes de lo que
+- [x] **Avisos de conductores solo en su sitio.** Hecho el 19-11-2026: salen en Calle y Conductores. Que los mensajes de lo que
   les pasa a los conductores (subir de nivel, encontrar un objeto, bajas,
   averías…) no salgan en otras pantallas, sino solo en su apartado.

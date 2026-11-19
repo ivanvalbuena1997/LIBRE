@@ -366,6 +366,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   que apunta `apuntarFacturado()`). Cada conductor lleva un `id` fijo
   (`estado.ultimoIdConductor`). Fuera de su pestaña no se dibuja. Medallas
   con `--medalla-oro`, `--medalla-plata` y `--medalla-bronce`.
+- Avisos (`mostrarMensaje()`, `#mensaje`): de lado a lado con 16 px de
+  margen (antes, centrado con translate, solo usaba media pantalla). Los de
+  un conductor (`ev.conductor`) solo salen en `VISTAS_AVISOS_CONDUCTOR`
+  (Calle y Conductores; Iván, 19-11-2026): `avisoVisible()` los descarta en
+  las demás, también si cambias de pestaña con uno en la cola.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
   hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
   Escape).
