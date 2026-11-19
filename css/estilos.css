@@ -495,6 +495,18 @@ main {
 
 /* Ajustes y partida: hoja que abre el engranaje (la sección no es tarjeta) */
 #sec-partida { display: contents; }
+/* Panel de actualizaciones en Ajustes: plegado, con la lista numerada. */
+.actualizaciones { margin-top: var(--esp-5); border-top: 1px solid var(--linea); padding-top: var(--esp-3); }
+.actualizaciones summary { display: flex; flex-direction: column; justify-content: center; min-height: 44px; cursor: pointer; list-style: none; }
+.actualizaciones summary::-webkit-details-marker { display: none; }
+.actualizaciones summary strong { font-weight: 800; color: var(--tinta); }
+.actualizaciones summary strong::after { content: ' ›'; color: var(--marca); }
+.actualizaciones[open] summary strong::after { content: ' ⌄'; }
+.actualizaciones summary span { font-size: var(--t-mini); color: var(--tinta-suave); }
+.actualizaciones h3 { margin: var(--esp-4) 0 var(--esp-1); font-size: var(--t-pequeno); font-weight: 800; color: var(--tinta); }
+.actualizaciones ol { margin: 0; padding-left: 2.2em; font-size: var(--t-pequeno); color: var(--tinta); line-height: 1.4; }
+.actualizaciones li + li { margin-top: 4px; }
+.actualizaciones li::marker { color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
 #sec-partida .hoja h2 { margin: 0 0 12px; padding-right: 40px; font-family: var(--letra-titulo); font-weight: 800; font-size: var(--t-seccion); }
 
 /* Menú inferior fijo: cuatro pestañas (maqueta: 78 px, icono y nombre) */

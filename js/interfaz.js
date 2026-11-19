@@ -2137,6 +2137,31 @@
    * Sonido sí o no y volumen (se guardan aparte de la partida, en
    * js/sonidos.js). Sin sonido, el volumen se queda desactivado.
    */
+  /*
+   * Panel «Actualizaciones» de Ajustes (Iván, 19-11-2026): el historial de
+   * js/actualizaciones.js, de la más nueva a la más vieja. Plegado; se abre
+   * con su título (un <details>, sin estado propio).
+   */
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+    'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  function htmlActualizaciones() {
+    const grupos = (Libre.actualizaciones || []).slice().reverse();
+    if (!grupos.length) return '';
+    const ultima = grupos[0].cambios[grupos[0].cambios.length - 1];
+    const fecha = function (iso) {
+      const p = iso.split('-');
+      return Number(p[2]) + ' de ' + MESES[Number(p[1]) - 1] + ' de ' + p[0];
+    };
+    return '<details class="actualizaciones"><summary><strong>Actualizaciones</strong>' +
+      '<span>La última, n.º ' + ultima.n + ' · ' + esc(fecha(grupos[0].fecha)) + '</span></summary>' +
+      grupos.map(function (g) {
+        return '<section><h3>' + esc(fecha(g.fecha)) + ' · ' + esc(g.titulo) + '</h3><ol>' +
+          g.cambios.slice().reverse().map(function (c) {
+            return '<li value="' + c.n + '">' + esc(c.texto) + '</li>';
+          }).join('') + '</ol></section>';
+      }).join('') + '</details>';
+  }
+
   function htmlAjustesSonido() {
     if (!Libre.sonidos) return '';
     const a = Libre.sonidos.ajustes();
@@ -2168,7 +2193,7 @@
         '<button type="button" data-partida="exportar">Exportar</button>' +
         '<button type="button" data-partida="importar">Importar</button>' +
         '<button type="button" data-partida="borrar" class="boton-peligro">Borrar partida</button>' +
-        '</div></div>';
+        '</div>' + htmlActualizaciones() + '</div>';
     },
     actualizar: function () {
       if (enfocarAjustes) {

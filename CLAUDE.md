@@ -21,9 +21,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   - `Libre.ambiente` → `js/ambiente.js` (calle SVG de la cabecera; solo interfaz)
   - `Libre.retratos` → `js/retratos.js` (retratos SVG de conductores; solo interfaz)
   - `Libre.sonidos` → `js/sonidos.js` (sonidos con Web Audio; solo interfaz)
+  - `Libre.actualizaciones` → `js/actualizaciones.js` (historial de
+    actualizaciones para el panel de Ajustes; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
-  guardado, ambiente, retratos, sonidos, interfaz, main.
+  guardado, ambiente, retratos, sonidos, actualizaciones, interfaz, main.
 
 ## Reglas de arquitectura
 
@@ -405,7 +407,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   las demás, también si cambias de pestaña con uno en la cola.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
   hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
-  Escape).
+  Escape). Al final, el panel plegado «Actualizaciones» (`htmlActualizaciones()`,
+  un `<details>`): **cada actualización que se termine se apunta en
+  `js/actualizaciones.js` (número siguiente, en el grupo de su día, en
+  lenguaje de jugador) y en `docs/historial.md`**.
 - Cabecera (`#cabecera`): la calle de fondo, «Libre», el engranaje y la
   placa «Caja total» (dinero y, en Calle, «Día N · Mié 07:00 · Tarifa 1»).
   Alta (220 px) en Calle y compacta (124 px) en las demás; en pantallas de
