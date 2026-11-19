@@ -1154,6 +1154,15 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .almacen-combinar { display: flex; flex-direction: column; gap: var(--esp-2); padding-top: var(--esp-3); border-top: 1px dashed var(--linea); }
 .almacen-combinar .ui-rareza { display: inline-block; vertical-align: 1px; }
 .almacen-panel .boton-combinar { width: 100%; }
+/* Elegir qué objetos se gastan al combinar (Iván, 19-11-2026) */
+.combinar-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--esp-1); }
+.combinar-lista li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--esp-3); padding: var(--esp-1) var(--esp-2); border-radius: var(--r-control); }
+.combinar-lista li.elegido { background: var(--tinte-azul); }
+.combinar-lista strong { display: block; font-size: var(--t-pequeno); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combinar-lista small { font-size: var(--t-mini); color: var(--tinta-suave); }
+.combinar-paso { display: flex; align-items: center; gap: var(--esp-1); }
+.combinar-paso button { width: 44px; min-height: 44px; padding: 0; border: 1px solid var(--linea); border-radius: var(--r-control); background: var(--tarjeta); color: var(--marca); font-size: var(--t-normal); font-weight: 800; }
+.combinar-paso output { min-width: 1.5em; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
 
 /* Bandeja (almacén lleno) y listas de venta */
 .bandeja { padding: var(--esp-5) var(--esp-6); margin-bottom: var(--esp-4); border: 2px solid var(--sol); background: var(--tinte-ambar); }

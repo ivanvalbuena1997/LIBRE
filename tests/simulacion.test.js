@@ -1458,7 +1458,7 @@ prueba('RRHH: cada nivel suma 1 y sube la categoría de los candidatos (no la de
   cerca(sim.pesosCandidatos(e).B, rrhh.niveles[rrhh.niveles.length - 1].efecto.pesosCandidatos.B);
 });
 
-prueba('combinar: 3 objetos de una categoría dan uno al azar de la siguiente', function () {
+prueba('combinar: 3 objetos B dan uno al azar de la categoría A', function () {
   const e = sim.crearEstadoInicial(0);
   e.objetos = { ambientador: 2, cojin: 1, termo: 1, gps: 1 };
   // Gasta las copias del elegido y luego el que más se repite.
@@ -1480,6 +1480,33 @@ prueba('combinar: 3 objetos de una categoría dan uno al azar de la siguiente', 
   assert.ok(sim.combinarObjetos(e, 'ambientador').ok);
   assert.strictEqual(e.bandeja.length, 0);
   assert.strictEqual(e.objetos.gps >= 1, true);
+});
+
+prueba('combinar: 3 B, 4 A, 4 S o 5 S+, y eliges cuáles se gastan', function () {
+  const n = config.objetos.combinar;
+  assert.deepStrictEqual([n.B, n.A, n.S, n['S+']], [3, 4, 4, 5]);
+  assert.strictEqual(sim.cuantosParaCombinar('L'), 0, 'los LEGENDARIOS no se combinan');
+  const e = sim.crearEstadoInicial(0);
+  // Con 3 A no llega (hacen falta 4).
+  e.objetos = { gps: 2, manometro: 1 };
+  assert.strictEqual(sim.objetosParaCombinar(e, 'gps'), null);
+  assert.ok(!sim.combinarObjetos(e, 'gps').ok);
+  // Eliges: 1 GPS y 3 manometros, aunque haya más GPS.
+  e.objetos = { gps: 3, manometro: 3, linterna: 1 };
+  assert.ok(!sim.combinarObjetos(e, 'gps', 'gps,manometro,manometro').ok, 'tienen que ser 4');
+  assert.ok(!sim.combinarObjetos(e, 'gps', 'gps,manometro,manometro,termo').ok, 'de la misma categoría');
+  assert.ok(!sim.combinarObjetos(e, 'gps', 'linterna,linterna,manometro,manometro').ok, 'solo los que tienes');
+  const r = sim.combinarObjetos(e, 'gps', 'gps,manometro,manometro,manometro');
+  assert.ok(r.ok, r.mensaje);
+  assert.strictEqual(sim.buscarObjeto(r.objeto).categoria, 'S');
+  assert.strictEqual(e.objetos.gps, 2, 'se quedan los GPS que no elegiste');
+  assert.strictEqual(e.objetos.manometro, 0);
+  assert.strictEqual(e.objetos.linterna, 1);
+  // Un LEGENDARIO cuesta 5 S+.
+  e.objetos = { gato: 4, detector: 1 };
+  const l = sim.combinarObjetos(e, 'gato', ['gato', 'gato', 'gato', 'gato', 'detector']);
+  assert.ok(l.ok, l.mensaje);
+  assert.strictEqual(sim.buscarObjeto(l.objeto).categoria, 'L');
 });
 
 prueba('hallazgo y suerte: objetos y Urraca encuentran más y mejor, con tope', function () {

@@ -182,9 +182,15 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`estado.objetos`, como mucho `capacidadAlmacen()` sin equipar: 10, y
   hasta 40 con la mejora «Taquillas» de Conductores y jornada) y, si está
   lleno, a `estado.bandeja` hasta que vendas algo (nada se vende solo).
-  `combinarObjetos()` cambia `config.objetos.combinar` (3) sin equipar de
-  una categoría por uno al azar de la siguiente (`objetosParaCombinar()`
-  dice cuáles se gastan: el tocado, sus copias y los más repetidos).
+  `combinarObjetos(estado, id, elegidos)` cambia
+  `cuantosParaCombinar(categoría)` sin equipar de una categoría
+  (`config.objetos.combinar`: 3 B, 4 A, 4 S, 5 S+; Iván, 19-11-2026) por
+  uno al azar de la siguiente. `elegidos` (lista o «a,a,b») son los que el
+  jugador decide gastar; sin ella, los de `objetosParaCombinar()` (el
+  tocado, sus copias y los más repetidos), que es también la propuesta
+  inicial del panel (`combinarSel`, con «−»/«+» por objeto:
+  `data-combinar-mas`/`menos`). Hallazgo: `probHallazgo` 0,009 (antes
+  0,012).
   `venderObjeto()` vende uno del almacén o de la bandeja por el precio de
   su categoría (incidencia «Venta de objetos»). Se equipan en los huecos
   del conductor (`turno.objetos`, sin repetir; 1, 2 en nivel 4 y 3 en nivel

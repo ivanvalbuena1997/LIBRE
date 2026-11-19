@@ -283,6 +283,10 @@
         {
           "n": 62,
           "texto": "Panel de actualizaciones en Ajustes."
+        },
+        {
+          "n": 63,
+          "texto": "Salen menos objetos (0,9 % por carrera), subir de categoría combinando cuesta más (3 B, 4 A, 4 S y 5 S+) y eliges qué objetos gastas."
         }
       ]
     }

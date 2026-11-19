@@ -180,10 +180,14 @@
      */
     objetos: {
       almacen: 10,                 // Equilibrio: sin mejoras; «Taquillas» lo amplía.
-      probHallazgo: 0.012,
-      // Iván (18-11-2026): tantos objetos de una categoría se combinan en uno
-      // al azar de la siguiente. Equilibrio.
-      combinar: 3,
+      // Iván, 19-11-2026: un jugador de final de partida dice que salen
+      // demasiados. Antes 0,012 (con 20 conductores, ~218 objetos por hora).
+      probHallazgo: 0.009,
+      // Cuántos objetos de una categoría se combinan en uno al azar de la
+      // siguiente, según la categoría que se gasta (Iván, 18-11-2026; el
+      // 19-11, más caro subir: antes 3 en todas). Un LEGENDARIO sale de 240 B
+      // (antes 81). Eliges cuáles se gastan. Equilibrio.
+      combinar: { B: 3, A: 4, S: 4, 'S+': 5 },
       /*
        * efecto, además de los factores: bolsa (no vomitan en su taxi: se usa
        * la bolsa), sinImpagos (nadie se le va sin pagar), rueda (un pinchazo

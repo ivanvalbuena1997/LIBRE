@@ -1294,18 +1294,24 @@
     return i >= 0 && i < lista.length - 1 ? lista[i + 1] : null;
   }
 
+  /* Cuántos objetos de esa categoría hacen falta para combinar (0 si no se combina). */
+  function cuantosParaCombinar(categoria) {
+    return (cfg().objetos.combinar || {})[categoria] || 0;
+  }
+
   /*
-   * Los objetos sin equipar que se gastan al combinar `id` (Iván,
-   * 18-11-2026): él y otros de su categoría hasta juntar
-   * `config.objetos.combinar`, primero sus copias y luego los que más se
-   * repiten. Devuelve la lista de ids (con repetidos) o null si no hay
-   * bastantes o ya es de la mejor categoría.
+   * Los objetos sin equipar que se gastan por defecto al combinar `id`
+   * (Iván, 18-11-2026): él y otros de su categoría hasta juntar
+   * cuantosParaCombinar(), primero sus copias y luego los que más se
+   * repiten. Es la propuesta inicial: desde el 19-11-2026 el jugador elige
+   * cuáles gasta (combinarObjetos con `elegidos`). Devuelve la lista de ids
+   * (con repetidos) o null si no hay bastantes o ya es de la mejor categoría.
    */
   function objetosParaCombinar(estado, id) {
     const o = buscarObjeto(id);
-    const n = cfg().objetos.combinar;
+    const n = o ? cuantosParaCombinar(o.categoria) : 0;
     const hay = estado.objetos || {};
-    if (!o || !categoriaSiguiente(o.categoria) || !(hay[id] > 0)) return null;
+    if (!o || !n || !categoriaSiguiente(o.categoria) || !(hay[id] > 0)) return null;
     const usados = [];
     for (let i = 0; i < Math.min(hay[id], n); i++) usados.push(id);
     const otros = cfg().objetos.lista
@@ -1319,25 +1325,43 @@
 
   /*
    * Combina objetos sin equipar de la misma categoría en uno al azar de la
-   * categoría siguiente (ver objetosParaCombinar). Deja hueco en el
-   * almacén, así que entra lo que esperaba en la bandeja.
+   * categoría siguiente. `elegidos` (Iván, 19-11-2026): los que el jugador
+   * decide gastar, una lista de ids con repetidos (o el texto «a,a,b», como
+   * llega desde un botón); tienen que ser justo cuantosParaCombinar() de la
+   * categoría de `id` y estar sin equipar. Sin `elegidos`, los de
+   * objetosParaCombinar(). Deja hueco en el almacén, así que entra lo que
+   * esperaba en la bandeja.
    */
-  function combinarObjetos(estado, id) {
+  function combinarObjetos(estado, id, elegidos) {
     const o = buscarObjeto(id);
     if (!o) return fallo('Ese objeto no existe.');
     const siguiente = categoriaSiguiente(o.categoria);
     if (!siguiente) return fallo('Los LEGENDARIOS no se combinan: ya son lo mejor.');
-    const usados = objetosParaCombinar(estado, id);
-    if (!usados) {
-      return fallo('Para combinar necesitas ' + cfg().objetos.combinar + ' objetos de categoría ' +
-        buscarCategoria(o.categoria).nombre + ' sin equipar.');
+    const n = cuantosParaCombinar(o.categoria);
+    const cat = buscarCategoria(o.categoria).nombre;
+    let usados;
+    if (elegidos !== undefined && elegidos !== null && elegidos !== '') {
+      usados = Array.isArray(elegidos) ? elegidos.slice() : String(elegidos).split(',');
+      if (usados.length !== n) return fallo('Elige ' + n + ' objetos de categoría ' + cat + ' para combinar.');
+      const cuenta = {};
+      for (const x of usados) {
+        const ob = buscarObjeto(x);
+        if (!ob || ob.categoria !== o.categoria) return fallo('Solo se combinan objetos de la misma categoría.');
+        cuenta[x] = (cuenta[x] || 0) + 1;
+      }
+      for (const x in cuenta) {
+        if (((estado.objetos || {})[x] || 0) < cuenta[x]) return fallo('No tienes tantos ' + buscarObjeto(x).nombre + ' sin equipar.');
+      }
+    } else {
+      usados = objetosParaCombinar(estado, id);
+      if (!usados) return fallo('Para combinar necesitas ' + n + ' objetos de categoría ' + cat + ' sin equipar.');
     }
     usados.forEach(function (x) { estado.objetos[x]--; });
     const posibles = cfg().objetos.lista.filter(function (x) { return x.categoria === siguiente.id; });
     const nuevo = posibles[Math.floor(azar(estado) * posibles.length)];
     estado.objetos[nuevo.id] = (estado.objetos[nuevo.id] || 0) + 1;
     guardarBandeja(estado);
-    const r = exito('Combinas ' + usados.length + ' objetos ' + buscarCategoria(o.categoria).nombre +
+    const r = exito('Combinas ' + usados.length + ' objetos ' + cat +
       ' y sale ' + nuevo.nombre + ' (' + siguiente.nombre + ').');
     r.objeto = nuevo.id;
     return r;
@@ -2870,6 +2894,7 @@
     categoriaSiguiente,
     objetosParaCombinar,
     combinarObjetos,
+    cuantosParaCombinar,
     equiparObjeto,
     quitarObjeto,
     progresoConductor,

@@ -78,3 +78,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 60. Los coches hacen más kilómetros, como en la realidad (y gastan más combustible).
 61. Avería definitiva por kilómetros y «Renovar coche» en la hoja de cada coche.
 62. Panel de actualizaciones en Ajustes.
+63. Salen menos objetos (0,9 % por carrera), subir de categoría combinando cuesta más (3 B, 4 A, 4 S y 5 S+) y eliges qué objetos gastas.

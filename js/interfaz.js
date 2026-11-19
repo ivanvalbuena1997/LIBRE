@@ -917,6 +917,8 @@
   let cocheAbierto = null;   // id de la licencia cuya hoja del coche está abierta
   // Objeto del almacén con su panel abierto (id) o null.
   let fichaInventario = null;
+  // Lo que el jugador ha elegido gastar al combinar: { id del objeto abierto, cuenta: { id: n } }.
+  let combinarSel = null;
 
   // ¿Está abierta la lista para vender objetos mientras contratas?
   let ventaParaContratar = false;
@@ -1665,7 +1667,7 @@
         })];
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando, comparando,
-    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu, cocheAbierto,
+    eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu, cocheAbierto, combinarSel,
     estado.licencias.map(function (l) {
       const e = Libre.sim.estadoCoche(estado, l);
       // Abierta, la hoja cambia con cada 1.000 km; cerrada, solo el color del estado.
@@ -1725,33 +1727,61 @@
   }
 
   /*
-   * Combinar (Iván, 18-11-2026): qué se gasta y el botón, o lo que falta.
+   * Combinar (Iván, 18-11-2026; desde el 19-11, eligiendo qué se gasta):
+   * los objetos sin equipar de la categoría, cada uno con − y +, y el botón
+   * cuando hay justo los que pide la categoría. Empieza con la propuesta de
+   * objetosParaCombinar() (el tocado, sus copias y los más repetidos).
    * Los LEGENDARIOS no tienen categoría siguiente: no sale nada.
    */
+  function seleccionCombinar(estado, o) {
+    const n = Libre.sim.cuantosParaCombinar(o.categoria);
+    if (!combinarSel || combinarSel.id !== o.id) {
+      const cuenta = {};
+      (Libre.sim.objetosParaCombinar(estado, o.id) || []).forEach(function (id) { cuenta[id] = (cuenta[id] || 0) + 1; });
+      combinarSel = { id: o.id, cuenta };
+    }
+    // Lo vendido o equipado entretanto deja de contar; nunca más de n.
+    let total = 0;
+    Object.keys(combinarSel.cuenta).forEach(function (id) {
+      const k = Math.min(combinarSel.cuenta[id], (estado.objetos || {})[id] || 0, n - total);
+      if (k > 0) { combinarSel.cuenta[id] = k; total += k; } else delete combinarSel.cuenta[id];
+    });
+    return { n, total, cuenta: combinarSel.cuenta };
+  }
+
   function htmlCombinar(estado, o) {
     const siguiente = Libre.sim.categoriaSiguiente(o.categoria);
     if (!siguiente) return '';
-    const n = Libre.config.objetos.combinar;
     const cat = Libre.sim.buscarCategoria(o.categoria).nombre;
-    const usados = Libre.sim.objetosParaCombinar(estado, o.id);
-    let nota;
-    if (usados) {
-      const cuenta = {};
-      usados.forEach(function (id) { cuenta[id] = (cuenta[id] || 0) + 1; });
-      nota = 'Se gastan ' + Object.keys(cuenta).map(function (id) {
-        return (cuenta[id] > 1 ? cuenta[id] + ' × ' : '') + Libre.sim.buscarObjeto(id).nombre;
-      }).join(', ') + '.';
-    } else {
-      const hay = Libre.config.objetos.lista.reduce(function (s, x) {
-        return s + (x.categoria === o.categoria ? (estado.objetos[x.id] || 0) : 0);
-      }, 0);
-      nota = 'Te ' + (n - hay === 1 ? 'falta 1' : 'faltan ' + (n - hay)) + ' de categoría ' + cat + ' sin equipar.';
+    const iguales = Libre.config.objetos.lista.filter(function (x) {
+      return x.categoria === o.categoria && (estado.objetos[x.id] || 0) > 0;
+    });
+    const hay = iguales.reduce(function (s, x) { return s + estado.objetos[x.id]; }, 0);
+    const sel = seleccionCombinar(estado, o);
+    const n = sel.n;
+    const cabeza = '<p><strong>Combinar</strong> ' + n + ' de categoría ' + esc(cat) + ' por uno al azar de categoría ' +
+      '<span class="' + claseRareza(siguiente.id) + '">' + esc(siguiente.nombre) + '</span>. ';
+    if (hay < n) {
+      return '<div class="almacen-combinar">' + cabeza + 'Te ' + (n - hay === 1 ? 'falta 1' : 'faltan ' + (n - hay)) +
+        ' de categoría ' + esc(cat) + ' sin equipar.</p></div>';
     }
-    return '<div class="almacen-combinar">' +
-      '<p><strong>Combinar</strong> ' + n + ' de categoría ' + esc(cat) + ' por uno al azar de categoría ' +
-      '<span class="' + claseRareza(siguiente.id) + '">' + esc(siguiente.nombre) + '</span>. ' + esc(nota) + '</p>' +
-      '<button type="button" class="ui-boton ui-boton--principal boton-combinar" data-accion="combinarObjetos" data-args="' + o.id + '"' +
-      (usados ? '' : ' disabled') + '>Combinar ' + n + ' → 1 ' + esc(siguiente.nombre) + '</button></div>';
+    const elegidos = [];
+    Object.keys(sel.cuenta).forEach(function (id) { for (let i = 0; i < sel.cuenta[id]; i++) elegidos.push(id); });
+    const filas = iguales.map(function (x) {
+      const k = sel.cuenta[x.id] || 0;
+      return '<li class="' + (k ? 'elegido' : '') + '"><span class="almacen-icono pequeno ' + claseFondo(x.categoria) + '">' + icono(x.id) + '</span>' +
+        '<span><strong>' + esc(x.nombre) + '</strong><small>' + estado.objetos[x.id] + ' sin equipar</small></span>' +
+        '<span class="combinar-paso">' +
+        '<button type="button" data-combinar-menos="' + x.id + '" aria-label="Gastar uno menos de ' + esc(x.nombre) + '"' + (k ? '' : ' disabled') + '>−</button>' +
+        '<output aria-label="' + esc(x.nombre) + ' que se gastan">' + k + '</output>' +
+        '<button type="button" data-combinar-mas="' + x.id + '" aria-label="Gastar uno más de ' + esc(x.nombre) + '"' +
+        (k < estado.objetos[x.id] && sel.total < n ? '' : ' disabled') + '>+</button></span></li>';
+    }).join('');
+    return '<div class="almacen-combinar">' + cabeza + 'Elige cuáles gastas: <strong>' + sel.total + ' de ' + n + '</strong>.</p>' +
+      '<ul class="combinar-lista">' + filas + '</ul>' +
+      '<button type="button" class="ui-boton ui-boton--principal boton-combinar" data-accion="combinarObjetos" data-args="' +
+      o.id + '|' + elegidos.join(',') + '"' + (sel.total === n ? '' : ' disabled') + '>Combinar ' + n + ' → 1 ' +
+      esc(siguiente.nombre) + '</button></div>';
   }
 
   /* Botón de vender un objeto (del almacén, o de la bandeja con su posición). */
@@ -2766,6 +2796,14 @@
       if (ev.target.closest('[data-cerrar-equipar]')) {
         equipando = null;
         enfocarHoja = 'ficha';
+        opciones.redibujar();
+        return;
+      }
+      const masMenos = ev.target.closest('[data-combinar-mas], [data-combinar-menos]');
+      if (masMenos) {
+        if (masMenos.disabled || !combinarSel) return;
+        const id = masMenos.dataset.combinarMas || masMenos.dataset.combinarMenos;
+        combinarSel.cuenta[id] = Math.max(0, (combinarSel.cuenta[id] || 0) + (masMenos.dataset.combinarMas ? 1 : -1));
         opciones.redibujar();
         return;
       }

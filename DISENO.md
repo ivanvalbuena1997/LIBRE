@@ -297,13 +297,13 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 
 ### 5.7 Objetos y almacén
 
-- **Encontrarlos:** cada carrera de un conductor tiene un 1,2 % de dar un objeto (más según su categoría). Tú no encuentras, y sin conexión tampoco. Se sortea la categoría con los pesos de la tabla de arriba y, dentro de ella, el objeto. Sale un aviso con su retrato.
+- **Encontrarlos:** cada carrera de un conductor tiene un 0,9 % de dar un objeto (más según su categoría; hasta el 19-11-2026, un 1,2 %: un jugador de final de partida se quejó de que salían demasiados). Medido: con 1 conductor B sale uno cada ~5 jornadas (~7 por hora de juego); con 7 conductores, ~35 por hora; con 20 de categorías altas y Jornada larga 5, ~160 por hora (antes ~218). Tú no encuentras, y sin conexión tampoco. Se sortea la categoría con los pesos de la tabla de arriba y, dentro de ella, el objeto. Sale un aviso con su retrato.
 - **Almacén:** guarda 10 objetos sin equipar (hasta 40 con Taquillas). Si está lleno, lo encontrado espera en una **bandeja** hasta que vendes algo: nada se vende solo.
 - **Equipar:** desde la ficha de cada conductor, en sus huecos, sin repetir objeto. Quitarlo lo devuelve al almacén.
 - **Vender:** B 20 €, A 50 €, S 150 €, S+ 400 €, LEGENDARIO 1.200 € (Iván, 18-11-2026; antes, 40 / 120 / 400 / 1.200 / 4.000 €, y vender ganaba a equipar). Entra en la caja como «Venta de objetos».
 - **Frase:** cada objeto tiene su chiste (Iván, 18-11-2026), que sale en su panel del Almacén.
 - **Encontrar más y mejor:** algunos objetos y la cualidad Urraca suben la probabilidad de encontrar (con tope) o hacen que lo encontrado suba una categoría («suerte», como mucho un 40 %, más con la categoría y el nivel).
-- **Combinar** (Iván, 18-11-2026): tres objetos sin equipar de la misma categoría se cambian por uno al azar de la categoría siguiente (los LEGENDARIOS no se combinan). Se gasta el que has tocado y, para completar, primero sus copias y luego los que más se repiten; el panel dice cuáles antes de tocar. Deja hueco en el almacén, así que entra lo que esperaba en la bandeja.
+- **Combinar** (Iván, 18-11-2026; retocado el 19-11): objetos sin equipar de la misma categoría se cambian por uno al azar de la categoría siguiente: **3 B → 1 A, 4 A → 1 S, 4 S → 1 S+ y 5 S+ → 1 LEGENDARIO** (antes, 3 en todas; un LEGENDARIO sale de 240 B en vez de 81). Los LEGENDARIOS no se combinan. **Eliges cuáles gastas:** el panel lista los de esa categoría con «−» y «+» (empieza con el tocado, sus copias y los más repetidos) y «Combinar» se activa con justo los que pide. Deja hueco en el almacén, así que entra lo que esperaba en la bandeja. Con 20 conductores, combinándolo todo salen ~3 LEGENDARIOS por hora (antes ~8; cálculo a mano).
 
 | Categoría | Objeto | Efecto | Frase |
 | --- | --- | --- | --- |
@@ -362,7 +362,7 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 | Avería | Al empezar un turno (también el tuyo desde el 19-11-2026), con 2 coches o más y sin dejar la flota parada | 0,3 % × (1 + km / 200.000), como mucho ×2,5 | De 3 a 8 jornadas en el taller y 150 a 400 € |
 | Avería definitiva | Al empezar un turno (también el tuyo), desde los 130.000 km del coche | Sube con el cuadrado de los km: 0 % a 130.000, ~0,75 % a 180.000 y 3 % desde 230.000 | El coche va al desguace (te dan 50 € de chatarra) y la licencia se queda sin coche hasta que compres otro. Nunca deja la flota sin coche en marcha si no te llega para otro |
 | Lluvia | Una vez por jornada | 25 % | Chubasco (65 %, de 30 min a 1 h) o tormenta (35 %, de 3 a 5 h), con el doble de demanda |
-| Objeto encontrado | Por carrera de conductor | 1,2 % | Un objeto para el almacén (ver 5.7) |
+| Objeto encontrado | Por carrera de conductor | 0,9 % | Un objeto para el almacén (ver 5.7) |
 
 ### 5.9 Mejoras
 
