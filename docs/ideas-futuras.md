@@ -50,6 +50,23 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     partida. Ojo: si llevara reinicios con premio, se parecería al
     «prestigio», que DISENO.md deja fuera del alcance actual.
 
+16. [ ] **Lo que te ha hecho ganar cada mejora.** En la hoja de cada mejora
+    comprada, cuánto has ganado de más gracias a ella desde que la tienes.
+    Estudiar si es viable en todos los casos (apunte del 19-11-2026):
+    - **Fácil, se puede contar directamente:** lo que la mejora cobra o
+      ahorra de forma visible: Publicidad y Sacudir esterillas (ya son
+      incidencias del ticket), combustible ahorrado (consumo), seguro y
+      cuota de la emisora, coste de averías y pinchazos, precio de los
+      coches (Leasing).
+    - **Difícil, hay que estimarlo:** lo que cambia cuántas carreras se
+      hacen (demanda, búsqueda, cola, más propinas, zonas nuevas, Jornada
+      larga). No se puede saber qué habría pasado sin ella; se podría
+      calcular con el modelo del juego (lo que haría la flota con y sin el
+      factor) y enseñarlo como «unos X €».
+    - **Sin cifra en euros:** Taquillas, Curso de zonas, RRHH y la
+      Oficina (dejar el volante). Para estas, quizá un texto en vez de
+      dinero.
+
 ### ⭐️ Clientes y eventos
 
 13. [ ] **Eventos guiados.** Darle contexto al juego y una pequeña historia.
