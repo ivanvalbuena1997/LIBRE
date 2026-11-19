@@ -112,3 +112,34 @@ note antes, hay que bajar U, sea cual sea la opción.
 Además, los coches que van a Aeropuerto hacen más km, así que **se gastan
 antes**. Esto sale solo y tiene sentido: las zonas largas pagan más, pero
 gastan más coche.
+
+## Decisión (19-11-2026)
+
+Iván: un taxi real hace **25–35 km/h de media en la jornada**. Con solo la
+velocidad en vacío no se llega a eso en una flota avanzada, porque allí el
+coche pasa mucho tiempo quieto en la cola de una parada. Iván eligió subir el
+vacío para acercarse a 30 km/h al principio de la partida y que el
+combustible de más se note, sin compensarlo.
+
+**Aplicado: `conduccion.velocidadVacioKmH` de 18 a 72.**
+
+| Medida | Antes (18) | Ahora (72) |
+| --- | --- | --- |
+| km/coche y jornada, principio (sin libranza) | 333 | 727–732 (~30 km/h) |
+| Lo mismo, con libranza, por jornada trabajada | — | ~630 |
+| km/coche y jornada, flota avanzada | 394 | 502 (~21 km/h) |
+| Combustible por coche y jornada, principio | 31 € | 68 € |
+| Neto, principio | 290 € | 253 € (−13 %) |
+| Neto, flota avanzada | 1.161 € | 1.094 € (−6 %) |
+
+Bot de progresión (`tests/progresion.js`, 10 semillas), minuto medio en que
+llega a cada número de licencias:
+
+| Perfil | 2 licencias | 3 licencias | 5 licencias |
+| --- | --- | --- | --- |
+| Siguiente | 22 → 24 | 46 → 52 | 92 → 102 |
+| Flota y Zonas | 27 → 29 | 53 → 57 | 89 → 98 |
+| Equilibrado y Gestor | 115 → 125 | 137 → 146 (7 de 10 llegan antes del minuto 150) | — |
+
+La partida va entre un 8 y un 12 % más lenta. Las mejoras de consumo
+(Conducción eficiente, Híbridos) ahorran ahora el doble.

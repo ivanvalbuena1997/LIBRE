@@ -332,7 +332,12 @@
 
     conduccion: {
       // Equilibrio: velocidad media circulando en vacío buscando cliente.
-      velocidadVacioKmH: 18
+      // Iván, 19-11-2026: antes 18. Un taxi real hace 25–35 km/h de media en
+      // la jornada; con 72 un coche sale a ~30 km/h al principio (unos 730 km
+      // por jornada sin libranza). No es una velocidad real: compensa que las
+      // carreras del juego son lentas. Más combustible, a propósito (−13 % de
+      // neto al principio, −6 % con flota avanzada; docs/analisis-km.md).
+      velocidadVacioKmH: 72
     },
 
     // Turnos de 12 horas. Equilibrio: no coinciden con el cambio de tarifa de las 21:00.
