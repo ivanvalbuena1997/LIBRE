@@ -408,6 +408,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   que apunta `apuntarFacturado()`). Cada conductor lleva un `id` fijo
   (`estado.ultimoIdConductor`). Fuera de su pestaña no se dibuja. Medallas
   con `--medalla-oro`, `--medalla-plata` y `--medalla-bronce`.
+- Hojas al redibujar (Iván, 19-11-2026): si la sección de una hoja abierta
+  se redibuja (un aviso, un objeto encontrado…), `dibujar()` le devuelve su
+  scroll y le pone `.ya-abierta` (sin la animación de subir); se reconocen
+  por sus clases (`claveHoja()`). Antes la ficha volvía arriba en cada aviso.
 - Avisos (`mostrarMensaje()`, `#mensaje`): de lado a lado con 16 px de
   margen (antes, centrado con translate, solo usaba media pantalla). Los de
   un conductor (`ev.conductor`) solo salen en `VISTAS_AVISOS_CONDUCTOR`
@@ -415,7 +419,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   las demás, también si cambias de pestaña con uno en la cola.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
   hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
-  Escape). Al final, el panel plegado «Actualizaciones» (`htmlActualizaciones()`,
+  Escape). Exportar copia el texto (portapapeles o, si no hay, selección y
+  `execCommand`); importar y borrar se confirman en la propia hoja
+  (`confirmarPartida`, sin `confirm()`, que algunos navegadores del móvil
+  bloquean) y el texto pegado vive en `textoPartida`, así que redibujar la
+  hoja no lo borra. `Libre.guardado.limpiarTexto()` quita lo que no es
+  base64 (espacios duros, invisibles, comillas, saltos) antes de importar
+  (Iván, 19-11-2026: una importación falló). Al final, el panel plegado «Actualizaciones» (`htmlActualizaciones()`,
   un `<details>`): **cada actualización que se termine se apunta en
   `js/actualizaciones.js` (número siguiente, en el grupo de su día, en
   lenguaje de jugador) y en `docs/historial.md`**.

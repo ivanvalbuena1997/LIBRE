@@ -291,6 +291,10 @@
         {
           "n": 64,
           "texto": "Los kilómetros de cada licencia son ahora un botón del color del estado del coche: tócalo para ver el coche y renovarlo."
+        },
+        {
+          "n": 65,
+          "texto": "Arreglos: importar partida ya acepta el texto copiado desde el móvil y se confirma en la misma hoja; las fichas no vuelven arriba cuando sale un aviso."
         }
       ]
     }

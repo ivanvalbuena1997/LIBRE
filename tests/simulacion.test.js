@@ -114,7 +114,8 @@ prueba('la caja se cierra a las 7:00 y cobra los costes fijos', function () {
   const r = sim.avanzar(e, config.reloj.segundosPorDia);
   assert.strictEqual(r.cierres.length, 1);
   cerca(e.caja.ayer.fijos, fijos);
-  cerca(e.dinero, config.economia.dineroInicial - fijos);
+  // Un pinchazo de tu coche (azar) también resta: va a «otros».
+  cerca(e.dinero, config.economia.dineroInicial - fijos - e.caja.ayer.otros + e.caja.ayer.extras);
   assert.strictEqual(e.caja.hoy.dia, 1);
 });
 
@@ -1964,6 +1965,22 @@ prueba('renovar coche: solo con el día cerrado; el viejo vale menos cuantos má
   lic.km = 100000; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'rodado');
   lic.km = config.eventos.rotura.kmDesde + 10000; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'gastado');
   lic.km = config.eventos.rotura.kmMax; assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'limite');
+});
+
+prueba('exportar e importar: el texto pegado del móvil (espacios duros, invisibles, comillas) también vale', function () {
+  require('../js/guardado.js');
+  const g = globalThis.Libre.guardado;
+  const e = flotaDe(2);
+  e.objetos = { gato: 2 };
+  const texto = g.exportar(e);
+  assert.deepStrictEqual(g.importar(texto), JSON.parse(JSON.stringify(e)));
+  const sucio = '«' + texto.slice(0, 40) + '\u00a0' + texto.slice(40, 90) + '\u200b\n ' + texto.slice(90).replace(/=+$/, '') + '»';
+  assert.deepStrictEqual(g.importar(sucio), JSON.parse(JSON.stringify(e)));
+  assert.throws(function () { g.importar(texto.slice(0, 100)); }, /incompleto/);
+  assert.throws(function () { g.importar('   '); }, /ningún texto/);
+  const nueva = JSON.parse(JSON.stringify(e));
+  nueva.version = config.versionGuardado + 1;
+  assert.throws(function () { g.importar(g.exportar(nueva)); }, /versión más nueva/);
 });
 
 console.log(pasadas + ' pruebas correctas');

@@ -271,7 +271,7 @@
   function migrar(estado) {
     const actual = Libre.config.versionGuardado;
     if (typeof estado.version !== 'number') throw new Error('La partida no tiene número de versión.');
-    if (estado.version > actual) throw new Error('La partida es de una versión más nueva del juego.');
+    if (estado.version > actual) throw new Error('La partida es de una versión más nueva del juego: recarga la página para tener la última versión e inténtalo otra vez.');
     while (estado.version < actual) {
       const paso = migraciones[estado.version];
       if (!paso) throw new Error('No sé convertir partidas de la versión ' + estado.version + '.');
@@ -325,18 +325,33 @@
     return btoa(binario);
   }
 
+  /*
+   * Deja solo los caracteres del base64. Al copiar y pegar en el móvil (notas,
+   * mensajería) el texto puede llegar con espacios duros, caracteres
+   * invisibles, comillas o saltos de línea, y atob() falla con ellos
+   * (Iván, 19-11-2026: una importación falló). También acepta la variante
+   * con - y _ y le repone el relleno = que falte.
+   */
+  function limpiarTexto(texto) {
+    let t = String(texto).replace(/-/g, '+').replace(/_/g, '/').replace(/[^A-Za-z0-9+/]/g, '');
+    while (t.length % 4) t += '=';
+    return t;
+  }
+
   /* Convierte el texto exportado en un estado. Lanza un Error si no vale. */
   function importar(texto) {
+    const limpio = limpiarTexto(texto);
+    if (!limpio) throw new Error('No hay ningún texto de partida que importar.');
     let json;
     try {
-      const binario = atob(String(texto).trim());
+      const binario = atob(limpio);
       const bytes = Uint8Array.from(binario, function (ch) { return ch.charCodeAt(0); });
       json = JSON.parse(new TextDecoder().decode(bytes));
     } catch (e) {
-      throw new Error('El texto no es una partida de Libre válida.');
+      throw new Error('El texto está incompleto o no es una partida de Libre. Copia otra vez todo el texto exportado.');
     }
     return validar(migrar(json));
   }
 
-  Libre.guardado = { CLAVE, guardar, cargar, borrar, exportar, importar, migrar };
+  Libre.guardado = { CLAVE, guardar, cargar, borrar, exportar, importar, migrar, limpiarTexto };
 })(globalThis);

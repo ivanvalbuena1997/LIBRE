@@ -80,3 +80,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 62. Panel de actualizaciones en Ajustes.
 63. Salen menos objetos (0,9 % por carrera), subir de categoría combinando cuesta más (3 B, 4 A, 4 S y 5 S+) y eliges qué objetos gastas.
 64. Los kilómetros de cada licencia son ahora un botón del color del estado del coche: tócalo para ver el coche y renovarlo.
+65. Arreglos: importar partida ya acepta el texto copiado desde el móvil y se confirma en la misma hoja; las fichas no vuelven arriba cuando sale un aviso.

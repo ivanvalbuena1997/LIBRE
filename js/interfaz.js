@@ -2205,11 +2205,34 @@
       (a.activo ? '' : ' disabled') + ' aria-label="Volumen"></label>';
   }
   let enfocarAjustes = false;
+  // Exportar e importar (Iván, 19-11-2026, tras un fallo al importar): el
+  // texto de la caja y la confirmación ('importar' o 'borrar') van en la
+  // propia hoja, sin confirm(), que algunos navegadores del móvil bloquean
+  // (entonces no pasaba nada).
+  let textoPartida = '';
+  let confirmarPartida = null;
+
+  function htmlAccionesPartida() {
+    if (confirmarPartida) {
+      const importar = confirmarPartida === 'importar';
+      return '<p class="ayuda aviso-partida">' + (importar
+        ? '¿Sustituir la partida actual por la que has pegado? La de ahora se pierde.'
+        : '¿Borrar la partida y empezar de cero? No se puede deshacer.') + '</p>' +
+        '<div class="acciones">' +
+        '<button type="button" data-partida="' + (importar ? 'importar-si' : 'borrar-si') + '" class="boton-peligro">' +
+        (importar ? 'Sí, importar' : 'Sí, borrar') + '</button>' +
+        '<button type="button" data-partida="cancelar">Cancelar</button></div>';
+    }
+    return '<div class="acciones">' +
+      '<button type="button" data-partida="exportar">Exportar</button>' +
+      '<button type="button" data-partida="importar">Importar</button>' +
+      '<button type="button" data-partida="borrar" class="boton-peligro">Borrar partida</button></div>';
+  }
 
   const seccionPartida = {
     id: 'sec-partida',
     firma: function (estado) {
-      return 'ajustes:' + ajustesAbiertos + ':' + estado.ajustes.pararAlCierre + ':' +
+      return 'ajustes:' + ajustesAbiertos + ':' + confirmarPartida + ':' + estado.ajustes.pararAlCierre + ':' +
         (Libre.sonidos ? JSON.stringify(Libre.sonidos.ajustes()) : '');
     },
     html: function (estado) {
@@ -2222,12 +2245,9 @@
         (estado.ajustes.pararAlCierre ? ' checked' : '') + '> Parar al cierre del día</label>' +
         htmlAjustesSonido() +
         '<p class="ayuda">Se guarda sola en este navegador. Para pasarla a otro dispositivo, exporta el texto y pégalo allí en Importar.</p>' +
-        '<textarea id="partida-texto" spellcheck="false" placeholder="Texto de la partida"></textarea>' +
-        '<div class="acciones">' +
-        '<button type="button" data-partida="exportar">Exportar</button>' +
-        '<button type="button" data-partida="importar">Importar</button>' +
-        '<button type="button" data-partida="borrar" class="boton-peligro">Borrar partida</button>' +
-        '</div>' + htmlActualizaciones() + '</div>';
+        // El texto pegado se guarda en textoPartida: redibujar la hoja no lo borra.
+        '<textarea id="partida-texto" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Texto de la partida">' +
+        esc(textoPartida) + '</textarea>' + htmlAccionesPartida() + htmlActualizaciones() + '</div>';
     },
     actualizar: function () {
       if (enfocarAjustes) {
@@ -2465,23 +2485,53 @@
 
   let ejecutar = null;
 
-  function accionPartida(partida, cual) {
-    const caja = $('partida-texto');
-    if (cual === 'exportar') {
-      caja.value = partida.exportar();
+  /*
+   * Copia el texto: con la API del portapapeles si la hay (pide https o
+   * localhost) y, si no, seleccionándolo y con execCommand, que va en más
+   * navegadores. Si nada funciona, el texto queda seleccionado en la caja.
+   */
+  function copiarTexto(caja) {
+    function aMano() {
+      caja.focus();
       caja.select();
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(caja.value).then(
-          function () { mostrarMensaje('Partida copiada al portapapeles.'); },
-          function () { mostrarMensaje('Copia el texto de la caja.'); });
-      } else {
-        mostrarMensaje('Copia el texto de la caja.');
-      }
+      caja.setSelectionRange(0, caja.value.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      mostrarMensaje(ok ? 'Partida copiada al portapapeles.' : 'No se pudo copiar solo: selecciona todo el texto de la caja y cópialo.');
+    }
+    if (navigator.clipboard && raiz.isSecureContext) {
+      navigator.clipboard.writeText(caja.value).then(
+        function () { mostrarMensaje('Partida copiada al portapapeles.'); }, aMano);
+    } else {
+      aMano();
+    }
+  }
+
+  function accionPartida(partida, cual, redibujar) {
+    const caja = $('partida-texto');
+    if (caja) textoPartida = caja.value;
+    if (cual === 'exportar') {
+      textoPartida = partida.exportar();
+      caja.value = textoPartida;
+      copiarTexto(caja);
     } else if (cual === 'importar') {
-      if (!caja.value.trim()) { mostrarMensaje('Pega primero el texto de una partida.'); return; }
-      if (confirm('¿Sustituir la partida actual por la importada?') && partida.importar(caja.value)) caja.value = '';
+      if (!Libre.guardado.limpiarTexto(textoPartida)) { mostrarMensaje('Pega primero en la caja el texto de una partida exportada.'); return; }
+      confirmarPartida = 'importar';
+      redibujar();
+    } else if (cual === 'importar-si') {
+      confirmarPartida = null;
+      // Si falla, la hoja sigue abierta con el texto para revisarlo.
+      if (partida.importar(textoPartida)) textoPartida = '';
+      else redibujar();
     } else if (cual === 'borrar') {
-      if (confirm('¿Borrar la partida y empezar de cero? No se puede deshacer.')) partida.borrar();
+      confirmarPartida = 'borrar';
+      redibujar();
+    } else if (cual === 'borrar-si') {
+      confirmarPartida = null;
+      partida.borrar();
+    } else if (cual === 'cancelar') {
+      confirmarPartida = null;
+      redibujar();
     }
   }
 
@@ -2496,6 +2546,7 @@
     fichaConductor = null;
     fichaInventario = null;
     ajustesAbiertos = false;
+    confirmarPartida = null;
     cogido = null;
     eligiendoPlaca = false;
     panelTu = null;
@@ -2715,6 +2766,7 @@
 
     function abrirAjustes(abrir) {
       ajustesAbiertos = abrir;
+      confirmarPartida = null;
       enfocarAjustes = abrir;
       opciones.redibujar();
       if (!abrir) $('abrir-ajustes').focus({ preventScroll: true });
@@ -2760,7 +2812,7 @@
       }
       const botonPartida = ev.target.closest('[data-partida]');
       if (botonPartida) {
-        accionPartida(opciones.partida, botonPartida.dataset.partida);
+        accionPartida(opciones.partida, botonPartida.dataset.partida, opciones.redibujar);
         return;
       }
       const nodo = ev.target.closest('[data-nodo]');
@@ -3021,6 +3073,11 @@
     });
 
     // Sonido y volumen: no son de la partida, van al módulo de sonidos.
+    // Lo que se escribe o pega en la caja de la partida se guarda al momento.
+    main.addEventListener('input', function (ev) {
+      if (ev.target.id === 'partida-texto') textoPartida = ev.target.value;
+    });
+
     main.addEventListener('change', function (ev) {
       const el = ev.target.closest('[data-sonido]');
       if (!el || !Libre.sonidos) return;
@@ -3052,6 +3109,11 @@
     $('cabecera').classList.toggle('noche', escena.dataset.momento === 'noche');
   }
 
+  /* Qué hoja es (sus clases sin las de estado), para reconocerla al redibujar. */
+  function claveHoja(h) {
+    return Array.prototype.filter.call(h.classList, function (c) { return c !== 'ya-abierta'; }).sort().join(' ');
+  }
+
   function dibujar(estado) {
     estadoActual = estado;
     const info = Libre.sim.infoReloj(estado.reloj.minutos);
@@ -3069,7 +3131,18 @@
       const firma = s.firma(estado);
       if (firma !== s.ultimaFirma) {
         const html = s.html(estado);
+        // Las hojas que siguen abiertas tras redibujar (un aviso, un objeto
+        // encontrado…) conservan su scroll y no repiten la animación de
+        // subir (Iván, 19-11-2026: la ficha volvía arriba en cada aviso).
+        const hojas = {};
+        el.querySelectorAll('.hoja').forEach(function (h) { hojas[claveHoja(h)] = h.scrollTop; });
         el.innerHTML = html;
+        el.querySelectorAll('.hoja').forEach(function (h) {
+          const k = claveHoja(h);
+          if (!(k in hojas)) return;
+          h.classList.add('ya-abierta');
+          h.scrollTop = hojas[k];
+        });
         el.classList.toggle('oculto', html === '');
         s.ultimaFirma = firma;
       }

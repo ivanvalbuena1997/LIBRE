@@ -1710,6 +1710,8 @@ button.licencia-km.coche--gastado .licencia-km-flecha, button.licencia-km.coche-
 .hoja-cabecera .hoja-cerrar { position: static; flex: none; }
 /* El selector de objetos va encima de la ficha */
 .hoja-fondo.hoja-encima { z-index: 41; }
+/* Redibujada con la hoja ya abierta: sin volver a subir. */
+.hoja.ya-abierta { animation: none; }
 .hoja.hoja-encima { z-index: 42; }
 
 /* Candidatos: una tarjeta por candidato */
