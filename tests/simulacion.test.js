@@ -1791,4 +1791,20 @@ prueba('kilometraje: coche inicial usado, los comprados nuevos, y cuadra con el 
   assert.strictEqual(m.totales.km, 0);
 });
 
+prueba('Neumáticos de alta gama: menos pinchazos en toda la flota, tras los de bajo consumo', function () {
+  const m = config.mejoras.find(function (x) { return x.id === 'neumaticosAltaGama'; });
+  assert.strictEqual(m.rama, 'vehiculo');
+  assert.strictEqual(m.requiere, 'neumaticos');
+  assert.strictEqual(config.mejoras.find(function (x) { return x.id === 'mampara'; }).requiere, 'neumaticosAltaGama');
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  Object.assign(t, { categoria: 'B', cualidad: null, cualidad2: null, defecto: null, defecto2: null, objetos: [] });
+  const antes = sim.statsConductor(e, t, 'noche').find(function (x) { return x.clave === 'pinchazo'; }).valor;
+  e.dinero = 1e6;
+  assert.ok(comprarConRequisitos(e, 'neumaticosAltaGama').ok);
+  cerca(sim.modificadores(e).pinchazo, m.efecto.pinchazo);
+  const despues = sim.statsConductor(e, t, 'noche').find(function (x) { return x.clave === 'pinchazo'; }).valor;
+  cerca(despues, antes * m.efecto.pinchazo);
+});
+
 console.log(pasadas + ' pruebas correctas');

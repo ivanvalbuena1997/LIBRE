@@ -284,7 +284,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   precio subiendo (hay una prueba). La interfaz no inventa requisitos: los lee.
   «Publicidad en el taxi» cobra al cerrar la caja por cada carrera del día
   (incidencia «Publicidad»); «Enchufe en los hoteles» baja la búsqueda en el
-  Centro. «Grúa propia» deja un pinchazo sin rueda en una hora parado
+  Centro. «Neumáticos de alta gama» (Vehículo, tras los de bajo consumo;
+  `modificadores().pinchazo`, ×0,65) baja los pinchazos de toda la flota,
+  también tu turno; en los conductores, con su tope. «Grúa propia» deja un pinchazo sin rueda en una hora parado
   (`pinchazoHoras`) y a mitad de precio; «Leasing de coches» abarata cada
   coche (`precioCoche()`); «Mampara y asientos de cuero» sube la demanda.
   En pantalla (Iván, 18-11-2026): el árbol entero, sin chips. Del logo salen

@@ -396,6 +396,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Deflectores de viento | 350 € | −15 % de bajas: los conductores ventilan sin corrientes |
 | Curso de conducción eficiente | 800 € | −10 % de combustible |
 | Neumáticos de bajo consumo | 900 € | −8 % de combustible |
+| Neumáticos de alta gama (19-11-2026) | 1.300 € | −35 % de pinchazos en toda la flota, también tu turno (medido: se paga en unas 150 jornadas con 4 conductores, como sus vecinas) |
 | Mampara y asientos de cuero | 1.800 € | +6 % de demanda en todas las zonas: más clientes eligen tus taxis |
 | Flota híbrida | 4.000 € | −35 % de combustible |
 
