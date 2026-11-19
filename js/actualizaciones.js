@@ -287,6 +287,10 @@
         {
           "n": 63,
           "texto": "Salen menos objetos (0,9 % por carrera), subir de categoría combinando cuesta más (3 B, 4 A, 4 S y 5 S+) y eliges qué objetos gastas."
+        },
+        {
+          "n": 64,
+          "texto": "Los kilómetros de cada licencia son ahora un botón del color del estado del coche: tócalo para ver el coche y renovarlo."
         }
       ]
     }

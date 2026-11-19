@@ -364,7 +364,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`valorVentaCoche()`, `config.vehiculos.venta`). En pantalla: los km de
   la licencia son un botón (`data-coche`) que abre la hoja del coche
   (`cocheAbierto`, `htmlHojaCoche()`); la ficha del conductor lo enlaza
-  (`htmlCocheEnFicha()`). Botones con `data-solo-pausa`: el bucle los
+  (`htmlCocheEnFicha()`). El botón de los km es una pastilla (coche,
+  km y «›») con el fondo del estado (`.coche--gastado`, `.coche--limite`).
+  Botones con `data-solo-pausa`: el bucle los
   desactiva también fuera de la pausa, además de por precio.
 - Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia
   no trabaja esa jornada (los dos turnos, también el tuyo): entre semana el

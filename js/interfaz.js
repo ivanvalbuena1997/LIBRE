@@ -1879,10 +1879,12 @@
       (Libre.sim.libra(estado, lic) ? '<span class="hoy-libra">Libra</span>' : '') + '</div>' +
       // Kilometraje del coche (Iván, 19-11-2026); el bucle lo pone al día.
       // Tocarlo abre la hoja del coche (idea 7): estado, riesgo y «Renovar».
+      // Pastilla del color de su estado con el coche, los km y «›» (Iván, 19-11-2026).
       (lic.vehiculo ? '<button type="button" class="licencia-km coche--' + Libre.sim.estadoCoche(estado, lic).nivel +
         '" data-coche="' + lic.id + '" aria-label="Ver el coche de la licencia ' + esc(Libre.sim.textoLicencia(lic)) + '">' +
-        esc(Libre.config.vehiculos.modelos[lic.vehiculo].nombre) + ' · ' +
-        '<span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</button>' : '') +
+        '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + ICONO_COCHE + '</svg>' +
+        '<span class="licencia-km-texto"><span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</span>' +
+        '<span class="licencia-km-flecha" aria-hidden="true">›</span></button>' : '') +
       (lic.vehiculo
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
         : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) + '</div>') +
@@ -1894,6 +1896,8 @@
    * averías por los km, riesgo de avería definitiva, lo que te dan por él y
    * «Renovar» (con el día cerrado).
    */
+  // Trazo de un coche (el mismo que el de la mejora Leasing).
+  const ICONO_COCHE = '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>';
   const NIVEL_COCHE = { nuevo: 'Nuevo', rodado: 'Rodado', gastado: 'Gastado', limite: 'Al límite' };
   function htmlHojaCoche(estado) {
     const lic = cocheAbierto && estado.licencias.find(function (l) { return l.id === cocheAbierto; });
