@@ -30,6 +30,11 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 7. [ ] **Avería definitiva.** Una probabilidad de que el coche se rompa del
    todo según su uso y sus kilómetros, que obligue a comprar otro. Se apoya en
    la 6 (hace falta guardar los kilómetros de cada coche).
+   Decidido con Iván (19-11-2026): también se puede romper tu coche (pero
+   nunca dejar la partida bloqueada); las averías normales también aumentan
+   con los km; habrá «Renovar coche», que vende el viejo por menos cuantos
+   más km tenga. Pendiente: si se suben los km por jornada
+   ([analisis-km.md](analisis-km.md)) y los umbrales.
 8. [ ] **Skin del coche.** Más adelante en la partida, personalizar el aspecto
    del coche si conduces tú.
 
