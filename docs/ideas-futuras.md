@@ -76,14 +76,17 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 ### 🌳 Mejoras nuevas
 
-17. [ ] **Modo incógnito.** Una mejora nueva para el árbol (apuntada por Iván
-    el 19-11-2026). Qué hace, en qué rama va y cuánto cuesta: **por definir**.
+17. [x] **Modo incógnito.** Hecho el 20-11-2026 (ver «Hechas»).
 
 ### 🖥️ Interfaz y experiencia de usuario
 
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **17. Modo incógnito** (🌳, 20-11-2026). Mejora de 15.000 € tras la
+  Oficina: los conductores de nivel 10 trabajan en la libranza de su
+  licencia; un «pesetas» puede pillarlos (2 % por turno, 2.000 € de multa).
 
 - [x] **5. Alquilar coche** (🚗, 20-11-2026). Una licencia sin coche puede
   alquilar uno 3 días por 400 €, alargarlo o comprar uno propio encima. No se

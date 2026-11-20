@@ -361,6 +361,7 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 | Pinchazo | Al empezar un turno | 4 % | Neumático de 120 € y parado el resto del turno (con la Rueda de repuesto, nada) |
 | Baja | Al empezar un turno de conductor | 2 % | De 1 a 5 jornadas sin trabajar |
 | Avería | Al empezar un turno (también el tuyo desde el 19-11-2026), con 2 coches o más y sin dejar la flota parada | 0,3 % × (1 + km / 200.000), como mucho ×2,5 | De 3 a 8 jornadas en el taller y 150 a 400 € |
+| Pesetas (modo incógnito) | Al empezar cada turno de un conductor que sale de incógnito en su libranza | 2 % (Iván: «no te suelen pillar, cada uno va a lo suyo») | «Un pesetas ha pillado cargando a Ana fuera de sus días de trabajo: te han puesto una multa de 2.000 €». Multa de 2.000 € y parado el resto del turno. Sin conexión no hay eventos, pero sí salen de incógnito: se cobra la multa media (cada vez que suma una entera, una multa) |
 | Avería definitiva | Al empezar un turno (también el tuyo), desde los 130.000 km del coche | Sube con el cuadrado de los km: 0 % a 130.000, ~0,75 % a 180.000 y 3 % desde 230.000 | El coche va al desguace (te dan 50 € de chatarra) y la licencia se queda sin coche hasta que compres otro. Nunca deja la flota sin coche en marcha si no te llega para otro |
 | Lluvia | Una vez por jornada | 25 % | Chubasco (65 %, de 30 min a 1 h) o tormenta (35 %, de 3 a 5 h), con el doble de demanda |
 | Objeto encontrado | Por carrera de conductor | 0,9 % | Un objeto para el almacén (ver 5.7) |
@@ -425,6 +426,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Curso gestión de zonas | 2.000 € | Los conductores van cada hora a la zona que más deja |
 | Departamento de RRHH (5 niveles) | 2.500 / 3.500 / 6.000 / 10.000 / 15.000 € | Candidatos de mejor categoría: los B bajan del 65 % al 55, 45, 35, 25 y 15 %; los LEGENDARIOS suben del 0,5 % al 1, 2, 3, 5 y 8 %. Al comprar un nivel salen candidatos nuevos |
 | Oficina de gestión | 4.000 € | Puedes dejar el volante y solo gestionar, y tus conductores se quedan el 45 % en vez del 50 % |
+| Modo incógnito | 15.000 € | Tus conductores de nivel 10 trabajan también los días que libra su licencia (tú no). Riesgo: un «pesetas» (otro taxista) puede pillarlos cargando (ver 5.8). Medido con 5 licencias y 10 conductores de nivel 10: un +27 % de neto; se paga en ~35 jornadas |
 
 ---
 

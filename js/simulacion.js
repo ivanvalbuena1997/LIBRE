@@ -79,6 +79,7 @@
       reserva: [],
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0, km: 0 },
+      pesetasFuera: 0,
       // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
       // mejor día de la partida y los despedidos que entran en el top.
       historial: [],
@@ -2645,6 +2646,7 @@
   function producirAgregado(estado, minutos, info, resumen) {
     const c = cfg();
     const grupos = cochesPorZona(estado, info);
+    multasFuera(estado, grupos, minutos, info, resumen);
     const horas = minutos / 60 * factorJornada(estado);
     Object.keys(grupos).forEach(function (zonaId) {
       const coches = grupos[zonaId];
@@ -2688,6 +2690,30 @@
         gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * porcentajeConductor(estado));
       }
     });
+  }
+
+  /*
+   * Sin conexión no hay eventos, pero los de incógnito sí trabajan (Iván,
+   * 20-11-2026, opción b): se suma la multa media que les tocaría
+   * (probTurno por turno de 12 horas) y, cada vez que llega a una entera,
+   * se cobra una multa del pesetas (sin parar a nadie).
+   */
+  function multasFuera(estado, grupos, minutos, info, resumen) {
+    const p = cfg().eventos.pesetas;
+    const minuto = info.dia * MIN_DIA + info.minutoDelDia;
+    let turnos = 0;
+    Object.keys(grupos).forEach(function (zonaId) {
+      grupos[zonaId].forEach(function (x) {
+        if (trabajaIncognito(estado, x.licencia, x.turno, minuto)) turnos += minutos / (MIN_DIA / 2);
+      });
+    });
+    if (!turnos) return;
+    estado.pesetasFuera = (estado.pesetasFuera || 0) + turnos * p.probTurno;
+    while (estado.pesetasFuera >= 1) {
+      estado.pesetasFuera -= 1;
+      incidencia(estado, resumen, 'pesetas', 'Mientras no estabas, un pesetas pilló cargando a uno de tus conductores ' +
+        'fuera de sus días de trabajo: multa de ' + Libre.ui_euros(p.multa) + '.', -p.multa, 'otros');
+    }
   }
 
   // ---------------------------------------------------------------- Avanzar

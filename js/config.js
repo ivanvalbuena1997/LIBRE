@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 26,
+    versionGuardado: 27,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -93,8 +93,11 @@
       // libranza de su licencia puede ser pillado por un «pesetas» (otro
       // taxista) que se chiva o lo graba cargando: multa y deja de trabajar
       // el resto del turno. Se sortea al empezar cada turno de incógnito.
-      // Equilibrio (ajustado con una simulación).
-      pesetas: { nombre: 'Multas por cargar en libranza', probTurno: 0.08, multa: 300 },
+      // Iván, 20-11-2026: «no te suelen pillar, cada uno va a lo suyo»: 2 %
+      // por turno y 2.000 € de multa. Medido (5 licencias, 10 de nivel 10):
+      // una multa cada ~20 jornadas y el incógnito deja un +27 % (sin riesgo,
+      // +35 %). Sin conexión se cobra la multa media (ver producirAgregado).
+      pesetas: { nombre: 'Multas por cargar en libranza', probTurno: 0.02, multa: 2000 },
       baja: { nombre: 'Bajas', probTurno: 0.02, jornadasMin: 1, jornadasMax: 5 },
       averia: {
         nombre: 'Averías', probTurno: 0.003, jornadasMin: 3, jornadasMax: 8,
@@ -990,7 +993,8 @@
         // Idea 17 (Iván, 20-11-2026): los de nivel 10 salen en la libranza de
         // su licencia, con el riesgo de que un «pesetas» los pille
         // (eventos.pesetas). Equilibrio.
-        id: 'incognito', nombre: 'Modo incógnito', rama: 'jornada', requiere: 'oficina', precio: 6000,
+        // 15.000 €: con 10 conductores de nivel 10 se paga en ~35 jornadas.
+        id: 'incognito', nombre: 'Modo incógnito', rama: 'jornada', requiere: 'oficina', precio: 15000,
         descripcion: 'Tus conductores de nivel 10 trabajan también los días que libra su licencia. Ojo: si un «pesetas» los pilla cargando, multa y se acabó el turno.',
         efecto: { incognito: true }
       }

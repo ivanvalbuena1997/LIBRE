@@ -2092,8 +2092,8 @@
     grua: '<path d="M3 17h11V9H8l-3 4H3z"/><path d="M14 13l6-8M20 5v8"/><path d="M20 13a1.5 1.5 0 1 1-1.5 1.5"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="11.5" cy="17.5" r="1.8"/>',
     leasing: '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>',
     oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>',
-    // Sombrero y gafas de sol: de incógnito.
-    incognito: '<path d="M3 11h18M6 11l1.5-6h9L18 11"/><circle cx="8" cy="16" r="3"/><circle cx="16" cy="16" r="3"/><path d="M11 16h2"/>'
+    // Sombrero y gafas, como el icono de incógnito de Chrome (Iván, 20-11-2026).
+    incognito: '<path d="M2 11h20"/><path d="M5.5 11l1.8-6a1 1 0 0 1 1.3-.6L12 5.6l3.4-1.2a1 1 0 0 1 1.3.6l1.8 6"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>'
   };
   function iconoMejora(id) {
     return '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS_MEJORA[id] || ICONOS_MEJORA.limpieza) + '</svg>';

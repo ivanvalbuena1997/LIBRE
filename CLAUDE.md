@@ -382,6 +382,15 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   con la del «Día N». `puedeTrabajar()` la tiene en cuenta (también sin
   conexión). `config.licencias.libranza = false` la apaga (las pruebas lo
   hacen; las de libranza la encienden).
+- Modo incógnito (idea 17, Iván 20-11-2026; mejora `incognito`, tras la
+  Oficina; versión 27 del guardado): `trabajaIncognito()` deja trabajar en
+  la libranza de su licencia a los conductores de nivel máximo;
+  `puedeTrabajar()` lo usa, así que vale en todo (también sin conexión y en
+  las estadísticas). Pesetas (`eventos.pesetas`, 2 % y 2.000 €): pendiente
+  'pesetas' al empezar el turno; multa (incidencia 'pesetas') y parado el
+  resto del turno (`motivoParada` 'pesetas'). Sin conexión,
+  `multasFuera()` acumula en `estado.pesetasFuera` la multa media y cobra
+  una cada vez que llega a 1. En «Tus taxis hoy», chip morado «Incógnito».
 - Saltar al cierre (Iván, 17-11-2026): `puedeSaltarDia()` es cierto si libra
   tu licencia, ningún conductor puede trabajar esa jornada (`puedeTrabajar()`)
   y no tienes otra licencia a la que pasarte (con coche, que no libre y con

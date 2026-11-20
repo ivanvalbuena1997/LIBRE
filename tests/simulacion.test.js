@@ -2055,6 +2055,18 @@ prueba('modo incógnito: los de nivel 10 trabajan en la libranza y un pesetas lo
     cerca(e.dinero, dinero - config.eventos.pesetas.multa, 50);
     assert.ok(!sim.puedeTrabajar(e, lic, t, e.reloj.minutos), 'parado el resto del turno');
     assert.strictEqual(t.motivoParada, 'pesetas');
+    // Sin conexión: trabajan y se cobra la multa media (probTurno por turno).
+    const f = flotaDe(1);
+    const fl = f.licencias[0];
+    fl.turnos.noche.xp = 1e12;
+    f.mejoras.incognito = 1;
+    f.reloj.minutos = j * sim.MIN_DIA + 19 * 60;   // su turno de noche, aún en la jornada que libra
+    f.pesetasFuera = 0.99;
+    const antes = f.caja.hoy.ingresos;
+    sim.avanzar(f, DIA() / 2 * 0.9, { sinPausa: true, agregado: true });
+    assert.ok(f.caja.hoy.ingresos > antes, 'trabaja de incógnito sin conexión');
+    assert.ok(f.caja.hoy.incidencias.pesetas, 'al pasar de 1 se cobra una multa');
+    assert.ok(f.pesetasFuera < 1);
   } finally {
     config.licencias.libranza = false;
   }

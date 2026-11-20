@@ -86,3 +86,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 
 66. Los avisos de eventos (conductores, lluvia, averías…) salen solo en la pestaña Calle.
 67. Alquilar coche: una licencia sin coche puede alquilar uno 3 días por 400 € (no se gasta y se devuelve solo); los conductores de una licencia sin coche se siguen viendo.
+68. Mejora «Modo incógnito» (15.000 €, tras la Oficina): tus conductores de nivel 10 trabajan también los días que libra su licencia… si no los pilla un pesetas (multa de 2.000 €).
