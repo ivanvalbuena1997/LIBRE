@@ -361,6 +361,10 @@
         {
           "n": 80,
           "texto": "Arreglo: el taxi de la cabecera ya se ve entero también en móviles de pantalla baja."
+        },
+        {
+          "n": 81,
+          "texto": "El autobús de la EMT, ahora articulado y con mucho más detalle: fuelle, puertas, letreros de la línea y llantas azules."
         }
       ]
     }

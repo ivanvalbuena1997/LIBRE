@@ -489,7 +489,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   los retratos; Iván, 20-11-2026), repartidores en bici (`REPARTIDORES`,
   `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en
   sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
-  autobús de la EMT (`autobus()`, `--bus-*`), nubes,
+  autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
   un taxi que pasa (berlina con las formas de un Corolla, colores
   `--coche-*`; Iván, 20-11-2026) y lluvia. Carriles (se circula por la
   derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;

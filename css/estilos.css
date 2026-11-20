@@ -96,11 +96,17 @@
   --esc-mochila: #2fb24c;          /* mochila de reparto */
   --esc-mochila-franja: #1f7a33;
   --esc-mochila-naranja: #ff8000;   /* Just Eat */
-  --bus-azul: #1f63c6;              /* autobús de la EMT */
-  --bus-azul-oscuro: #134a99;
+  --bus-azul: #2f9ae0;              /* autobús de la EMT: azul claro */
+  --bus-gris: #b9bec5;              /* faldón */
+  --bus-negro: #15181d;             /* banda de ventanillas */
+  --bus-techo: #f4f6f8;
+  --bus-fuelle: #8f959d;
+  --bus-pliegue: #6c7279;
+  --bus-pasamanos: #f2c230;
+  --bus-faro: #e9eff5;
   --bus-franja: #e8eef8;
-  --bus-cristal: #22324a;
-  --bus-letrero: #121212;
+  --bus-cristal: #2c3a4c;
+  --bus-letrero: #0e0e0e;
   --bus-led: #ffb21e;               /* letrero de la línea */
   --esc-mochila-naranja-franja: #c25e00;
   --esc-casco: #f2f2ee;
@@ -444,16 +450,24 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 /* Autobús de la EMT: carril de detrás, hacia la izquierda. */
 .esc-bus { position: absolute; bottom: 19px; left: 50%; }
 .esc-bus-cuerpo { fill: var(--bus-azul); }
-.esc-bus-falda { fill: var(--bus-azul-oscuro); }
-.esc-bus-franja { fill: var(--bus-franja); }
-.esc-bus-techo { fill: var(--bus-franja); }
+.esc-bus-techo { fill: var(--bus-techo); }
+.esc-bus-banda { fill: var(--bus-negro); }
+.esc-bus-falda { fill: var(--bus-gris); }
 .esc-bus-cristal, .esc-bus-ventana { fill: var(--bus-cristal); }
-.esc-bus-puerta rect { fill: var(--bus-cristal); stroke: var(--bus-franja); stroke-width: 0.8; }
-.esc-bus-puerta path { stroke: var(--bus-franja); stroke-width: 0.8; }
+.esc-bus-puerta rect { fill: var(--bus-cristal); stroke: var(--bus-negro); stroke-width: 0.9; }
+.esc-bus-hojas { stroke: var(--bus-negro); stroke-width: 0.8; }
+.esc-bus-pasamanos { stroke: var(--bus-pasamanos); stroke-width: 0.8; }
+.esc-bus-fuelle { fill: var(--bus-fuelle); }
+.esc-bus-pliegues { stroke: var(--bus-pliegue); stroke-width: 0.6; }
 .esc-bus-letrero { fill: var(--bus-letrero); }
-.esc-bus-linea { fill: var(--bus-led); font-family: var(--letra-titulo); font-weight: 800; font-size: 3.2px; }
-.esc-bus-rotulo { fill: var(--bus-franja); font-family: var(--letra-titulo); font-weight: 800; font-size: 7px; }
-.esc-bus-retrovisor { fill: var(--bus-letrero); }
+.esc-bus-linea { fill: var(--bus-led); font-family: var(--letra-titulo); font-weight: 800; font-size: 3.6px; }
+.esc-bus-linea-chica { font-size: 2.6px; }
+.esc-bus-rotulo { fill: var(--bus-techo); font-family: var(--letra-titulo); font-weight: 800; font-size: 4.4px; }
+.esc-bus-rotulo-chico { font-size: 3.6px; }
+.esc-bus-retrovisor { fill: var(--bus-negro); }
+.esc-bus-faro { fill: var(--bus-faro); }
+.esc-bus-matricula { fill: var(--bus-techo); stroke: var(--bus-negro); stroke-width: 0.3; }
+.esc-bus-llanta { fill: var(--bus-azul); }
 .noche .esc-bus-ventana, .noche .esc-bus-cristal { fill: var(--esc-ventana-noche); opacity: 0.85; }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
@@ -577,7 +591,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 @keyframes bici-vuelve { from { left: 100%; } to { left: -50px; } }
 .esc-bici-2.an-bici { animation: bici-vuelve 13s linear infinite; animation-delay: -9s; }
 /* El autobús, hacia la izquierda y más despacio que el taxi. */
-@keyframes bus-vuelve { from { left: 100%; } to { left: -186px; } }
+@keyframes bus-vuelve { from { left: 100%; } to { left: -240px; } }
 .an-bus { animation: bus-vuelve 22s linear infinite; animation-delay: -6s; }
 .an-bici .an-pedal { animation: pedalear 0.6s linear infinite; }
 .esc-hoja-2 { animation-duration: 5.1s; animation-delay: -1.7s; }

@@ -99,3 +99,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 78. Más gente por la acera, un segundo repartidor (Just Eat) en sentido contrario y la placa de la caja más transparente para ver la calle.
 79. Un autobús azul de la EMT cruza la cabecera en sentido contrario al taxi, cada uno por su carril.
 80. Arreglo: el taxi de la cabecera ya se ve entero también en móviles de pantalla baja.
+81. El autobús de la EMT, ahora articulado y con mucho más detalle: fuelle, puertas, letreros de la línea y llantas azules.

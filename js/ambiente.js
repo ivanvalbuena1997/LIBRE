@@ -324,44 +324,70 @@
   }
 
   /*
-   * Autobús de la EMT (Iván, 20-11-2026): azul, en sentido contrario al taxi
-   * y por el carril de detrás (en España se circula por la derecha: lo que va
-   * hacia la izquierda va por el carril pegado a la acera del fondo). Con
-   * parabrisas, letrero de línea, ventanillas con pilares, dos puertas,
-   * franja, aire acondicionado en el techo, retrovisor, faros y ruedas.
-   * De noche se le encienden las ventanillas.
+   * Autobús articulado de la EMT (Iván, 20-11-2026, con una foto de
+   * referencia; va hacia la izquierda, así que el morro está a la izquierda):
+   * techo blanco con los equipos de aire, banda negra de ventanillas, cuerpo
+   * azul claro y faldón gris, fuelle de la articulación, tres puertas con
+   * pasamanos amarillos, letreros LED (frontal y lateral), retrovisor de brazo,
+   * faros, matrícula, rótulo «EMT 573» y llantas azules. Va en sentido
+   * contrario al taxi y por el carril de detrás (en España se circula por la
+   * derecha). De noche se encienden las ventanillas.
    */
   function autobus() {
-    let ventanas = '';
-    for (let x = 58; x < 186; x += 21.6) ventanas += '<rect class="esc-bus-ventana" x="' + x + '" y="13" width="19.4" height="19" rx="1.6"/>';
-    const ruedaBus = function (x) {
-      return '<circle class="esc-rueda" cx="' + x + '" cy="58" r="8.6"/><circle class="esc-llanta" cx="' + x + '" cy="58" r="5"/>' +
-        '<circle class="esc-buje" cx="' + x + '" cy="58" r="1.6"/>';
+    const ventanas = function (desde, hasta, huecos) {
+      let v = '';
+      for (let x = desde; x + 19 <= hasta - 2; x += 21) {
+        if (huecos.some(function (h) { return x + 19 > h[0] && x < h[1]; })) continue;
+        v += '<rect class="esc-bus-ventana" x="' + x + '" y="14" width="19" height="20" rx="1.4"/>';
+      }
+      return v;
     };
-    return '<svg class="esc-bus an-bus" width="176" height="62" viewBox="0 0 200 70" aria-hidden="true" focusable="false">' +
-      '<ellipse class="esc-sombra-coche" cx="100" cy="67.4" rx="96" ry="2.2"/>' +
-      // Techo: aire acondicionado.
-      '<rect class="esc-bus-techo" x="74" y="1.6" width="54" height="4.6" rx="1.8"/>' +
-      // Carrocería, con los pasos de rueda.
-      '<path class="esc-bus-cuerpo" d="M6 55V13Q6 5 14 5H189Q196 5 196 12V55Q196 58 193 58H176.2A11 11 0 0 0 154.2 58H52.2A11 11 0 0 0 30.2 58H9Q6 58 6 55Z"/>' +
-      // Faldón más oscuro y franja clara.
-      '<path class="esc-bus-falda" d="M6 46H196V55Q196 58 193 58H176.2A11 11 0 0 0 154.2 58H52.2A11 11 0 0 0 30.2 58H9Q6 58 6 55Z"/>' +
-      '<rect class="esc-bus-franja" x="6" y="36" width="190" height="2.6"/>' +
-      // Parabrisas y letrero de la línea.
-      '<path class="esc-bus-cristal" d="M8.6 34V14Q8.6 9 13 9H24V34Z"/>' +
-      '<rect class="esc-bus-letrero" x="26.6" y="7.4" width="28" height="4.6" rx="0.8"/>' +
-      '<text class="esc-bus-linea" x="40.6" y="11.1" text-anchor="middle">27 PLAZA CASTILLA</text>' +
-      // Ventanillas con sus pilares y las dos puertas (dos hojas de cristal).
-      ventanas +
-      '<g class="esc-bus-puerta"><rect x="27" y="14" width="13.4" height="40" rx="1"/><path d="M33.7 14V54"/></g>' +
-      '<g class="esc-bus-puerta"><rect x="104" y="14" width="13.4" height="40" rx="1"/><path d="M110.7 14V54"/></g>' +
-      // Rótulo de la EMT.
-      '<text class="esc-bus-rotulo" x="148" y="44.6" text-anchor="middle">EMT Madrid</text>' +
-      // Retrovisor, faro delantero y piloto trasero.
-      '<path class="esc-bus-retrovisor" d="M7 12.4L1.6 13.6V20.4h2.4V15.6l3-.8z"/>' +
-      '<rect class="esc-faro" x="6.4" y="48" width="4.6" height="3.4" rx="1"/>' +
-      '<rect class="esc-trasero" x="193.4" y="40" width="2.6" height="9" rx="1"/>' +
-      ruedaBus(41.2) + ruedaBus(165.2) +
+    const puerta = function (x) {
+      return '<g class="esc-bus-puerta"><rect x="' + x + '" y="13.4" width="13" height="42" rx="1"/>' +
+        '<path class="esc-bus-hojas" d="M' + (x + 6.5) + ' 13.4V55.4"/>' +
+        '<path class="esc-bus-pasamanos" d="M' + (x + 3) + ' 18V52M' + (x + 10) + ' 18V52"/></g>';
+    };
+    const ruedaBus = function (x) {
+      return '<circle class="esc-rueda" cx="' + x + '" cy="57" r="8.4"/><circle class="esc-bus-llanta" cx="' + x + '" cy="57" r="5.2"/>' +
+        '<circle class="esc-buje" cx="' + x + '" cy="57" r="1.6"/>';
+    };
+    let fuelle = '';
+    for (let x = 119.6; x < 127; x += 1.8) fuelle += 'M' + x + ' 9V55';
+    return '<svg class="esc-bus an-bus" width="232" height="60" viewBox="-4 0 254 66" aria-hidden="true" focusable="false">' +
+      '<ellipse class="esc-sombra-coche" cx="122" cy="65" rx="124" ry="1.8"/>' +
+      // Techo blanco y equipos de aire acondicionado.
+      '<rect class="esc-bus-techo" x="30" y="1.6" width="44" height="6" rx="2.6"/>' +
+      '<rect class="esc-bus-techo" x="150" y="1.6" width="52" height="6" rx="2.6"/>' +
+      // Las dos secciones: cuerpo azul (con el techo blanco) y banda negra.
+      '<path class="esc-bus-cuerpo" d="M4 50V15Q4 6 12 6H118V50Z"/>' +
+      '<path class="esc-bus-cuerpo" d="M128 6H239Q246 6 246 13V50H128Z"/>' +
+      '<path class="esc-bus-techo" d="M10 6H118V10H5.4Q6.4 6 10 6ZM128 6H239Q245.6 6 246 10H128Z"/>' +
+      '<rect class="esc-bus-banda" x="4" y="11.6" width="114" height="24.4"/>' +
+      '<rect class="esc-bus-banda" x="128" y="11.6" width="118" height="24.4"/>' +
+      // Parabrisas con el letrero de la línea encima.
+      '<path class="esc-bus-cristal" d="M5.6 35V18Q5.6 13 10 13H20V35Z"/>' +
+      '<rect class="esc-bus-letrero" x="5.6" y="12.6" width="14.4" height="4.6" rx="0.6"/>' +
+      '<text class="esc-bus-linea" x="12.8" y="16.2" text-anchor="middle">34</text>' +
+      // Ventanillas (sin las puertas) y letrero lateral.
+      ventanas(36, 118, [[60, 74]]) + ventanas(130, 246, [[150, 164]]) +
+      '<rect class="esc-bus-letrero" x="36" y="13.6" width="22" height="3.6" rx="0.5"/>' +
+      '<text class="esc-bus-linea esc-bus-linea-chica" x="47" y="16.4" text-anchor="middle">34 LAS ÁGUILAS</text>' +
+      // Faldón gris con los pasos de rueda.
+      '<path class="esc-bus-falda" d="M4 50H118V58.4H110.4A10.4 10.4 0 0 0 89.6 58.4H48.4A10.4 10.4 0 0 0 27.6 58.4H7Q4 58.4 4 55.4Z"/>' +
+      '<path class="esc-bus-falda" d="M128 50H246V55.4Q246 58.4 243 58.4H222.4A10.4 10.4 0 0 0 201.6 58.4H128Z"/>' +
+      // Fuelle de la articulación.
+      '<rect class="esc-bus-fuelle" x="118" y="8" width="10" height="48" rx="1"/>' +
+      '<path class="esc-bus-pliegues" d="' + fuelle + '"/>' +
+      // Puertas: delantera, la del medio y la de la sección trasera.
+      puerta(22) + puerta(61) + puerta(151) +
+      // Rótulos, retrovisor de brazo, faro, matrícula y piloto trasero.
+      '<text class="esc-bus-rotulo" x="88" y="44" text-anchor="middle">EMT 573</text>' +
+      '<text class="esc-bus-rotulo esc-bus-rotulo-chico" x="12" y="44" text-anchor="middle">573</text>' +
+      '<path class="esc-bus-retrovisor" d="M6.4 11.6C2 11 -1.6 12.6 -1.6 16.4V23.4H1V17C1 15.2 3 14.2 6.4 14.8Z"/>' +
+      '<path class="esc-bus-faro" d="M4 46.6L10.6 47.4V50.6L4 50.4Z"/>' +
+      '<rect class="esc-bus-matricula" x="6" y="52.4" width="9" height="2.6" rx="0.4"/>' +
+      '<rect class="esc-trasero" x="244" y="38" width="2.4" height="10" rx="1"/>' +
+      ruedaBus(38) + ruedaBus(100) + ruedaBus(212) +
       '</svg>';
   }
 
