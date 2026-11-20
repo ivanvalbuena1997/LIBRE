@@ -297,6 +297,16 @@
           "texto": "Arreglos: importar partida ya acepta el texto copiado desde el móvil y se confirma en la misma hoja; las fichas no vuelven arriba cuando sale un aviso."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-20",
+      "titulo": "Alquiler, modo incógnito y avisos",
+      "cambios": [
+        {
+          "n": 66,
+          "texto": "Los avisos de eventos (conductores, lluvia, averías…) salen solo en la pestaña Calle."
+        }
+      ]
     }
   ];
 })(globalThis);

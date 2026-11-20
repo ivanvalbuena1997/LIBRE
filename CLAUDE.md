@@ -414,9 +414,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   por sus clases (`claveHoja()`). Antes la ficha volvía arriba en cada aviso.
 - Avisos (`mostrarMensaje()`, `#mensaje`): de lado a lado con 16 px de
   margen (antes, centrado con translate, solo usaba media pantalla). Los de
-  un conductor (`ev.conductor`) solo salen en `VISTAS_AVISOS_CONDUCTOR`
-  (Calle y Conductores; Iván, 19-11-2026): `avisoVisible()` los descarta en
-  las demás, también si cambias de pestaña con uno en la cola.
+  eventos de la partida (`mostrarEventos()`: de conductores y generales,
+  como lluvia o la avería de tu coche) solo salen en `VISTAS_AVISOS_EVENTOS`
+  (Calle; Iván, 20-11-2026): `avisoVisible()` los descarta en las demás,
+  también si cambias de pestaña con uno en la cola. Lo que responde a una
+  acción tuya (`mostrarMensaje()` directo) sale siempre.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
   hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
   Escape). Exportar copia el texto (portapapeles o, si no hay, selección y

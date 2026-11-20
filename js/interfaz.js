@@ -654,13 +654,17 @@
    */
   const MS_ENTRE_AVISOS = 3000;
   /*
-   * Los avisos de los conductores (nivel, objeto encontrado, baja, pinchazo…)
-   * solo salen en su apartado (Iván, 19-11-2026): en estas pestañas. En las
-   * demás se descartan (suena el sonido igual; lo que cuesta va al ticket).
+   * Los avisos de eventos de la partida (de los conductores: nivel, objeto,
+   * baja, pinchazo…; y los generales: lluvia, tormenta, la avería de tu
+   * coche…) solo salen en estas pestañas (Iván, 20-11-2026: solo en Calle;
+   * el 19-11, los de conductores también en Conductores). En las demás se
+   * descartan: suena el sonido igual y lo que cuesta va al ticket. Los
+   * mensajes que responden a lo que tocas (comprar, importar…) no son
+   * eventos: salen siempre.
    */
-  const VISTAS_AVISOS_CONDUCTOR = ['conductores', 'calle'];
-  function avisoVisible(ev) {
-    return !ev.conductor || VISTAS_AVISOS_CONDUCTOR.indexOf(vistaActual) !== -1;
+  const VISTAS_AVISOS_EVENTOS = ['calle'];
+  function avisoVisible() {
+    return VISTAS_AVISOS_EVENTOS.indexOf(vistaActual) !== -1;
   }
   const colaAvisos = [];
   let ultimoAviso = 0;
