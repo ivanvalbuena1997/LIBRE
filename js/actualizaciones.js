@@ -357,6 +357,10 @@
         {
           "n": 79,
           "texto": "Un autobús azul de la EMT cruza la cabecera en sentido contrario al taxi, cada uno por su carril."
+        },
+        {
+          "n": 80,
+          "texto": "Arreglo: el taxi de la cabecera ya se ve entero también en móviles de pantalla baja."
         }
       ]
     }

@@ -279,9 +279,11 @@ body {
 }
 @media (max-height: 829px) {
   :root { --alto-cabecera: 180px; --placa-arriba: 64px; }
-  /* La escena baja 20 px (se recorta el borde de la calzada) para que el
-     sol y la luna no se corten arriba. */
-  body[data-vista="calle"] .cabecera-escena { bottom: -20px; }
+  /* La escena baja 6 px (se recorta el borde de la calzada); el sol y la
+     luna están 12 px más abajo que en la maqueta para no cortarse arriba. */
+  /* Antes -20 px: con el taxi en el carril de delante (20-11-2026) le cortaba
+     las ruedas. Con -6 px se ve entero y apenas se recorta el cielo. */
+  body[data-vista="calle"] .cabecera-escena { bottom: -6px; }
 }
 body:not([data-vista="calle"]) .cabecera {
   --alto-cabecera: var(--alto-cabecera-compacta);
@@ -416,7 +418,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .noche .esc-persona { filter: brightness(0.55); }
 /* Repartidor en bici: por la calzada, junto a la acera. */
 /* Uber Eats, carril de delante junto al borde; Just Eat, carril de detrás junto a la acera. */
-.esc-bici { position: absolute; bottom: 0; left: 45%; }
+.esc-bici { position: absolute; bottom: 6px; left: 45%; }
 .esc-bici-2 { bottom: 26px; }
 .esc-bici-cubierta { fill: none; stroke: var(--tinta); stroke-width: 2; }
 .esc-bici-llanta { fill: none; stroke: var(--coche-radios); stroke-width: 0.6; }
@@ -501,7 +503,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 
 /* El taxi va a la altura de la acera (y = 196 de la maqueta). */
 /* Carril de delante, hacia la derecha (Iván, 20-11-2026: el autobús va por el otro). */
-.esc-taxi { position: absolute; left: 16px; bottom: 3px; }
+.esc-taxi { position: absolute; left: 16px; bottom: 7px; }
 .esc-carroceria { fill: var(--coche-carroceria); stroke: var(--coche-perfil); stroke-width: 1.5; }
 .esc-cristal { fill: var(--coche-cristal); }
 .esc-piloto { fill: var(--taxi-piloto); }

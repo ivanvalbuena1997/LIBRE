@@ -138,7 +138,7 @@
     return '<svg class="esc-calle" width="' + ANCHO + '" height="220" viewBox="0 30 ' + ANCHO + ' 220" aria-hidden="true" focusable="false">' +
       '<defs>' +
       '<linearGradient id="esc-cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" data-cielo="alto"/><stop offset="1" data-cielo="bajo"/></linearGradient>' +
-      '<mask id="esc-creciente"><circle cx="' + (CENTRO + 250) + '" cy="62" r="24" class="esc-mascara-si"/><circle cx="' + (CENTRO + 261) + '" cy="56" r="21" class="esc-mascara-no"/></mask>' +
+      '<mask id="esc-creciente"><circle cx="' + (CENTRO + 250) + '" cy="74" r="24" class="esc-mascara-si"/><circle cx="' + (CENTRO + 261) + '" cy="68" r="21" class="esc-mascara-no"/></mask>' +
       '<pattern id="esc-gotas" width="40" height="40" patternUnits="userSpaceOnUse">' +
       '<path class="esc-gota" d="M8 4l-2 6M28 14l-2 6M18 26l-2 6M36 32l-2 6"/></pattern>' +
       // Tormenta: más gotas y más largas, inclinadas por el viento.
@@ -155,10 +155,10 @@
       '<path class="esc-rayo an-rayo2" d="' + rayo(CENTRO + 300, 40) + '"/>' +
       '</g>' +
       '<g class="esc-dia">' +
-      '<circle class="esc-sol an-sol" cx="' + (CENTRO + 250) + '" cy="74" r="46"/>' +
-      '<circle class="esc-sol" cx="' + (CENTRO + 250) + '" cy="74" r="28"/></g>' +
+      '<circle class="esc-sol an-sol" cx="' + (CENTRO + 250) + '" cy="86" r="46"/>' +
+      '<circle class="esc-sol" cx="' + (CENTRO + 250) + '" cy="86" r="28"/></g>' +
       '<g class="esc-noche"><g class="esc-estrellas">' + estrellas + '</g>' +
-      '<circle class="esc-luna" cx="' + (CENTRO + 250) + '" cy="62" r="24" mask="url(#esc-creciente)"/></g>' +
+      '<circle class="esc-luna" cx="' + (CENTRO + 250) + '" cy="74" r="24" mask="url(#esc-creciente)"/></g>' +
       tramos +
       '<rect class="esc-acera" x="0" y="198" width="' + ANCHO + '" height="8"/>' +
       '<rect class="esc-asfalto" x="0" y="206" width="' + ANCHO + '" height="44"/>' +
