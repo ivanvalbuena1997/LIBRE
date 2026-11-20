@@ -483,7 +483,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   al tocar el display en modo flota o el total de «Tus taxis hoy»
   (`cajaAbierta`), y se cierra con su ×.
 - Escena de la cabecera (`js/ambiente.js`): cielo según la hora, sol o
-  luna y estrellas, edificios con ventanas que se encienden de noche, nubes,
+  luna y estrellas, edificios con ventanas que se encienden de noche (el
+  tramo del centro, `tramoCentro()`, con monumentos de Madrid; los demás,
+  `tramo()`), árboles (`arbol()`), gente paseando (`personas()`, colores de
+  los retratos; Iván, 20-11-2026), nubes,
   un taxi que pasa (berlina con las formas de un Corolla, colores
   `--coche-*`; Iván, 20-11-2026) y lluvia; con tormenta (clase `.tormenta`, Iván
   18-11-2026) el cielo se oscurece sin sol ni luna y hay relámpagos con

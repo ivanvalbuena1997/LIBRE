@@ -337,6 +337,10 @@
         {
           "n": 74,
           "texto": "El taxi de la cabecera, un 15 % más grande, y el Almacén dice cuánto vale todo lo que guardas."
+        },
+        {
+          "n": 75,
+          "texto": "Nuevo fondo de Madrid en la cabecera: Cuatro Torres, Torrespaña, Torres KIO, Metrópolis, Telefónica y la Puerta de Alcalá, árboles más detallados y gente paseando."
         }
       ]
     }

@@ -93,3 +93,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 72. Mejora «Incógnito al volante» (400 €): conduces en la libranza de tu licencia. Si un pesetas te mira, el taxímetro avisa con una cuenta atrás: no cargues hasta que se vaya o te cae una multa de 2.000 €.
 73. Taxi nuevo en la cabecera: una berlina más detallada (ventanillas, puertas, manetas, faros y llantas).
 74. El taxi de la cabecera, un 15 % más grande, y el Almacén dice cuánto vale todo lo que guardas.
+75. Nuevo fondo de Madrid en la cabecera: Cuatro Torres, Torrespaña, Torres KIO, Metrópolis, Telefónica y la Puerta de Alcalá, árboles más detallados y gente paseando.
