@@ -498,6 +498,7 @@
         Libre.ui_euros(porCarrera) + '.', carreras * porCarrera, 'extras');
     }
     const cerrada = estado.caja.hoy;
+    devolverAlquilados(estado, resumen, cerrada.dia + 1);
     registrarDia(estado, cerrada);
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
@@ -812,14 +813,69 @@
     const c = cfg();
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic) return fallo('Esa licencia no existe.');
-    if (lic.vehiculo) return fallo('Esa licencia ya tiene coche.');
+    if (lic.vehiculo && !lic.alquiler) return fallo('Esa licencia ya tiene coche.');
     const modelo = c.vehiculos.modelos[c.vehiculos.modeloInicial];
     const precio = precioCoche(estado);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
+    // Con uno de alquiler, lo devuelves: lo que quedaba de alquiler se pierde.
+    const devuelto = !!lic.alquiler;
+    lic.alquiler = null;
+    lic.averia = null;
     lic.vehiculo = c.vehiculos.modeloInicial;
     lic.km = 0;   // los coches que compras salen nuevos
-    return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. Contrata conductores para sus turnos.');
+    return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. ' +
+      (devuelto ? 'Devuelves el de alquiler.' : 'Contrata conductores para sus turnos.'));
+  }
+
+  /*
+   * Alquilar coche (idea 5, Iván, 20-11-2026): para una licencia sin coche,
+   * config.vehiculos.alquiler.jornadas jornadas (la de hoy cuenta) por su
+   * precio, pagado ya. Con uno alquilado, alarga el alquiler otras tantas.
+   * Al cerrar la caja de la última, se devuelve (cerrarCaja). No se gasta:
+   * sin avería definitiva ni más averías por km.
+   */
+  function alquilarCoche(estado, licenciaId) {
+    const c = cfg();
+    const lic = buscarLicencia(estado, licenciaId);
+    if (!lic) return fallo('Esa licencia no existe.');
+    if (lic.vehiculo && !lic.alquiler) return fallo('Esa licencia ya tiene coche propio.');
+    const a = c.vehiculos.alquiler;
+    if (estado.dinero < a.precio) return fallo('No te llega el dinero.');
+    estado.dinero -= a.precio;
+    const hoy = jornadaDe(estado.reloj.minutos);
+    if (lic.alquiler) {
+      lic.alquiler.hasta = Math.max(lic.alquiler.hasta, hoy) + a.jornadas;
+      return exito('Alargas el alquiler del taxi ' + textoLicencia(lic) + ': ' + jornadasAlquiler(estado, lic) + ' jornadas más.');
+    }
+    lic.vehiculo = c.vehiculos.modeloInicial;
+    lic.km = 0;
+    lic.averia = null;
+    lic.alquiler = { hasta: hoy + a.jornadas };
+    return exito('Coche alquilado para la licencia ' + textoLicencia(lic) + ' durante ' + a.jornadas + ' jornadas.');
+  }
+
+  /* Jornadas de alquiler que le quedan (contando la de hoy); 0 si es suyo. */
+  function jornadasAlquiler(estado, lic) {
+    return lic && lic.alquiler ? Math.max(0, lic.alquiler.hasta - jornadaDe(estado.reloj.minutos)) : 0;
+  }
+
+  /* Al cerrar la caja: los coches cuyo alquiler termina con la jornada nueva se devuelven. */
+  function devolverAlquilados(estado, resumen, jornadaNueva) {
+    estado.licencias.forEach(function (lic) {
+      if (!lic.alquiler || lic.alquiler.hasta > jornadaNueva) return;
+      lic.vehiculo = null;
+      lic.alquiler = null;
+      lic.averia = null;
+      TURNOS.forEach(function (t) {
+        const x = lic.turnos[t];
+        if (!x) return;
+        if (x.quien === 'jugador') estado.jugador.carrera = null;
+        else { x.carrera = null; x.pendiente = null; }
+      });
+      incidencia(estado, resumen, 'alquiler', 'Se acaba el alquiler del taxi ' + textoLicencia(lic) +
+        ': lo devuelves. Alquila otro o compra uno para que vuelva a trabajar.', 0, null);
+    });
   }
 
   /* Pasa al jugador al otro turno de su licencia, si está libre. */
@@ -2274,13 +2330,14 @@
   /* Las averías normales suben con los km del coche (×2 a kmDoble). */
   function factorAveriaKm(lic) {
     const a = cfg().eventos.averia;
+    if (lic && lic.alquiler) return 1;   // el de alquiler no se gasta
     return Math.min(a.factorKmMax, 1 + (lic && lic.km || 0) / a.kmDoble);
   }
 
   /* Probabilidad por turno de avería definitiva según los km (0 hasta kmDesde). */
   function probRotura(lic) {
     const r = cfg().eventos.rotura;
-    if (!lic || !lic.vehiculo) return 0;
+    if (!lic || !lic.vehiculo || lic.alquiler) return 0;
     const x = Math.max(0, ((lic.km || 0) - r.kmDesde) / (r.kmMax - r.kmDesde));
     return Math.min(r.probMax, r.probMax * x * x);
   }
@@ -2299,7 +2356,7 @@
    * partida no se puede quedar bloqueada.
    */
   function roturaPosible(estado, lic) {
-    if (!lic.vehiculo) return false;
+    if (!lic.vehiculo || lic.alquiler) return false;
     if (lic.averia && jornadaDe(estado.reloj.minutos) < lic.averia.hasta) return false;
     return otroCocheEnMarcha(estado, lic) || estado.dinero >= precioCoche(estado);
   }
@@ -2342,6 +2399,10 @@
   function estadoCoche(estado, lic) {
     if (!lic || !lic.vehiculo) return null;
     const v = cfg().vehiculos;
+    if (lic.alquiler) {
+      return { km: lic.km || 0, probRotura: 0, factorAveria: 1, venta: 0, precioRenovar: null,
+        nivel: 'alquilado', quedan: jornadasAlquiler(estado, lic) };
+    }
     const p = probRotura(lic);
     const km = lic.km || 0;
     const venta = valorVentaCoche(estado, lic);
@@ -2361,6 +2422,7 @@
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic) return fallo('Esa licencia no existe.');
     if (!lic.vehiculo) return fallo('Esa licencia no tiene coche: cómprale uno.');
+    if (lic.alquiler) return fallo('Ese coche es de alquiler: no se renueva, se devuelve o se compra uno.');
     if (!enPausa(estado)) return fallo('Solo puedes renovar el coche con el día cerrado.');
     const venta = valorVentaCoche(estado, lic);
     const precio = Math.max(0, precioCoche(estado) - venta);
@@ -2858,6 +2920,8 @@
     valorVentaCoche,
     estadoCoche,
     renovarCoche,
+    alquilarCoche,
+    jornadasAlquiler,
     motivoSinCoche,
     statsConductor,
     aportesConductor,

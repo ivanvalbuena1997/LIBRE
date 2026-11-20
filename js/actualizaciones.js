@@ -305,6 +305,10 @@
         {
           "n": 66,
           "texto": "Los avisos de eventos (conductores, lluvia, averías…) salen solo en la pestaña Calle."
+        },
+        {
+          "n": 67,
+          "texto": "Alquilar coche: una licencia sin coche puede alquilar uno 3 días por 400 € (no se gasta y se devuelve solo); los conductores de una licencia sin coche se siguen viendo."
         }
       ]
     }

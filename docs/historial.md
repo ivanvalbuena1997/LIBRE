@@ -85,3 +85,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 ## 20 de noviembre de 2026 · Alquiler, modo incógnito y avisos
 
 66. Los avisos de eventos (conductores, lluvia, averías…) salen solo en la pestaña Calle.
+67. Alquilar coche: una licencia sin coche puede alquilar uno 3 días por 400 € (no se gasta y se devuelve solo); los conductores de una licencia sin coche se siguen viendo.

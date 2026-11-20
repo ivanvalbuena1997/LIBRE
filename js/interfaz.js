@@ -1645,8 +1645,10 @@
     const e = Libre.sim.estadoCoche(estado, lic);
     if (!e) return '';
     return '<button type="button" class="ficha-coche coche--' + e.nivel + '" data-coche="' + lic.id + '">' +
-      '<span>Su coche · ' + numero(Math.floor(e.km)) + ' km · ' + NIVEL_COCHE[e.nivel] + '</span>' +
-      '<strong>Avería definitiva ' + porcentaje(e.probRotura) + ' ›</strong></button>';
+      (e.nivel === 'alquilado'
+        ? '<span>Su coche · de alquiler</span><strong>' + textoQuedan(e.quedan) + ' ›</strong></button>'
+        : '<span>Su coche · ' + numero(Math.floor(e.km)) + ' km · ' + NIVEL_COCHE[e.nivel] + '</span>' +
+          '<strong>Avería definitiva ' + porcentaje(e.probRotura) + ' ›</strong></button>');
   }
 
   /* «168 / 219 XP» o «Máximo» (al lado de la barra de la ficha). */
@@ -1675,7 +1677,9 @@
     estado.licencias.map(function (l) {
       const e = Libre.sim.estadoCoche(estado, l);
       // Abierta, la hoja cambia con cada 1.000 km; cerrada, solo el color del estado.
-      return e ? (cocheAbierto === l.id ? [e.nivel, Math.floor(e.km / 1000)] : e.nivel) : null;
+      if (!e) return null;
+      if (e.nivel === 'alquilado') return ['alquilado', e.quedan];
+      return cocheAbierto === l.id ? [e.nivel, Math.floor(e.km / 1000)] : e.nivel;
     }),
     (estado.reserva || []).map(function (t) {
       return [t.nombre, t.retrato, t.categoria, t.cualidad, t.cualidad2, t.cualidad3, t.defecto, t.defecto2,
@@ -1887,11 +1891,21 @@
       (lic.vehiculo ? '<button type="button" class="licencia-km coche--' + Libre.sim.estadoCoche(estado, lic).nivel +
         '" data-coche="' + lic.id + '" aria-label="Ver el coche de la licencia ' + esc(Libre.sim.textoLicencia(lic)) + '">' +
         '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + ICONO_COCHE + '</svg>' +
-        '<span class="licencia-km-texto"><span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</span>' +
+        (lic.alquiler
+          // Corto para que quepa: «Alquiler · 3 días» (la hoja lo explica).
+          ? '<span class="licencia-km-texto">Alquiler · ' + Libre.sim.jornadasAlquiler(estado, lic) +
+            (Libre.sim.jornadasAlquiler(estado, lic) === 1 ? ' día' : ' días') + '</span>'
+          : '<span class="licencia-km-texto"><span data-km-licencia="' + lic.id + '">' + numero(Math.floor(lic.km || 0)) + '</span> km</span>') +
         '<span class="licencia-km-flecha" aria-hidden="true">›</span></button>' : '') +
-      (lic.vehiculo
-        ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>'
-        : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) + '</div>') +
+      // Sin coche pero con gente (tras una avería definitiva o un alquiler
+      // devuelto), los turnos se siguen viendo: esperan al coche.
+      (lic.vehiculo || lic.turnos.dia || lic.turnos.noche
+        ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>' : '') +
+      (lic.vehiculo ? ''
+        : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) +
+          // Alquilar (idea 5, Iván 20-11-2026): un apaño de pocas jornadas.
+          botonCompra('Alquilar', Libre.config.vehiculos.alquiler.precio, 'alquilarCoche', [lic.id]) +
+          '<small class="sin-coche-nota">Alquiler de ' + Libre.config.vehiculos.alquiler.jornadas + ' días</small></div>') +
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
 
@@ -1902,7 +1916,26 @@
    */
   // Trazo de un coche (el mismo que el de la mejora Leasing).
   const ICONO_COCHE = '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>';
-  const NIVEL_COCHE = { nuevo: 'Nuevo', rodado: 'Rodado', gastado: 'Gastado', limite: 'Al límite' };
+  const NIVEL_COCHE = { nuevo: 'Nuevo', rodado: 'Rodado', gastado: 'Gastado', limite: 'Al límite', alquilado: 'Alquilado' };
+  /* «queda 1 jornada», «quedan 3 jornadas». */
+  function textoQuedan(n) {
+    return n === 1 ? 'queda 1 jornada' : 'quedan ' + n + ' jornadas';
+  }
+
+  /* Hoja del coche de alquiler: cuánto le queda, alargarlo o comprar uno propio. */
+  function htmlHojaAlquilado(estado, lic, e, fila) {
+    const a = Libre.config.vehiculos.alquiler;
+    const precio = Libre.sim.precioCoche(estado);
+    return '<div class="stats-lista">' +
+      fila('Alquiler', textoQuedan(e.quedan), 'Contando la de hoy. Al cerrar la caja de la última, lo devuelves y la licencia se queda sin coche', '') +
+      fila('Desgaste', 'No se gasta', 'Sin avería definitiva ni más averías por los kilómetros', '') +
+      fila('Kilómetros', numero(Math.floor(e.km)) + ' km', 'Los que lleva contigo', '') +
+      '</div>' +
+      boton('Alquilar ' + a.jornadas + ' jornadas más · ' + euros(a.precio), 'alquilarCoche', [lic.id],
+        'ui-boton ui-boton--secundario ui-boton--ancho', a.precio) +
+      boton('Comprar uno propio · ' + euros(precio), 'comprarVehiculo', [lic.id], 'ui-boton ui-boton--principal ui-boton--ancho', precio) +
+      '<p class="coche-nota">Si compras uno, devuelves el de alquiler y pierdes lo que quedaba.</p>';
+  }
   function htmlHojaCoche(estado) {
     const lic = cocheAbierto && estado.licencias.find(function (l) { return l.id === cocheAbierto; });
     const e = Libre.sim.estadoCoche(estado, lic);
@@ -1914,11 +1947,14 @@
     };
     const mal = e.nivel === 'gastado' || e.nivel === 'limite' ? ' stat--mal' : '';
     const pausa = Libre.sim.enPausa(estado);
-    return '<div class="hoja-fondo" data-cerrar-coche></div>' +
+    const cabeza = '<div class="hoja-fondo" data-cerrar-coche></div>' +
       '<div class="hoja hoja-coche" role="dialog" aria-modal="true" aria-labelledby="coche-titulo">' +
       '<span class="hoja-asa" aria-hidden="true"></span>' +
       '<div class="hoja-cabecera"><h3 id="coche-titulo">' + esc(Libre.config.vehiculos.modelos[lic.vehiculo].nombre) +
-      ' · ' + esc(Libre.sim.textoLicencia(lic)) + '</h3>' + botonCerrarHoja('data-cerrar-coche', 'Cerrar') + '</div>' +
+      (lic.alquiler ? ' de alquiler' : '') + ' · ' + esc(Libre.sim.textoLicencia(lic)) + '</h3>' +
+      botonCerrarHoja('data-cerrar-coche', 'Cerrar') + '</div>';
+    if (lic.alquiler) return cabeza + htmlHojaAlquilado(estado, lic, e, fila) + '</div>';
+    return cabeza +
       '<div class="stats-lista">' +
       fila('Kilómetros', numero(Math.floor(e.km)) + ' km', '', '') +
       fila('Estado', NIVEL_COCHE[e.nivel], e.probRotura > 0 ? 'Cuantos más km, más se rompe' :

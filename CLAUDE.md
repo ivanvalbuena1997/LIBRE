@@ -366,6 +366,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`cocheAbierto`, `htmlHojaCoche()`); la ficha del conductor lo enlaza
   (`htmlCocheEnFicha()`). El botón de los km es una pastilla (coche,
   km y «›») con el fondo del estado (`.coche--gastado`, `.coche--limite`).
+  Alquiler (idea 5, Iván 20-11-2026; versión 26 del guardado):
+  `alquilarCoche()` pone coche a una licencia sin él (o alarga uno
+  alquilado) por `config.vehiculos.alquiler` (3 jornadas, 400 €);
+  `lic.alquiler = { hasta }` (jornada en la que se devuelve,
+  `devolverAlquilados()` desde `cerrarCaja()`, incidencia 'alquiler').
+  No se gasta: `probRotura()` 0, `factorAveriaKm()` 1, sin renovar;
+  `comprarVehiculo()` lo sustituye. `estadoCoche()` da nivel 'alquilado'
+  y `quedan` (`jornadasAlquiler()`); la hoja es `htmlHojaAlquilado()`.
   Botones con `data-solo-pausa`: el bucle los
   desactiva también fuera de la pausa, además de por precio.
 - Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia

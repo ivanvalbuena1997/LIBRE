@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 25,
+    versionGuardado: 26,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -107,6 +107,8 @@
       // coche inicial (~92.000 km) aguanta de media ~157 jornadas (~4,4 h de
       // juego) y uno nuevo ~300. Nunca deja la flota sin coche en marcha si
       // no te llega para comprar otro.
+      // Fin del alquiler de un coche (solo el aviso y la línea del ticket).
+      alquiler: { nombre: 'Fin de alquiler' },
       rotura: {
         nombre: 'Averías definitivas', kmDesde: 130000, kmMax: 230000, probMax: 0.03,
         chatarra: 50               // € que te dan en el desguace
@@ -576,6 +578,12 @@
       // precio de un coche, menos cuantos más km tenga (nada a kmSinValor),
       // y nunca por menos que la chatarra (eventos.rotura.chatarra).
       venta: { fraccion: 0.5, kmSinValor: 230000 },
+      // Alquilar coche (idea 5, Iván, 20-11-2026): para una licencia sin
+      // coche, `jornadas` jornadas por `precio`, pagadas al alquilar (~133 €
+      // por jornada). Equilibrio: más caro que comprar a partir de ~11
+      // jornadas, para que sea un apaño y no la costumbre. El alquilado no se
+      // gasta (sin avería definitiva ni más averías por km).
+      alquiler: { jornadas: 3, precio: 400 },
       // Estado del coche que se ve en pantalla: «Nuevo» hasta kmNuevo;
       // «Rodado» hasta que hay riesgo de avería definitiva; «Gastado» con
       // riesgo y «Al límite» desde probLimite por turno.

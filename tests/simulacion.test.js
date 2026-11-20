@@ -1983,4 +1983,49 @@ prueba('exportar e importar: el texto pegado del móvil (espacios duros, invisib
   assert.throws(function () { g.importar(g.exportar(nueva)); }, /versión más nueva/);
 });
 
+prueba('alquilar coche: 3 jornadas por 400 €, se devuelve solo y no se gasta', function () {
+  const a = config.vehiculos.alquiler;
+  const e = flotaDe(2);
+  e.reloj.minutos = 9 * 60;
+  const lic = e.licencias[1];
+  lic.vehiculo = null;                      // como tras una avería definitiva
+  assert.ok(!sim.alquilarCoche(e, e.licencias[0].id).ok, 'con coche propio no');
+  const dinero = e.dinero;
+  assert.ok(sim.alquilarCoche(e, lic.id).ok);
+  cerca(e.dinero, dinero - a.precio);
+  assert.ok(lic.vehiculo && lic.alquiler);
+  assert.strictEqual(sim.jornadasAlquiler(e, lic), a.jornadas);
+  // No se gasta.
+  lic.km = 500000;
+  assert.strictEqual(sim.probRotura(lic), 0);
+  assert.strictEqual(sim.factorAveriaKm(lic), 1);
+  assert.ok(!sim.roturaPosible(e, lic));
+  assert.strictEqual(sim.estadoCoche(e, lic).nivel, 'alquilado');
+  e.cierrePendiente = { dias: 1 };
+  assert.ok(!sim.renovarCoche(e, lic.id).ok, 'no se renueva');
+  e.cierrePendiente = null;
+  // Trabaja y, al cerrar la caja de la última jornada, se devuelve.
+  let eventos = [];
+  for (let d = 0; d < a.jornadas - 1; d++) eventos = eventos.concat(sim.avanzar(e, DIA()).eventos);
+  assert.ok(lic.vehiculo, 'aún lo tiene antes de acabar la última');
+  assert.strictEqual(sim.jornadasAlquiler(e, lic), 1);
+  eventos = eventos.concat(sim.avanzar(e, DIA()).eventos);
+  assert.strictEqual(lic.vehiculo, null);
+  assert.strictEqual(lic.alquiler, null);
+  assert.ok(eventos.some(function (ev) { return ev.tipo === 'alquiler'; }));
+  // Alargar y comprar uno propio encima.
+  sim.alquilarCoche(e, lic.id);
+  sim.alquilarCoche(e, lic.id);
+  assert.strictEqual(sim.jornadasAlquiler(e, lic), 2 * a.jornadas);
+  assert.ok(sim.comprarVehiculo(e, lic.id).ok);
+  assert.strictEqual(lic.alquiler, null);
+  assert.strictEqual(lic.km, 0);
+  // Sin conexión también se devuelve.
+  const f = flotaDe(2);
+  f.licencias[1].vehiculo = null;
+  sim.alquilarCoche(f, f.licencias[1].id);
+  sim.avanzar(f, (a.jornadas + 1) * DIA(), { sinPausa: true, agregado: true });
+  assert.strictEqual(f.licencias[1].vehiculo, null);
+});
+
 console.log(pasadas + ' pruebas correctas');

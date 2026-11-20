@@ -1372,6 +1372,10 @@ button.licencia-km .icono { width: 16px; height: 16px; }
 .licencia-km-flecha { margin-left: auto; font-size: var(--t-normal); line-height: 1; color: var(--marca); }
 button.licencia-km.coche--gastado { background: var(--tinte-ambar); color: var(--aviso); }
 button.licencia-km.coche--limite { background: var(--tinte-rojo); color: var(--peligro); }
+button.licencia-km.coche--alquilado { background: var(--tinte-azul); color: var(--marca); }
+.licencia-sin-coche { display: flex; flex-direction: column; gap: var(--esp-2); }
+.sin-coche-nota { margin-top: -4px; font-size: var(--t-micro); color: var(--tinta-suave); text-align: center; }
+.hoja-coche .ui-boton + .ui-boton { margin-top: var(--esp-2); }
 button.licencia-km.coche--gastado .licencia-km-flecha, button.licencia-km.coche--limite .licencia-km-flecha { color: currentColor; }
 .coche--gastado { color: var(--aviso); }
 .coche--limite { color: var(--peligro); }

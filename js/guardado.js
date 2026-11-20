@@ -257,6 +257,9 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 25 → 26: coches de alquiler (Iván, 20-11-2026): lic.alquiler, null o
+    // ausente si el coche es tuyo. Nada que convertir.
+    25: function () {},
     // 24 → 25: kilometraje de cada coche (Iván, 19-11-2026). El de la primera
     // licencia es el coche de segunda mano del principio; los demás, nuevos
     // desde que llegan. Lo rodado hasta hoy no se sabe: empieza a contar ya.

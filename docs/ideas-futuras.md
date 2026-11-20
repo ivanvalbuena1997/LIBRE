@@ -24,8 +24,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
    distintas (consumo, demanda, averías…) en lugar de uno solo. Ojo: hoy
    DISENO.md deja «otros vehículos» fuera del alcance, así que habría que
    cambiarlo allí.
-5. [ ] **Alquilar coche.** Poder alquilar uno cuando tienes una licencia sin
-   coche, como alternativa a comprarlo.
+5. [x] **Alquilar coche.** Hecho el 20-11-2026 (ver «Hechas»).
 6. [x] **Kilometraje de cada coche.** Hecho el 19-11-2026 (ver «Hechas»).
 7. [x] **Avería definitiva.** Hecho el 19-11-2026 (ver «Hechas»).
 8. [ ] **Skin del coche.** Más adelante en la partida, personalizar el aspecto
@@ -85,6 +84,10 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **5. Alquilar coche** (🚗, 20-11-2026). Una licencia sin coche puede
+  alquilar uno 3 días por 400 €, alargarlo o comprar uno propio encima. No se
+  gasta y se devuelve solo al acabar.
 
 - [x] **7. Avería definitiva** (🚗, 19-11-2026). Desde 130.000 km el coche
   puede romperse del todo (también el tuyo, sin bloquear nunca la partida):
