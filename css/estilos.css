@@ -453,8 +453,9 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-bus-techo { fill: var(--bus-techo); }
 .esc-bus-banda { fill: var(--bus-negro); }
 .esc-bus-falda { fill: var(--bus-gris); }
-.esc-bus-cristal, .esc-bus-ventana { fill: var(--bus-cristal); }
-.esc-bus-puerta rect { fill: var(--bus-cristal); stroke: var(--bus-negro); stroke-width: 0.9; }
+/* Cristales tintados que dejan ver un poco lo de detrás (Iván, 20-11-2026). */
+.esc-bus-cristal, .esc-bus-ventana { fill: var(--bus-cristal); fill-opacity: 0.6; }
+.esc-bus-puerta rect { fill: var(--bus-cristal); fill-opacity: 0.6; stroke: var(--bus-negro); stroke-width: 0.9; }
 .esc-bus-hojas { stroke: var(--bus-negro); stroke-width: 0.8; }
 .esc-bus-pasamanos { stroke: var(--bus-pasamanos); stroke-width: 0.8; }
 .esc-bus-fuelle { fill: var(--bus-fuelle); }
@@ -468,7 +469,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-bus-faro { fill: var(--bus-faro); }
 .esc-bus-matricula { fill: var(--bus-techo); stroke: var(--bus-negro); stroke-width: 0.3; }
 .esc-bus-llanta { fill: var(--bus-azul); }
-.noche .esc-bus-ventana, .noche .esc-bus-cristal { fill: var(--esc-ventana-noche); opacity: 0.85; }
+.noche .esc-bus-ventana, .noche .esc-bus-cristal { fill: var(--esc-ventana-noche); fill-opacity: 0.8; }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
 .esc-mascara-si { fill: var(--esc-mascara-si); }

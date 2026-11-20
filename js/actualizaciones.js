@@ -365,6 +365,10 @@
         {
           "n": 81,
           "texto": "El autobús de la EMT, ahora articulado y con mucho más detalle: fuelle, puertas, letreros de la línea y llantas azules."
+        },
+        {
+          "n": 82,
+          "texto": "Los cristales del autobús dejan ver un poco lo que hay detrás."
         }
       ]
     }

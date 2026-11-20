@@ -100,3 +100,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 79. Un autobús azul de la EMT cruza la cabecera en sentido contrario al taxi, cada uno por su carril.
 80. Arreglo: el taxi de la cabecera ya se ve entero también en móviles de pantalla baja.
 81. El autobús de la EMT, ahora articulado y con mucho más detalle: fuelle, puertas, letreros de la línea y llantas azules.
+82. Los cristales del autobús dejan ver un poco lo que hay detrás.

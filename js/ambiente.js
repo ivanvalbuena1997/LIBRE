@@ -334,11 +334,16 @@
    * derecha). De noche se encienden las ventanillas.
    */
   function autobus() {
+    // Huecos de cristal de la banda negra (Iván, 20-11-2026: que se vea un poco
+    // lo de detrás): la banda se dibuja con agujeros y los cristales encima,
+    // semitransparentes.
+    const huecosBanda = [];
     const ventanas = function (desde, hasta, huecos) {
       let v = '';
       for (let x = desde; x + 19 <= hasta - 2; x += 21) {
         if (huecos.some(function (h) { return x + 19 > h[0] && x < h[1]; })) continue;
         v += '<rect class="esc-bus-ventana" x="' + x + '" y="14" width="19" height="20" rx="1.4"/>';
+        huecosBanda.push('M' + x + ' 14h19v20h-19z');
       }
       return v;
     };
@@ -351,6 +356,10 @@
       return '<circle class="esc-rueda" cx="' + x + '" cy="57" r="8.4"/><circle class="esc-bus-llanta" cx="' + x + '" cy="57" r="5.2"/>' +
         '<circle class="esc-buje" cx="' + x + '" cy="57" r="1.6"/>';
     };
+    const ventanasHtml = ventanas(36, 118, [[60, 74]]) + ventanas(130, 246, [[150, 164]]);
+    // Agujeros de la banda: ventanillas, parabrisas y la parte alta de las puertas.
+    const bandaHuecos = huecosBanda.join('') + 'M5.6 17H20V35H5.6z' +
+      [22, 61, 151].map(function (x) { return 'M' + x + ' 13.4h13v22.6h-13z'; }).join('');
     let fuelle = '';
     for (let x = 119.6; x < 127; x += 1.8) fuelle += 'M' + x + ' 9V55';
     return '<svg class="esc-bus an-bus" width="232" height="60" viewBox="-4 0 254 66" aria-hidden="true" focusable="false">' +
@@ -362,14 +371,13 @@
       '<path class="esc-bus-cuerpo" d="M4 50V15Q4 6 12 6H118V50Z"/>' +
       '<path class="esc-bus-cuerpo" d="M128 6H239Q246 6 246 13V50H128Z"/>' +
       '<path class="esc-bus-techo" d="M10 6H118V10H5.4Q6.4 6 10 6ZM128 6H239Q245.6 6 246 10H128Z"/>' +
-      '<rect class="esc-bus-banda" x="4" y="11.6" width="114" height="24.4"/>' +
-      '<rect class="esc-bus-banda" x="128" y="11.6" width="118" height="24.4"/>' +
+      '<path class="esc-bus-banda" fill-rule="evenodd" d="M4 11.6h114v24.4H4zM128 11.6h118v24.4H128z' + bandaHuecos + '"/>' +
       // Parabrisas con el letrero de la línea encima.
       '<path class="esc-bus-cristal" d="M5.6 35V18Q5.6 13 10 13H20V35Z"/>' +
       '<rect class="esc-bus-letrero" x="5.6" y="12.6" width="14.4" height="4.6" rx="0.6"/>' +
       '<text class="esc-bus-linea" x="12.8" y="16.2" text-anchor="middle">34</text>' +
       // Ventanillas (sin las puertas) y letrero lateral.
-      ventanas(36, 118, [[60, 74]]) + ventanas(130, 246, [[150, 164]]) +
+      ventanasHtml +
       '<rect class="esc-bus-letrero" x="36" y="13.6" width="22" height="3.6" rx="0.5"/>' +
       '<text class="esc-bus-linea esc-bus-linea-chica" x="47" y="16.4" text-anchor="middle">34 LAS ÁGUILAS</text>' +
       // Faldón gris con los pasos de rueda.
