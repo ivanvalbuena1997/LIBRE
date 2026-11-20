@@ -2012,6 +2012,8 @@
     firma: firmaFlota,
     html: function (estado) {
       return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Almacén</h2>' +
+        // Lo que vale todo lo guardado (venta de almacén y bandeja).
+        '<span class="almacen-valor" title="Lo que te darían si lo vendieras todo">Vale ' + euros(Libre.sim.valorAlmacen(estado)) + '</span>' +
         '<span>Objetos ' + Libre.sim.objetosEnAlmacen(estado) + ' de ' + Libre.sim.capacidadAlmacen(estado) + '</span></div>' +
         htmlInventario(estado);
     }

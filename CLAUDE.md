@@ -223,7 +223,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
 - Pestañas Almacén y Conductores (antes, juntas en Flota). Almacén
-  (`seccionAlmacen`, maqueta almacen.html): título con «Objetos N de M»;
+  (`seccionAlmacen`, maqueta almacen.html): título con lo que vale
+  (`valorAlmacen()`: venta de almacén y bandeja) y «Objetos N de M»;
   los objetos sin equipar en casillas de 3 columnas, de
   mejor a peor, sin nombre a la vista (Iván: rareza, ×cantidad y dibujo; el
   nombre va en el título y en el panel). Al tocar una se abre debajo su

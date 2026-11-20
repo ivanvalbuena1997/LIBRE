@@ -69,7 +69,7 @@ El juego es una sola columna, pensada para un móvil en vertical (390 × 844 de 
 
 ### Cabecera
 
-Una escena dibujada de la calle: cielo que sigue la hora del juego (amanecer, día, atardecer y noche), sol o luna y estrellas, edificios con ventanas que se encienden y parpadean de noche, nubes, un taxi que pasa (una berlina blanca con las formas de un Toyota Corolla, sin marcas, con la franja roja de Madrid y la luz verde en el techo; Iván, 20-11-2026) y lluvia cuando llueve. Es adorno: no enseña datos.
+Una escena dibujada de la calle: cielo que sigue la hora del juego (amanecer, día, atardecer y noche), sol o luna y estrellas, edificios con ventanas que se encienden y parpadean de noche, nubes, un taxi que pasa (150 × 58 px; una berlina blanca con las formas de un Toyota Corolla, sin marcas, con la franja roja de Madrid y la luz verde en el techo; Iván, 20-11-2026) y lluvia cuando llueve. Es adorno: no enseña datos.
 
 Encima va la placa **«Caja total»**, siempre a la vista: el dinero y, en Calle, el chip «Día 7 · Dom 10:32 · Tarifa 2». En Calle la cabecera es alta (220 px; 180 en pantallas de menos de 830 px de alto, para que todo quepa sin desplazar); en las demás pestañas es compacta (124 px) y solo se ve la calle. Al desplazar la página sube hasta dejar solo la placa. De noche, la placa y el engranaje pasan a fondo oscuro con letra clara.
 
@@ -120,6 +120,7 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 <img src="docs/capturas/almacen.jpg" width="250" alt="Almacén: los objetos en casillas (captura anterior: aún salen las ruedas y bolsas, que ya no existen)">
 </p>
 
+- **Título:** «Almacén», al lado lo que **vale** todo lo guardado (lo que te darían vendiendo el almacén y la bandeja, en verde; Iván, 20-11-2026) y, a la derecha, «Objetos N de M».
 - **Objetos sin equipar:** casillas de 3 columnas, de mejor a peor, **sin nombre a la vista** (decisión de Iván): rareza, cantidad y el dibujo sobre el color de su categoría. Al tocar una se abre debajo su panel con el nombre, qué hace, cuántos hay equipados, «Combinar» y «Vender».
 - **Bandeja:** si un conductor encuentra algo con el almacén lleno, arriba aparece en amarillo «Almacén lleno · N por guardar», con lo que espera y la lista para vender.
 

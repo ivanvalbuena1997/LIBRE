@@ -143,7 +143,8 @@
    * de referencia, en espejo: circula hacia la derecha), sin marcas.
    */
   function taxi() {
-    return '<svg class="esc-taxi an-taxi" width="130" height="50" viewBox="0 -20 130 50" aria-hidden="true" focusable="false">' +
+    // 15 % más grande que el dibujo (Iván, 20-11-2026): 150 × 58 en vez de 130 × 50.
+    return '<svg class="esc-taxi an-taxi" width="150" height="58" viewBox="0 -20 130 50" aria-hidden="true" focusable="false">' +
       '<defs><radialGradient id="esc-faro"><stop offset="0" class="esc-faro-centro"/><stop offset="1" class="esc-faro-borde"/></radialGradient></defs>' +
       // Brillo de los faros de noche: degradado que se pierde (no una mancha).
       '<ellipse class="esc-brillo" cx="122" cy="13" rx="22" ry="8" fill="url(#esc-faro)"/>' +

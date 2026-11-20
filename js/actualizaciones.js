@@ -333,6 +333,10 @@
         {
           "n": 73,
           "texto": "Taxi nuevo en la cabecera: una berlina más detallada (ventanillas, puertas, manetas, faros y llantas)."
+        },
+        {
+          "n": 74,
+          "texto": "El taxi de la cabecera, un 15 % más grande, y el Almacén dice cuánto vale todo lo que guardas."
         }
       ]
     }

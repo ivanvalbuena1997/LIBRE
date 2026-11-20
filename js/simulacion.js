@@ -1272,6 +1272,24 @@
     return Object.keys(o).reduce(function (s, k) { return s + o[k]; }, 0);
   }
 
+  /*
+   * Lo que te darían vendiendo todo lo que no está equipado: el almacén y la
+   * bandeja, cada objeto al precio de su categoría (Iván, 20-11-2026).
+   */
+  function valorAlmacen(estado) {
+    const o = estado.objetos || {};
+    let total = 0;
+    Object.keys(o).forEach(function (id) {
+      const x = buscarObjeto(id);
+      if (x && o[id] > 0) total += o[id] * buscarCategoria(x.categoria).venta;
+    });
+    (estado.bandeja || []).forEach(function (b) {
+      const x = buscarObjeto(b.id);
+      if (x) total += buscarCategoria(x.categoria).venta;
+    });
+    return total;
+  }
+
   /* Pasa al almacén lo que esperaba en la bandeja, mientras quepa. */
   function guardarBandeja(estado) {
     estado.objetos = estado.objetos || {};
@@ -3067,6 +3085,7 @@
     categoriaSiguiente,
     objetosParaCombinar,
     combinarObjetos,
+    valorAlmacen,
     cuantosParaCombinar,
     equiparObjeto,
     quitarObjeto,

@@ -2126,4 +2126,13 @@ prueba('tu incógnito: conduces en la libranza y el pesetas te multa solo si car
   }
 });
 
+prueba('valor del almacén: lo que vale todo lo no equipado (almacén y bandeja)', function () {
+  const e = sim.crearEstadoInicial(0);
+  const venta = function (id) { return sim.buscarCategoria(sim.buscarObjeto(id).categoria).venta; };
+  assert.strictEqual(sim.valorAlmacen(e), 0);
+  e.objetos = { cojin: 2, gato: 1, gps: 0 };
+  e.bandeja = [{ id: 'gps', conductor: 'Ana' }];
+  cerca(sim.valorAlmacen(e), 2 * venta('cojin') + venta('gato') + venta('gps'));
+});
+
 console.log(pasadas + ' pruebas correctas');
