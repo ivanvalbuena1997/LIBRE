@@ -488,9 +488,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `tramo()`), árboles (`arbol()`), gente paseando (`personas()`, colores de
   los retratos; Iván, 20-11-2026), repartidores en bici (`REPARTIDORES`,
   `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en
-  sentidos contrarios; el que vuelve va en espejo salvo la mochila), nubes,
+  sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
+  autobús de la EMT (`autobus()`, `--bus-*`), nubes,
   un taxi que pasa (berlina con las formas de un Corolla, colores
-  `--coche-*`; Iván, 20-11-2026) y lluvia; con tormenta (clase `.tormenta`, Iván
+  `--coche-*`; Iván, 20-11-2026) y lluvia. Carriles (se circula por la
+  derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;
+  autobús y bici de Just Eat, hacia la izquierda, por el de detrás. El orden
+  en `montar()` decide quién tapa a quién; con tormenta (clase `.tormenta`, Iván
   18-11-2026) el cielo se oscurece sin sol ni luna y hay relámpagos con
   rayo (un destello doble cada 7 s), lluvia inclinada, viento y hojas. Se dibuja a escala 1 pegada abajo (la cabecera
   compacta enseña solo la calle). Es un módulo aparte con

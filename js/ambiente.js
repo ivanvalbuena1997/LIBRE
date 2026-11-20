@@ -323,6 +323,48 @@
       '</g></svg>';
   }
 
+  /*
+   * Autobús de la EMT (Iván, 20-11-2026): azul, en sentido contrario al taxi
+   * y por el carril de detrás (en España se circula por la derecha: lo que va
+   * hacia la izquierda va por el carril pegado a la acera del fondo). Con
+   * parabrisas, letrero de línea, ventanillas con pilares, dos puertas,
+   * franja, aire acondicionado en el techo, retrovisor, faros y ruedas.
+   * De noche se le encienden las ventanillas.
+   */
+  function autobus() {
+    let ventanas = '';
+    for (let x = 58; x < 186; x += 21.6) ventanas += '<rect class="esc-bus-ventana" x="' + x + '" y="13" width="19.4" height="19" rx="1.6"/>';
+    const ruedaBus = function (x) {
+      return '<circle class="esc-rueda" cx="' + x + '" cy="58" r="8.6"/><circle class="esc-llanta" cx="' + x + '" cy="58" r="5"/>' +
+        '<circle class="esc-buje" cx="' + x + '" cy="58" r="1.6"/>';
+    };
+    return '<svg class="esc-bus an-bus" width="176" height="62" viewBox="0 0 200 70" aria-hidden="true" focusable="false">' +
+      '<ellipse class="esc-sombra-coche" cx="100" cy="67.4" rx="96" ry="2.2"/>' +
+      // Techo: aire acondicionado.
+      '<rect class="esc-bus-techo" x="74" y="1.6" width="54" height="4.6" rx="1.8"/>' +
+      // Carrocería, con los pasos de rueda.
+      '<path class="esc-bus-cuerpo" d="M6 55V13Q6 5 14 5H189Q196 5 196 12V55Q196 58 193 58H176.2A11 11 0 0 0 154.2 58H52.2A11 11 0 0 0 30.2 58H9Q6 58 6 55Z"/>' +
+      // Faldón más oscuro y franja clara.
+      '<path class="esc-bus-falda" d="M6 46H196V55Q196 58 193 58H176.2A11 11 0 0 0 154.2 58H52.2A11 11 0 0 0 30.2 58H9Q6 58 6 55Z"/>' +
+      '<rect class="esc-bus-franja" x="6" y="36" width="190" height="2.6"/>' +
+      // Parabrisas y letrero de la línea.
+      '<path class="esc-bus-cristal" d="M8.6 34V14Q8.6 9 13 9H24V34Z"/>' +
+      '<rect class="esc-bus-letrero" x="26.6" y="7.4" width="28" height="4.6" rx="0.8"/>' +
+      '<text class="esc-bus-linea" x="40.6" y="11.1" text-anchor="middle">27 PLAZA CASTILLA</text>' +
+      // Ventanillas con sus pilares y las dos puertas (dos hojas de cristal).
+      ventanas +
+      '<g class="esc-bus-puerta"><rect x="27" y="14" width="13.4" height="40" rx="1"/><path d="M33.7 14V54"/></g>' +
+      '<g class="esc-bus-puerta"><rect x="104" y="14" width="13.4" height="40" rx="1"/><path d="M110.7 14V54"/></g>' +
+      // Rótulo de la EMT.
+      '<text class="esc-bus-rotulo" x="148" y="44.6" text-anchor="middle">EMT Madrid</text>' +
+      // Retrovisor, faro delantero y piloto trasero.
+      '<path class="esc-bus-retrovisor" d="M7 12.4L1.6 13.6V20.4h2.4V15.6l3-.8z"/>' +
+      '<rect class="esc-faro" x="6.4" y="48" width="4.6" height="3.4" rx="1"/>' +
+      '<rect class="esc-trasero" x="193.4" y="40" width="2.6" height="9" rx="1"/>' +
+      ruedaBus(41.2) + ruedaBus(165.2) +
+      '</svg>';
+  }
+
   /* Dos nubes que cruzan despacio (solo de día). */
   function nubes() {
     return '<svg class="esc-nube esc-nube-1 an-nube" width="76" height="27" viewBox="28 24 76 27" aria-hidden="true" focusable="false">' +
@@ -375,7 +417,11 @@
   // ------------------------------------------------------------- Interfaz
 
   function montar(contenedor) {
-    contenedor.innerHTML = escena() + nubes() + personas() + REPARTIDORES.map(repartidor).join('') + taxi() + hojas();
+    // Orden de delante a detrás: lo último tapa a lo anterior. Carril de detrás
+    // (hacia la izquierda): la bici de Just Eat y el autobús; de delante (hacia
+    // la derecha): el taxi y la bici de Uber Eats.
+    contenedor.innerHTML = escena() + nubes() + personas() + repartidor(REPARTIDORES[1], 1) + autobus() + taxi() +
+      repartidor(REPARTIDORES[0], 0) + hojas();
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */

@@ -97,3 +97,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 76. Un repartidor en bici con su mochila verde cruza la calle de la cabecera.
 77. La bici del repartidor, con más detalle, y su mochila de Uber Eats.
 78. Más gente por la acera, un segundo repartidor (Just Eat) en sentido contrario y la placa de la caja más transparente para ver la calle.
+79. Un autobús azul de la EMT cruza la cabecera en sentido contrario al taxi, cada uno por su carril.

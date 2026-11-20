@@ -353,6 +353,10 @@
         {
           "n": 78,
           "texto": "Más gente por la acera, un segundo repartidor (Just Eat) en sentido contrario y la placa de la caja más transparente para ver la calle."
+        },
+        {
+          "n": 79,
+          "texto": "Un autobús azul de la EMT cruza la cabecera en sentido contrario al taxi, cada uno por su carril."
         }
       ]
     }
