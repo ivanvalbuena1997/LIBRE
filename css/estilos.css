@@ -1971,6 +1971,7 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .ui-chip--ocupado { background: var(--tinte-azul); color: var(--marca); }
 .ui-chip--parado { background: var(--tinte-ambar); color: var(--aviso); }
 .ui-chip--libranza { background: var(--tinte-neutro); color: var(--tinta); }
+.ui-chip--incognito { background: var(--tinte-morado); color: var(--rareza-smas); }
 .ui-chip--baja { background: var(--tinte-rojo); color: var(--peligro); }
 
 /*

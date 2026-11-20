@@ -2028,4 +2028,36 @@ prueba('alquilar coche: 3 jornadas por 400 €, se devuelve solo y no se gasta',
   assert.strictEqual(f.licencias[1].vehiculo, null);
 });
 
+prueba('modo incógnito: los de nivel 10 trabajan en la libranza y un pesetas los puede multar', function () {
+  config.licencias.libranza = true;
+  try {
+    const e = flotaDe(1);
+    const lic = e.licencias[0];
+    // Una jornada en la que libra su licencia.
+    let j = 0;
+    while (!sim.libra(e, lic, j * sim.MIN_DIA + 10 * 60)) j++;
+    e.reloj.minutos = j * sim.MIN_DIA + 22 * 60;
+    const t = lic.turnos.noche;
+    t.xp = 1e12;
+    assert.ok(!sim.puedeTrabajar(e, lic, t, e.reloj.minutos), 'sin la mejora, libra');
+    e.mejoras.incognito = 1;
+    assert.ok(sim.trabajaIncognito(e, lic, t, e.reloj.minutos));
+    assert.ok(sim.puedeTrabajar(e, lic, t, e.reloj.minutos), 'con la mejora y nivel 10, trabaja');
+    t.xp = 0;
+    assert.ok(!sim.puedeTrabajar(e, lic, t, e.reloj.minutos), 'por debajo de nivel 10, no');
+    t.xp = 1e12;
+    // Pillado: multa y parado el resto del turno.
+    const dinero = e.dinero;
+    t.pendiente = { tipo: 'pesetas', minuto: e.reloj.minutos };
+    const r = sim.avanzar(e, 0.01);
+    const ev = r.eventos.find(function (x) { return x.tipo === 'pesetas'; });
+    assert.ok(ev && /pesetas ha pillado cargando a/.test(ev.texto), ev && ev.texto);
+    cerca(e.dinero, dinero - config.eventos.pesetas.multa, 50);
+    assert.ok(!sim.puedeTrabajar(e, lic, t, e.reloj.minutos), 'parado el resto del turno');
+    assert.strictEqual(t.motivoParada, 'pesetas');
+  } finally {
+    config.licencias.libranza = false;
+  }
+});
+
 console.log(pasadas + ' pruebas correctas');

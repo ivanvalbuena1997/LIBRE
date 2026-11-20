@@ -89,6 +89,12 @@
         ]
       },
       pinchazo: { nombre: 'Pinchazos', probTurno: 0.04, coste: 120 },
+      // Modo incógnito (Iván, 20-11-2026): un conductor que sale en el día de
+      // libranza de su licencia puede ser pillado por un «pesetas» (otro
+      // taxista) que se chiva o lo graba cargando: multa y deja de trabajar
+      // el resto del turno. Se sortea al empezar cada turno de incógnito.
+      // Equilibrio (ajustado con una simulación).
+      pesetas: { nombre: 'Multas por cargar en libranza', probTurno: 0.08, multa: 300 },
       baja: { nombre: 'Bajas', probTurno: 0.02, jornadasMin: 1, jornadasMax: 5 },
       averia: {
         nombre: 'Averías', probTurno: 0.003, jornadasMin: 3, jornadasMax: 8,
@@ -979,6 +985,14 @@
         id: 'oficina', nombre: 'Oficina de gestión', rama: 'jornada', requiere: 'rrhh', precio: 4000,
         descripcion: 'Puedes dejar el volante y dedicarte solo a gestionar la flota (tu turno queda libre para un conductor). Con la gestoría al día, tus conductores se quedan el 45 % de cada carrera en vez del 50 %.',
         efecto: { dejarVolante: true, porcentajeConductor: 0.9 }
+      },
+      {
+        // Idea 17 (Iván, 20-11-2026): los de nivel 10 salen en la libranza de
+        // su licencia, con el riesgo de que un «pesetas» los pille
+        // (eventos.pesetas). Equilibrio.
+        id: 'incognito', nombre: 'Modo incógnito', rama: 'jornada', requiere: 'oficina', precio: 6000,
+        descripcion: 'Tus conductores de nivel 10 trabajan también los días que libra su licencia. Ojo: si un «pesetas» los pilla cargando, multa y se acabó el turno.',
+        efecto: { incognito: true }
       }
     ]
   };

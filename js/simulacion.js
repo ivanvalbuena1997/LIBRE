@@ -276,7 +276,7 @@
   function modificadores(estado, zonaId) {
     const m = {
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
-      cuotaEmisora: false, dejarVolante: false, gestionZonas: false,
+      cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
       pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1
@@ -294,6 +294,7 @@
       if (e.seguro) m.seguro *= e.seguro;
       if (e.cuotaEmisora) m.cuotaEmisora = true;
       if (e.dejarVolante) m.dejarVolante = true;
+      if (e.incognito) m.incognito = true;
       if (e.propinaProb) m.propinaProb += e.propinaProb;
       if (e.propinaImporte) m.propinaImporte *= e.propinaImporte;
       if (e.averiaDias) m.averiaDias *= e.averiaDias;
@@ -525,9 +526,11 @@
     const minuto = cfg().reloj.minutoCierreCaja + caja.dia * MIN_DIA + 60;
     const u = ubicacionJugador(estado);
     estado.licencias.forEach(function (l) {
-      if (libra(estado, l, minuto)) return;
+      const libraba = libra(estado, l, minuto);
       TURNOS.forEach(function (tn) {
         const t = l.turnos[tn];
+        // El que salió de incógnito trabajó: su día cuenta.
+        if (libraba && !trabajaIncognito(estado, l, t, minuto)) return;
         if (t && t.quien === 'conductor' && t.id) porConductor[t.id] = (caja.porConductor || {})[t.id] || 0;
       });
     });
@@ -2253,10 +2256,19 @@
     }
   }
 
+  /*
+   * Modo incógnito (Iván, 20-11-2026): con la mejora, un conductor de nivel
+   * máximo trabaja aunque su licencia libre ese día. Tú no.
+   */
+  function trabajaIncognito(estado, lic, turno, minutos) {
+    return !!turno && turno.quien === 'conductor' && libra(estado, lic, minutos) &&
+      modificadores(estado).incognito && nivelConductor(turno) >= cfg().conductores.niveles.experiencia.length;
+  }
+
   /* ¿Puede trabajar ese turno ahora? No con baja, avería o jornada terminada. */
   function puedeTrabajar(estado, lic, turno, minutos) {
     const jornada = jornadaDe(minutos);
-    if (libra(estado, lic, minutos)) return false;
+    if (libra(estado, lic, minutos) && !trabajaIncognito(estado, lic, turno, minutos)) return false;
     if (lic.averia && jornada < lic.averia.hasta) return false;
     if (turno.baja && jornada < turno.baja.hasta) return false;
     if (turno.paradoHasta && turno.paradoHasta > minutos) return false;
@@ -2291,6 +2303,11 @@
         return;
       }
       if (!puedeTrabajar(estado, lic, t, ahora)) return;
+      // De incógnito, un «pesetas» lo puede pillar en algún momento del turno.
+      if (trabajaIncognito(estado, lic, t, ahora) && azar(estado) < ev.pesetas.probTurno) {
+        t.pendiente = { tipo: 'pesetas', minuto: entre(estado, ahora, fin) };
+        return;
+      }
       const f = factoresConductor(estado, t);
       // Bajas: rasgo y objetos del conductor y las mejoras (Deflectores), con tope.
       if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja * modificadores(estado).baja, t)) {
@@ -2476,6 +2493,12 @@
     } else if (p.tipo === 'rotura') {
       if (!roturaPosible(estado, lic)) return;
       aplicarRotura(estado, resumen, lic);
+    } else if (p.tipo === 'pesetas') {
+      if (!trabajaIncognito(estado, lic, turno, estado.reloj.minutos)) return;
+      const multa = ev.pesetas.multa;
+      pararHastaFinDeTurno(estado, turno, 'pesetas');
+      incidencia(estado, resumen, 'pesetas', 'Un pesetas ha pillado cargando a ' + turno.nombre +
+        ' fuera de sus días de trabajo: te han puesto una multa de ' + Libre.ui_euros(multa) + '.', -multa, 'otros', turno);
     }
   }
 
@@ -2921,6 +2944,7 @@
     estadoCoche,
     renovarCoche,
     alquilarCoche,
+    trabajaIncognito,
     jornadasAlquiler,
     motivoSinCoche,
     statsConductor,

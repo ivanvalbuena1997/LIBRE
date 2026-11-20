@@ -271,7 +271,7 @@
       '</dl>';
   }
 
-  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia' };
+  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia', pesetas: 'Multa' };
   const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
 
   /*
@@ -290,7 +290,9 @@
       const carrera = !t ? null : t.quien === 'jugador' ? estado.jugador.carrera : t.carrera;
       const enCurso = Libre.sim.importeDeCarrera(estado, carrera);
       let icono = null;
-      if (Libre.sim.libra(estado, lic)) icono = 'libranza';
+      // De incógnito (Iván, 20-11-2026): trabaja aunque su licencia libre.
+      const incognito = Libre.sim.trabajaIncognito(estado, lic, t, ahora);
+      if (Libre.sim.libra(estado, lic) && !incognito) icono = 'libranza';
       else if (lic.averia && jornada < lic.averia.hasta) icono = 'averia';
       else if (!t) icono = 'vacio';
       else if (t.quien === 'conductor' && t.baja && jornada < t.baja.hasta) icono = 'baja';
@@ -306,6 +308,7 @@
         enCarrera: enCurso !== null && !pausa,
         icono,
         situacion: icono ? 'parado' : enCurso !== null ? 'ocupado' : 'libre',
+        incognito,
         motivo: icono === 'fin' ? (MOTIVO_PARADA[motivoParada] || 'Parado') : icono ? TEXTO_SITUACION[icono] : null
       };
     }).sort(function (a, b) { return b.facturado - a.facturado; });
@@ -335,6 +338,7 @@
 
   /* Chip de estado de un taxi: Libre, Ocupado, Libranza, De baja o parado (ámbar). */
   function claseSituacion(t) {
+    if (t.incognito && t.situacion !== 'parado') return 'ui-chip ui-chip--incognito';
     if (t.situacion !== 'parado') return 'ui-chip ui-chip--' + t.situacion;
     if (t.icono === 'libranza') return 'ui-chip ui-chip--libranza';
     if (t.icono === 'baja') return 'ui-chip ui-chip--baja';
@@ -401,7 +405,8 @@
         li.querySelector('.taxi-licencia').textContent = Libre.sim.textoLicencia(t.licencia);
         li.querySelector('.taxi-zona').textContent = zona ? '· ' + zona.nombre : '';
         const sit = li.querySelector('.taxi-situacion');
-        sit.textContent = t.situacion === 'ocupado' ? 'Ocupado' : t.situacion === 'libre' ? 'Libre' : t.motivo;
+        sit.textContent = t.incognito && t.situacion !== 'parado' ? 'Incógnito'
+          : t.situacion === 'ocupado' ? 'Ocupado' : t.situacion === 'libre' ? 'Libre' : t.motivo;
         sit.className = 'taxi-situacion ' + claseSituacion(t);
         li.querySelector('.taxi-importe').textContent = euros(t.facturado);
         li.querySelector('.taxi-barra > span').style.width = (Math.max(0, t.facturado) / maximo * 100).toFixed(1) + '%';
@@ -1152,6 +1157,10 @@
   /* Baja, avería o parado, en una línea bajo el conductor. */
   function textoEstadoTurno(estado, lic, t) {
     const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
+    if (lic && Libre.sim.trabajaIncognito(estado, lic, t, estado.reloj.minutos)) {
+      return t.paradoHasta > estado.reloj.minutos ? 'Pillado por un pesetas: parado hasta las ' + horaDe(t.paradoHasta)
+        : 'Hoy libra su licencia: sale de incógnito';
+    }
     if (lic && Libre.sim.libra(estado, lic)) return 'Hoy libra (libranza de la licencia)';
     if (lic && lic.averia && jornada < lic.averia.hasta) return 'Coche en el taller hasta el día ' + (lic.averia.hasta + 1);
     if (t.baja && jornada < t.baja.hasta) {
@@ -2082,7 +2091,9 @@
     mampara: '<path d="M7 3.5h4.5a2 2 0 0 1 2 2.2L12.8 13H18a2 2 0 0 1 2 2v3H7.5L5.5 6a2.2 2.2 0 0 1 1.5-2.5z"/><path d="M8 18v3M18 18v3"/>',
     grua: '<path d="M3 17h11V9H8l-3 4H3z"/><path d="M14 13l6-8M20 5v8"/><path d="M20 13a1.5 1.5 0 1 1-1.5 1.5"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="11.5" cy="17.5" r="1.8"/>',
     leasing: '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>',
-    oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>'
+    oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>',
+    // Sombrero y gafas de sol: de incógnito.
+    incognito: '<path d="M3 11h18M6 11l1.5-6h9L18 11"/><circle cx="8" cy="16" r="3"/><circle cx="16" cy="16" r="3"/><path d="M11 16h2"/>'
   };
   function iconoMejora(id) {
     return '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS_MEJORA[id] || ICONOS_MEJORA.limpieza) + '</svg>';
