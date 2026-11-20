@@ -299,10 +299,21 @@ body:not([data-vista="calle"]) .cabecera {
 .cabecera-escena { position: absolute; inset: 0; overflow: hidden; }
 .cabecera-contenido { position: relative; max-width: 560px; height: 100%; margin: 0 auto; }
 
-.cabecera-logo {
+/* Logo y, al lado, la placa con el nombre de tu SL (Iván, 20-11-2026). */
+.cabecera-marca {
   position: absolute;
   left: 20px;
   top: 16px;
+  right: 84px;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-width: 0;
+}
+.cabecera-empresa { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; box-shadow: 0 2px 8px var(--sombra-placa); }
+.cabecera-empresa[hidden] { display: none; }
+.cabecera-logo {
+  flex: none;
   margin: 0;
   font-family: var(--letra-titulo);
   font-weight: 800;
@@ -1552,6 +1563,13 @@ button.licencia-km.coche--gastado .licencia-km-flecha, button.licencia-km.coche-
   white-space: nowrap;
 }
 .placa::before { content: ''; align-self: stretch; width: 8px; background: var(--marca); }
+/* Hoja de montar la SL */
+.sl-explica { margin: 0 0 var(--esp-4); font-size: var(--t-pequeno); line-height: 1.4; color: var(--tinta-suave); }
+.sl-nombre { display: block; width: 100%; min-height: 44px; margin: var(--esp-2) 0 var(--esp-4); padding: 0 var(--esp-4);
+  border: 2px solid var(--linea); border-radius: var(--r-control); background: var(--tarjeta); color: var(--tinta);
+  font: 700 var(--t-normal) var(--letra-ticket); text-transform: uppercase; }
+.sl-nombre:focus { outline: none; border-color: var(--marca); }
+.sl-etiqueta { font-size: var(--t-pequeno); font-weight: 800; }
 .hoy-libra {
   padding: 2px var(--esp-3);
   border-radius: var(--r-pastilla);

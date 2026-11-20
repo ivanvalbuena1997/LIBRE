@@ -409,6 +409,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   'vigilado' con `ICONO_OJO`) enseña la cuenta atrás; el sonido es
   `pesetas`. Para probar: `Libre.forzarEvento('vigilancia')`. El bot de
   progresión espera a que se vaya.
+- Sociedad limitada (idea 1, Iván 20-11-2026; versión 29 del guardado):
+  con `config.sociedad.licenciasSinSociedad` (3) licencias, `comprarLicencia()`
+  falla hasta `montarSociedad(estado, nombre)` (3.000 €, incidencia
+  'sociedad'; `estado.empresa = { nombre, jornada }`). `necesitaSociedad()`
+  lo dice; `comprasPosibles()` ofrece entonces `{ tipo: 'sociedad' }` en vez
+  de la licencia. Coste diario: `costeSociedadDiario()` (10 € por conductor
+  con turno) dentro de `costesFijosDiarios()`. `renombrarSociedad()` en
+  Ajustes. En pantalla: la casilla «Montar una SL» (`data-montar-sl`) abre
+  `htmlHojaSociedad()` (`montandoSL`, el nombre escrito en `nombreSL`) y el
+  nombre va en la placa `#empresa` junto al logo (`.cabecera-marca`).
 - Saltar al cierre (Iván, 17-11-2026): `puedeSaltarDia()` es cierto si libra
   tu licencia, ningún conductor puede trabajar esa jornada (`puedeTrabajar()`)
   y no tienes otra licencia a la que pasarte (con coche, que no libre y con

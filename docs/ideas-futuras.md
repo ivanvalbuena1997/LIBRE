@@ -10,8 +10,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 ### 🏢 Empresa y expansión
 
-1. [ ] **Nombre de la empresa.** A partir de 3 taxis, poder ponerle nombre a
-   tu empresa.
+1. [x] **Nombre de la empresa.** Hecho el 20-11-2026 (ver «Hechas»).
 2. [ ] **Sedes en otras ciudades y países.** Abrir sedes en distintas
    ciudades y países. Ojo: DISENO.md deja «otras ciudades» fuera del alcance
    actual, así que habría que cambiarlo allí.
@@ -82,6 +81,11 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **1. Nombre de la empresa** (🏢, 20-11-2026). Para la 4.ª licencia hay
+  que montar una SL (3.000 € y 10 € por conductor y jornada) y ponerle nombre
+  a la flota, que sale en una placa junto al logo. Pendiente: una mejora que
+  rebaje la tasa diaria.
 
 - [x] **9. Más variedad de conductores** (👨‍✈️, 20-11-2026). 32 personajes
   (antes 16) y accesorios nuevos: gafas de sol, gorra, pajarita, traje con

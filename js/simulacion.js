@@ -79,6 +79,8 @@
       reserva: [],
       caja: { hoy: cajaVacia(0), ayer: null },
       totales: { carreras: 0, ingresos: 0, km: 0 },
+      // Tu sociedad limitada: { nombre, jornada } desde que la montas (idea 1).
+      empresa: null,
       pesetasFuera: 0,
       // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
       // mejor día de la partida y los despedidos que entran en el top.
@@ -481,7 +483,65 @@
     const m = modificadores(estado);
     const porVehiculo = f.seguroDiarioPorVehiculo * m.seguro +
       (m.cuotaEmisora ? f.emisoraDiariaPorVehiculo : 0);
-    return f.autonomoDiario + vehiculosEnServicio(estado) * porVehiculo;
+    return f.autonomoDiario + vehiculosEnServicio(estado) * porVehiculo + costeSociedadDiario(estado);
+  }
+
+  // ------------------------------------------------ Sociedad limitada (idea 1)
+
+  /* Conductores con turno (no los de la reserva): los que paga la SL cada día. */
+  function conductoresConTurno(estado) {
+    let n = 0;
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (t) { if (l.turnos[t] && l.turnos[t].quien === 'conductor') n++; });
+    });
+    return n;
+  }
+
+  /* Lo que cuesta la SL cada jornada (0 si no la tienes). */
+  function costeSociedadDiario(estado) {
+    return estado.empresa ? cfg().sociedad.porConductorDiario * conductoresConTurno(estado) : 0;
+  }
+
+  /* ¿Te hace falta montar la SL para comprar la siguiente licencia? */
+  function necesitaSociedad(estado) {
+    return !estado.empresa && estado.licencias.length >= cfg().sociedad.licenciasSinSociedad;
+  }
+
+  /* El nombre limpio (espacios de más fuera) o un mensaje de error. */
+  function nombreSociedad(nombre) {
+    const s = cfg().sociedad;
+    const limpio = String(nombre || '').replace(/\s+/g, ' ').trim();
+    if (limpio.length < s.nombreMin) return { error: 'Ponle un nombre a tu empresa (al menos ' + s.nombreMin + ' letras).' };
+    if (limpio.length > s.nombreMax) return { error: 'El nombre puede tener como mucho ' + s.nombreMax + ' letras.' };
+    return { nombre: limpio };
+  }
+
+  /*
+   * Montar la SL: paga `sociedad.coste` (va a la caja como incidencia
+   * «Constitución de la SL») y guarda el nombre de la flota. Desbloquea
+   * las licencias a partir de la 4.ª.
+   */
+  function montarSociedad(estado, nombre) {
+    const s = cfg().sociedad;
+    if (estado.empresa) return fallo('Ya tienes tu sociedad: ' + estado.empresa.nombre + '.');
+    if (estado.licencias.length < s.licenciasSinSociedad) {
+      return fallo('Aún no te hace falta: la SL se monta al tener ' + s.licenciasSinSociedad + ' licencias.');
+    }
+    const n = nombreSociedad(nombre);
+    if (n.error) return fallo(n.error);
+    if (estado.dinero < s.coste) return fallo('No te llega el dinero.');
+    incidencia(estado, resumenVacio(), 'sociedad', 'Constitución de ' + n.nombre + '.', -s.coste, 'otros');
+    estado.empresa = { nombre: n.nombre, jornada: jornadaDe(estado.reloj.minutos) };
+    return exito('¡Enhorabuena! ' + n.nombre + ' ya es una sociedad limitada. Ya puedes comprar más licencias.');
+  }
+
+  /* Cambiar el nombre de tu sociedad (gratis). */
+  function renombrarSociedad(estado, nombre) {
+    if (!estado.empresa) return fallo('Todavía no tienes sociedad.');
+    const n = nombreSociedad(nombre);
+    if (n.error) return fallo(n.error);
+    estado.empresa.nombre = n.nombre;
+    return exito('Tu empresa se llama ahora ' + n.nombre + '.');
   }
 
   function gastar(estado, resumen, concepto, importe) {
@@ -741,7 +801,9 @@
       lista.push({ id: 'mejora-' + m.id + '-' + siguiente.nivel, tipo: 'mejora', mejora: m.id,
         nivel: siguiente.nivel, precio: siguiente.precio });
     });
-    if (estado.licencias.length < c.licencias.maximo) {
+    if (necesitaSociedad(estado)) {
+      lista.push({ id: 'sociedad', tipo: 'sociedad', precio: c.sociedad.coste });
+    } else if (estado.licencias.length < c.licencias.maximo) {
       lista.push({ id: 'licencia-' + (estado.licencias.length + 1), tipo: 'licencia', precio: precioLicencia(estado) });
     }
     return lista;
@@ -769,7 +831,7 @@
       });
     }
     return lista.filter(function (x) {
-      return x.tipo === 'licencia' ||
+      return x.tipo === 'licencia' || x.tipo === 'sociedad' ||
         (x.tipo === 'mejora' && (x.precio <= c.objetivo.mejorasHasta * crecer || (x.nivel === 1 && personal.indexOf(x.mejora) !== -1)));
     });
   }
@@ -797,6 +859,9 @@
   function comprarLicencia(estado, rng, indice) {
     const c = cfg();
     if (estado.licencias.length >= c.licencias.maximo) return fallo('No quedan licencias en Madrid.');
+    if (necesitaSociedad(estado)) {
+      return fallo('Para tener más de ' + c.sociedad.licenciasSinSociedad + ' licencias tienes que montar una sociedad limitada.');
+    }
     const precio = precioLicencia(estado);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     const numero = placasEnVenta(estado)[Number(indice) || 0];
@@ -3044,6 +3109,10 @@
     valorVentaCoche,
     estadoCoche,
     renovarCoche,
+    montarSociedad,
+    renombrarSociedad,
+    necesitaSociedad,
+    costeSociedadDiario,
     alquilarCoche,
     trabajaIncognito,
     vigilanciaActiva,

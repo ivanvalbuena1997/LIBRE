@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 28,
+    versionGuardado: 29,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -126,6 +126,7 @@
       // no te llega para comprar otro.
       // Fin del alquiler de un coche (solo el aviso y la línea del ticket).
       alquiler: { nombre: 'Fin de alquiler' },
+      sociedad: { nombre: 'Constitución de la SL' },
       rotura: {
         nombre: 'Averías definitivas', kmDesde: 130000, kmMax: 230000, probMax: 0.03,
         chatarra: 50               // € que te dan en el desguace
@@ -605,6 +606,17 @@
       // Al comprar una licencia eliges entre estas placas (números al azar).
       placasAElegir: 2
     },
+
+    /*
+     * Sociedad limitada (idea 1, Iván, 20-11-2026): con `licenciasSinSociedad`
+     * licencias, para comprar la siguiente hay que montar una SL (en la
+     * realidad, a partir de unos 250.000 € de facturación al año conviene).
+     * Cuesta `coste` una vez (capital y gastos; valor de juego) y luego
+     * `porConductorDiario` € por conductor con turno en los costes fijos de
+     * cada jornada. No da ninguna ventaja: es un trámite para crecer. Al
+     * montarla le pones nombre a tu flota (`nombreMin`–`nombreMax` letras).
+     */
+    sociedad: { licenciasSinSociedad: 3, coste: 3000, porConductorDiario: 10, nombreMin: 2, nombreMax: 24 },
 
     vehiculos: {
       modeloInicial: 'turismo',

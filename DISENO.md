@@ -102,6 +102,7 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 
 - **Reserva:** tarjeta con 5 huecos. Los conductores que esperan turno son caras; los huecos libres («+») abren los candidatos.
 - **Licencias, de dos en dos:** la placa con su número (siempre 5 cifras, con ceros delante: «00607-L») y letra (chip «Libra» el día que le toca librar) y dos casillas de turno, cada una con un sol o una luna, la cara y el nombre. La cara lleva la rareza abajo a la izquierda, el nivel abajo a la derecha y un «!» rojo si el conductor está parado (baja, avería, libranza). La última casilla es **«Comprar licencia»**, que abre dos placas para elegir, cada una con su libranza.
+- **Sociedad limitada** (idea 1, Iván, 20-11-2026): con 3 licencias, para comprar la 4.ª hay que **montar una SL** (en la realidad, con unos 250.000 € de facturación al año ya toca dejar de ser autónomo). La casilla pasa a ser **«Montar una SL · 3.000 € · para la 4.ª licencia»** y abre una hoja con lo que cuesta (3.000 € ahora, como «Constitución de la SL» en el ticket, y **10 € por conductor con turno** en los costes fijos de cada jornada) y un campo para el **nombre de tu flota** (2–24 letras). No da ninguna ventaja más: es un trámite para crecer (más adelante, una mejora podría rebajar esa tasa). El nombre sale en una **placa junto al logo** de la cabecera y se puede cambiar en Ajustes. «Siguiente» la propone cuando toca. Medido con el bot: la 4.ª licencia llega unos 8–10 minutos más tarde y las siguientes, unos 9–12.
 - **Ficha del conductor** (centro): una hoja que sube desde abajo (se desplaza por dentro desde que lleva las estadísticas). Nombre, rareza, licencia y turno; nivel con su barra de experiencia; cualidades en verde y defectos en rojo, cada uno con lo que hace; un mosaico de 3 casillas de objetos (puesto, con su efecto en corto y una «×» para quitarlo; «Equipar»; o el nivel que abre el hueco); **estadísticas** (ver abajo); carreras, facturado y zona (solo de lectura: la eligen ellos); y los botones **Cambiar de sitio** y **Despedir · finiquito**. Cambiar de sitio solo se puede entre jornadas: durante el día sale desactivado con una línea que lo explica.
 - **Estadísticas de la ficha** (Iván, 17-11-2026): el valor real de cada stat del conductor, ya sumados rasgos, objetos, nivel y mejoras y con los topes, y debajo de dónde sale cada cambio. En verde si le favorece y en rojo si le perjudica:
   - **Espera entre carreras**: en % (no hay un tiempo fijo, depende de la zona y la hora), con los rasgos y objetos de día o de noche marcados; los que no son de su turno salen con «no cuenta».
@@ -221,6 +222,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 | Cuota de autónomo | 17,83 € | Al cierre de cada jornada |
 | Seguro | 10 € por coche (baja con mejoras) | Al cierre |
 | Emisora | 3 € por coche, solo con la mejora Emisora | Al cierre |
+| Sociedad limitada | 10 € por conductor con turno, desde que la montas | Al cierre |
 | Incidencias | Limpiezas, neumáticos, reparaciones, finiquitos | Cuando pasan |
 
 ### 5.6 Conductores

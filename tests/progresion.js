@@ -123,6 +123,12 @@ function jugar(semilla, perfil) {
   function letrasFlota() { return e.licencias.map(function (l) { return sim.letraLicencia(l.numero); }); }
 
   function comprarLicencia() {
+    // Con 3 licencias, primero la sociedad limitada (idea 1, 20-11-2026).
+    if (sim.necesitaSociedad(e)) {
+      if (!sim.montarSociedad(e, 'Taxis Bot SL').ok) return false;
+      hito('sociedad');
+      return true;
+    }
     const placas = sim.placasEnVenta(e);
     const letras = letrasFlota();
     let indice = placas.findIndex(function (n) { return letras.indexOf(sim.letraLicencia(n)) === -1; });
@@ -188,7 +194,8 @@ function jugar(semilla, perfil) {
       // mucho la parte de eso que diga su perfil. El gestor, en cuanto puede, va a por la
       // Oficina de gestión antes que nada.
       const precioB = c.categorias[0].contratar;
-      const expansion = sim.precioLicencia(e) + sim.precioCoche(e) + 2 * precioB;
+      const precioCrecer = sim.necesitaSociedad(e) ? c.sociedad.coste : sim.precioLicencia(e);
+      const expansion = precioCrecer + sim.precioCoche(e) + 2 * precioB;
       const mejoras = [];
       c.mejoras.forEach(function (m) {
         if (m.requiere && !sim.nivelMejora(e, m.requiere)) return;
@@ -209,7 +216,7 @@ function jugar(semilla, perfil) {
       }
       if (m && m.precio <= e.dinero) {
         if (sim.comprarMejora(e, m.id).ok) { algo = true; hito('mejora ' + m.id); }
-      } else if (e.licencias.length < c.licencias.maximo && sim.precioLicencia(e) <= e.dinero) {
+      } else if (e.licencias.length < c.licencias.maximo && precioCrecer <= e.dinero) {
         if (comprarLicencia()) algo = true;
       }
     }

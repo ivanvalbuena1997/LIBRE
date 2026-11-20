@@ -369,6 +369,10 @@
         {
           "n": 82,
           "texto": "Los cristales del autobús dejan ver un poco lo que hay detrás."
+        },
+        {
+          "n": 83,
+          "texto": "Para tener más de 3 licencias hay que montar una sociedad limitada (3.000 € y 10 € por conductor cada jornada) y ponerle nombre a tu flota, que sale en una placa junto al logo."
         }
       ]
     }

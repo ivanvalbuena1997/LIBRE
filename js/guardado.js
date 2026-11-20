@@ -257,6 +257,15 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 28 → 29: la sociedad limitada (estado.empresa, null mientras no la
+    // montes). Las partidas con 4 licencias o más ya crecieron sin ella: se
+    // les monta una con un nombre por defecto, sin cobrarla.
+    28: function (estado) {
+      if (estado.empresa === undefined) {
+        estado.empresa = estado.licencias.length > Libre.config.sociedad.licenciasSinSociedad
+          ? { nombre: 'Taxis Libre SL', jornada: 0 } : null;
+      }
+    },
     // 27 → 28: el pesetas que te vigila (estado.jugador.vigilancia, null
     // si no hay ninguno). Nada que convertir.
     27: function () {},

@@ -499,6 +499,7 @@
       return Object.assign({ nombre: m.nombre + (m.niveles ? ' ' + x.nivel : ''),
         selector: '[data-mejora="' + x.mejora + '"]' }, x);
     }
+    if (x.tipo === 'sociedad') return Object.assign({ nombre: 'Montar tu sociedad limitada', selector: '[data-montar-sl]' }, x);
     return Object.assign({ nombre: 'Nueva licencia', selector: '[data-elegir-placa]' }, x);
   }
 
@@ -1708,6 +1709,7 @@
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando, comparando,
     eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu, cocheAbierto, combinarSel,
+    montandoSL, estado.empresa,
     estado.licencias.map(function (l) {
       const e = Libre.sim.estadoCoche(estado, l);
       // Abierta, la hoja cambia con cada 1.000 km; cerrada, solo el color del estado.
@@ -1891,6 +1893,12 @@
   function htmlComprarLicencia(estado) {
     const c = Libre.config;
     if (estado.licencias.length >= c.licencias.maximo) return '<p class="ayuda">Ya tienes todas las licencias de Madrid.</p>';
+    // Con 3 licencias, antes de la 4.ª hay que montar la SL (idea 1).
+    if (Libre.sim.necesitaSociedad(estado)) {
+      const coste = c.sociedad.coste;
+      return '<button type="button" class="licencia-comprar licencia-sl" data-montar-sl data-precio="' + coste + '">' + ICONO_MAS +
+        '<span>Montar una SL</span><small>' + euros(coste) + ' · para la 4.ª licencia</small></button>';
+    }
     const precio = Libre.sim.precioLicencia(estado);
     if (!eligiendoPlaca) {
       return '<button type="button" class="licencia-comprar" data-elegir-placa data-precio="' + precio + '">' + ICONO_MAS +
@@ -2006,6 +2014,34 @@
       '</div>';
   }
 
+  /*
+   * Montar la sociedad limitada (idea 1, Iván 20-11-2026): hoja con qué es,
+   * lo que cuesta (ahora y cada jornada) y el nombre de tu flota.
+   */
+  let montandoSL = false;
+  let nombreSL = '';
+  function htmlHojaSociedad(estado) {
+    if (!montandoSL || !Libre.sim.necesitaSociedad(estado)) return '';
+    const s = Libre.config.sociedad;
+    let conductores = 0;
+    estado.licencias.forEach(function (l) {
+      ['dia', 'noche'].forEach(function (t) { if (l.turnos[t] && l.turnos[t].quien === 'conductor') conductores++; });
+    });
+    return '<div class="hoja-fondo" data-cerrar-sl></div>' +
+      '<div class="hoja hoja-sociedad" role="dialog" aria-modal="true" aria-labelledby="sl-titulo">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="hoja-cabecera"><h3 id="sl-titulo">Monta tu sociedad limitada</h3>' + botonCerrarHoja('data-cerrar-sl', 'Cerrar') + '</div>' +
+      '<p class="sl-explica">Con ' + s.licenciasSinSociedad + ' taxis ya facturas como una empresa: para pasar de ' + s.licenciasSinSociedad +
+      ' licencias tienes que dejar de ser autónomo y montar una SL. Cuesta <strong>' + euros(s.coste) + '</strong> ahora y <strong>' +
+      euros(s.porConductorDiario) + ' por conductor</strong> en los costes fijos de cada jornada (hoy, ' + conductores +
+      (conductores === 1 ? ' conductor: ' : ' conductores: ') + euros(s.porConductorDiario * conductores) + ').</p>' +
+      '<label class="sl-etiqueta" for="nombre-sl">Nombre de tu flota</label>' +
+      '<input class="sl-nombre" id="nombre-sl" type="text" maxlength="' + s.nombreMax + '" autocomplete="off" placeholder="Taxis Libre SL" value="' +
+      esc(nombreSL) + '">' +
+      '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-constituir data-precio="' + s.coste + '">' +
+      'Pagar y constituir · ' + euros(s.coste) + '</button></div>';
+  }
+
   /* Pestaña Almacén: objetos sin equipar y la bandeja. */
   const seccionAlmacen = {
     id: 'sec-almacen',
@@ -2042,7 +2078,7 @@
         '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) + '</div>' +
         htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado) + htmlHojaComparar(estado) +
-        htmlHojaCoche(estado);
+        htmlHojaCoche(estado) + htmlHojaSociedad(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
@@ -2293,6 +2329,17 @@
   // propia hoja, sin confirm(), que algunos navegadores del móvil bloquean
   // (entonces no pasaba nada).
   let textoPartida = '';
+  let nuevoNombreSL = null;   // lo que escribes para renombrar tu SL
+
+  /* Cambiar el nombre de tu SL (solo si la tienes). */
+  function htmlAjustesEmpresa(estado) {
+    if (!estado.empresa) return '';
+    const valor = nuevoNombreSL === null ? estado.empresa.nombre : nuevoNombreSL;
+    return '<label class="sl-etiqueta" for="renombrar-sl">Nombre de tu empresa</label>' +
+      '<input class="sl-nombre" id="renombrar-sl" type="text" maxlength="' + Libre.config.sociedad.nombreMax +
+      '" autocomplete="off" value="' + esc(valor) + '">' +
+      '<button type="button" class="ui-boton ui-boton--secundario ui-boton--ancho" data-renombrar-sl>Cambiar el nombre</button>';
+  }
   let confirmarPartida = null;
 
   function htmlAccionesPartida() {
@@ -2315,7 +2362,8 @@
   const seccionPartida = {
     id: 'sec-partida',
     firma: function (estado) {
-      return 'ajustes:' + ajustesAbiertos + ':' + confirmarPartida + ':' + estado.ajustes.pararAlCierre + ':' +
+      return 'ajustes:' + ajustesAbiertos + ':' + confirmarPartida + ':' + (estado.empresa ? estado.empresa.nombre : '') + ':' +
+        estado.ajustes.pararAlCierre + ':' +
         (Libre.sonidos ? JSON.stringify(Libre.sonidos.ajustes()) : '');
     },
     html: function (estado) {
@@ -2326,7 +2374,7 @@
         '<h2 id="ajustes-titulo">Ajustes y partida</h2>' +
         '<label class="ajuste"><input type="checkbox" data-cambio="cambiarAjuste" data-args="pararAlCierre"' +
         (estado.ajustes.pararAlCierre ? ' checked' : '') + '> Parar al cierre del día</label>' +
-        htmlAjustesSonido() +
+        htmlAjustesSonido() + htmlAjustesEmpresa(estado) +
         '<p class="ayuda">Se guarda sola en este navegador. Para pasarla a otro dispositivo, exporta el texto y pégalo allí en Importar.</p>' +
         // El texto pegado se guarda en textoPartida: redibujar la hoja no lo borra.
         '<textarea id="partida-texto" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Texto de la partida">' +
@@ -2630,6 +2678,7 @@
     fichaInventario = null;
     ajustesAbiertos = false;
     confirmarPartida = null;
+    montandoSL = false;
     cogido = null;
     eligiendoPlaca = false;
     panelTu = null;
@@ -2946,6 +2995,31 @@
         opciones.redibujar();
         return;
       }
+      if (ev.target.closest('[data-renombrar-sl]')) {
+        if (nuevoNombreSL === null) return;   // no has cambiado nada
+        const r = ejecutar('renombrarSociedad', [nuevoNombreSL]);
+        if (r && r.ok) nuevoNombreSL = null;
+        return;
+      }
+      if (ev.target.closest('[data-montar-sl]')) {
+        montandoSL = true;
+        opciones.redibujar();
+        const campo = document.getElementById('nombre-sl');
+        if (campo) campo.focus({ preventScroll: true });
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-sl]')) {
+        montandoSL = false;
+        opciones.redibujar();
+        return;
+      }
+      const constituir = ev.target.closest('[data-constituir]');
+      if (constituir) {
+        if (constituir.disabled) return;
+        const r = ejecutar('montarSociedad', [nombreSL]);
+        if (r && r.ok) { montandoSL = false; nombreSL = ''; sonar('nivel'); opciones.redibujar(); }
+        return;
+      }
       const coche = ev.target.closest('[data-coche]');
       if (coche) {
         fichaConductor = null;
@@ -3116,6 +3190,11 @@
         soltarCogido();
         return;
       }
+      if (ev.key === 'Escape' && montandoSL) {
+        montandoSL = false;
+        opciones.redibujar();
+        return;
+      }
       if (ev.key === 'Escape' && cocheAbierto) {
         const id = cocheAbierto;
         cocheAbierto = null;
@@ -3160,6 +3239,8 @@
     // Lo que se escribe o pega en la caja de la partida se guarda al momento.
     main.addEventListener('input', function (ev) {
       if (ev.target.id === 'partida-texto') textoPartida = ev.target.value;
+      if (ev.target.id === 'nombre-sl') nombreSL = ev.target.value;
+      if (ev.target.id === 'renombrar-sl') nuevoNombreSL = ev.target.value;
     });
 
     main.addEventListener('change', function (ev) {
@@ -3208,6 +3289,9 @@
     const reloj = 'Día ' + (jornada.dia + 1) + ' · ' + textoHora(info).replace(/^(\S{3})\S*/, '$1') + ' · ' +
       Libre.config.tarifas[info.tarifa].nombre;
     if ($('reloj').textContent !== reloj) $('reloj').textContent = reloj;
+    // Placa con el nombre de tu SL, junto al logo.
+    const empresa = estado.empresa ? estado.empresa.nombre : '';
+    if ($('empresa').textContent !== empresa) { $('empresa').textContent = empresa; $('empresa').hidden = !empresa; }
     dibujarEscena(estado);
 
     secciones.forEach(function (s) {

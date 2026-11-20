@@ -101,3 +101,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 80. Arreglo: el taxi de la cabecera ya se ve entero también en móviles de pantalla baja.
 81. El autobús de la EMT, ahora articulado y con mucho más detalle: fuelle, puertas, letreros de la línea y llantas azules.
 82. Los cristales del autobús dejan ver un poco lo que hay detrás.
+83. Para tener más de 3 licencias hay que montar una sociedad limitada (3.000 € y 10 € por conductor cada jornada) y ponerle nombre a tu flota, que sale en una placa junto al logo.

@@ -2135,4 +2135,39 @@ prueba('valor del almacén: lo que vale todo lo no equipado (almacén y bandeja)
   cerca(sim.valorAlmacen(e), 2 * venta('cojin') + venta('gato') + venta('gps'));
 });
 
+prueba('sociedad limitada: con 3 licencias, la 4.ª pide montar la SL, que cuesta cada jornada', function () {
+  const so = config.sociedad;
+  const e = flotaDe(3);
+  e.dinero = 1e6;
+  assert.ok(sim.necesitaSociedad(e));
+  const sin = sim.comprarLicencia(e);
+  assert.ok(!sin.ok && /sociedad limitada/.test(sin.mensaje), sin.mensaje);
+  assert.strictEqual(sim.objetivoCompra(e).tipo === 'sociedad' || sim.comprasPosibles(e).some(function (x) { return x.tipo === 'sociedad'; }), true);
+  assert.ok(!sim.montarSociedad(e, ' a ').ok, 'nombre demasiado corto');
+  assert.ok(!sim.montarSociedad(e, 'x'.repeat(so.nombreMax + 1)).ok, 'demasiado largo');
+  const fijosAntes = sim.costesFijosDiarios(e);
+  const dinero = e.dinero;
+  const r = sim.montarSociedad(e, '  Taxis   Iván SL ');
+  assert.ok(r.ok, r.mensaje);
+  assert.strictEqual(e.empresa.nombre, 'Taxis Iván SL');
+  cerca(e.dinero, dinero - so.coste);
+  assert.strictEqual(e.caja.hoy.incidencias.sociedad.importe, -so.coste);
+  // 10 € por conductor con turno en los costes fijos (flotaDe(3): 5 conductores y tu turno).
+  cerca(sim.costesFijosDiarios(e) - fijosAntes, so.porConductorDiario * 5);
+  assert.ok(!sim.montarSociedad(e, 'Otra SL').ok, 'solo una');
+  assert.ok(sim.comprarLicencia(e).ok, 'ya puedes la 4.ª');
+  assert.ok(sim.renombrarSociedad(e, 'Radio Taxi Iván').ok);
+  assert.strictEqual(e.empresa.nombre, 'Radio Taxi Iván');
+  // Con menos de 3 licencias no hace falta (ni se puede).
+  const f = flotaDe(2);
+  assert.ok(!sim.necesitaSociedad(f));
+  assert.ok(!sim.montarSociedad(f, 'Pronto SL').ok);
+  // Partidas antiguas con 4 licencias ya tienen su SL; con menos, no.
+  require('../js/guardado.js');
+  const vieja = JSON.parse(JSON.stringify(e)); delete vieja.empresa; vieja.version = 28;
+  assert.ok(globalThis.Libre.guardado.migrar(vieja).empresa);
+  const vieja2 = JSON.parse(JSON.stringify(f)); delete vieja2.empresa; vieja2.version = 28;
+  assert.strictEqual(globalThis.Libre.guardado.migrar(vieja2).empresa, null);
+});
+
 console.log(pasadas + ' pruebas correctas');
