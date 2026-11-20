@@ -224,6 +224,8 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 ### 5.6 Conductores
 
+**Personajes.** 32 (Iván, 20-11-2026: antes 16), cada uno con su nombre y su retrato, montado por piezas: cara, piel, peinado y color, gafas (redondas, cuadradas o de sol), barba, ropa, edad y accesorios (gorra, pajarita, traje con corbata y pendientes). Los nuevos: Paco, Mari Carmen, José Luis, Juan, Rafa, Cristina, Ángel, Raquel, Miguel, Fernando, Sonia, Rubén, Lola, Daniela, Álvaro y Daniel.
+
 **Contratar.** Hay siempre tres candidatos (personajes y cualidades distintos), con su retrato, categoría, rasgos y precio. Cambian cada día, al cerrar la caja (Iván, 17-11-2026), y también al contratar a uno: entonces salen otros tres. Si no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí mismo. Se puede contratar para un turno libre o para la reserva.
 
 **Categorías.** Salen al azar, con los mismos pesos que los objetos (la mejora Departamento de RRHH los cambia para los candidatos):
@@ -361,6 +363,7 @@ Van a la caja y salen como incidencias en el ticket. Hasta el 17-11-2026, sin me
 | Pinchazo | Al empezar un turno | 4 % | Neumático de 120 € y parado el resto del turno (con la Rueda de repuesto, nada) |
 | Baja | Al empezar un turno de conductor | 2 % | De 1 a 5 jornadas sin trabajar |
 | Avería | Al empezar un turno (también el tuyo desde el 19-11-2026), con 2 coches o más y sin dejar la flota parada | 0,3 % × (1 + km / 200.000), como mucho ×2,5 | De 3 a 8 jornadas en el taller y 150 a 400 € |
+| Pesetas que te vigila (Incógnito al volante) | Al empezar cada turno tuyo de incógnito | 5 % | No te multa de golpe: te mira durante 3 horas de juego (~12 s reales; ~20 s con la Jornada larga al máximo). El taxímetro se enmarca en amarillo, el piloto dice «OJO» con un ojo y hay cuenta atrás («No cargues · 12 s») y un silbido. Si **empiezas** una carrera mientras mira (pasado 1 s de cortesía), 2.000 € de multa y se acaba tu turno; lo que ya llevabas no cuenta. Si esperas, «El pesetas se ha ido: ya puedes cargar» |
 | Pesetas (modo incógnito) | Al empezar cada turno de un conductor que sale de incógnito en su libranza | 2 % (Iván: «no te suelen pillar, cada uno va a lo suyo») | «Un pesetas ha pillado cargando a Ana fuera de sus días de trabajo: te han puesto una multa de 2.000 €». Multa de 2.000 € y parado el resto del turno. Sin conexión no hay eventos, pero sí salen de incógnito: se cobra la multa media (cada vez que suma una entera, una multa) |
 | Avería definitiva | Al empezar un turno (también el tuyo), desde los 130.000 km del coche | Sube con el cuadrado de los km: 0 % a 130.000, ~0,75 % a 180.000 y 3 % desde 230.000 | El coche va al desguace (te dan 50 € de chatarra) y la licencia se queda sin coche hasta que compres otro. Nunca deja la flota sin coche en marcha si no te llega para otro |
 | Lluvia | Una vez por jornada | 25 % | Chubasco (65 %, de 30 min a 1 h) o tormenta (35 %, de 3 a 5 h), con el doble de demanda |
@@ -405,6 +408,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Neumáticos de alta gama (19-11-2026) | 1.300 € | −35 % de pinchazos en toda la flota, también tu turno (medido: se paga en unas 150 jornadas con 4 conductores, como sus vecinas) |
 | Mampara y asientos de cuero | 1.620 € | +6 % de demanda en todas las zonas: más clientes eligen tus taxis |
 | Flota híbrida | 4.000 € | −35 % de combustible |
+| Depósito de GLP | 4.800 € | −30 % de combustible en toda la flota (Iván, 20-11-2026: la última de la rama Vehículo). Se suma a las anteriores; con 8 licencias e híbridos ahorra ~53 € por jornada y se paga en ~90 (estimado) |
 
 **Taller y seguros**
 
@@ -420,6 +424,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
+| Incógnito al volante | 400 € | La primera de la rama (Iván, 20-11-2026: tu turno rinde menos que el de un conductor). Conduces también los días que libra tu licencia, con el riesgo del pesetas que te vigila (ver 5.8). El bot, esperando a que se vaya el pesetas, va igual o algo más rápido con ella |
 | Sacudir esterillas (5 niveles) | 450 / 720 / 990 / 1.350 / 1.800 € | Cada conductor encuentra de 0,50–2 € a 3–8 € al acabar su turno |
 | Jornada larga (5 niveles) | 500 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |
 | Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |

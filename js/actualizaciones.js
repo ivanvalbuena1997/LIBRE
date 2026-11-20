@@ -317,6 +317,18 @@
         {
           "n": 69,
           "texto": "Iconos nuevos: Modo incógnito (sombrero y gafas) y Neumáticos de alta gama (rueda con un +)."
+        },
+        {
+          "n": 70,
+          "texto": "Mejora «Depósito de GLP» (4.800 €), la última de la rama Vehículo: un 30 % menos de combustible."
+        },
+        {
+          "n": 71,
+          "texto": "16 conductores nuevos (32 en total) y retratos con gafas de sol, gorra, pajarita, traje y pendientes."
+        },
+        {
+          "n": 72,
+          "texto": "Mejora «Incógnito al volante» (400 €): conduces en la libranza de tu licencia. Si un pesetas te mira, el taxímetro avisa con una cuenta atrás: no cargues hasta que se vaya o te cae una multa de 2.000 €."
         }
       ]
     }

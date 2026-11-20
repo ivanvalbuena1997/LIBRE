@@ -68,7 +68,7 @@
       ],
       // Tu turno siempre es a clic. zona recuerda dónde trabajabas para cuando
       // vuelvas a conducir tras dejarlo.
-      jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial },
+      jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial, vigilancia: null },
       conductoresContratados: 0,
       mejoras: {},
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
@@ -277,7 +277,7 @@
   function modificadores(estado, zonaId) {
     const m = {
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
-      cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false,
+      cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false, incognitoTu: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
       pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1
@@ -296,6 +296,7 @@
       if (e.cuotaEmisora) m.cuotaEmisora = true;
       if (e.dejarVolante) m.dejarVolante = true;
       if (e.incognito) m.incognito = true;
+      if (e.incognitoTu) m.incognitoTu = true;
       if (e.propinaProb) m.propinaProb += e.propinaProb;
       if (e.propinaImporte) m.propinaImporte *= e.propinaImporte;
       if (e.averiaDias) m.averiaDias *= e.averiaDias;
@@ -538,7 +539,8 @@
     const registro = {
       dia: caja.dia, ingresos: caja.ingresos, extras: caja.extras || 0, neto: netoCaja(caja),
       carreras: caja.carreras, conductores: porConductor,
-      tu: u && !libra(estado, buscarLicencia(estado, u.licenciaId), minuto) ? caja.tuyo || 0 : null
+      tu: u && (!libra(estado, buscarLicencia(estado, u.licenciaId), minuto) ||
+        trabajaIncognito(estado, buscarLicencia(estado, u.licenciaId), u.datos, minuto)) ? caja.tuyo || 0 : null
     };
     estado.historial = estado.historial || [];
     estado.historial.push(registro);
@@ -1897,7 +1899,8 @@
         String(vuelta.minuto).padStart(2, '0') + '.');
     }
     const u = ubicacionJugador(estado);
-    if (libra(estado, buscarLicencia(estado, u.licenciaId))) {
+    if (libra(estado, buscarLicencia(estado, u.licenciaId)) &&
+        !trabajaIncognito(estado, buscarLicencia(estado, u.licenciaId), u.datos, estado.reloj.minutos)) {
       return fallo('Hoy libra tu licencia: descansas hasta mañana a las 7:00.');
     }
     const sinCoche = motivoSinCoche(estado, buscarLicencia(estado, u.licenciaId));
@@ -1914,6 +1917,22 @@
     const demanda = demandaZona(estado, turno.zona, info);
     if (demanda < c.economia.demandaMinimaManual) {
       return fallo('Ahora no hay clientes en ' + zona.nombre + '. Prueba otra zona u otra hora.');
+    }
+
+    // Te mira un pesetas: si cargas ahora (pasado el segundo de cortesía), te pilla.
+    if (vigilanciaActiva(estado)) {
+      const tu = c.eventos.pesetas.tu;
+      const cortesia = tu.graciaSegundos * MIN_DIA / segundosPorDia(estado);
+      if (estado.reloj.minutos - estado.jugador.vigilancia.desde >= cortesia) {
+        const resumen = resumenVacio();
+        estado.jugador.vigilancia = null;
+        pararHastaFinDeTurno(estado, turnoDelJugador(estado), 'pesetas');
+        incidencia(estado, resumen, 'pesetas', 'El pesetas te ha pillado cargando fuera de tus días de trabajo: ' +
+          'multa de ' + Libre.ui_euros(tu.multa) + ' y se acabó tu turno.', -tu.multa, 'otros');
+        const r = fallo(resumen.eventos[0].texto);
+        r.pillado = true;
+        return r;
+      }
     }
 
     // Con mucha demanda esperas lo normal; con poca, hasta que aparece alguien.
@@ -2262,8 +2281,23 @@
    * máximo trabaja aunque su licencia libre ese día. Tú no.
    */
   function trabajaIncognito(estado, lic, turno, minutos) {
-    return !!turno && turno.quien === 'conductor' && libra(estado, lic, minutos) &&
-      modificadores(estado).incognito && nivelConductor(turno) >= cfg().conductores.niveles.experiencia.length;
+    if (!turno || !libra(estado, lic, minutos)) return false;
+    // Tú, con «Incógnito al volante» (Iván, 20-11-2026).
+    if (turno.quien === 'jugador') return modificadores(estado).incognitoTu;
+    return turno.quien === 'conductor' && modificadores(estado).incognito &&
+      nivelConductor(turno) >= cfg().conductores.niveles.experiencia.length;
+  }
+
+  /* ¿Te está mirando un pesetas ahora? (estado.jugador.vigilancia) */
+  function vigilanciaActiva(estado) {
+    const v = estado.jugador.vigilancia;
+    return !!v && estado.reloj.minutos < v.hasta;
+  }
+
+  /* Segundos reales que quedan de vigilancia (0 si no hay). */
+  function segundosVigilancia(estado) {
+    if (!vigilanciaActiva(estado)) return 0;
+    return (estado.jugador.vigilancia.hasta - estado.reloj.minutos) * segundosPorDia(estado) / MIN_DIA;
   }
 
   /* ¿Puede trabajar ese turno ahora? No con baja, avería o jornada terminada. */
@@ -2295,6 +2329,11 @@
       if (!lic.vehiculo || !t || t.sorteado === clave) return;
       t.sorteado = clave;
       if (t.quien === 'jugador') {
+        // De incógnito, puede aparecer un pesetas a vigilarte en algún momento del turno.
+        if (trabajaIncognito(estado, lic, t, ahora) && azar(estado) < ev.pesetas.tu.probTurno) {
+          t.pendiente = { tipo: 'pesetas', minuto: entre(estado, ahora, fin) };
+          return;
+        }
         // Tu coche: pinchazo, avería definitiva y avería normal (sin rasgos).
         if (azar(estado) < ev.pinchazo.probTurno * modificadores(estado).pinchazo) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
         else if (tocaRotura(estado, lic)) t.pendiente = { tipo: 'rotura', minuto: entre(estado, ahora, fin) };
@@ -2494,6 +2533,13 @@
     } else if (p.tipo === 'rotura') {
       if (!roturaPosible(estado, lic)) return;
       aplicarRotura(estado, resumen, lic);
+    } else if (p.tipo === 'pesetas' && turno.quien === 'jugador') {
+      if (!trabajaIncognito(estado, lic, turno, estado.reloj.minutos)) return;
+      // A ti no te multa de golpe: te vigila un rato (ver buscarCliente).
+      const tu = ev.pesetas.tu;
+      estado.jugador.vigilancia = { desde: estado.reloj.minutos, hasta: estado.reloj.minutos + tu.minutosVigila };
+      resumen.eventos.push({ tipo: 'vigilancia', texto: 'Un pesetas te está mirando: si cargas en los próximos ' +
+        Math.ceil(segundosVigilancia(estado)) + ' s, te multa.' });
     } else if (p.tipo === 'pesetas') {
       if (!trabajaIncognito(estado, lic, turno, estado.reloj.minutos)) return;
       const multa = ev.pesetas.multa;
@@ -2574,7 +2620,7 @@
    */
   function forzarEvento(estado, tipo, arg) {
     const resumen = resumenVacio();
-    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'hallazgo', 'lluvia', 'pinchazo', 'baja', 'averia', 'rotura'];
+    const tipos = ['propina', 'sinPagar', 'objeto', 'vomito', 'hallazgo', 'lluvia', 'pinchazo', 'baja', 'averia', 'rotura', 'vigilancia'];
     if (tipos.indexOf(tipo) === -1) return { ok: false, mensaje: 'Eventos: ' + tipos.join(', '), eventos: [] };
     if (tipo === 'hallazgo') {
       estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
@@ -2589,6 +2635,16 @@
       estado.eventosForzados = (estado.eventosForzados || []).concat([{ tipo, arg: arg || null }]);
       sortearLluvia(estado);
       avisarLluvia(estado, resumen);
+      return { ok: true, mensaje: '', eventos: resumen.eventos };
+    }
+    if (tipo === 'vigilancia') {
+      // Un pesetas empieza a vigilarte ya (aunque no estés de incógnito).
+      const u = ubicacionJugador(estado);
+      if (!u) return { ok: false, mensaje: 'Ahora no conduces.', eventos: [] };
+      const tu = cfg().eventos.pesetas.tu;
+      estado.jugador.vigilancia = { desde: estado.reloj.minutos, hasta: estado.reloj.minutos + tu.minutosVigila };
+      resumen.eventos.push({ tipo: 'vigilancia', texto: 'Un pesetas te está mirando: si cargas en los próximos ' +
+        Math.ceil(segundosVigilancia(estado)) + ' s, te multa.' });
       return { ok: true, mensaje: '', eventos: resumen.eventos };
     }
     if (tipo === 'rotura') {
@@ -2824,7 +2880,8 @@
     if (!u) return false;
     const ahora = estado.reloj.minutos;
     const suya = buscarLicencia(estado, u.licenciaId);
-    if (!libra(estado, suya, ahora) && !motivoSinCoche(estado, suya)) return false;
+    const librasDeVerdad = libra(estado, suya, ahora) && !trabajaIncognito(estado, suya, u.datos, ahora);
+    if (!librasDeVerdad && !motivoSinCoche(estado, suya)) return false;
     if (turnosConCarrera(estado).length > 0) return false;
     const alguienTrabaja = estado.licencias.some(function (lic) {
       return lic.vehiculo && TURNOS.some(function (t) {
@@ -2971,6 +3028,8 @@
     renovarCoche,
     alquilarCoche,
     trabajaIncognito,
+    vigilanciaActiva,
+    segundosVigilancia,
     jornadasAlquiler,
     motivoSinCoche,
     statsConductor,

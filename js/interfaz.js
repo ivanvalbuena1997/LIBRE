@@ -134,8 +134,17 @@
     $('tx-tarifa').innerHTML = chip;
     const p = $('tx-piloto');
     p.className = 'piloto piloto-' + piloto;
-    p.textContent = piloto === 'flota' ? 'FLOTA' : piloto === 'libre' ? 'LIBRE' : 'OCUPADO';
+    if (piloto === 'vigilado') {
+      // Un pesetas te mira: un ojo y «OJO».
+      if (!p.querySelector('svg')) p.innerHTML = '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + ICONO_OJO + '</svg>OJO';
+    } else {
+      p.textContent = piloto === 'flota' ? 'FLOTA' : piloto === 'libre' ? 'LIBRE' : 'OCUPADO';
+    }
   }
+
+  const ICONO_OJO = '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>';
+  // Para avisar cuando el pesetas se va (la vigilancia pasa de activa a no).
+  let vigilanciaAntes = false;
 
   function chipTarifa(tarifaId) {
     return esc(Libre.config.tarifas[tarifaId].nombre.toUpperCase());
@@ -226,9 +235,12 @@
       const parado = estado.jugador.paradoHasta > estado.reloj.minutos;
       const enTurno = Libre.sim.jugadorEnTurno(estado) && !parado;
       const miTurno = c.turnos[Libre.sim.ubicacionJugador(estado).turno];
-      const libras = Libre.sim.libra(estado, estado.licencias.find(function (l) {
-        return l.id === Libre.sim.ubicacionJugador(estado).licenciaId;
-      }));
+      const suLic = estado.licencias.find(function (l) { return l.id === Libre.sim.ubicacionJugador(estado).licenciaId; });
+      // De incógnito («Incógnito al volante») trabajas aunque libre tu licencia.
+      const libras = Libre.sim.libra(estado, suLic) &&
+        !Libre.sim.trabajaIncognito(estado, suLic, Libre.sim.ubicacionJugador(estado).datos, estado.reloj.minutos);
+      const vigilado = Libre.sim.vigilanciaActiva(estado) && !pausa;
+      const segVigila = Math.ceil(Libre.sim.segundosVigilancia(estado));
       const sinCoche = Libre.sim.motivoSinCoche(estado, estado.licencias.find(function (l) {
         return l.id === Libre.sim.ubicacionJugador(estado).licenciaId;
       }));
@@ -242,14 +254,27 @@
         : parado ? 'Parado hasta las ' + horaDe(estado.jugador.paradoHasta)
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
         : 'Toca para buscar cliente';
-      pintarDisplay(conPasajero ? enCurso : 0,
-        conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : 'IMPORTE',
-        estadoTexto, conPasajero ? 'ocupado' : 'libre', chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
+      // Un pesetas te mira (Iván, 20-11-2026): marco y piloto amarillos,
+      // cuenta atrás y la barra vaciándose. Lo que ya llevas no cuenta.
+      $('sec-taximetro').querySelector('.taximetro').classList.toggle('vigilado', vigilado);
+      if (vigilado) {
+        pintarDisplay(conPasajero ? enCurso : 0, conPasajero ? 'IMPORTE' : 'UN PESETAS TE MIRA',
+          (carrera ? 'No cargues la siguiente · ' : 'No cargues · ') + segVigila + ' s', 'vigilado',
+          chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
+      } else {
+        pintarDisplay(conPasajero ? enCurso : 0,
+          conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : 'IMPORTE',
+          estadoTexto, conPasajero ? 'ocupado' : 'libre', chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
+      }
+      if (vigilanciaAntes && !vigilado && !parado && vistaActual === 'calle') mostrarMensaje('El pesetas se ha ido: ya puedes cargar.');
+      vigilanciaAntes = vigilado;
       // Latido suave mientras el taxi espera a que lo toques.
-      $('tx-estado').classList.toggle('latido', !pausa && !carrera && enTurno && !libras && !sinCoche);
+      $('tx-estado').classList.toggle('latido', !pausa && !carrera && enTurno && !libras && !sinCoche && !vigilado);
 
       const barra = $('carrera-barra');
-      const p = carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
+      const v = estado.jugador.vigilancia;
+      const p = vigilado && !carrera ? (v.hasta - estado.reloj.minutos) / (v.hasta - v.desde)
+        : carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
       barra.style.width = (p * 100).toFixed(1) + '%';
     }
   };
@@ -674,7 +699,7 @@
   const colaAvisos = [];
   let ultimoAviso = 0;
   // Qué sonido lleva cada evento de la simulación (los demás, ninguno).
-  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia' };
+  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia', vigilancia: 'pesetas' };
 
   /* Toca un sonido (js/sonidos.js), si el módulo está cargado. */
   function sonar(nombre) {
@@ -2081,6 +2106,8 @@
     // La rueda de los neumáticos con un «+»: la versión mejorada (Iván, 20-11-2026).
     neumaticosAltaGama: '<circle cx="10" cy="14" r="7.5"/><circle cx="10" cy="14" r="2.8"/><path d="M10 6.5v4.7M10 16.8v4.7M2.5 14h4.7M12.8 14h4.7"/><path d="M16.5 4.5h5M19 2v5"/>',
     hibridos: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M12 8.5l-2.5 4h3l-2.5 4"/>',
+    // Bombona de gas (GLP).
+    glp: '<rect x="6" y="7" width="12" height="14" rx="5"/><path d="M9 7V4h6v3M12 2v2M6 13h12"/>',
     mecanico: '<path d="M15 4a4 4 0 0 0-4.5 5.5L4 16l4 4 6.5-6.5A4 4 0 0 0 20 9l-3 1-2-2 1-3z"/>',
     seguridadVial: '<path d="M12 3l9 17H3z"/><path d="M12 10v4M12 17h.01"/>',
     seguroFlota: '<path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
@@ -2093,6 +2120,8 @@
     grua: '<path d="M3 17h11V9H8l-3 4H3z"/><path d="M14 13l6-8M20 5v8"/><path d="M20 13a1.5 1.5 0 1 1-1.5 1.5"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="11.5" cy="17.5" r="1.8"/>',
     leasing: '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>',
     oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>',
+    // Tu incógnito: medio volante y las gafas del de incógnito.
+    incognitoTu: '<path d="M4 11a8 8 0 0 1 16 0"/><path d="M2.5 11h19M12 11V7"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>',
     // Sombrero y gafas, como el icono de incógnito de Chrome (Iván, 20-11-2026).
     incognito: '<path d="M2 11h20"/><path d="M5.5 11l1.8-6a1 1 0 0 1 1.3-.6L12 5.6l3.4-1.2a1 1 0 0 1 1.3.6l1.8 6"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>'
   };
@@ -3023,6 +3052,7 @@
       if (el.dataset.accion === 'despedirConductor' && !confirmarDespido(args)) return;
       const resultado = ejecutar(el.dataset.accion, args);
       if (resultado && resultado.ok && el.dataset.accion === 'buscarCliente') sonar('tic');
+      if (resultado && resultado.pillado) sonar('averia');
       if (resultado && resultado.ok && el.dataset.accion === 'comprarLicencia') {
         eligiendoPlaca = false;
         opciones.redibujar();

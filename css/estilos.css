@@ -42,6 +42,11 @@
 
   /* Retratos de conductores */
   --retrato-fondo: #e6edf2;
+  --retrato-gafas-sol: #1b1f2a;  /* cristales de las gafas de sol */
+  --retrato-camisa: #f7f7f2;     /* camisa del traje */
+  --retrato-corbata: #7a1f2b;
+  --retrato-pajarita: #b4232f;
+  --retrato-oro: #e0b23a;        /* pendientes */
   --piel-1: #f6d3b3;
   --piel-2: #e2b28a;
   --piel-3: #bd875a;
@@ -719,6 +724,16 @@ body[data-vista="calle"] main { padding-top: var(--esp-1); }
 }
 .piloto-libre { background: var(--taxi-piloto); color: var(--taxi-piloto-texto); }
 .piloto-flota { background: var(--sol); color: var(--tinta); }
+/* Un pesetas te mira (Iván, 20-11-2026): piloto con un ojo y marco amarillo. */
+.piloto-vigilado { display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: var(--sol); color: var(--tinta); }
+.piloto-vigilado .icono { width: 16px; height: 16px; }
+.taximetro.vigilado { box-shadow: 0 0 0 3px var(--sol); }
+.taximetro.vigilado #tx-estado { color: var(--sol); font-weight: 800; }
+.taximetro.vigilado #carrera-barra { background: var(--sol); }
+@media (prefers-reduced-motion: no-preference) {
+  .taximetro.vigilado .piloto-vigilado { animation: latido-ojo 1.2s ease-in-out infinite; }
+}
+@keyframes latido-ojo { 50% { opacity: 0.55; } }
 .tx-tarifa {
   display: block;
   padding: var(--esp-2) 0;
@@ -1778,6 +1793,11 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .r-rasgos-linea, .r-arrugas { fill: none; stroke: var(--rasgos); stroke-width: 0.9; stroke-linecap: round; }
 .r-arrugas { stroke-width: 0.6; opacity: 0.6; }
 .r-gafas { fill: none; stroke: var(--rasgos); stroke-width: 0.9; }
+.r-gafas-sol { fill: var(--retrato-gafas-sol); }
+.r-camisa { fill: var(--retrato-camisa); }
+.r-corbata { fill: var(--retrato-corbata); }
+.r-pajarita { fill: var(--retrato-pajarita); }
+.r-oro { fill: var(--retrato-oro); }
 .mensaje.con-retrato { display: flex; align-items: center; gap: 10px; }
 .mensaje .retrato { flex: none; width: 28px; height: 28px; }
 

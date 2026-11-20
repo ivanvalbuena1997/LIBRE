@@ -2072,4 +2072,58 @@ prueba('modo incógnito: los de nivel 10 trabajan en la libranza y un pesetas lo
   }
 });
 
+prueba('tu incógnito: conduces en la libranza y el pesetas te multa solo si cargas mientras mira', function () {
+  config.licencias.libranza = true;
+  try {
+    const tu = config.eventos.pesetas.tu;
+    const preparar = function () {
+      const e = sim.crearEstadoInicial(0, azarFijo(0.5));
+      e.dinero = 10000;
+      const lic = e.licencias[0];
+      let j = 0;
+      while (!sim.libra(e, lic, j * sim.MIN_DIA + 10 * 60)) j++;
+      e.reloj.minutos = j * sim.MIN_DIA + 10 * 60;   // tu turno de día, un día que libras
+      return e;
+    };
+    const e = preparar();
+    assert.ok(/libra tu licencia/.test(sim.buscarCliente(e, azarFijo(0.5)).mensaje), 'sin la mejora, libras');
+    e.mejoras.incognitoTu = 1;
+    assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok, 'con «Incógnito al volante» conduces');
+    assert.ok(!sim.puedeSaltarDia(e), 'ya no es día de saltar al cierre');
+    // Aparece el pesetas: te vigila, no te multa todavía.
+    const f = preparar();
+    f.mejoras.incognitoTu = 1;
+    const t = sim.ubicacionJugador(f).datos;
+    t.pendiente = { tipo: 'pesetas', minuto: f.reloj.minutos };
+    const r = sim.avanzar(f, 0.01);
+    assert.ok(r.eventos.some(function (x) { return x.tipo === 'vigilancia'; }));
+    assert.ok(sim.vigilanciaActiva(f));
+    const seg = sim.segundosVigilancia(f);
+    cerca(seg, tu.minutosVigila * sim.segundosPorDia(f) / sim.MIN_DIA, 0.5);
+    // En el segundo de cortesía, cargar no cuenta.
+    assert.ok(sim.buscarCliente(f, azarFijo(0.5)).ok, 'cortesía');
+    f.jugador.carrera = null;
+    // Pasado el segundo, si cargas te pilla.
+    sim.avanzar(f, tu.graciaSegundos + 0.2);
+    f.jugador.carrera = null;
+    const dinero = f.dinero;
+    const pillado = sim.buscarCliente(f, azarFijo(0.5));
+    assert.ok(!pillado.ok && pillado.pillado && /pesetas te ha pillado/.test(pillado.mensaje), pillado.mensaje);
+    cerca(f.dinero, dinero - tu.multa);
+    assert.ok(f.jugador.paradoHasta > f.reloj.minutos, 'se acabó tu turno');
+    assert.strictEqual(f.caja.hoy.incidencias.pesetas.importe, -tu.multa);
+    // Si esperas a que se vaya, no pasa nada.
+    const g = preparar();
+    g.mejoras.incognitoTu = 1;
+    sim.ubicacionJugador(g).datos.pendiente = { tipo: 'pesetas', minuto: g.reloj.minutos };
+    sim.avanzar(g, 0.01);
+    sim.avanzar(g, sim.segundosVigilancia(g) + 0.5);
+    g.jugador.carrera = null;
+    assert.ok(!sim.vigilanciaActiva(g));
+    assert.ok(sim.buscarCliente(g, azarFijo(0.5)).ok, 'ya se ha ido');
+  } finally {
+    config.licencias.libranza = false;
+  }
+});
+
 console.log(pasadas + ' pruebas correctas');

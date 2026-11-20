@@ -32,8 +32,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 ### 👨‍✈️ Conductores y contrataciones
 
-9. [ ] **Más variedad de conductores.** Más nombres de personajes y más
-   retratos (`js/retratos.js`).
+9. [x] **Más variedad de conductores.** Hecho el 20-11-2026 (ver «Hechas»).
 10. [ ] **Conductores de ETT.** Contratar a un conductor temporal por un
     precio reducido que solo trabaja unas jornadas, para no tener el coche
     parado mientras encuentras a uno fijo.
@@ -83,6 +82,10 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **9. Más variedad de conductores** (👨‍✈️, 20-11-2026). 32 personajes
+  (antes 16) y accesorios nuevos: gafas de sol, gorra, pajarita, traje con
+  corbata y pendientes.
 
 - [x] **17. Modo incógnito** (🌳, 20-11-2026). Mejora de 15.000 € tras la
   Oficina: los conductores de nivel 10 trabajan en la libranza de su

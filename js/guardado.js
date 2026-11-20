@@ -257,6 +257,9 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 27 → 28: el pesetas que te vigila (estado.jugador.vigilancia, null
+    // si no hay ninguno). Nada que convertir.
+    27: function () {},
     // 26 → 27: multas del pesetas sin conexión (Iván, 20-11-2026):
     // estado.pesetasFuera acumula las que tocan de media hasta cobrar una.
     26: function (estado) {

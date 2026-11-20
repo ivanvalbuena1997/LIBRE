@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 27,
+    versionGuardado: 28,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -97,7 +97,15 @@
       // por turno y 2.000 € de multa. Medido (5 licencias, 10 de nivel 10):
       // una multa cada ~20 jornadas y el incógnito deja un +27 % (sin riesgo,
       // +35 %). Sin conexión se cobra la multa media (ver producirAgregado).
-      pesetas: { nombre: 'Multas por cargar en libranza', probTurno: 0.02, multa: 2000 },
+      pesetas: {
+        nombre: 'Multas por cargar en libranza', probTurno: 0.02, multa: 2000,
+        // Tu turno de incógnito (Iván, 20-11-2026): no te pilla de golpe; un
+        // pesetas te vigila `minutosVigila` minutos de juego (~12 s reales
+        // con el día normal, ~20 s con la Jornada larga al máximo) y te multa
+        // si empiezas una carrera mientras mira. Lo que empezaste antes no
+        // cuenta, ni lo que tocas en el primer `graciaSegundos` (real).
+        tu: { probTurno: 0.05, multa: 2000, minutosVigila: 180, graciaSegundos: 1 }
+      },
       baja: { nombre: 'Bajas', probTurno: 0.02, jornadasMin: 1, jornadasMax: 5 },
       averia: {
         nombre: 'Averías', probTurno: 0.003, jornadasMin: 3, jornadasMax: 8,
@@ -523,8 +531,10 @@
        *   piel 1–4 · cara redonda | alargada | cuadrada
        *   pelo corto | largo | rizado | coleta | moño | calvo
        *   colorPelo negro | castano | rubio | pelirrojo | gris | blanco
-       *   gafas null | redondas | cuadradas · barba null | bigote | barba | perilla
+       *   gafas null | redondas | cuadradas | sol · barba null | bigote | barba | perilla
        *   ropa 1–6 · edad joven | media | mayor (la mayor lleva arrugas)
+       *   opcionales: gorra (color, 1–6 como la ropa) · cuello pajarita |
+       *   corbata (traje: camisa y corbata) · pendientes true
        */
       personajes: [
         { nombre: 'Ana', edad: 'joven', piel: 2, cara: 'redonda', pelo: 'largo', colorPelo: 'castano', gafas: null, barba: null, ropa: 1 },
@@ -542,7 +552,26 @@
         { nombre: 'Rosa', edad: 'mayor', piel: 3, cara: 'redonda', pelo: 'moño', colorPelo: 'gris', gafas: null, barba: null, ropa: 6 },
         { nombre: 'Pablo', edad: 'media', piel: 4, cara: 'cuadrada', pelo: 'calvo', colorPelo: 'negro', gafas: null, barba: 'barba', ropa: 1 },
         { nombre: 'Isabel', edad: 'media', piel: 2, cara: 'redonda', pelo: 'largo', colorPelo: 'negro', gafas: 'cuadradas', barba: null, ropa: 2 },
-        { nombre: 'Sergio', edad: 'joven', piel: 3, cara: 'alargada', pelo: 'rizado', colorPelo: 'castano', gafas: null, barba: 'bigote', ropa: 3 }
+        { nombre: 'Sergio', edad: 'joven', piel: 3, cara: 'alargada', pelo: 'rizado', colorPelo: 'castano', gafas: null, barba: 'bigote', ropa: 3 },
+        // Iván, 20-11-2026: 16 más, con accesorios (gafas de sol, gorra,
+        // pajarita, traje con corbata y pendientes). Siempre al final: el
+        // índice es el retrato que guardan los conductores.
+        { nombre: 'Paco', edad: 'mayor', piel: 2, cara: 'cuadrada', pelo: 'calvo', colorPelo: 'gris', gafas: null, barba: 'bigote', ropa: 6, cuello: 'corbata' },
+        { nombre: 'Mari Carmen', edad: 'mayor', piel: 1, cara: 'redonda', pelo: 'moño', colorPelo: 'castano', gafas: 'redondas', barba: null, ropa: 2, pendientes: true },
+        { nombre: 'José Luis', edad: 'media', piel: 2, cara: 'alargada', pelo: 'corto', colorPelo: 'negro', gafas: 'sol', barba: null, ropa: 1, cuello: 'pajarita' },
+        { nombre: 'Juan', edad: 'joven', piel: 3, cara: 'redonda', pelo: 'corto', colorPelo: 'castano', gafas: null, barba: null, ropa: 5, gorra: 4 },
+        { nombre: 'Rafa', edad: 'media', piel: 4, cara: 'cuadrada', pelo: 'rizado', colorPelo: 'negro', gafas: 'sol', barba: 'perilla', ropa: 3 },
+        { nombre: 'Cristina', edad: 'media', piel: 2, cara: 'alargada', pelo: 'largo', colorPelo: 'rubio', gafas: 'sol', barba: null, ropa: 4, pendientes: true },
+        { nombre: 'Ángel', edad: 'joven', piel: 1, cara: 'redonda', pelo: 'rizado', colorPelo: 'castano', gafas: null, barba: null, ropa: 6, cuello: 'pajarita' },
+        { nombre: 'Raquel', edad: 'joven', piel: 3, cara: 'redonda', pelo: 'coleta', colorPelo: 'negro', gafas: null, barba: null, ropa: 1, gorra: 2, pendientes: true },
+        { nombre: 'Miguel', edad: 'mayor', piel: 3, cara: 'cuadrada', pelo: 'corto', colorPelo: 'blanco', gafas: 'cuadradas', barba: 'bigote', ropa: 1, cuello: 'corbata' },
+        { nombre: 'Fernando', edad: 'media', piel: 1, cara: 'alargada', pelo: 'calvo', colorPelo: 'castano', gafas: 'sol', barba: 'barba', ropa: 2 },
+        { nombre: 'Sonia', edad: 'media', piel: 4, cara: 'redonda', pelo: 'rizado', colorPelo: 'negro', gafas: null, barba: null, ropa: 5, pendientes: true },
+        { nombre: 'Rubén', edad: 'joven', piel: 2, cara: 'alargada', pelo: 'corto', colorPelo: 'pelirrojo', gafas: null, barba: null, ropa: 6, gorra: 3 },
+        { nombre: 'Lola', edad: 'mayor', piel: 2, cara: 'redonda', pelo: 'moño', colorPelo: 'gris', gafas: 'redondas', barba: null, ropa: 4, pendientes: true },
+        { nombre: 'Daniela', edad: 'joven', piel: 1, cara: 'alargada', pelo: 'largo', colorPelo: 'castano', gafas: 'sol', barba: null, ropa: 3, pendientes: true },
+        { nombre: 'Álvaro', edad: 'media', piel: 3, cara: 'cuadrada', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: 'barba', ropa: 6, cuello: 'corbata' },
+        { nombre: 'Daniel', edad: 'joven', piel: 4, cara: 'redonda', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: null, ropa: 2, gorra: 1 }
       ]
     },
 
@@ -885,6 +914,15 @@
         descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
         efecto: { consumo: 0.65 }
       },
+      {
+        // Iván, 20-11-2026: la última de la rama. En la realidad el GLP sale
+        // un 30–40 % más barato por km que la gasolina (sin fuente verificada
+        // de los precios de hoy). Equilibrio: con 8 licencias e híbridos
+        // ahorra ~53 € por jornada y se paga en ~90 (estimado).
+        id: 'glp', nombre: 'Depósito de GLP', rama: 'vehiculo', requiere: 'hibridos', precio: 4800,
+        descripcion: 'Instalas un depósito de GLP en toda tu flota: el combustible te cuesta un 30 % menos.',
+        efecto: { consumo: 0.7 }
+      },
       // ---- Rama: Taller y seguros
       {
         id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller',
@@ -922,7 +960,14 @@
       },
       // ---- Rama: Conductores y jornada
       {
-        id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',
+        // Iván, 20-11-2026: tu modo incógnito, una mejora del principio (tu
+        // turno rinde menos que el de un conductor). Riesgo: eventos.pesetas.tu.
+        id: 'incognitoTu', nombre: 'Incógnito al volante', rama: 'jornada', precio: 400,
+        descripcion: 'Puedes conducir también los días que libra tu licencia. Ojo con los pesetas: si uno te está mirando y cargas, 2.000 € de multa.',
+        efecto: { incognitoTu: true }
+      },
+      {
+        id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada', requiere: 'incognitoTu',
         descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
         niveles: [
           { precio: 450, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },

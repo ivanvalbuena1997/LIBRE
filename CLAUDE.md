@@ -162,6 +162,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sobre su color (`--rareza-*` en `:root`; gris, verde, azul, morado y
   amarillo). Las casillas de objeto llevan además el dibujo sobre un tinte
   de su categoría (`claseFondo()`).
+- Personajes (`config.conductores.personajes`, 32 desde el 20-11-2026): el
+  índice es el retrato que guarda cada conductor, así que los nuevos van
+  siempre al final. Piezas en `js/retratos.js`: además de cara, pelo, gafas
+  y barba, `gafas: 'sol'`, `gorra` (color de ropa 1–6), `cuello`
+  ('pajarita' o 'corbata', que pone camisa y corbata) y `pendientes`;
+  colores en `--retrato-*`.
 - Iconos de objetos: dibujos SVG en `iconos/` (del paquete de
   diseño, con sus propios colores), con `<img>` desde `icono()`. Se llaman
   como el objeto salvo los de `ARCHIVO_ICONO` (escaner → radio, paconi →
@@ -391,6 +397,17 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   resto del turno (`motivoParada` 'pesetas'). Sin conexión,
   `multasFuera()` acumula en `estado.pesetasFuera` la multa media y cobra
   una cada vez que llega a 1. En «Tus taxis hoy», chip morado «Incógnito».
+  Tu incógnito (mejora `incognitoTu`, la primera de la rama; versión 28):
+  `trabajaIncognito()` también vale para tu turno, así que `buscarCliente()`
+  te deja conducir en la libranza y `puedeSaltarDia()` no salta. El pesetas
+  contigo (`eventos.pesetas.tu`) es interactivo: un pendiente 'pesetas' en
+  tu turno pone `estado.jugador.vigilancia = { desde, hasta }`
+  (`vigilanciaActiva()`, `segundosVigilancia()`) y, si llamas a
+  `buscarCliente()` mientras dura y pasado `graciaSegundos`, multa, te para
+  el turno y devuelve `pillado`. El taxímetro (clase `.vigilado`, piloto
+  'vigilado' con `ICONO_OJO`) enseña la cuenta atrás; el sonido es
+  `pesetas`. Para probar: `Libre.forzarEvento('vigilancia')`. El bot de
+  progresión espera a que se vaya.
 - Saltar al cierre (Iván, 17-11-2026): `puedeSaltarDia()` es cierto si libra
   tu licencia, ningún conductor puede trabajar esa jornada (`puedeTrabajar()`)
   y no tienes otra licencia a la que pasarte (con coche, que no libre y con

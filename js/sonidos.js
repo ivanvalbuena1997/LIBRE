@@ -126,6 +126,11 @@
         nota(t + i * 0.08 + 0.03, f * 2, 0.3, 'sine', 0.05);
       });
     },
+    // Un pesetas te mira (Iván, 20-11-2026): silbido de dos notas, «fiu-fiu».
+    pesetas: function (t) {
+      nota(t, 1400, 0.16, 'sine', 0.2, 2100);
+      nota(t + 0.22, 1400, 0.22, 'sine', 0.2, 2300);
+    },
     // Avería o pinchazo: golpe sordo y un quejido que baja.
     averia: function (t) {
       chasquido(t, 0.09, 'lowpass', 900, 0.35);

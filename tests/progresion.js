@@ -271,7 +271,8 @@ function jugar(semilla, perfil) {
             return sim.demandaZona(e, b, info) - sim.demandaZona(e, a, info);
           });
           if (u && zonas.length && u.datos.zona !== zonas[0]) sim.elegirZona(e, u.licenciaId, u.turno, zonas[0]);
-          sim.buscarCliente(e, rng);
+          // Como un jugador atento: si le mira un pesetas, espera a que se vaya.
+          if (!sim.vigilanciaActiva(e)) sim.buscarCliente(e, rng);
           espera = REACCION;
         }
       }

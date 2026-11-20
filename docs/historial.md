@@ -88,3 +88,6 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 67. Alquilar coche: una licencia sin coche puede alquilar uno 3 días por 400 € (no se gasta y se devuelve solo); los conductores de una licencia sin coche se siguen viendo.
 68. Mejora «Modo incógnito» (15.000 €, tras la Oficina): tus conductores de nivel 10 trabajan también los días que libra su licencia… si no los pilla un pesetas (multa de 2.000 €).
 69. Iconos nuevos: Modo incógnito (sombrero y gafas) y Neumáticos de alta gama (rueda con un +).
+70. Mejora «Depósito de GLP» (4.800 €), la última de la rama Vehículo: un 30 % menos de combustible.
+71. 16 conductores nuevos (32 en total) y retratos con gafas de sol, gorra, pajarita, traje y pendientes.
+72. Mejora «Incógnito al volante» (400 €): conduces en la libranza de tu licencia. Si un pesetas te mira, el taxímetro avisa con una cuenta atrás: no cargues hasta que se vaya o te cae una multa de 2.000 €.
