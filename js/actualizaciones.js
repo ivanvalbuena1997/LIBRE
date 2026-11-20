@@ -313,6 +313,10 @@
         {
           "n": 68,
           "texto": "Mejora «Modo incógnito» (15.000 €, tras la Oficina): tus conductores de nivel 10 trabajan también los días que libra su licencia… si no los pilla un pesetas (multa de 2.000 €)."
+        },
+        {
+          "n": 69,
+          "texto": "Iconos nuevos: Modo incógnito (sombrero y gafas) y Neumáticos de alta gama (rueda con un +)."
         }
       ]
     }

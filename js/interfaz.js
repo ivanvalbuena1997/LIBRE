@@ -2078,7 +2078,8 @@
     conduccionEficiente: '<path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15zM5 19l7-7"/>',
     neumaticos: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/>',
     // Neumático con escudo: resiste los pinchazos.
-    neumaticosAltaGama: '<circle cx="10" cy="12" r="7.5"/><circle cx="10" cy="12" r="2.8"/><path d="M17 3l4 1.5v3.2c0 2.4-1.7 3.8-4 4.8-2.3-1-4-2.4-4-4.8V4.5z"/>',
+    // La rueda de los neumáticos con un «+»: la versión mejorada (Iván, 20-11-2026).
+    neumaticosAltaGama: '<circle cx="10" cy="14" r="7.5"/><circle cx="10" cy="14" r="2.8"/><path d="M10 6.5v4.7M10 16.8v4.7M2.5 14h4.7M12.8 14h4.7"/><path d="M16.5 4.5h5M19 2v5"/>',
     hibridos: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M12 8.5l-2.5 4h3l-2.5 4"/>',
     mecanico: '<path d="M15 4a4 4 0 0 0-4.5 5.5L4 16l4 4 6.5-6.5A4 4 0 0 0 20 9l-3 1-2-2 1-3z"/>',
     seguridadVial: '<path d="M12 3l9 17H3z"/><path d="M12 10v4M12 17h.01"/>',
