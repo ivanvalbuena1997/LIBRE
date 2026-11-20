@@ -89,6 +89,10 @@
   --esc-raya: #f2e9d2;
   --esc-tronco: #6b4a3a;
   --esc-copa: #5e9a6a;
+  --esc-copa-oscura: #4a8257;     /* sombra de la copa */
+  --esc-copa-clara: #7db585;      /* brillo de la copa */
+  --esc-perro: #8a5a3c;
+  --esc-correa: #3a2a20;
   --esc-luna: #f3f6ff;
   --esc-lejos-noche: #22305f;
   --esc-medio-noche: #2e3b72;
@@ -99,6 +103,8 @@
   --esc-raya-noche: #9aa7d6;
   --esc-tronco-noche: #141b3a;
   --esc-copa-noche: #1f3a4a;
+  --esc-copa-oscura-noche: #182f3d;
+  --esc-copa-clara-noche: #2b4b5c;
   --esc-mascara-si: #ffffff;   /* máscara de la luna: lo que se ve… */
   --esc-mascara-no: #000000;   /* …y lo que se recorta */
   --coche-carroceria: #ffffff;
@@ -384,6 +390,17 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-raya { fill: none; stroke: var(--esc-raya); stroke-width: 3; stroke-linecap: round; }
 .esc-tronco { fill: var(--esc-tronco); }
 .esc-copa { fill: var(--esc-copa); }
+.esc-copa-oscura { fill: var(--esc-copa-oscura); }
+.esc-copa-clara { fill: var(--esc-copa-clara); }
+/* Gente paseando por la acera: dibujos aparte que cruzan despacio. */
+.esc-persona { position: absolute; bottom: 45px; left: 30%; }
+.esc-persona-2 { left: 62%; } .esc-persona-3 { left: 12%; }
+.esc-persona .an-pierna, .esc-persona .an-pierna2 { transform-origin: 10px 18.5px; }
+.esc-persona .an-brazo { transform-origin: 9px 12px; }
+.esc-perro { fill: var(--esc-perro); }
+.esc-perro path { fill: none; stroke: var(--esc-perro); stroke-width: 1.2; stroke-linecap: round; }
+.esc-correa { fill: none; stroke: var(--esc-correa); stroke-width: 0.6; }
+.noche .esc-persona { filter: brightness(0.55); }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
 .esc-mascara-si { fill: var(--esc-mascara-si); }
@@ -400,6 +417,8 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .noche .esc-raya { stroke: var(--esc-raya-noche); }
 .noche .esc-tronco { fill: var(--esc-tronco-noche); }
 .noche .esc-copa { fill: var(--esc-copa-noche); }
+.noche .esc-copa-oscura { fill: var(--esc-copa-oscura-noche); }
+.noche .esc-copa-clara { fill: var(--esc-copa-clara-noche); }
 .esc-lluvia { display: none; }
 .lloviendo .esc-lluvia { display: inline; }
 .esc-gota { fill: none; stroke: var(--lluvia); stroke-width: 1.2; stroke-linecap: round; }
@@ -482,6 +501,15 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .an-viento { animation: viento 2.4s linear infinite; }
 .an-viento2 { animation: viento 3.1s linear infinite; animation-delay: -1.3s; }
 .an-hoja { animation: hoja-vuela 4.2s linear infinite; }
+/* Gente paseando: cruzan despacio (a un paso, ~25 px/s) y mueven piernas y brazos. */
+@keyframes persona-pasa { from { left: -40px; } to { left: 100%; } }
+@keyframes persona-vuelve { from { left: 100%; transform: scaleX(-1); } to { left: -40px; transform: scaleX(-1); } }
+@keyframes paso { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+.an-persona { animation: persona-pasa 30s linear infinite; }
+.esc-persona-2.an-persona { animation: persona-vuelve 38s linear infinite; animation-delay: -12s; }
+.esc-persona-3.an-persona { animation-duration: 34s; animation-delay: -22s; }
+.an-persona .an-pierna, .an-persona .an-pata { animation: paso 0.45s ease-in-out infinite alternate; }
+.an-persona .an-pierna2, .an-persona .an-brazo { animation: paso 0.45s ease-in-out infinite alternate-reverse; }
 .esc-hoja-2 { animation-duration: 5.1s; animation-delay: -1.7s; }
 .esc-hoja-3 { animation-duration: 3.6s; animation-delay: -2.4s; }
 .esc-hoja-4 { animation-duration: 4.8s; animation-delay: -3.3s; }

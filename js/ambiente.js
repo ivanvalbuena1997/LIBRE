@@ -46,6 +46,20 @@
   // Estrellas de un tramo (x, y), de la maqueta.
   const ESTRELLAS = [[30, 30], [74, 58], [126, 24], [170, 66], [214, 28], [262, 70], [352, 98], [58, 96], [246, 100]];
 
+  /*
+   * Un árbol con más detalle (Iván, 20-11-2026): tronco con una rama, copa
+   * de tres bolas, una sombra por debajo y un brillo arriba. (x, suelo, r).
+   */
+  function arbol(x, suelo, r) {
+    const cy = suelo - r * 1.45;
+    return '<path class="esc-tronco" d="M' + (x - 2.2) + ' ' + suelo + 'L' + (x - 1.4) + ' ' + (cy + 2) + 'h2.8L' + (x + 2.2) + ' ' + suelo +
+      'zM' + x + ' ' + (cy + r * 0.7) + 'l' + (r * 0.45) + ' ' + (-r * 0.45) + 'l1 1z"/>' +
+      '<circle class="esc-copa-oscura" cx="' + (x + r * 0.35) + '" cy="' + (cy + r * 0.25) + '" r="' + (r * 0.8) + '"/>' +
+      '<circle class="esc-copa" cx="' + (x - r * 0.35) + '" cy="' + (cy + r * 0.15) + '" r="' + (r * 0.78) + '"/>' +
+      '<circle class="esc-copa" cx="' + x + '" cy="' + (cy - r * 0.35) + '" r="' + (r * 0.8) + '"/>' +
+      '<circle class="esc-copa-clara" cx="' + (x - r * 0.25) + '" cy="' + (cy - r * 0.55) + '" r="' + (r * 0.32) + '"/>';
+  }
+
   /* Un tramo del perfil: edificios, ventanas y árboles. */
   function tramo() {
     return '<path class="esc-lejos" d="M0 150V120h28v-18h22v30h26v-24h30v34h24v-14h34v28h30v-22h28v30h30v-20h34v22h40v50H0z"/>' +
@@ -55,8 +69,7 @@
         return '<rect class="esc-ventana ' + (i % 3 === 1 ? 'an-v2' : 'an-v1') + '" x="' + v[0] + '" y="' + v[1] +
           '" width="8" height="9" rx="1.5"/>';
       }).join('') +
-      '<rect class="esc-tronco" x="96" y="176" width="5" height="22"/><circle class="esc-copa" cx="98" cy="170" r="14"/>' +
-      '<rect class="esc-tronco" x="262" y="176" width="5" height="22"/><circle class="esc-copa" cx="264" cy="170" r="14"/>';
+      arbol(98, 198, 13) + arbol(264, 198, 13);
   }
 
   /*
@@ -109,9 +122,7 @@
     [[8, 168], [8, 182], [22, 168], [36, 182], [50, 160], [62, 174], [306, 162], [306, 178], [320, 170], [346, 150],
       [346, 166], [360, 150], [360, 182], [374, 166]].forEach(function (p, i) { v += ventana(p[0], p[1], i); });
     // Árboles.
-    v += '<rect class="esc-tronco" x="78" y="180" width="4" height="18"/><circle class="esc-copa" cx="80" cy="176" r="10"/>' +
-      '<rect class="esc-tronco" x="206" y="176" width="5" height="22"/><circle class="esc-copa" cx="208" cy="170" r="14"/>' +
-      '<rect class="esc-tronco" x="286" y="182" width="4" height="16"/><circle class="esc-copa" cx="288" cy="178" r="10"/>';
+    v += arbol(78, 198, 10) + arbol(208, 198, 13) + arbol(290, 198, 9);
     return v;
   }
 
@@ -228,6 +239,33 @@
       '</svg>';
   }
 
+  /*
+   * Gente que pasea por la acera (Iván, 20-11-2026): tres personas en
+   * dibujos aparte que cruzan despacio; las piernas y los brazos se mueven.
+   * Colores de los retratos (piel, ropa, pelo). Una va con su perro.
+   */
+  const PERSONAS = [
+    { piel: 2, ropa: 2, pelo: 'castano', pantalon: 6, bolso: true },
+    { piel: 4, ropa: 1, pelo: 'negro', pantalon: 4, perro: true },
+    { piel: 1, ropa: 5, pelo: 'rubio', pantalon: 1 }
+  ];
+  function personas() {
+    return PERSONAS.map(function (p, i) {
+      const perro = p.perro ? '<g class="esc-perro"><ellipse cx="22" cy="23" rx="4.2" ry="2.2"/><circle cx="26" cy="21" r="1.8"/>' +
+        '<path class="an-pata" d="M19.5 24.5v2.8M24.5 24.5v2.8"/><path d="M17.6 22.4l-1.6-1.4"/></g>' +
+        '<path class="esc-correa" d="M12.6 14.6Q19 18 24.5 20.6"/>' : '';
+      return '<svg class="esc-persona esc-persona-' + (i + 1) + ' an-persona" width="' + (p.perro ? 32 : 20) + '" height="30" viewBox="0 0 ' +
+        (p.perro ? 32 : 20) + ' 30" aria-hidden="true" focusable="false">' +
+        '<g class="r-ropa-' + p.pantalon + '"><path class="an-pierna" d="M9 18.5l-2 9h2.2l1.4-9z"/><path class="an-pierna2" d="M11 18.5l2 9h-2.2l-1.4-9z"/></g>' +
+        '<path class="r-ropa-' + p.ropa + '" d="M6.6 19.5c0-4.6.6-9 3.4-9s3.4 4.4 3.4 9z"/>' +
+        '<path class="r-ropa-' + p.ropa + ' an-brazo" d="M8 11.8l-1.6 6.6h1.6l1.4-6z"/>' +
+        '<circle class="r-piel-' + p.piel + '" cx="10" cy="7.2" r="2.8"/>' +
+        '<path class="r-pelo-' + p.pelo + '" d="M7.2 6.8c0-2.4 1.4-3.6 2.8-3.6s2.8 1.2 2.8 3.6c-1-.9-4.6-.9-5.6 0z"/>' +
+        (p.bolso ? '<rect class="r-ropa-6" x="12.4" y="14" width="3" height="3.4" rx="0.8"/>' : '') +
+        perro + '</svg>';
+    }).join('');
+  }
+
   /* Dos nubes que cruzan despacio (solo de día). */
   function nubes() {
     return '<svg class="esc-nube esc-nube-1 an-nube" width="76" height="27" viewBox="28 24 76 27" aria-hidden="true" focusable="false">' +
@@ -280,7 +318,7 @@
   // ------------------------------------------------------------- Interfaz
 
   function montar(contenedor) {
-    contenedor.innerHTML = escena() + nubes() + taxi() + hojas();
+    contenedor.innerHTML = escena() + nubes() + personas() + taxi() + hojas();
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
