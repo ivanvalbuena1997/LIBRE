@@ -329,6 +329,10 @@
         {
           "n": 72,
           "texto": "Mejora «Incógnito al volante» (400 €): conduces en la libranza de tu licencia. Si un pesetas te mira, el taxímetro avisa con una cuenta atrás: no cargues hasta que se vaya o te cae una multa de 2.000 €."
+        },
+        {
+          "n": 73,
+          "texto": "Taxi nuevo en la cabecera: una berlina más detallada (ventanillas, puertas, manetas, faros y llantas)."
         }
       ]
     }

@@ -137,19 +137,37 @@
     return d;
   }
 
-  /* El taxi que pasa (dibujo aparte: cruza todo el ancho de la cabecera). */
+  /*
+   * El taxi que pasa (dibujo aparte: cruza todo el ancho de la cabecera).
+   * Iván, 20-11-2026: una berlina con las formas de un Toyota Corolla (foto
+   * de referencia, en espejo: circula hacia la derecha), sin marcas.
+   */
   function taxi() {
     return '<svg class="esc-taxi an-taxi" width="130" height="50" viewBox="0 -20 130 50" aria-hidden="true" focusable="false">' +
       '<defs><radialGradient id="esc-faro"><stop offset="0" class="esc-faro-centro"/><stop offset="1" class="esc-faro-borde"/></radialGradient></defs>' +
       // Brillo de los faros de noche: degradado que se pierde (no una mancha).
-      '<ellipse class="esc-brillo" cx="104" cy="14" rx="26" ry="9" fill="url(#esc-faro)"/>' +
-      '<rect class="esc-carroceria" x="0" y="0" width="84" height="22" rx="8"/>' +
-      '<path class="esc-carroceria" d="M12 0 l10 -12 h40 l12 12z"/>' +
-      '<path class="esc-cristal" d="M24 -1 l7 -9 h14 v9z"/><path class="esc-cristal" d="M49 -1 v-9 h11 l8 9z"/>' +
-      '<rect class="esc-piloto" x="35" y="-17" width="14" height="5" rx="2"/>' +
-      '<path class="esc-franja" d="M40 0 l12 22 h-9 l-12 -22z"/>' +
-      '<rect class="esc-faro" x="78" y="8" width="6" height="4" rx="1.5"/>' +
-      '<circle class="esc-rueda" cx="18" cy="22" r="6"/><circle class="esc-rueda" cx="64" cy="22" r="6"/>' +
+      '<ellipse class="esc-brillo" cx="122" cy="13" rx="22" ry="8" fill="url(#esc-faro)"/>' +
+      // Sombra en el suelo; carrocería de berlina (Corolla como referencia).
+      '<ellipse class="esc-sombra-coche" cx="52" cy="28.4" rx="52" ry="2"/>' +
+      '<path class="esc-carroceria" d="M1.5 21.5 L0.5 11 Q0.5 6.4 2.8 5.7 L10.5 4.5 C16 3.6 22 0.4 27.5 -2.4 C33.5 -4.6 46 -4.7 54 -3.7 C60.5 -3 66 0.2 75.4 5.4 L92 8.6 C98.5 9.7 102.5 11 103.6 13.6 L104 19 Q104 23 101.5 23.2 L92.4 23.2 A8.4 8.4 0 0 0 75.6 23.2 L29.9 23.2 A8.4 8.4 0 0 0 13.1 23.2 L3.6 23.2 Q1.7 23 1.5 21.5 Z"/>' +
+      // Ventanillas, pilar trasero, líneas de puertas, nervio y estribo.
+      '<path class="esc-cristal" d="M73.4 6.2 C66 1.6 61 -1.3 54.5 -2.3 L49.6 -2.6 L49.6 5.5 Z"/>' +
+      '<path class="esc-cristal" d="M47.4 5.4 L47.4 -2.7 L40 -2.8 C35 -2.6 31.6 -1.4 28.6 0.6 L25.6 4.9 Z"/>' +
+      '<path class="esc-pilar" d="M30 5.2 L31.2 -0.4 L33.6 -1.5 L32.6 5.2 Z"/>' +
+      '<path class="esc-linea" d="M74.8 6.6 C74.4 12 74.2 18 74.6 23 M48.5 5.4 V23 M24.6 5 C25.6 11 26.6 16 27.4 21.5 M73.6 11.4 C58 10.6 38 9.6 12 8.4 M30.5 21.8 H75"/>' +
+      // Franja roja del taxi de Madrid en la puerta delantera.
+      '<path class="esc-franja" d="M55.2 6 h5.6 l8.2 16.8 h-5.6 z"/>' +
+      '<rect class="esc-maneta" x="51" y="8.4" width="4.4" height="1.4" rx="0.7"/>' +
+      '<rect class="esc-maneta" x="27.2" y="7.4" width="4.4" height="1.4" rx="0.7"/>' +
+      '<path class="esc-retrovisor" d="M68.4 4 h3.8 q1.1 0 1.1 1.1 v1.3 h-4.9 z"/>' +
+      '<path class="esc-faro" d="M88.6 9.3 L101.6 11.6 L102.8 13.2 L90.4 12.2 Z"/>' +
+      '<path class="esc-trasero" d="M1.2 6.5 L11.2 5.6 L9.8 8.6 L1 9.8 Z"/>' +
+      '<rect class="esc-cartel" x="37.5" y="-9.2" width="12.5" height="4.6" rx="1.4"/>' +
+      // Módulo del techo con la luz verde de libre.
+      '<circle class="esc-piloto" cx="47.6" cy="-6.9" r="1.4"/>' +
+      '<g><circle class="esc-rueda" cx="84" cy="21.2" r="6.8"/><circle class="esc-llanta" cx="84" cy="21.2" r="4.3"/><path class="esc-radios" d="M84 17.2 V25.2 M80 21.2 H88 M81.2 18.4 L86.8 24 M86.8 18.4 L81.2 24"/><circle class="esc-buje" cx="84" cy="21.2" r="1.1"/></g>' +
+      // Ruedas con llanta de radios.
+      '<g><circle class="esc-rueda" cx="21.5" cy="21.2" r="6.8"/><circle class="esc-llanta" cx="21.5" cy="21.2" r="4.3"/><path class="esc-radios" d="M21.5 17.2 V25.2 M17.5 21.2 H25.5 M18.7 18.4 L24.3 24 M24.3 18.4 L18.7 24"/><circle class="esc-buje" cx="21.5" cy="21.2" r="1.1"/></g>' +
       '</svg>';
   }
 

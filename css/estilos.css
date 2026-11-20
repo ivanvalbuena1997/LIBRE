@@ -106,6 +106,9 @@
   --coche-cristal: #9fc4de;
   --coche-franja: #d0382a;
   --coche-faro: #ffe9a8;
+  --coche-llanta: #d9dde3;
+  --coche-radios: #8f959e;
+  --coche-sombra: rgba(0, 0, 0, 0.18);
   --lluvia: #a9c6de;
   --esc-tormenta-cielo: #1d2440;   /* tormenta: el cielo se oscurece */
   --esc-relampago: #eef3ff;        /* el destello que lo ilumina */
@@ -433,6 +436,14 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-franja { fill: var(--coche-franja); }
 .esc-faro { fill: var(--coche-faro); }
 .esc-rueda { fill: var(--tinta); }
+.esc-linea { fill: none; stroke: var(--coche-perfil); stroke-width: 0.8; stroke-linecap: round; }
+.esc-pilar { fill: var(--coche-carroceria); }
+.esc-maneta, .esc-buje { fill: var(--coche-perfil); }
+.esc-retrovisor, .esc-cartel { fill: var(--coche-carroceria); stroke: var(--coche-perfil); stroke-width: 0.8; }
+.esc-trasero { fill: var(--coche-franja); }
+.esc-llanta { fill: var(--coche-llanta); }
+.esc-radios { fill: none; stroke: var(--coche-radios); stroke-width: 0.9; }
+.esc-sombra-coche { fill: var(--coche-sombra); }
 /* Brillo de los faros: el amarillo del faro que se desvanece hacia fuera. */
 .esc-faro-centro { stop-color: var(--coche-faro); stop-opacity: 0.7; }
 .esc-faro-borde { stop-color: var(--coche-faro); stop-opacity: 0; }

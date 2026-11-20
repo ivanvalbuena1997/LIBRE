@@ -483,7 +483,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (`cajaAbierta`), y se cierra con su ×.
 - Escena de la cabecera (`js/ambiente.js`): cielo según la hora, sol o
   luna y estrellas, edificios con ventanas que se encienden de noche, nubes,
-  un taxi que pasa y lluvia; con tormenta (clase `.tormenta`, Iván
+  un taxi que pasa (berlina con las formas de un Corolla, colores
+  `--coche-*`; Iván, 20-11-2026) y lluvia; con tormenta (clase `.tormenta`, Iván
   18-11-2026) el cielo se oscurece sin sol ni luna y hay relámpagos con
   rayo (un destello doble cada 7 s), lluvia inclinada, viento y hojas. Se dibuja a escala 1 pegada abajo (la cabecera
   compacta enseña solo la calle). Es un módulo aparte con

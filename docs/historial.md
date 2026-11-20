@@ -91,3 +91,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 70. Mejora «Depósito de GLP» (4.800 €), la última de la rama Vehículo: un 30 % menos de combustible.
 71. 16 conductores nuevos (32 en total) y retratos con gafas de sol, gorra, pajarita, traje y pendientes.
 72. Mejora «Incógnito al volante» (400 €): conduces en la libranza de tu licencia. Si un pesetas te mira, el taxímetro avisa con una cuenta atrás: no cargues hasta que se vaya o te cae una multa de 2.000 €.
+73. Taxi nuevo en la cabecera: una berlina más detallada (ventanillas, puertas, manetas, faros y llantas).
