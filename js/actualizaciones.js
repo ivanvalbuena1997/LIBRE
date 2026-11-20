@@ -341,6 +341,10 @@
         {
           "n": 75,
           "texto": "Nuevo fondo de Madrid en la cabecera: Cuatro Torres, Torrespaña, Torres KIO, Metrópolis, Telefónica y la Puerta de Alcalá, árboles más detallados y gente paseando."
+        },
+        {
+          "n": 76,
+          "texto": "Un repartidor en bici con su mochila verde cruza la calle de la cabecera."
         }
       ]
     }

@@ -94,3 +94,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 73. Taxi nuevo en la cabecera: una berlina más detallada (ventanillas, puertas, manetas, faros y llantas).
 74. El taxi de la cabecera, un 15 % más grande, y el Almacén dice cuánto vale todo lo que guardas.
 75. Nuevo fondo de Madrid en la cabecera: Cuatro Torres, Torrespaña, Torres KIO, Metrópolis, Telefónica y la Puerta de Alcalá, árboles más detallados y gente paseando.
+76. Un repartidor en bici con su mochila verde cruza la calle de la cabecera.

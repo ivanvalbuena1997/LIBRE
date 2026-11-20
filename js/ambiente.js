@@ -266,6 +266,30 @@
     }).join('');
   }
 
+  /*
+   * Un repartidor en bici con su mochila verde de reparto (Iván, 20-11-2026;
+   * sin logotipos de marcas reales). Va por la calzada, más rápido que la
+   * gente; los pedales giran.
+   */
+  function repartidor() {
+    return '<svg class="esc-bici an-bici" width="40" height="34" viewBox="0 0 40 34" aria-hidden="true" focusable="false">' +
+      // Ruedas y cuadro.
+      '<g class="esc-bici-cuadro"><circle cx="9" cy="26" r="6.2"/><circle cx="31" cy="26" r="6.2"/>' +
+      '<path d="M9 26l7-10h11l4 10M16 16l4 10h-11M27 16l-1.4-4h3M20 26l-3.6-12h-2.6"/></g>' +
+      // Piernas pedaleando (giran con el pedal).
+      '<g class="an-pedal"><path class="esc-bici-pierna" d="M20 26l-2-6"/><path class="esc-bici-pierna" d="M20 26l2 5"/></g>' +
+      '<path class="r-ropa-6" d="M15.4 15.8l2.6 5 2.2-1.2-2.4-5.2z"/>' +
+      // Cuerpo inclinado, brazo al manillar y cabeza con casco.
+      '<path class="r-ropa-1" d="M14 15.4c0-4 2.4-7.4 6-7.4l2.4 1.6c-2 2-3 4.4-3.2 7z"/>' +
+      '<path class="r-ropa-1" d="M20.6 9.6l6.8 3-0.8 1.6-6.6-2.4z"/>' +
+      '<circle class="r-piel-3" cx="23.4" cy="5.6" r="2.6"/>' +
+      '<path class="esc-casco" d="M20.6 5.4c0-2.6 1.6-4 3.4-4s3.2 1.2 3.4 3.2z"/>' +
+      // Mochila de reparto: caja verde con su franja.
+      '<rect class="esc-mochila" x="8.4" y="4.6" width="9" height="9.4" rx="1.4" transform="rotate(-14 13 9)"/>' +
+      '<rect class="esc-mochila-franja" x="8.6" y="8.4" width="8.6" height="1.6" transform="rotate(-14 13 9)"/>' +
+      '</svg>';
+  }
+
   /* Dos nubes que cruzan despacio (solo de día). */
   function nubes() {
     return '<svg class="esc-nube esc-nube-1 an-nube" width="76" height="27" viewBox="28 24 76 27" aria-hidden="true" focusable="false">' +
@@ -318,7 +342,7 @@
   // ------------------------------------------------------------- Interfaz
 
   function montar(contenedor) {
-    contenedor.innerHTML = escena() + nubes() + personas() + taxi() + hojas();
+    contenedor.innerHTML = escena() + nubes() + personas() + repartidor() + taxi() + hojas();
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */

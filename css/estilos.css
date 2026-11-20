@@ -93,6 +93,9 @@
   --esc-copa-clara: #7db585;      /* brillo de la copa */
   --esc-perro: #8a5a3c;
   --esc-correa: #3a2a20;
+  --esc-mochila: #2fb24c;          /* mochila de reparto */
+  --esc-mochila-franja: #1f7a33;
+  --esc-casco: #f2f2ee;
   --esc-luna: #f3f6ff;
   --esc-lejos-noche: #22305f;
   --esc-medio-noche: #2e3b72;
@@ -401,6 +404,15 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-perro path { fill: none; stroke: var(--esc-perro); stroke-width: 1.2; stroke-linecap: round; }
 .esc-correa { fill: none; stroke: var(--esc-correa); stroke-width: 0.6; }
 .noche .esc-persona { filter: brightness(0.55); }
+/* Repartidor en bici: por la calzada, junto a la acera. */
+.esc-bici { position: absolute; bottom: 30px; left: 45%; }
+.esc-bici-cuadro { fill: none; stroke: var(--tinta); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.esc-bici-pierna { fill: none; stroke: var(--ropa-6); stroke-width: 2.2; stroke-linecap: round; }
+.esc-bici .an-pedal { transform-origin: 20px 26px; }
+.esc-casco { fill: var(--esc-casco); }
+.esc-mochila { fill: var(--esc-mochila); }
+.esc-mochila-franja { fill: var(--esc-mochila-franja); }
+.noche .esc-bici { filter: brightness(0.6); }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
 .esc-mascara-si { fill: var(--esc-mascara-si); }
@@ -510,6 +522,11 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-persona-3.an-persona { animation-duration: 34s; animation-delay: -22s; }
 .an-persona .an-pierna, .an-persona .an-pata { animation: paso 0.45s ease-in-out infinite alternate; }
 .an-persona .an-pierna2, .an-persona .an-brazo { animation: paso 0.45s ease-in-out infinite alternate-reverse; }
+/* El repartidor: más rápido que la gente y los pedales girando. */
+@keyframes bici-pasa { from { left: -50px; } to { left: 100%; } }
+@keyframes pedalear { to { transform: rotate(360deg); } }
+.an-bici { animation: bici-pasa 11s linear infinite; animation-delay: -4s; }
+.an-bici .an-pedal { animation: pedalear 0.6s linear infinite; }
 .esc-hoja-2 { animation-duration: 5.1s; animation-delay: -1.7s; }
 .esc-hoja-3 { animation-duration: 3.6s; animation-delay: -2.4s; }
 .esc-hoja-4 { animation-duration: 4.8s; animation-delay: -3.3s; }
