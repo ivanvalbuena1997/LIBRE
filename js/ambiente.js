@@ -267,27 +267,44 @@
   }
 
   /*
-   * Un repartidor en bici con su mochila verde de reparto (Iván, 20-11-2026;
-   * sin logotipos de marcas reales). Va por la calzada, más rápido que la
-   * gente; los pedales giran.
+   * Un repartidor en bici con su mochila verde de Uber Eats (Iván,
+   * 20-11-2026: «es un juego personal»). Va por la calzada, más rápido que la
+   * gente; las bielas giran. Bici con radios, cadena, sillín, guardabarros y
+   * manillar.
    */
+  function rueda(x, y) {
+    return '<circle class="esc-bici-cubierta" cx="' + x + '" cy="' + y + '" r="7.4"/>' +
+      '<circle class="esc-bici-llanta" cx="' + x + '" cy="' + y + '" r="6"/>' +
+      '<path class="esc-bici-radios" d="M' + (x - 6) + ' ' + y + 'h12M' + x + ' ' + (y - 6) + 'v12M' + (x - 4.2) + ' ' + (y - 4.2) +
+      'l8.4 8.4M' + (x + 4.2) + ' ' + (y - 4.2) + 'l-8.4 8.4"/>' +
+      '<circle class="esc-bici-buje" cx="' + x + '" cy="' + y + '" r="1.1"/>';
+  }
   function repartidor() {
-    return '<svg class="esc-bici an-bici" width="40" height="34" viewBox="0 0 40 34" aria-hidden="true" focusable="false">' +
-      // Ruedas y cuadro.
-      '<g class="esc-bici-cuadro"><circle cx="9" cy="26" r="6.2"/><circle cx="31" cy="26" r="6.2"/>' +
-      '<path d="M9 26l7-10h11l4 10M16 16l4 10h-11M27 16l-1.4-4h3M20 26l-3.6-12h-2.6"/></g>' +
-      // Piernas pedaleando (giran con el pedal).
-      '<g class="an-pedal"><path class="esc-bici-pierna" d="M20 26l-2-6"/><path class="esc-bici-pierna" d="M20 26l2 5"/></g>' +
-      '<path class="r-ropa-6" d="M15.4 15.8l2.6 5 2.2-1.2-2.4-5.2z"/>' +
+    return '<svg class="esc-bici an-bici" width="48" height="40" viewBox="0 0 48 40" aria-hidden="true" focusable="false">' +
+      rueda(10, 31) + rueda(38, 31) +
+      // Guardabarros, cadena y cuadro.
+      '<path class="esc-bici-guarda" d="M2.6 29.4a8 8 0 0 1 12.2-5.8"/>' +
+      '<path class="esc-bici-cadena" d="M10 29.6L21 28.2M10 32.4L21 33.2"/>' +
+      '<g class="esc-bici-cuadro"><path d="M10 31L21 31L18 19L10 31M18 19L31.4 18.4L21 31M31.4 18.4L32.4 21.6L38 31"/>' +
+      '<path d="M31.4 18.4L31 15.2M29.6 15.2h3.6l1.4 1.2"/></g>' +
+      '<path class="esc-bici-sillin" d="M15.4 18.2h5.2l-.6 1.2h-4z"/>' +
+      '<circle class="esc-bici-plato" cx="21" cy="31" r="2.6"/>' +
+      // Pierna de detrás, bielas que giran y pierna de delante.
+      '<path class="esc-bici-pierna" d="M18.4 17.4L22.6 22.8L20.4 28.6"/>' +
+      '<g class="an-pedal"><path class="esc-bici-biela" d="M21 27.4V34.6M19.4 27.4h3.2M19.4 34.6h3.2"/></g>' +
+      '<path class="esc-bici-pierna" d="M18.4 17.4L24 21.6L21.8 33"/>' +
       // Cuerpo inclinado, brazo al manillar y cabeza con casco.
-      '<path class="r-ropa-1" d="M14 15.4c0-4 2.4-7.4 6-7.4l2.4 1.6c-2 2-3 4.4-3.2 7z"/>' +
-      '<path class="r-ropa-1" d="M20.6 9.6l6.8 3-0.8 1.6-6.6-2.4z"/>' +
-      '<circle class="r-piel-3" cx="23.4" cy="5.6" r="2.6"/>' +
-      '<path class="esc-casco" d="M20.6 5.4c0-2.6 1.6-4 3.4-4s3.2 1.2 3.4 3.2z"/>' +
-      // Mochila de reparto: caja verde con su franja.
-      '<rect class="esc-mochila" x="8.4" y="4.6" width="9" height="9.4" rx="1.4" transform="rotate(-14 13 9)"/>' +
-      '<rect class="esc-mochila-franja" x="8.6" y="8.4" width="8.6" height="1.6" transform="rotate(-14 13 9)"/>' +
-      '</svg>';
+      '<path class="r-ropa-1" d="M16.4 18.6c-.4-5 2.4-9.6 7-10.4l2.6 2c-2.6 2.2-4 5.2-4.4 8.4z"/>' +
+      '<path class="esc-bici-brazo" d="M23.4 10.6L29 13.8L32.6 15.2"/>' +
+      '<circle class="r-piel-3" cx="27.2" cy="6.6" r="2.8"/>' +
+      '<path class="esc-casco" d="M24.2 6.4c0-2.8 1.8-4.4 3.8-4.4s3.6 1.4 3.8 3.6z"/>' +
+      // Mochila de Uber Eats: caja verde con el nombre.
+      '<g transform="rotate(-16 16 9)">' +
+      '<rect class="esc-mochila" x="9.4" y="2.6" width="13.4" height="12.4" rx="1.6"/>' +
+      '<rect class="esc-mochila-franja" x="9.4" y="2.6" width="13.4" height="2.4" rx="1.2"/>' +
+      '<text class="esc-mochila-texto" x="16.1" y="9.4" text-anchor="middle">Uber</text>' +
+      '<text class="esc-mochila-texto" x="16.1" y="13.2" text-anchor="middle">Eats</text>' +
+      '</g></svg>';
   }
 
   /* Dos nubes que cruzan despacio (solo de día). */

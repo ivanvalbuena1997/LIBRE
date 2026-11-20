@@ -345,6 +345,10 @@
         {
           "n": 76,
           "texto": "Un repartidor en bici con su mochila verde cruza la calle de la cabecera."
+        },
+        {
+          "n": 77,
+          "texto": "La bici del repartidor, con más detalle, y su mochila de Uber Eats."
         }
       ]
     }

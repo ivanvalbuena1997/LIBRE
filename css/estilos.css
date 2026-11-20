@@ -405,13 +405,23 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-correa { fill: none; stroke: var(--esc-correa); stroke-width: 0.6; }
 .noche .esc-persona { filter: brightness(0.55); }
 /* Repartidor en bici: por la calzada, junto a la acera. */
-.esc-bici { position: absolute; bottom: 30px; left: 45%; }
-.esc-bici-cuadro { fill: none; stroke: var(--tinta); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-.esc-bici-pierna { fill: none; stroke: var(--ropa-6); stroke-width: 2.2; stroke-linecap: round; }
-.esc-bici .an-pedal { transform-origin: 20px 26px; }
+.esc-bici { position: absolute; bottom: 27px; left: 45%; }
+.esc-bici-cubierta { fill: none; stroke: var(--tinta); stroke-width: 2; }
+.esc-bici-llanta { fill: none; stroke: var(--coche-radios); stroke-width: 0.6; }
+.esc-bici-radios { fill: none; stroke: var(--coche-radios); stroke-width: 0.45; }
+.esc-bici-buje, .esc-bici-sillin { fill: var(--tinta); }
+.esc-bici-guarda { fill: none; stroke: var(--coche-radios); stroke-width: 1.2; stroke-linecap: round; }
+.esc-bici-cadena { fill: none; stroke: var(--coche-radios); stroke-width: 0.6; }
+.esc-bici-cuadro { fill: none; stroke: var(--rojo-taxi); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.esc-bici-plato { fill: none; stroke: var(--tinta); stroke-width: 0.9; }
+.esc-bici-biela { fill: none; stroke: var(--tinta); stroke-width: 1; stroke-linecap: round; }
+.esc-bici-pierna { fill: none; stroke: var(--ropa-6); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.esc-bici-brazo { fill: none; stroke: var(--ropa-1); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.esc-bici .an-pedal { transform-origin: 21px 31px; }
 .esc-casco { fill: var(--esc-casco); }
 .esc-mochila { fill: var(--esc-mochila); }
 .esc-mochila-franja { fill: var(--esc-mochila-franja); }
+.esc-mochila-texto { fill: var(--esc-casco); font-family: var(--letra-titulo); font-weight: 800; font-size: 4.2px; }
 .noche .esc-bici { filter: brightness(0.6); }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
