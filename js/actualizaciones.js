@@ -349,6 +349,10 @@
         {
           "n": 77,
           "texto": "La bici del repartidor, con más detalle, y su mochila de Uber Eats."
+        },
+        {
+          "n": 78,
+          "texto": "Más gente por la acera, un segundo repartidor (Just Eat) en sentido contrario y la placa de la caja más transparente para ver la calle."
         }
       ]
     }

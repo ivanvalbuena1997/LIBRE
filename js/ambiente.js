@@ -244,17 +244,21 @@
    * dibujos aparte que cruzan despacio; las piernas y los brazos se mueven.
    * Colores de los retratos (piel, ropa, pelo). Una va con su perro.
    */
+  // Iván, 20-11-2026: más gente, en los dos sentidos (vuelve = hacia la izquierda).
   const PERSONAS = [
     { piel: 2, ropa: 2, pelo: 'castano', pantalon: 6, bolso: true },
-    { piel: 4, ropa: 1, pelo: 'negro', pantalon: 4, perro: true },
-    { piel: 1, ropa: 5, pelo: 'rubio', pantalon: 1 }
+    { piel: 4, ropa: 1, pelo: 'negro', pantalon: 4, perro: true, vuelve: true },
+    { piel: 1, ropa: 5, pelo: 'rubio', pantalon: 1 },
+    { piel: 3, ropa: 3, pelo: 'gris', pantalon: 6, vuelve: true },
+    { piel: 2, ropa: 4, pelo: 'pelirrojo', pantalon: 1, bolso: true, vuelve: true },
+    { piel: 1, ropa: 6, pelo: 'castano', pantalon: 2 }
   ];
   function personas() {
     return PERSONAS.map(function (p, i) {
       const perro = p.perro ? '<g class="esc-perro"><ellipse cx="22" cy="23" rx="4.2" ry="2.2"/><circle cx="26" cy="21" r="1.8"/>' +
         '<path class="an-pata" d="M19.5 24.5v2.8M24.5 24.5v2.8"/><path d="M17.6 22.4l-1.6-1.4"/></g>' +
         '<path class="esc-correa" d="M12.6 14.6Q19 18 24.5 20.6"/>' : '';
-      return '<svg class="esc-persona esc-persona-' + (i + 1) + ' an-persona" width="' + (p.perro ? 32 : 20) + '" height="30" viewBox="0 0 ' +
+      return '<svg class="esc-persona esc-persona-' + (i + 1) + (p.vuelve ? ' vuelve' : '') + ' an-persona" width="' + (p.perro ? 32 : 20) + '" height="30" viewBox="0 0 ' +
         (p.perro ? 32 : 20) + ' 30" aria-hidden="true" focusable="false">' +
         '<g class="r-ropa-' + p.pantalon + '"><path class="an-pierna" d="M9 18.5l-2 9h2.2l1.4-9z"/><path class="an-pierna2" d="M11 18.5l2 9h-2.2l-1.4-9z"/></g>' +
         '<path class="r-ropa-' + p.ropa + '" d="M6.6 19.5c0-4.6.6-9 3.4-9s3.4 4.4 3.4 9z"/>' +
@@ -267,8 +271,9 @@
   }
 
   /*
-   * Un repartidor en bici con su mochila verde de Uber Eats (Iván,
-   * 20-11-2026: «es un juego personal»). Va por la calzada, más rápido que la
+   * Repartidores en bici con su mochila de reparto: Uber Eats (verde) y
+   * Just Eat (naranja), uno en cada sentido (Iván, 20-11-2026: «es un juego
+   * personal»). Va por la calzada, más rápido que la
    * gente; las bielas giran. Bici con radios, cadena, sillín, guardabarros y
    * manillar.
    */
@@ -279,8 +284,18 @@
       'l8.4 8.4M' + (x + 4.2) + ' ' + (y - 4.2) + 'l-8.4 8.4"/>' +
       '<circle class="esc-bici-buje" cx="' + x + '" cy="' + y + '" r="1.1"/>';
   }
-  function repartidor() {
-    return '<svg class="esc-bici an-bici" width="48" height="40" viewBox="0 0 48 40" aria-hidden="true" focusable="false">' +
+  // Repartidores: mochila y sentido (Iván, 20-11-2026: uno de cada).
+  const REPARTIDORES = [
+    { clase: 'uber', texto: ['Uber', 'Eats'], ropa: 1, piel: 3 },
+    { clase: 'justeat', texto: ['Just', 'Eat'], ropa: 5, piel: 1, vuelve: true }
+  ];
+  function repartidor(r, i) {
+    // El que va hacia la izquierda se dibuja en espejo, salvo el texto de la mochila.
+    const espejo = r.vuelve ? ' transform="translate(48 0) scale(-1 1)"' : '';
+    const giro = r.vuelve ? 'rotate(16 32 9)' : 'rotate(-16 16 9)';
+    const cx = r.vuelve ? 31.9 : 16.1;
+    return '<svg class="esc-bici esc-bici-' + (i + 1) + (r.vuelve ? ' vuelve' : '') + ' an-bici" width="48" height="40" viewBox="0 0 48 40" aria-hidden="true" focusable="false">' +
+      '<g' + espejo + '>' +
       rueda(10, 31) + rueda(38, 31) +
       // Guardabarros, cadena y cuadro.
       '<path class="esc-bici-guarda" d="M2.6 29.4a8 8 0 0 1 12.2-5.8"/>' +
@@ -294,16 +309,17 @@
       '<g class="an-pedal"><path class="esc-bici-biela" d="M21 27.4V34.6M19.4 27.4h3.2M19.4 34.6h3.2"/></g>' +
       '<path class="esc-bici-pierna" d="M18.4 17.4L24 21.6L21.8 33"/>' +
       // Cuerpo inclinado, brazo al manillar y cabeza con casco.
-      '<path class="r-ropa-1" d="M16.4 18.6c-.4-5 2.4-9.6 7-10.4l2.6 2c-2.6 2.2-4 5.2-4.4 8.4z"/>' +
-      '<path class="esc-bici-brazo" d="M23.4 10.6L29 13.8L32.6 15.2"/>' +
-      '<circle class="r-piel-3" cx="27.2" cy="6.6" r="2.8"/>' +
+      '<path class="r-ropa-' + r.ropa + '" d="M16.4 18.6c-.4-5 2.4-9.6 7-10.4l2.6 2c-2.6 2.2-4 5.2-4.4 8.4z"/>' +
+      '<path class="esc-bici-brazo r-trazo-' + r.ropa + '" d="M23.4 10.6L29 13.8L32.6 15.2"/>' +
+      '<circle class="r-piel-' + r.piel + '" cx="27.2" cy="6.6" r="2.8"/>' +
       '<path class="esc-casco" d="M24.2 6.4c0-2.8 1.8-4.4 3.8-4.4s3.6 1.4 3.8 3.6z"/>' +
-      // Mochila de Uber Eats: caja verde con el nombre.
-      '<g transform="rotate(-16 16 9)">' +
-      '<rect class="esc-mochila" x="9.4" y="2.6" width="13.4" height="12.4" rx="1.6"/>' +
-      '<rect class="esc-mochila-franja" x="9.4" y="2.6" width="13.4" height="2.4" rx="1.2"/>' +
-      '<text class="esc-mochila-texto" x="16.1" y="9.4" text-anchor="middle">Uber</text>' +
-      '<text class="esc-mochila-texto" x="16.1" y="13.2" text-anchor="middle">Eats</text>' +
+      '</g>' +
+      // Mochila de reparto con su nombre (sin espejo, para que se lea).
+      '<g class="esc-mochila-' + r.clase + '" transform="' + giro + '">' +
+      '<rect class="esc-mochila" x="' + (cx - 6.7) + '" y="2.6" width="13.4" height="12.4" rx="1.6"/>' +
+      '<rect class="esc-mochila-franja" x="' + (cx - 6.7) + '" y="2.6" width="13.4" height="2.4" rx="1.2"/>' +
+      '<text class="esc-mochila-texto" x="' + cx + '" y="9.4" text-anchor="middle">' + r.texto[0] + '</text>' +
+      '<text class="esc-mochila-texto" x="' + cx + '" y="13.2" text-anchor="middle">' + r.texto[1] + '</text>' +
       '</g></svg>';
   }
 
@@ -359,7 +375,7 @@
   // ------------------------------------------------------------- Interfaz
 
   function montar(contenedor) {
-    contenedor.innerHTML = escena() + nubes() + personas() + repartidor() + taxi() + hojas();
+    contenedor.innerHTML = escena() + nubes() + personas() + REPARTIDORES.map(repartidor).join('') + taxi() + hojas();
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */

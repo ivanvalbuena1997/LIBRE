@@ -467,7 +467,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `js/actualizaciones.js` (número siguiente, en el grupo de su día, en
   lenguaje de jugador) y en `docs/historial.md`**.
 - Cabecera (`#cabecera`): la calle de fondo, «Libre», el engranaje y la
-  placa «Caja total» (dinero y, en Calle, «Día N · Mié 07:00 · Tarifa 1»).
+  placa «Caja total» (`--velo-dia`/`--velo-noche` al ~70 %: deja ver la calle) (dinero y, en Calle, «Día N · Mié 07:00 · Tarifa 1»).
   Alta (220 px) en Calle y compacta (124 px) en las demás; en pantallas de
   menos de 830 px de alto, la alta baja a 180 px. Es `sticky` con `top`
   negativo: al desplazar solo queda la placa a la vista. De noche (lo dice
@@ -486,8 +486,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   luna y estrellas, edificios con ventanas que se encienden de noche (el
   tramo del centro, `tramoCentro()`, con monumentos de Madrid; los demás,
   `tramo()`), árboles (`arbol()`), gente paseando (`personas()`, colores de
-  los retratos; Iván, 20-11-2026), un repartidor en bici (`repartidor()`,
-  `rueda()`; mochila verde con «Uber Eats», que pidió Iván), nubes,
+  los retratos; Iván, 20-11-2026), repartidores en bici (`REPARTIDORES`,
+  `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en
+  sentidos contrarios; el que vuelve va en espejo salvo la mochila), nubes,
   un taxi que pasa (berlina con las formas de un Corolla, colores
   `--coche-*`; Iván, 20-11-2026) y lluvia; con tormenta (clase `.tormenta`, Iván
   18-11-2026) el cielo se oscurece sin sol ni luna y hay relámpagos con

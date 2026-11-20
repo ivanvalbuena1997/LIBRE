@@ -96,3 +96,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 75. Nuevo fondo de Madrid en la cabecera: Cuatro Torres, Torrespaña, Torres KIO, Metrópolis, Telefónica y la Puerta de Alcalá, árboles más detallados y gente paseando.
 76. Un repartidor en bici con su mochila verde cruza la calle de la cabecera.
 77. La bici del repartidor, con más detalle, y su mochila de Uber Eats.
+78. Más gente por la acera, un segundo repartidor (Just Eat) en sentido contrario y la placa de la caja más transparente para ver la calle.
