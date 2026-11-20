@@ -1563,6 +1563,19 @@ button.licencia-km.coche--gastado .licencia-km-flecha, button.licencia-km.coche-
   white-space: nowrap;
 }
 .placa::before { content: ''; align-self: stretch; width: 8px; background: var(--marca); }
+/* Hoja de montar la SL: arriba de la pantalla, para que el teclado del móvil
+   no tape el campo del nombre (Iván, 20-11-2026). */
+.hoja.hoja-sociedad {
+  top: 0;
+  bottom: auto;
+  max-height: 80vh;
+  padding-top: calc(var(--esp-5) + env(safe-area-inset-top));
+  border-radius: 0 0 var(--r-hoja) var(--r-hoja);
+  animation: bajar-hoja 0.25s ease-out;
+}
+.hoja.hoja-sociedad.ya-abierta { animation: none; }
+.hoja-sociedad .hoja-asa { display: none; }
+@keyframes bajar-hoja { from { transform: translateY(-40px); } }
 /* Hoja de montar la SL */
 .sl-explica { margin: 0 0 var(--esp-4); font-size: var(--t-pequeno); line-height: 1.4; color: var(--tinta-suave); }
 .sl-nombre { display: block; width: 100%; min-height: 44px; margin: var(--esp-2) 0 var(--esp-4); padding: 0 var(--esp-4);

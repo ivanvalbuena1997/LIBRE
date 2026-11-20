@@ -1541,8 +1541,8 @@
       '<div class="ficha-objetos-bloque"><strong>Objetos <span>· ' + llevados.length + ' de ' + huecos +
       (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
       '<div class="ficha-objetos">' + casillas.join('') + '</div></div>' +
-      htmlStatsConductor(estado, t, x.enReserva ? null : turno) +
-      htmlCocheEnFicha(estado, x.enReserva ? null : lic) +
+      // Iván, 20-11-2026: los datos y los botones, antes de las estadísticas
+      // (antes había que bajar toda la lista para llegar a ellos).
       '<div class="ficha-datos">' +
       '<div><span>Carreras</span><strong id="ficha-carreras"></strong></div>' +
       '<div><span>Facturado</span><strong id="ficha-facturado"></strong></div>' +
@@ -1556,6 +1556,8 @@
       '<div class="ficha-acciones">' + htmlMoverConductor(estado, x) +
       boton('Despedir · ' + euros(coste), 'despedirConductor', [licId, turno], 'ui-boton ui-boton--peligro', coste) + '</div>' +
       (pausa ? '' : '<p class="ficha-nota">Cambiar de sitio solo entre días: cuando se cierre la caja.</p>') +
+      htmlCocheEnFicha(estado, x.enReserva ? null : lic) +
+      htmlStatsConductor(estado, t, x.enReserva ? null : turno) +
       '</div>';
   }
 

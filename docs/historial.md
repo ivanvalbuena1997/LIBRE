@@ -102,3 +102,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 81. El autobús de la EMT, ahora articulado y con mucho más detalle: fuelle, puertas, letreros de la línea y llantas azules.
 82. Los cristales del autobús dejan ver un poco lo que hay detrás.
 83. Para tener más de 3 licencias hay que montar una sociedad limitada (3.000 € y 10 € por conductor cada jornada) y ponerle nombre a tu flota, que sale en una placa junto al logo.
+84. Arreglos: la hoja para ponerle nombre a la SL sale arriba (el teclado del móvil ya no la tapa) y en la ficha del conductor los botones van antes de las estadísticas.

@@ -246,9 +246,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `textoEfecto()`). «Equipar» abre encima otra hoja (`equipando`,
   `htmlHojaEquipar()`) con los objetos del almacén en casillas iguales, de
   mejor a peor; los que ya lleva, atenuados; tocar uno lo equipa y vuelve a
-  la ficha, carreras, facturado y zona (solo lectura), y los
-  botones «Cambiar de sitio» (desactivado durante la jornada, con una línea
-  que lo explica) y «Despedir · finiquito». «Cambiar de sitio» cierra la
+  la ficha, carreras, facturado y zona (solo lectura), los botones
+  «Comparar», «Cambiar de sitio» (desactivado durante la jornada, con una
+  línea que lo explica) y «Despedir · finiquito», y después la línea del
+  coche y las estadísticas (Iván, 20-11-2026: los botones, antes de ellas). «Cambiar de sitio» cierra la
   ficha y coge al conductor (ver «Reorganizar»). Tocar un turno
   libre o un hueco de la reserva («+») abre los candidatos en una hoja
   (`htmlHojaCandidatos()`): una tarjeta por candidato con retrato, rareza,
@@ -417,7 +418,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   de la licencia. Coste diario: `costeSociedadDiario()` (10 € por conductor
   con turno) dentro de `costesFijosDiarios()`. `renombrarSociedad()` en
   Ajustes. En pantalla: la casilla «Montar una SL» (`data-montar-sl`) abre
-  `htmlHojaSociedad()` (`montandoSL`, el nombre escrito en `nombreSL`) y el
+  `htmlHojaSociedad()` (`montandoSL`, el nombre escrito en `nombreSL`; la hoja
+  baja desde arriba, `.hoja-sociedad`, para que el teclado no la tape) y el
   nombre va en la placa `#empresa` junto al logo (`.cabecera-marca`).
 - Saltar al cierre (Iván, 17-11-2026): `puedeSaltarDia()` es cierto si libra
   tu licencia, ningún conductor puede trabajar esa jornada (`puedeTrabajar()`)
