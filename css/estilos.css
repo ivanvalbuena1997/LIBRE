@@ -495,6 +495,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-bus-faro { fill: var(--bus-faro); }
 .esc-bus-matricula { fill: var(--bus-techo); stroke: var(--bus-negro); stroke-width: 0.3; }
 .esc-bus-llanta { fill: var(--bus-azul); }
+.esc-bus-tuercas { fill: var(--coche-llanta); }
 .noche .esc-bus-ventana, .noche .esc-bus-cristal { fill: var(--esc-ventana-noche); fill-opacity: 0.8; }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
@@ -626,6 +627,16 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 @keyframes bus-vuelve { from { left: 100%; } to { left: -240px; } }
 .an-bus { animation: bus-vuelve 22s linear infinite; animation-delay: -6s; }
 .an-bici .an-pedal { animation: pedalear 0.6s linear infinite; }
+/* Ruedas que giran (Iván, 21-11-2026): una vuelta por cada 2πr px
+   recorridos, a la velocidad de cada vehículo en un móvil (~390 px de
+   ancho). Giran sobre su centro (los radios y las tuercas son simétricos).
+   Lo que va hacia la izquierda gira al revés (la bici de Just Eat ya va
+   en espejo, así que basta el mismo giro). */
+.an-rueda { transform-box: fill-box; transform-origin: center; animation: pedalear 1.2s linear infinite; }
+.an-taxi .an-rueda { animation-duration: 1.25s; }
+.an-bici .an-rueda { animation-duration: 1.15s; }
+.esc-bici-2.an-bici .an-rueda { animation-duration: 1.35s; }
+.an-bus .an-rueda { animation-duration: 1.8s; animation-direction: reverse; }
 .esc-hoja-2 { animation-duration: 5.1s; animation-delay: -1.7s; }
 .esc-hoja-3 { animation-duration: 3.6s; animation-delay: -2.4s; }
 .esc-hoja-4 { animation-duration: 4.8s; animation-delay: -3.3s; }

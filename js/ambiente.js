@@ -233,9 +233,9 @@
       '<rect class="esc-cartel" x="37.5" y="-9.2" width="12.5" height="4.6" rx="1.4"/>' +
       // Módulo del techo con la luz verde de libre.
       '<circle class="esc-piloto" cx="47.6" cy="-6.9" r="1.4"/>' +
-      '<g><circle class="esc-rueda" cx="84" cy="21.2" r="6.8"/><circle class="esc-llanta" cx="84" cy="21.2" r="4.3"/><path class="esc-radios" d="M84 17.2 V25.2 M80 21.2 H88 M81.2 18.4 L86.8 24 M86.8 18.4 L81.2 24"/><circle class="esc-buje" cx="84" cy="21.2" r="1.1"/></g>' +
+      '<g><circle class="esc-rueda" cx="84" cy="21.2" r="6.8"/><circle class="esc-llanta" cx="84" cy="21.2" r="4.3"/><path class="esc-radios an-rueda" d="M84 17.2 V25.2 M80 21.2 H88 M81.2 18.4 L86.8 24 M86.8 18.4 L81.2 24"/><circle class="esc-buje" cx="84" cy="21.2" r="1.1"/></g>' +
       // Ruedas con llanta de radios.
-      '<g><circle class="esc-rueda" cx="21.5" cy="21.2" r="6.8"/><circle class="esc-llanta" cx="21.5" cy="21.2" r="4.3"/><path class="esc-radios" d="M21.5 17.2 V25.2 M17.5 21.2 H25.5 M18.7 18.4 L24.3 24 M24.3 18.4 L18.7 24"/><circle class="esc-buje" cx="21.5" cy="21.2" r="1.1"/></g>' +
+      '<g><circle class="esc-rueda" cx="21.5" cy="21.2" r="6.8"/><circle class="esc-llanta" cx="21.5" cy="21.2" r="4.3"/><path class="esc-radios an-rueda" d="M21.5 17.2 V25.2 M17.5 21.2 H25.5 M18.7 18.4 L24.3 24 M24.3 18.4 L18.7 24"/><circle class="esc-buje" cx="21.5" cy="21.2" r="1.1"/></g>' +
       '</svg>';
   }
 
@@ -295,7 +295,7 @@
   function rueda(x, y) {
     return '<circle class="esc-bici-cubierta" cx="' + x + '" cy="' + y + '" r="7.4"/>' +
       '<circle class="esc-bici-llanta" cx="' + x + '" cy="' + y + '" r="6"/>' +
-      '<path class="esc-bici-radios" d="M' + (x - 6) + ' ' + y + 'h12M' + x + ' ' + (y - 6) + 'v12M' + (x - 4.2) + ' ' + (y - 4.2) +
+      '<path class="esc-bici-radios an-rueda" d="M' + (x - 6) + ' ' + y + 'h12M' + x + ' ' + (y - 6) + 'v12M' + (x - 4.2) + ' ' + (y - 4.2) +
       'l8.4 8.4M' + (x + 4.2) + ' ' + (y - 4.2) + 'l-8.4 8.4"/>' +
       '<circle class="esc-bici-buje" cx="' + x + '" cy="' + y + '" r="1.1"/>';
   }
@@ -368,7 +368,14 @@
         '<path class="esc-bus-pasamanos" d="M' + (x + 3) + ' 18V52M' + (x + 10) + ' 18V52"/></g>';
     };
     const ruedaBus = function (x) {
+      // Seis tuercas alrededor del buje: son lo que se ve girar (Iván, 21-11-2026).
+      let tuercas = '';
+      for (let k = 0; k < 6; k++) {
+        const a = k * Math.PI / 3;
+        tuercas += '<circle cx="' + (x + 3.3 * Math.cos(a)).toFixed(2) + '" cy="' + (57 + 3.3 * Math.sin(a)).toFixed(2) + '" r="0.75"/>';
+      }
       return '<circle class="esc-rueda" cx="' + x + '" cy="57" r="8.4"/><circle class="esc-bus-llanta" cx="' + x + '" cy="57" r="5.2"/>' +
+        '<g class="esc-bus-tuercas an-rueda">' + tuercas + '</g>' +
         '<circle class="esc-buje" cx="' + x + '" cy="57" r="1.6"/>';
     };
     const ventanasHtml = ventanas(36, 118, [[60, 74]]) + ventanas(130, 246, [[150, 164]]);

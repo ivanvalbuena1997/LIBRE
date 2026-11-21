@@ -391,6 +391,10 @@
         {
           "n": 86,
           "texto": "El perro que pasea por la acera ya no mueve las patas en el aire: ahora pisa el suelo y tiene orejas, hocico, collar, pelaje y una cola que se mueve."
+        },
+        {
+          "n": 87,
+          "texto": "Las ruedas del taxi, de las bicis y del autobús ya giran cuando avanzan por la calle."
         }
       ]
     }
