@@ -387,6 +387,10 @@
         {
           "n": 85,
           "texto": "Los coches suben un 10 % por cada uno que ya tienes, igual que el alquiler, para que al final de la partida no salgan regalados (renovar o reponer uno cuesta lo que tu último coche)."
+        },
+        {
+          "n": 86,
+          "texto": "El perro que pasea por la acera ya no mueve las patas en el aire: ahora pisa el suelo y tiene orejas, hocico, collar, pelaje y una cola que se mueve."
         }
       ]
     }

@@ -255,9 +255,24 @@
   ];
   function personas() {
     return PERSONAS.map(function (p, i) {
-      const perro = p.perro ? '<g class="esc-perro"><ellipse cx="22" cy="23" rx="4.2" ry="2.2"/><circle cx="26" cy="21" r="1.8"/>' +
-        '<path class="an-pata" d="M19.5 24.5v2.8M24.5 24.5v2.8"/><path d="M17.6 22.4l-1.6-1.4"/></g>' +
-        '<path class="esc-correa" d="M12.6 14.6Q19 18 24.5 20.6"/>' : '';
+      // Iván, 21-11-2026: el perro, con más detalle (cuatro patas que giran
+      // desde la cadera y pisan el suelo, orejas, cola que se mueve, collar
+      // y pelaje). Antes las patas giraban desde la esquina del dibujo y
+      // flotaban. Las de cada diagonal van a la vez, como al andar.
+      // La correa va antes que el perro: la tapa la cabeza y llega al collar.
+      const perro = p.perro ? '<path class="esc-correa" d="M12.6 14.6Q19 17.6 25.2 19.9"/><g class="esc-perro">' +
+        '<path class="pata pata-lejos pata-atras an-pata" d="M19.2 23.4v3.6"/><path class="pata pata-lejos pata-delante an-pata2" d="M23.9 23.4v3.6"/>' +
+        '<path class="esc-perro-cola an-cola" d="M17.8 21.6q-1.8-.6-2-3"/>' +
+        '<path class="esc-perro-cuerpo" d="M17.4 22.2c0-1.6 1.2-2.2 3.2-2.2h3.6c1.2 0 1.8.8 1.8 2 0 1.4-.8 2.2-2.2 2.2h-4.6c-1.2 0-1.8-.8-1.8-2z"/>' +
+        '<path class="esc-perro-claro" d="M19.4 24.1c1.2.4 3 .4 4.4 0"/>' +
+        '<path class="esc-perro-pelo" d="M19 20.6l.5-.6M20.4 20.4l.5-.6M21.8 20.4l.5-.6M18 23.4l-.6.5"/>' +
+        '<path class="pata pata-atras an-pata2" d="M18.4 23.4v3.6"/><path class="pata pata-delante an-pata" d="M24.8 23.4v3.6"/>' +
+        '<circle class="esc-perro-cuerpo" cx="26.4" cy="19.4" r="2"/>' +
+        '<ellipse class="esc-perro-claro" cx="28.3" cy="20.2" rx="1.4" ry="0.95"/>' +
+        '<circle class="esc-perro-nariz" cx="29.5" cy="19.9" r="0.5"/>' +
+        '<circle class="esc-perro-nariz" cx="26.9" cy="18.8" r="0.35"/>' +
+        '<path class="esc-perro-oreja" d="M25.2 17.9c-.9.2-1.3 1.4-1 2.8.5.2 1 0 1.3-.6.2-.8.1-1.6-.3-2.2z"/>' +
+        '<path class="esc-perro-collar" d="M24.6 19.6q.3 1.6 1 2.2"/></g>' : '';
       return '<svg class="esc-persona esc-persona-' + (i + 1) + (p.vuelve ? ' vuelve' : '') + ' an-persona" width="' + (p.perro ? 32 : 20) + '" height="30" viewBox="0 0 ' +
         (p.perro ? 32 : 20) + ' 30" aria-hidden="true" focusable="false">' +
         '<g class="r-ropa-' + p.pantalon + '"><path class="an-pierna" d="M9 18.5l-2 9h2.2l1.4-9z"/><path class="an-pierna2" d="M11 18.5l2 9h-2.2l-1.4-9z"/></g>' +
