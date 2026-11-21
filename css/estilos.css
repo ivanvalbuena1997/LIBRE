@@ -135,6 +135,7 @@
   --coche-faro: #ffe9a8;
   --coche-llanta: #d9dde3;
   --coche-radios: #8f959e;
+  --esc-reflectante: #ff9a1f;      /* reflectante de los radios de la bici */
   --coche-sombra: rgba(0, 0, 0, 0.18);
   --lluvia: #a9c6de;
   --esc-tormenta-cielo: #1d2440;   /* tormenta: el cielo se oscurece */
@@ -454,7 +455,10 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-bici-2 { bottom: 26px; }
 .esc-bici-cubierta { fill: none; stroke: var(--tinta); stroke-width: 2; }
 .esc-bici-llanta { fill: none; stroke: var(--coche-radios); stroke-width: 0.6; }
-.esc-bici-radios { fill: none; stroke: var(--coche-radios); stroke-width: 0.45; }
+.esc-bici-radios { fill: none; stroke: var(--coche-radios); stroke-width: 0.7; }
+.esc-reflectante { fill: var(--esc-reflectante); }
+/* Círculo invisible que da a cada rueda que gira su centro (transform-box: fill-box). */
+.esc-eje { fill: none; stroke: none; }
 .esc-bici-buje, .esc-bici-sillin { fill: var(--tinta); }
 .esc-bici-guarda { fill: none; stroke: var(--coche-radios); stroke-width: 1.2; stroke-linecap: round; }
 .esc-bici-cadena { fill: none; stroke: var(--coche-radios); stroke-width: 0.6; }
@@ -495,7 +499,8 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-bus-faro { fill: var(--bus-faro); }
 .esc-bus-matricula { fill: var(--bus-techo); stroke: var(--bus-negro); stroke-width: 0.3; }
 .esc-bus-llanta { fill: var(--bus-azul); }
-.esc-bus-tuercas { fill: var(--coche-llanta); }
+.esc-bus-tuercas circle { fill: var(--coche-llanta); }
+.esc-bus-tuercas .esc-eje { fill: none; }
 .noche .esc-bus-ventana, .noche .esc-bus-cristal { fill: var(--esc-ventana-noche); fill-opacity: 0.8; }
 .esc-sol { fill: var(--sol); }
 .esc-luna, .esc-estrella { fill: var(--esc-luna); }
@@ -558,7 +563,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-retrovisor, .esc-cartel { fill: var(--coche-carroceria); stroke: var(--coche-perfil); stroke-width: 0.8; }
 .esc-trasero { fill: var(--coche-franja); }
 .esc-llanta { fill: var(--coche-llanta); }
-.esc-radios { fill: none; stroke: var(--coche-radios); stroke-width: 0.9; }
+.esc-radios { fill: none; stroke: var(--coche-radios); stroke-width: 1.4; stroke-linecap: round; }
 .esc-sombra-coche { fill: var(--coche-sombra); }
 /* Brillo de los faros: el amarillo del faro que se desvanece hacia fuera. */
 .esc-faro-centro { stop-color: var(--coche-faro); stop-opacity: 0.7; }
@@ -629,7 +634,8 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .an-bici .an-pedal { animation: pedalear 0.6s linear infinite; }
 /* Ruedas que giran (Iván, 21-11-2026): una vuelta por cada 2πr px
    recorridos, a la velocidad de cada vehículo en un móvil (~390 px de
-   ancho). Giran sobre su centro (los radios y las tuercas son simétricos).
+   ancho). Giran sobre su centro: cada grupo lleva un círculo invisible del
+   tamaño de la llanta (.esc-eje), así su caja queda centrada en el eje.
    Lo que va hacia la izquierda gira al revés (la bici de Just Eat ya va
    en espejo, así que basta el mismo giro). */
 .an-rueda { transform-box: fill-box; transform-origin: center; animation: pedalear 1.2s linear infinite; }

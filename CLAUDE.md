@@ -519,8 +519,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `contenedor.dataset.momento` ('dia' o 'noche'); para cambiarla por otra
   vista (un mapa) basta otro módulo con esas dos funciones. No enseña datos
   de la partida. Animaciones solo CSS (taxi 16 s, nubes 40/55 s, sol 5 s,
-  ventanas 4/6 s; ruedas `.an-rueda`, que giran sobre su centro con
-  `transform-box: fill-box` a la velocidad de su vehículo; Iván, 21-11-2026), fuera con `prefers-reduced-motion`.
+  ventanas 4/6 s; ruedas `.an-rueda`, grupos que giran sobre su centro con
+  `transform-box: fill-box` (un círculo invisible `.esc-eje` del tamaño
+  de la llanta centra la caja) a la velocidad de su vehículo; dibujo
+  asimétrico para que se vea: 5 radios, reflectante, 5 tuercas; Iván, 21-11-2026), fuera con `prefers-reduced-motion`.
 - Zonas: las abiertas, en una fila de chips (`ui-chip-zona`, se desliza de
   lado si no caben) con nombre y viajes/h (o cuándo abre); en azul las que
   tienen clientes ahora, y la tuya rellena cuando conduces (sirven para

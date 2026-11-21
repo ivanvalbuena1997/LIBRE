@@ -395,6 +395,10 @@
         {
           "n": 87,
           "texto": "Las ruedas del taxi, de las bicis y del autobús ya giran cuando avanzan por la calle."
+        },
+        {
+          "n": 88,
+          "texto": "Arreglo: el giro de las ruedas casi no se veía. Ahora el taxi lleva llantas de cinco radios, las bicis un reflectante naranja y el autobús tuercas más grandes."
         }
       ]
     }
