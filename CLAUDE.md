@@ -351,7 +351,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   repartidos entre los coches de la zona), así que cuadran con el ticket.
   El coche inicial sale usado (`kmCocheUsado()`, entre
   `config.vehiculos.kmInicialMin` y `kmInicialMax`); `comprarVehiculo()`
-  lo pone a 0. En Conductores, bajo la placa (`.licencia-km`, al día en
+  lo pone a 0. Precio (Iván, 21-11-2026): `precioCoche(estado, sustituye)`
+  sube `vehiculos.factorSubida` (×1,10) por cada coche propio
+  (`cochesPropios()`, sin alquilados) menos el primero; con `sustituye`
+  (renovar, venta del viejo, reponer tras rotura), el del último coche.
+  `precioAlquiler()` sube igual, sin Leasing. En Conductores, bajo la placa (`.licencia-km`, al día en
   `actualizar` con `data-km-licencia`).
 - Desgaste del coche (idea 7, Iván 19-11-2026): `factorAveriaKm(lic)`
   multiplica la avería normal (`eventos.averia.kmDoble`, `factorKmMax`) y
@@ -376,7 +380,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   km y «›») con el fondo del estado (`.coche--gastado`, `.coche--limite`).
   Alquiler (idea 5, Iván 20-11-2026; versión 26 del guardado):
   `alquilarCoche()` pone coche a una licencia sin él (o alarga uno
-  alquilado) por `config.vehiculos.alquiler` (3 jornadas, 400 €);
+  alquilado) por `config.vehiculos.alquiler` (3 jornadas, 400 € de base);
   `lic.alquiler = { hasta }` (jornada en la que se devuelve,
   `devolverAlquilados()` desde `cerrarCaja()`, incidencia 'alquiler').
   No se gasta: `probRotura()` 0, `factorAveriaKm()` 1, sin renovar;
@@ -561,7 +565,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 
 Ahora mismo ninguno: Iván confirmó el 13 de noviembre de 2026 combustible,
 consumo, cuota de autónomo (535 €/mes), seguro, emisora y porcentaje del
-conductor (marcados «Dato de Iván»). Licencia (2.500 €, desde el 18-11-2026) y coche (1.500 €) son valores de juego
+conductor (marcados «Dato de Iván»). Licencia (2.500 €, desde el 18-11-2026) y coche (1.500 €, ×1,10 por coche desde el 21-11-2026) son valores de juego
 fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
 `PROVISIONAL` y se apunta aquí.
 

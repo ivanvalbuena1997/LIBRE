@@ -1948,7 +1948,7 @@
       (lic.vehiculo ? ''
         : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) +
           // Alquilar (idea 5, Iván 20-11-2026): un apaño de pocas jornadas.
-          botonCompra('Alquilar', Libre.config.vehiculos.alquiler.precio, 'alquilarCoche', [lic.id]) +
+          botonCompra('Alquilar', Libre.sim.precioAlquiler(estado), 'alquilarCoche', [lic.id]) +
           '<small class="sin-coche-nota">Alquiler de ' + Libre.config.vehiculos.alquiler.jornadas + ' días</small></div>') +
       (tuAbierto ? htmlPanelTu(estado, lic, tuAbierto) : '') + '</div>';
   }
@@ -1970,13 +1970,14 @@
   function htmlHojaAlquilado(estado, lic, e, fila) {
     const a = Libre.config.vehiculos.alquiler;
     const precio = Libre.sim.precioCoche(estado);
+    const alquiler = Libre.sim.precioAlquiler(estado);
     return '<div class="stats-lista">' +
       fila('Alquiler', textoQuedan(e.quedan), 'Contando la de hoy. Al cerrar la caja de la última, lo devuelves y la licencia se queda sin coche', '') +
       fila('Desgaste', 'No se gasta', 'Sin avería definitiva ni más averías por los kilómetros', '') +
       fila('Kilómetros', numero(Math.floor(e.km)) + ' km', 'Los que lleva contigo', '') +
       '</div>' +
-      boton('Alquilar ' + a.jornadas + ' jornadas más · ' + euros(a.precio), 'alquilarCoche', [lic.id],
-        'ui-boton ui-boton--secundario ui-boton--ancho', a.precio) +
+      boton('Alquilar ' + a.jornadas + ' jornadas más · ' + euros(alquiler), 'alquilarCoche', [lic.id],
+        'ui-boton ui-boton--secundario ui-boton--ancho', alquiler) +
       boton('Comprar uno propio · ' + euros(precio), 'comprarVehiculo', [lic.id], 'ui-boton ui-boton--principal ui-boton--ancho', precio) +
       '<p class="coche-nota">Si compras uno, devuelves el de alquiler y pierdes lo que quedaba.</p>';
   }

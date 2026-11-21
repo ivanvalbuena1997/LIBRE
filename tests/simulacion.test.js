@@ -1602,6 +1602,28 @@ prueba('Grúa propia: un pinchazo sin rueda para una hora y cuesta la mitad', fu
   cerca(horas, 1, 0.01);
 });
 
+prueba('coches y alquiler suben un 10 % por cada coche propio; renovar y reponer, al precio del último', function () {
+  const e = flotaDe(1);
+  const v = config.vehiculos, base = v.modelos[v.modeloInicial].precio, f = v.factorSubida;
+  assert.strictEqual(sim.cochesPropios(e), 1);
+  cerca(sim.precioCoche(e), base);
+  cerca(sim.precioAlquiler(e), v.alquiler.precio);
+  e.empresa = { nombre: 'Prueba SL', jornada: 0 };   // sin el trámite de la SL
+  for (let i = 0; i < 4; i++) { assert.ok(sim.comprarLicencia(e).ok); assert.ok(sim.comprarVehiculo(e, e.licencias[e.licencias.length - 1].id).ok); }
+  assert.strictEqual(sim.cochesPropios(e), 5);
+  cerca(sim.precioCoche(e), Math.round(base * Math.pow(f, 4)));
+  cerca(sim.precioCoche(e, true), Math.round(base * Math.pow(f, 3)));
+  cerca(sim.precioAlquiler(e), Math.round(v.alquiler.precio * Math.pow(f, 4)));
+  // Un coche de alquiler no cuenta: tras una avería definitiva, reponer
+  // cuesta lo que costaba antes de romperse.
+  sim.comprarLicencia(e);
+  const nueva = e.licencias[e.licencias.length - 1];
+  assert.ok(sim.alquilarCoche(e, nueva.id).ok);
+  assert.strictEqual(sim.cochesPropios(e), 5);
+  e.licencias[0].vehiculo = null;
+  cerca(sim.precioCoche(e), Math.round(base * Math.pow(f, 3)));
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;
@@ -1991,8 +2013,9 @@ prueba('alquilar coche: 3 jornadas por 400 €, se devuelve solo y no se gasta',
   lic.vehiculo = null;                      // como tras una avería definitiva
   assert.ok(!sim.alquilarCoche(e, e.licencias[0].id).ok, 'con coche propio no');
   const dinero = e.dinero;
+  const precioAlquiler = sim.precioAlquiler(e);
   assert.ok(sim.alquilarCoche(e, lic.id).ok);
-  cerca(e.dinero, dinero - a.precio);
+  cerca(e.dinero, dinero - precioAlquiler);
   assert.ok(lic.vehiculo && lic.alquiler);
   assert.strictEqual(sim.jornadasAlquiler(e, lic), a.jornadas);
   // No se gasta.

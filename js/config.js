@@ -634,6 +634,11 @@
       // jornadas, para que sea un apaño y no la costumbre. El alquilado no se
       // gasta (sin avería definitiva ni más averías por km).
       alquiler: { jornadas: 3, precio: 400 },
+      // Iván, 21-11-2026: cada coche propio cuesta un 10 % más que el
+      // anterior (como las licencias, un poco menos), y el alquiler sube
+      // igual para que nunca salga más a cuenta alquilar toda la flota.
+      // Precio del siguiente = precio × factorSubida^(coches propios − 1).
+      factorSubida: 1.10,
       // Estado del coche que se ve en pantalla: «Nuevo» hasta kmNuevo;
       // «Rodado» hasta que hay riesgo de avería definitiva; «Gastado» con
       // riesgo y «Al límite» desde probLimite por turno.

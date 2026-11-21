@@ -875,9 +875,28 @@
   }
 
   /* Lo que cuesta un coche (el Leasing lo abarata). */
-  function precioCoche(estado) {
+  /*
+   * Precio de un coche (Iván, 21-11-2026): sube un vehiculos.factorSubida por
+   * cada coche propio que ya tienes, sin contar el primero (los de alquiler
+   * no cuentan). Con `sustituye` es el precio de un coche que reemplaza a
+   * uno tuyo (renovar, o reponer tras una avería definitiva): el de tu
+   * último coche, no el del siguiente.
+   */
+  function cochesPropios(estado) {
+    return estado.licencias.filter(function (l) { return l.vehiculo && !l.alquiler; }).length;
+  }
+  function escalaCoches(estado, sustituye) {
+    const n = cochesPropios(estado) - (sustituye ? 1 : 0);
+    return Math.pow(cfg().vehiculos.factorSubida || 1, Math.max(0, n - 1));
+  }
+  function precioCoche(estado, sustituye) {
     const c = cfg();
-    return c.vehiculos.modelos[c.vehiculos.modeloInicial].precio * modificadores(estado).precioCoche;
+    return Math.round(c.vehiculos.modelos[c.vehiculos.modeloInicial].precio *
+      escalaCoches(estado, sustituye) * modificadores(estado).precioCoche);
+  }
+  /* Alquiler: sube igual que el coche (sin el descuento del Leasing). */
+  function precioAlquiler(estado) {
+    return Math.round(cfg().vehiculos.alquiler.precio * escalaCoches(estado));
   }
 
   function comprarVehiculo(estado, licenciaId) {
@@ -912,8 +931,9 @@
     if (!lic) return fallo('Esa licencia no existe.');
     if (lic.vehiculo && !lic.alquiler) return fallo('Esa licencia ya tiene coche propio.');
     const a = c.vehiculos.alquiler;
-    if (estado.dinero < a.precio) return fallo('No te llega el dinero.');
-    estado.dinero -= a.precio;
+    const precio = precioAlquiler(estado);
+    if (estado.dinero < precio) return fallo('No te llega el dinero.');
+    estado.dinero -= precio;
     const hoy = jornadaDe(estado.reloj.minutos);
     if (lic.alquiler) {
       lic.alquiler.hasta = Math.max(lic.alquiler.hasta, hoy) + a.jornadas;
@@ -2498,7 +2518,7 @@
   function roturaPosible(estado, lic) {
     if (!lic.vehiculo || lic.alquiler) return false;
     if (lic.averia && jornadaDe(estado.reloj.minutos) < lic.averia.hasta) return false;
-    return otroCocheEnMarcha(estado, lic) || estado.dinero >= precioCoche(estado);
+    return otroCocheEnMarcha(estado, lic) || estado.dinero >= precioCoche(estado, true);
   }
 
   /* Sorteo de la avería definitiva al empezar un turno (sin azar si no hay riesgo). */
@@ -2527,7 +2547,7 @@
   /* Lo que te dan por el coche de una licencia si lo renuevas. */
   function valorVentaCoche(estado, lic) {
     const v = cfg().vehiculos.venta;
-    const valor = precioCoche(estado) * v.fraccion * (1 - (lic.km || 0) / v.kmSinValor);
+    const valor = precioCoche(estado, true) * v.fraccion * (1 - (lic.km || 0) / v.kmSinValor);
     return Math.max(cfg().eventos.rotura.chatarra, Math.round(valor));
   }
 
@@ -2548,7 +2568,7 @@
     const venta = valorVentaCoche(estado, lic);
     return {
       km, probRotura: p, factorAveria: factorAveriaKm(lic), venta,
-      precioRenovar: Math.max(0, precioCoche(estado) - venta),
+      precioRenovar: Math.max(0, precioCoche(estado, true) - venta),
       nivel: p >= v.probLimite ? 'limite' : p > 0 ? 'gastado' : km < v.kmNuevo ? 'nuevo' : 'rodado'
     };
   }
@@ -2565,7 +2585,7 @@
     if (lic.alquiler) return fallo('Ese coche es de alquiler: no se renueva, se devuelve o se compra uno.');
     if (!enPausa(estado)) return fallo('Solo puedes renovar el coche con el día cerrado.');
     const venta = valorVentaCoche(estado, lic);
-    const precio = Math.max(0, precioCoche(estado) - venta);
+    const precio = Math.max(0, precioCoche(estado, true) - venta);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
     lic.km = 0;
@@ -3089,6 +3109,8 @@
     comprarLicencia,
     comprarVehiculo,
     precioCoche,
+    precioAlquiler,
+    cochesPropios,
     cambiarTurnoJugador,
     contratarConductor,
     despedirConductor,

@@ -379,6 +379,16 @@
           "texto": "Arreglos: la hoja para ponerle nombre a la SL sale arriba (el teclado del móvil ya no la tapa) y en la ficha del conductor los botones van antes de las estadísticas."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-21",
+      "titulo": "Precio de los coches",
+      "cambios": [
+        {
+          "n": 85,
+          "texto": "Los coches suben un 10 % por cada uno que ya tienes, igual que el alquiler, para que al final de la partida no salgan regalados (renovar o reponer uno cuesta lo que tu último coche)."
+        }
+      ]
     }
   ];
 })(globalThis);
