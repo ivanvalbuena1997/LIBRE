@@ -462,7 +462,7 @@ Incluye todo lo descrito en las secciones 4 y 5. Queda fuera: VTC y otros vehíc
 
 ## 7. Técnica
 
-HTML, CSS y JavaScript sin framework ni paso de compilación; se juega abriendo `index.html` y se publica tal cual en GitHub Pages.
+HTML, CSS y JavaScript sin framework ni paso de compilación; se juega abriendo `index.html` y se publica tal cual en GitHub Pages. Estilos y scripts se piden con la hora en la dirección (`?v=`), así el navegador descarga siempre los nuevos (21-11-2026).
 
 - **Datos separados del código:** todos los números están en `js/config.js`, marcados como dato real, dato de Iván o equilibrio.
 - **Lógica separada de la pantalla:** una sola función avanza el tiempo (`avanzar`), la misma con el juego abierto y sin conexión; la simulación no sabe nada del HTML y se prueba sin navegador (`node tests/simulacion.test.js`).

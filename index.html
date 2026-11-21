@@ -6,7 +6,15 @@
   <meta name="theme-color" content="#7db4ee">
   <title>Libre</title>
   <link rel="icon" href="docs/logo/libre-icono.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/estilos.css">
+  <!-- Iván, 21-11-2026: el navegador guardaba los estilos y los scripts y no
+    veía las actualizaciones. Se piden siempre con ?v=<ahora> en la dirección,
+    así cada vez que se abre el juego se descargan los nuevos (son pocos KB).
+    document.write los pone en su sitio mientras se lee la página, igual que
+    si estuvieran escritos aquí, y vale también abriéndolo con doble clic. -->
+  <script>
+    window.LIBRE_VERSION_ARCHIVOS = Date.now();
+    document.write('<link rel="stylesheet" href="css/estilos.css?v=' + window.LIBRE_VERSION_ARCHIVOS + '">');
+  </script>
 </head>
 <body>
   <!-- Cabecera: la calle de fondo (js/ambiente.js), el nombre, el engranaje
@@ -67,14 +75,12 @@
   </div>
 
   <!-- Orden importante: configuración, lógica, guardado, ambiente, retratos, sonidos, interfaz y arranque. -->
-  <script src="js/config.js"></script>
-  <script src="js/simulacion.js"></script>
-  <script src="js/guardado.js"></script>
-  <script src="js/ambiente.js"></script>
-  <script src="js/retratos.js"></script>
-  <script src="js/sonidos.js"></script>
-  <script src="js/actualizaciones.js"></script>
-  <script src="js/interfaz.js"></script>
-  <script src="js/main.js"></script>
+  <!-- Siempre los archivos nuevos (ver la cabecera): se escriben aquí en este orden. -->
+  <script>
+    ['config', 'simulacion', 'guardado', 'ambiente', 'retratos', 'sonidos', 'actualizaciones', 'interfaz', 'main']
+      .forEach(function (nombre) {
+        document.write('<script src="js/' + nombre + '.js?v=' + window.LIBRE_VERSION_ARCHIVOS + '"><\/script>');
+      });
+  </script>
 </body>
 </html>

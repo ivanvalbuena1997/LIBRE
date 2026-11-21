@@ -110,3 +110,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 86. El perro que pasea por la acera ya no mueve las patas en el aire: ahora pisa el suelo y tiene orejas, hocico, collar, pelaje y una cola que se mueve.
 87. Las ruedas del taxi, de las bicis y del autobús ya giran cuando avanzan por la calle.
 88. Arreglo: el giro de las ruedas casi no se veía. Ahora el taxi lleva llantas de cinco radios, las bicis un reflectante naranja y el autobús tuercas más grandes.
+89. El juego descarga siempre sus archivos al abrirlo, así las actualizaciones se ven enseguida sin tener que borrar nada del navegador.

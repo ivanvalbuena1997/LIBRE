@@ -399,6 +399,10 @@
         {
           "n": 88,
           "texto": "Arreglo: el giro de las ruedas casi no se veía. Ahora el taxi lleva llantas de cinco radios, las bicis un reflectante naranja y el autobús tuercas más grandes."
+        },
+        {
+          "n": 89,
+          "texto": "El juego descarga siempre sus archivos al abrirlo, así las actualizaciones se ven enseguida sin tener que borrar nada del navegador."
         }
       ]
     }

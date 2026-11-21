@@ -26,6 +26,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
   guardado, ambiente, retratos, sonidos, actualizaciones, interfaz, main.
+  No van escritos a mano: una lista en `index.html` los escribe con
+  `document.write` y `?v=<Date.now()>` (también `css/estilos.css`), para que
+  el navegador descargue siempre los nuevos (Iván, 21-11-2026: no veía las
+  actualizaciones). Un archivo nuevo de `js/` se añade a esa lista.
 
 ## Reglas de arquitectura
 
