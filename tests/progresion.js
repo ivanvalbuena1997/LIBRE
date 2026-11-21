@@ -31,9 +31,11 @@
  *   - «flota»: igual, pero solo mejoras de hasta el 10 %: casi todo a
  *     licencias, coches y conductores.
  *   - «zonas»: como el de flota, pero con 2 licencias o más abre antes que
- *     nada las zonas que se compran (Estaciones y Aeropuerto).
+ *     nada las zonas que se compran (Estaciones y Aeropuerto), con las
+ *     mejoras de su rama que piden antes (Hoteles y Emisora).
  *   - «gestor»: como el equilibrado, pero en cuanto puede (tiene Jornada
- *     larga) ahorra para la Oficina de gestión antes que para nada más, y
+ *     larga) ahorra para la Oficina de gestión y las de su rama que la
+ *     preceden (Taquillas, Curso de zonas y RRHH) antes que para nada más, y
  *     al tenerla deja el volante (su turno lo cubre un conductor).
  * No usa el modo sin conexión: todo el tiempo es partida abierta.
  */
@@ -61,6 +63,20 @@ const PERFILES = {
 };
 // Mejoras que abren zonas (el perfil «zonas» las compra en cuanto tiene 2 licencias).
 const MEJORAS_ZONA = c.mejoras.filter(function (m) { return m.efecto && m.efecto.desbloqueaZona; }).map(function (m) { return m.id; });
+const MEJORA_POR_ID = {};
+c.mejoras.forEach(function (m) { MEJORA_POR_ID[m.id] = m; });
+/*
+ * Desde el 18-11-2026 cada rama es una cadena: para llegar a una mejora hay
+ * que comprar antes las de delante. Da la primera de la cadena que falta
+ * (la propia mejora si ya se puede comprar). Antes el bot solo miraba la
+ * mejora final, nunca la alcanzaba, y «zonas» y «gestor» jugaban igual que
+ * «flota» y «equilibrado» (arreglado el 21-11-2026).
+ */
+function pasoHacia(e, id) {
+  let paso = id;
+  while (MEJORA_POR_ID[paso].requiere && !sim.nivelMejora(e, MEJORA_POR_ID[paso].requiere)) paso = MEJORA_POR_ID[paso].requiere;
+  return paso;
+}
 
 function generador(semilla) {
   let s = semilla % 2147483647;
@@ -197,12 +213,17 @@ function jugar(semilla, perfil) {
       const precioCrecer = sim.necesitaSociedad(e) ? c.sociedad.coste : sim.precioLicencia(e);
       const expansion = precioCrecer + sim.precioCoche(e) + 2 * precioB;
       const mejoras = [];
+      // Lo que el perfil persigue antes que nada: el siguiente paso de su cadena.
+      const objetivos = [];
+      if (PERFILES[perfil].oficina && sim.nivelMejora(e, 'jornadaLarga') && !sim.nivelMejora(e, 'oficina')) objetivos.push(pasoHacia(e, 'oficina'));
+      if (PERFILES[perfil].zonas && e.licencias.length >= 2) {
+        MEJORAS_ZONA.forEach(function (id) { if (!sim.nivelMejora(e, id)) objetivos.push(pasoHacia(e, id)); });
+      }
       c.mejoras.forEach(function (m) {
         if (m.requiere && !sim.nivelMejora(e, m.requiere)) return;
         const sig = sim.siguienteNivel(e, m.id);
         if (!sig) return;
-        const prioritaria = (PERFILES[perfil].oficina && m.id === 'oficina') ||
-          (PERFILES[perfil].zonas && e.licencias.length >= 2 && MEJORAS_ZONA.indexOf(m.id) !== -1);
+        const prioritaria = objetivos.indexOf(m.id) !== -1;
         if (prioritaria || sig.precio <= PERFILES[perfil].ratio * expansion) mejoras.push({ precio: sig.precio, id: m.id, prioritaria });
       });
       mejoras.sort(function (a, b) { return (b.prioritaria - a.prioritaria) || a.precio - b.precio; });

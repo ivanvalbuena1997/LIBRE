@@ -121,3 +121,33 @@ node tests/progresion.js 10 150 json  # además, los datos de cada partida
 ```
 
 El bot lee los números de `js/config.js`: tras cualquier cambio de equilibrio se puede volver a pasar y comparar con estas tablas.
+
+## Arreglo del bot: perfiles Zonas y Gestor (21-11-2026)
+
+Desde el 18-11-2026 cada rama de mejoras es una cadena (Estaciones pide
+Hoteles y Emisora; la Oficina pide Incógnito al volante, Esterillas, Jornada
+larga, Taquillas, Curso de zonas y RRHH). El bot solo daba prioridad a la
+mejora final, que nunca tenía los requisitos, así que **«Zonas» jugaba igual
+que «Flota» y «Gestor» igual que «Equilibrado»** (salían cifras idénticas).
+Ahora compra la cadena en orden (`pasoHacia()` en `tests/progresion.js`).
+
+Medido después (10 semillas, 240 minutos; coches a ×1,10 desde el 21-11):
+
+| Perfil | 2 lic. | 3 lic. | 4 lic. | 6 lic. | 10 lic. | Neto/jornada a los 150 min |
+| --- | --- | --- | --- | --- | --- | --- |
+| Siguiente | 27 | 55 | 101 | 129 | 190 | 1.363 € |
+| Flota | 32 | 60 | 92 | 140 | 213 | 995 € |
+| Zonas | 32 | 86 | 111 | 148 | 208 | 1.079 € |
+| Equilibrado | 137 | 161 | 187 | 232 (7 de 10) | — | 602 € |
+| Gestor | 207 (9 de 10) | 227 (7 de 10) | 239 (1 de 10) | — | — | 333 € |
+
+- **Zonas** abre Estaciones al minuto 66 y Aeropuerto al 75. Llega a la 3.ª
+  licencia 26 minutos más tarde que Flota, pero rinde más por licencia: a
+  los 150 minutos deja un 8 % más con menos licencias (5,6 frente a 5,9) y
+  la 10.ª llega un poco antes (208 frente a 213).
+- **Gestor** compra la Oficina al minuto 72 y deja el volante con una sola
+  licencia. Desde ahí va muy despacio: su turno pasa a un conductor que se
+  queda su parte, y a los 150 minutos deja 333 € por jornada (Equilibrado,
+  602 €). Es decir, **dejar el volante pronto sale muy caro**. No he cambiado
+  nada del juego por esto; queda apuntado por si se quiere revisar la
+  Oficina o cuándo la propone el juego.
