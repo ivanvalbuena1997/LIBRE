@@ -726,14 +726,6 @@
     mostrarMensaje(ev.texto, ev.retrato, ev.tipo === 'hallazgo' ? ev.categoria : null);
   }
 
-  function mostrarResumenFuera(r, estado) {
-    if (r.cierres.length > 0) {
-      if (!estado.cierrePendiente) ticketAviso = Libre.sim.sumarCierres(r.cierres);
-    } else if (r.carreras >= 1) {
-      mostrarMensaje('Mientras estabas fuera: ' + euros(r.ingresos) + ' en ' + Math.floor(r.carreras) + ' carreras.');
-    }
-  }
-
   /*
    * Caja de hoy: el desglose, oculto hasta que lo pides tocando el display
    * del taxímetro (modo flota) o el total de «Tus taxis hoy». Sale justo
@@ -3396,5 +3388,5 @@
     temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);
   }
 
-  Libre.ui = { iniciar, reiniciar, mostrarResumenFuera, mostrarEventos, dibujar, mostrarMensaje, euros, numero, esc };
+  Libre.ui = { iniciar, reiniciar, mostrarEventos, dibujar, mostrarMensaje, euros, numero, esc };
 })(globalThis);

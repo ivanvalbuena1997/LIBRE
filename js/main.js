@@ -11,9 +11,13 @@
   const guardado = Libre.guardado;
 
   const SEGUNDOS_ENTRE_GUARDADOS = 5;
+  // Iván, 22-11-2026: la partida solo avanza con el juego abierto y a la
+  // vista. Al abrirlo sigue donde se guardó (sin progreso fuera), con la
+  // pestaña escondida o el móvil bloqueado se para, y si el navegador
+  // duerme la pestaña, cada vuelta del bucle avanza como mucho esto.
+  const MAX_SEGUNDOS_POR_VUELTA = 1;
 
   let estado = guardado.cargar() || sim.crearEstadoInicial(Date.now());
-  const resumenFuera = sim.progresoSinConexion(estado, (Date.now() - estado.ultimaMarca) / 1000);
   let anterior = Date.now();
 
   function guardar() {
@@ -94,8 +98,10 @@
   let segundosSinGuardar = 0;
   function tic() {
     const ahora = Date.now();
-    const segundos = (ahora - anterior) / 1000;
+    const segundos = Math.min((ahora - anterior) / 1000, MAX_SEGUNDOS_POR_VUELTA);
     anterior = ahora;
+    // Escondida (otra pestaña, móvil bloqueado): el reloj no corre.
+    if (document.hidden) return;
     const resumen = sim.avanzar(estado, segundos);
     estado.ultimaMarca = ahora;
     if (resumen.eventos.length > 0) ui.mostrarEventos(resumen.eventos);
@@ -112,13 +118,10 @@
   // Guardar también al cerrar o esconder la pestaña.
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') guardar();
+    else anterior = Date.now();   // al volver, sigue desde ahora
   });
   window.addEventListener('pagehide', guardar);
 
-  if (resumenFuera) {
-    ui.mostrarResumenFuera(resumenFuera, estado);
-    guardar();
-  }
   ui.dibujar(estado);
   setInterval(tic, 100);
 })();

@@ -189,7 +189,7 @@ Estilo ilustrado y cálido, tema claro. La referencia completa (maquetas, iconos
 - **Turnos:** día de 7:00 a 19:00 y noche de 19:00 a 7:00.
 - **Jornada de 7:00 a 7:00.** A las 7:00 se cierra la caja, se cobran los costes fijos y sale el ticket. La madrugada cuenta como la noche del día anterior.
 - **Fin de semana:** sábado y domingo, tarifa 2 todo el día.
-- **Sin conexión:** el juego cuenta hasta 8 horas reales fuera, con la media de cada zona y hora (sin eventos nuevos). Si había pausa al cierre, resuelve los días seguidos y deja un único ticket con la suma. Da entre un 2 % y un 4 % más que jugando (medido el 17-11-2026 con varias flotas; con conductores de mucha o poca espera, algo más). Tu turno no produce mientras estás fuera.
+- **Sin progreso fuera** (Iván, 22-11-2026): la partida solo avanza con el juego abierto y a la vista. Al abrirlo sigue exactamente donde se guardó; con la pestaña escondida o el móvil bloqueado el reloj se para, y si el navegador duerme la pestaña, al volver no recupera el tiempo perdido (cada vuelta del bucle avanza como mucho 1 s). Hasta entonces contaba hasta 8 horas reales fuera, con la media de cada zona y hora.
 
 ### 5.2 Zonas
 

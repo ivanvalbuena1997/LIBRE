@@ -433,6 +433,10 @@
         {
           "n": 95,
           "texto": "Nueva mejora «Cazatalentos» (25.000 €), la última de Conductores y jornada: en la hoja de candidatos puedes buscar otros al momento por 1.000 €; cada búsqueda del mismo día cuesta el doble y al cerrar la caja vuelve a 1.000 €."
+        },
+        {
+          "n": 96,
+          "texto": "La partida ya no avanza con el juego cerrado ni con la pestaña escondida o el móvil bloqueado: al volver sigue exactamente donde la dejaste."
         }
       ]
     }

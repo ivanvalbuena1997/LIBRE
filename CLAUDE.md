@@ -589,11 +589,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   final de la lluvia es un punto de parada de `avanzar()` para que vuelva
   enseguida. En sus stats, la de la lluvia sale como «No trabaja».
   `reforzar()` deja tal cual los efectos que no son números.
-- Sin conexión: `progresoSinConexion()` llama a `avanzar()` con el tiempo
-  fuera, con tope en la config. Sin conductores contratados, o si se cerró
-  con el ticket en pantalla, el reloj no avanza. Tu turno no produce fuera. Con pausa al cierre, resuelve los
-  días seguidos (`sinPausa`), se queda en el último cierre y deja un único
-  ticket con la suma de esos días.
+- Sin progreso fuera (Iván, 22-11-2026): la partida solo avanza con el
+  juego abierto y a la vista. `main.js` ya no llama a `progresoSinConexion()`
+  al cargar; `tic()` no avanza con `document.hidden` y cada vuelta avanza
+  como mucho `MAX_SEGUNDOS_POR_VUELTA` (1 s), para que una pestaña dormida
+  no recupere el tiempo al volver. Pendiente (paso 2): borrar el código que
+  queda sin usar (`progresoSinConexion()`, modo `agregado` de `avanzar()`,
+  `sinPausa`, `config.sinConexion`, `pesetasFuera`) y las menciones a «sin
+  conexión» de estas notas.
 
 ## Valores PROVISIONALES (falta el dato real)
 
