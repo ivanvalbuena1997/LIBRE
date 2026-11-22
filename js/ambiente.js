@@ -163,6 +163,7 @@
       '<rect class="esc-acera" x="0" y="198" width="' + ANCHO + '" height="8"/>' +
       '<rect class="esc-asfalto" x="0" y="206" width="' + ANCHO + '" height="44"/>' +
       '<path class="esc-raya" d="' + rayas() + '"/>' +
+      farolas() +
       '<g class="esc-lluvia"><rect class="an-lluvia" x="0" y="-10" width="' + ANCHO + '" height="260" fill="url(#esc-gotas)"/></g>' +
       '<g class="esc-tormenta">' +
       '<rect class="an-lluvia-fuerte" x="0" y="-48" width="' + (ANCHO + 48) + '" height="300" fill="url(#esc-gotas-fuerte)"/>' +
@@ -195,6 +196,30 @@
         '<path d="M1 5C3 1 9 0 13 2C11 7 6 10 1 5zM1 5l8-2"/></svg>';
     }
     return html;
+  }
+
+  /*
+   * Farolas en la acera de detrás (Iván, 22-11-2026), una cada SEP_FAROLA
+   * (en el móvil se ven 4). Solo en ese lado: la calzada llega al borde de
+   * abajo y unas farolas delante taparían el taxi y las bicis. De día,
+   * apagadas; de noche, la lámpara encendida, un halo suave y un poco de
+   * luz en el suelo, con poca intensidad.
+   */
+  const SEP_FAROLA = 97.5;
+  function farolas() {
+    let postes = '', luces = '';
+    for (let x = 48; x < ANCHO; x += SEP_FAROLA) {
+      const l = x + 8;   // la lámpara, al final del brazo, hacia la calzada
+      postes += '<rect class="esc-farola" x="' + (x - 2.2) + '" y="201.5" width="4.4" height="3" rx="0.8"/>' +
+        '<path class="esc-farola-poste" d="M' + x + ' 202V160q0-3 3-3.4L' + (l - 1) + ' 155.6"/>' +
+        '<path class="esc-farola" d="M' + (l - 3.6) + ' 157.6h7.2l-1.6-3h-4z"/>' +
+        '<ellipse class="esc-farola-luz" cx="' + l + '" cy="158" rx="2.8" ry="1"/>';
+      luces += '<circle cx="' + l + '" cy="159" r="11" fill="url(#esc-farola-halo)"/>' +
+        '<ellipse cx="' + l + '" cy="205" rx="16" ry="3.2" fill="url(#esc-farola-suelo)"/>';
+    }
+    return '<defs><radialGradient id="esc-farola-halo"><stop offset="0" class="esc-farola-halo-1"/><stop offset="1" class="esc-farola-halo-0"/></radialGradient>' +
+      '<radialGradient id="esc-farola-suelo"><stop offset="0" class="esc-farola-suelo-1"/><stop offset="1" class="esc-farola-halo-0"/></radialGradient></defs>' +
+      '<g class="esc-farolas">' + postes + '</g><g class="esc-farolas-luz">' + luces + '</g>';
   }
 
   /* Rayas discontinuas del centro de la calzada. */

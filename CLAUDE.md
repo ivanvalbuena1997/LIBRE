@@ -507,7 +507,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Escena de la cabecera (`js/ambiente.js`): cielo según la hora, sol o
   luna y estrellas, edificios con ventanas que se encienden de noche (el
   tramo del centro, `tramoCentro()`, con monumentos de Madrid; los demás,
-  `tramo()`), árboles (`arbol()`), gente paseando (`personas()`, colores de
+  `tramo()`), árboles (`arbol()`), farolas en la acera de detrás (`farolas()`,
+  cada `SEP_FAROLA`; de noche `.esc-farolas-luz` con halo y luz en el
+  suelo, `--esc-farola-*`; Iván, 22-11-2026), gente paseando (`personas()`, colores de
   los retratos; Iván, 20-11-2026; una con perro, `--esc-perro-*`, con
   patas que giran desde la cadera: `transform-origin` propio de cada par), repartidores en bici (`REPARTIDORES`,
   `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en

@@ -136,6 +136,10 @@
   --coche-llanta: #d9dde3;
   --coche-radios: #8f959e;
   --esc-reflectante: #ff9a1f;      /* reflectante de los radios de la bici */
+  --esc-farola: #4a5163;           /* farolas: poste y cabeza */
+  --esc-farola-noche: #10162e;
+  --esc-farola-apagada: #c9ced8;   /* la lámpara de día */
+  --esc-farola-encendida: #ffe2a0; /* de noche: la lámpara, el halo y el suelo */
   --coche-sombra: rgba(0, 0, 0, 0.18);
   --lluvia: #a9c6de;
   --esc-tormenta-cielo: #1d2440;   /* tormenta: el cielo se oscurece */
@@ -421,6 +425,18 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-medio { fill: var(--esc-medio); }
 .esc-cerca { fill: var(--esc-cerca); }
 .esc-ventana { fill: var(--esc-ventana); }
+/* Farolas (Iván, 22-11-2026): de noche, encendidas con poca intensidad. */
+.esc-farola { fill: var(--esc-farola); }
+.esc-farola-poste { fill: none; stroke: var(--esc-farola); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.esc-farola-luz { fill: var(--esc-farola-apagada); }
+.esc-farolas-luz { display: none; }
+.noche .esc-farola { fill: var(--esc-farola-noche); }
+.noche .esc-farola-poste { stroke: var(--esc-farola-noche); }
+.noche .esc-farola-luz { fill: var(--esc-farola-encendida); }
+.noche .esc-farolas-luz { display: inline; }
+.esc-farola-halo-1 { stop-color: var(--esc-farola-encendida); stop-opacity: 0.32; }
+.esc-farola-suelo-1 { stop-color: var(--esc-farola-encendida); stop-opacity: 0.22; }
+.esc-farola-halo-0 { stop-color: var(--esc-farola-encendida); stop-opacity: 0; }
 .esc-acera { fill: var(--esc-acera); }
 .esc-asfalto { fill: var(--esc-asfalto); }
 .esc-raya { fill: none; stroke: var(--esc-raya); stroke-width: 3; stroke-linecap: round; }

@@ -417,6 +417,10 @@
         {
           "n": 91,
           "texto": "Arreglo: de noche, la luz del faro del taxi se veía cortada. Ahora es un haz que sale del faro y se apaga poco a poco."
+        },
+        {
+          "n": 92,
+          "texto": "Farolas a lo largo de la acera de la calle, que se encienden de noche con una luz suave."
         }
       ]
     }
