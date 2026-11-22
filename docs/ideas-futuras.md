@@ -1,6 +1,6 @@
 # Ideas para futuras actualizaciones
 
-Tareas pendientes apuntadas por Iván (18 y 19-11-2026), numeradas y por
+Tareas pendientes apuntadas por Iván (18, 19 y 22-11-2026), numeradas y por
 secciones. **Nada de esto está hecho ni se desarrolla todavía:** antes de
 empezar cualquiera hay que verla con Iván y, si cambia el alcance, actualizar
 DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
@@ -75,6 +75,15 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 ### 🌳 Mejoras nuevas
 
 17. [x] **Modo incógnito.** Hecho el 20-11-2026 (ver «Hechas»).
+18. [ ] **Rebajar la tasa de la SL.** Una mejora que baje los 10 € por
+    conductor y jornada que cuesta la sociedad limitada (apuntado por Iván al
+    montar la SL, 20-11-2026).
+19. [ ] **Revisar la Oficina de gestión.** Con el bot arreglado
+    (21-11-2026), el perfil Gestor deja el volante con una sola licencia y
+    se hunde: a los 150 minutos, 333 € por jornada frente a 602 € del
+    Equilibrado ([analisis-progresion.md](analisis-progresion.md)). Opciones:
+    que el juego desaconseje dejar el volante tan pronto o que la Oficina
+    compense más.
 
 ### 🖥️ Interfaz y experiencia de usuario
 
