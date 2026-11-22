@@ -437,6 +437,10 @@
         {
           "n": 96,
           "texto": "La partida ya no avanza con el juego cerrado ni con la pestaña escondida o el móvil bloqueado: al volver sigue exactamente donde la dejaste."
+        },
+        {
+          "n": 97,
+          "texto": "Limpieza: se quita del juego todo lo que hacía avanzar la partida sin estar delante (el cálculo de las horas fuera y sus multas)."
         }
       ]
     }

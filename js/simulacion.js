@@ -81,7 +81,6 @@
       totales: { carreras: 0, ingresos: 0, km: 0 },
       // Tu sociedad limitada: { nombre, jornada } desde que la montas (idea 1).
       empresa: null,
-      pesetasFuera: 0,
       // Lo que te ha hecho ganar o ahorrar cada mejora (idea 16): { id: euros }.
       ganadoMejoras: {},
       // Búsquedas de candidatos pagadas hoy (Cazatalentos, idea 11).
@@ -485,8 +484,7 @@
 
   /*
    * Número entre 0 y 1 que depende solo de la jornada y la zona: «azar» que
-   * siempre da lo mismo para el mismo día, así el progreso sin conexión
-   * coincide con jugar.
+   * siempre da lo mismo para el mismo día.
    */
   function azarDeJornada(jornada, zonaId) {
     let h = 2166136261 ^ jornada;
@@ -620,7 +618,7 @@
     gastar(estado, resumen, 'fijos', costesFijosDiarios(estado));
     apuntarAhorro(estado, 'seguro', vehiculosEnServicio(estado) * cfg().costesFijos.seguroDiarioPorVehiculo * modificadores(estado).seguro);
     apuntarAhorro(estado, 'tasaSociedad', costeSociedadDiario(estado));
-    // Publicidad en el taxi: un tanto por cada carrera del día (también sin conexión).
+    // Publicidad en el taxi: un tanto por cada carrera del día.
     const porCarrera = modificadores(estado).publicidad;
     const carreras = Math.round(estado.caja.hoy.carreras);
     if (porCarrera > 0 && carreras > 0) {
@@ -1352,19 +1350,15 @@
     return 'gana la cualidad «' + q.nombre + '»';
   }
 
-  /*
-   * Suma experiencia y, si sube de nivel, lo avisa con su retrato (salvo
-   * sinAviso: sin conexión no hay avisos nuevos).
-   */
-  function ganarExperiencia(estado, resumen, t, puntos, sinAviso) {
+  /* Suma experiencia y, si sube de nivel, lo avisa con su retrato. */
+  function ganarExperiencia(estado, resumen, t, puntos) {
     if (!t || t.quien !== 'conductor' || !(puntos > 0)) return;
     const antes = nivelConductor(t);
     t.xp = (t.xp || 0) + puntos;
     const despues = nivelConductor(t);
     const maximo = cfg().conductores.niveles.experiencia.length;
-    // El premio del último nivel se aplica siempre, también sin conexión.
     const premio = despues === maximo && antes < maximo ? premioNivelMaximo(estado, t) : '';
-    if (despues > antes && !sinAviso) {
+    if (despues > antes) {
       const huecos = cfg().conductores.niveles.huecos;
       const hueco = huecos[despues - 1] > huecos[antes - 1];
       resumen.eventos.push({
@@ -2893,83 +2887,6 @@
     return lista;
   }
 
-  /*
-   * Cuenta agrupada (sin conexión): ingresos y gastos medios de todos los
-   * coches con conductor durante `minutos`, por zona y hora.
-   */
-  function producirAgregado(estado, minutos, info, resumen) {
-    const c = cfg();
-    const grupos = cochesPorZona(estado, info);
-    multasFuera(estado, grupos, minutos, info, resumen);
-    const horas = minutos / 60 * factorJornada(estado);
-    Object.keys(grupos).forEach(function (zonaId) {
-      const coches = grupos[zonaId];
-      const r = rendimientoZona(estado, zonaId, coches.length, info);
-      // Cada coche hace su parte de los viajes; si su conductor espera menos
-      // (rasgo, nivel, objetos), su ciclo es más corto y hace más.
-      const porCoche = r.viajesHora / coches.length;
-      const ciclo = porCoche > 0 ? 60 / porCoche : 0;
-      const viaje = viajeMedio(zonaId, info.tarifa).minutos;
-      const espera = Math.max(0, ciclo - viaje);
-      const pesos = coches.map(function (x) {
-        if (ciclo === 0) return 1;
-        const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera, x.turno);
-        return ciclo / (espera * fe + viaje);
-      });
-      const k = pesos.reduce(function (a, b) { return a + b; }, 0) / coches.length;
-      const viajes = r.viajesHora * horas * k;
-      const ingresos = viajes * r.importe;
-      if (viajes > 0) cobrar(estado, resumen, ingresos, viajes);
-      coches.forEach(function (x, i) {
-        const parte = pesos[i] / (k * coches.length);
-        sumarFacturado(estado, x.licencia, ingresos * parte);
-        apuntarFacturado(estado, x.turno, ingresos * parte);
-        if (x.turno.quien !== 'conductor') return;
-        x.turno.carreras = (x.turno.carreras || 0) + viajes * parte;
-        x.turno.facturado = (x.turno.facturado || 0) + ingresos * parte;
-        ganarExperiencia(estado, resumen, x.turno, viajes * parte * c.conductores.niveles.porCarrera, true);
-      });
-
-      let costeKmMedio = 0;
-      let conConductor = 0;
-      coches.forEach(function (x) {
-        costeKmMedio += costePorKm(estado, x.licencia.vehiculo) / coches.length;
-        if (x.turno.quien === 'conductor') conConductor++;
-      });
-      gastar(estado, resumen, 'combustible', r.kmHora * horas * k * costeKmMedio);
-      estado.caja.hoy.km += r.kmHora * horas * k;
-      // Sin conexión, los km de la zona se reparten entre sus coches.
-      coches.forEach(function (x) { sumarKm(estado, x.licencia, r.kmHora * horas * k / coches.length); });
-      if (conConductor > 0 && ingresos > 0) {
-        gastar(estado, resumen, 'conductores', ingresos * conConductor / coches.length * porcentajeConductor(estado));
-      }
-    });
-  }
-
-  /*
-   * Sin conexión no hay eventos, pero los de incógnito sí trabajan (Iván,
-   * 20-11-2026, opción b): se suma la multa media que les tocaría
-   * (probTurno por turno de 12 horas) y, cada vez que llega a una entera,
-   * se cobra una multa del pesetas (sin parar a nadie).
-   */
-  function multasFuera(estado, grupos, minutos, info, resumen) {
-    const p = cfg().eventos.pesetas;
-    const minuto = info.dia * MIN_DIA + info.minutoDelDia;
-    let turnos = 0;
-    Object.keys(grupos).forEach(function (zonaId) {
-      grupos[zonaId].forEach(function (x) {
-        if (trabajaIncognito(estado, x.licencia, x.turno, minuto)) turnos += minutos / (MIN_DIA / 2);
-      });
-    });
-    if (!turnos) return;
-    estado.pesetasFuera = (estado.pesetasFuera || 0) + turnos * p.probTurno;
-    while (estado.pesetasFuera >= 1) {
-      estado.pesetasFuera -= 1;
-      incidencia(estado, resumen, 'pesetas', 'Mientras no estabas, un pesetas pilló cargando a uno de tus conductores ' +
-        'fuera de sus días de trabajo: multa de ' + Libre.ui_euros(p.multa) + '.', -p.multa, 'otros');
-    }
-  }
-
   // ---------------------------------------------------------------- Avanzar
 
   function resumenVacio() {
@@ -2982,60 +2899,47 @@
 
   /*
    * Avanza el estado `segundos` reales. Es la única función que mueve el
-   * tiempo: la usan el bucle del juego y el progreso sin conexión.
+   * tiempo: la usan el bucle del juego y saltarAlCierre(). Desde el
+   * 22-11-2026 (Iván) no hay progreso sin conexión: solo corre con el juego
+   * abierto.
    * Trocea el avance en horas enteras para que la tarifa y la demanda sean
    * constantes en cada trozo. Devuelve un resumen de lo ocurrido.
    *
    * Pausa: con un cierre pendiente no pasa nada. Al cerrar la caja, si el
    * ajuste pararAlCierre está activo, deja el cierre pendiente y se para (el
-   * resto del tiempo se descarta). opciones.sinPausa cierra los días sin
-   * pararse: lo usa el progreso sin conexión.
+   * resto del tiempo se descarta).
    *
-   * Conductores: con el juego abierto hacen carreras reales y cobran al
-   * terminar cada una. opciones.agregado usa en su lugar la cuenta media por
-   * zona y hora (sin conexión, sin simular carrera a carrera).
+   * Conductores: hacen carreras reales y cobran al terminar cada una.
    */
-  function avanzar(estado, segundos, opciones) {
+  function avanzar(estado, segundos) {
     const resumen = resumenVacio();
     if (enPausa(estado) || !(segundos > 0)) return resumen;
-    const pararse = estado.ajustes.pararAlCierre && !(opciones && opciones.sinPausa);
-    const agregado = !!(opciones && opciones.agregado);
+    const pararse = estado.ajustes.pararAlCierre;
     let restante = segundos * MIN_DIA / segundosPorDia(estado);
     resumen.minutos = restante;
 
-    if (agregado) {
-      // Las carreras que estaban a medias se cobran ya, enteras.
-      turnosConCarrera(estado).forEach(function (t) { terminarCarreraConductor(estado, resumen, t); });
-    }
-
     while (restante > 1e-9) {
       const ahora = estado.reloj.minutos;
-      if (!agregado) {
-        sortearLluvia(estado);
-        empezarCarrerasConductores(estado, resumen);
-      }
+      sortearLluvia(estado);
+      empezarCarrerasConductores(estado, resumen);
       let limite = (Math.floor(ahora / 60) + 1) * 60;
       const carrera = estado.jugador.carrera;
       if (carrera && carrera.fin > ahora && carrera.fin < limite) limite = carrera.fin;
-      const enCurso = agregado ? [] : turnosConCarrera(estado);
+      const enCurso = turnosConCarrera(estado);
       enCurso.forEach(function (t) {
         if (t.carrera.fin > ahora && t.carrera.fin < limite) limite = t.carrera.fin;
       });
-      const pendientes = agregado ? [] : turnosConPendiente(estado);
+      const pendientes = turnosConPendiente(estado);
       pendientes.forEach(function (x) {
         if (x.turno.pendiente.minuto > ahora && x.turno.pendiente.minuto < limite) limite = x.turno.pendiente.minuto;
       });
-      if (!agregado && estado.lluvia && !estado.lluvia.avisada &&
+      if (estado.lluvia && !estado.lluvia.avisada &&
           estado.lluvia.desde > ahora && estado.lluvia.desde < limite) limite = estado.lluvia.desde;
       // Al escampar, los que estaban parados por la lluvia (Azucarillo) vuelven ya.
-      if (!agregado && estado.lluvia && estado.lluvia.hasta > ahora && estado.lluvia.hasta < limite) limite = estado.lluvia.hasta;
+      if (estado.lluvia && estado.lluvia.hasta > ahora && estado.lluvia.hasta < limite) limite = estado.lluvia.hasta;
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
-      if (agregado) {
-        asignarZonasConductores(estado);
-        producirAgregado(estado, paso, infoReloj(ahora), resumen);
-      }
       estado.reloj.minutos = llega ? limite : ahora + paso;
       restante -= paso;
 
@@ -3048,8 +2952,8 @@
           aplicarPendiente(estado, resumen, x.licencia, x.turno);
         }
       });
-      if (!agregado) avisarLluvia(estado, resumen);
-      if (!agregado && llega && limite % 60 === 0) {
+      avisarLluvia(estado, resumen);
+      if (llega && limite % 60 === 0) {
         const h = (limite % MIN_DIA) / 60;
         if (h === cfg().turnos.dia.horaInicio || h === cfg().turnos.dia.horaFin) monedasFinDeTurno(estado, resumen);
       }
@@ -3115,45 +3019,6 @@
     // Una millonésima de más asegura cruzar el cierre pese al redondeo.
     avanzar(estado, minutos * segundosPorDia(estado) / MIN_DIA + 1e-6);
     return exito();
-  }
-
-  /* Segundos reales que faltan para el último cierre de caja que cabe en `segundos`, o 0. */
-  function segundosHastaUltimoCierre(estado, segundos) {
-    const minutosPorSegundo = MIN_DIA / segundosPorDia(estado);
-    const disponibles = segundos * minutosPorSegundo;
-    const minutoDelDia = estado.reloj.minutos % MIN_DIA;
-    let primero = (cfg().reloj.minutoCierreCaja - minutoDelDia + MIN_DIA) % MIN_DIA;
-    if (primero === 0) primero = MIN_DIA;
-    if (disponibles < primero) return 0;
-    const dias = Math.floor((disponibles - primero) / MIN_DIA);
-    return (primero + dias * MIN_DIA) / minutosPorSegundo;
-  }
-
-  /*
-   * Progreso mientras el juego estaba cerrado. Usa la misma avanzar().
-   * Mientras conduces a mano el taxi se queda parado contigo, y si cerraste
-   * con el ticket en pantalla el día sigue parado: el reloj no avanza.
-   * Con pararAlCierre, los días que terminan fuera se cierran solos; el reloj
-   * se queda en el último cierre (lo que sobra se descarta) y queda un único
-   * cierre pendiente con la suma de esos días.
-   * Devuelve el resumen, o null si no ha pasado nada.
-   */
-  function progresoSinConexion(estado, segundosFuera) {
-    const c = cfg().sinConexion;
-    if (!hayConductores(estado) || enPausa(estado) || !(segundosFuera >= c.minimoSegundos)) return null;
-    let segundos = Math.min(segundosFuera, c.maximoHoras * 3600);
-    if (estado.ajustes.pararAlCierre) {
-      const hastaCierre = segundosHastaUltimoCierre(estado, segundos);
-      // Una millonésima de más asegura cruzar el cierre pese al redondeo.
-      if (hastaCierre > 0) segundos = hastaCierre + 1e-6;
-    }
-    const resumen = avanzar(estado, segundos, { sinPausa: true, agregado: true });
-    if (estado.ajustes.pararAlCierre && resumen.cierres.length > 0) {
-      estado.cierrePendiente = sumarCierres(resumen.cierres);
-    }
-    resumen.segundosFuera = segundosFuera;
-    resumen.segundosSimulados = segundos;
-    return resumen;
   }
 
   Libre.sim = {
@@ -3286,6 +3151,5 @@
     topesDe,
     aperturaTopes,
     avanzar,
-    progresoSinConexion
   };
 })(globalThis);

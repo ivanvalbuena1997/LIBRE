@@ -42,7 +42,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 2. **La simulación no toca el DOM.** `simulacion.js` solo lee y modifica el
    objeto de estado. Funciona igual en el navegador y en Node.
 3. **Una sola función avanza el tiempo:** `Libre.sim.avanzar(estado, segundosReales)`.
-   El bucle del juego y el progreso sin conexión usan esa misma función.
+   La usan el bucle del juego y `saltarAlCierre()`. No hay progreso sin
+   conexión (Iván, 22-11-2026): la partida solo corre abierta y a la vista.
 4. **Las acciones del jugador** (comprar, contratar, elegir zona…) son funciones
    de `Libre.sim` que devuelven `{ ok, mensaje }`. La interfaz solo las llama y
    muestra el mensaje.
@@ -101,8 +102,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   contra el mismo coste fijo diario.
 - Cada zona tiene varios tipos de carrera (cortas, medias, largas) y su
   demanda cambia cada jornada con `factorDeJornada()`: un «azar» que sale del
-  número de jornada, así que el mismo día da siempre lo mismo (jugando y sin
-  conexión).
+  número de jornada, así que el mismo día da siempre lo mismo.
 - Azar de la flota: solo con `Libre.sim.azar(estado)`, un generador con
   semilla guardada en `estado.azar`. Prohibido `Math.random` en lo que afecta
   a la flota.
@@ -144,7 +144,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   otros candidatos y suma una búsqueda; `cerrarCaja()` la pone a 0. En la
   hoja de candidatos, `htmlRebuscar()`. Al llegar al nivel 10 (`premioNivelMaximo()`) pierde un
   defecto (el segundo primero) o, si no tiene, gana una cualidad nueva. Los candidatos cambian cada día (`cerrarCaja()` llama a
-  `sortearCandidatos()`, también sin conexión) y tras cada contrato; si
+  `sortearCandidatos()`) y tras cada contrato; si
   no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí.
 - Reserva (`estado.reserva`, hasta `config.conductores.reserva`):
   conductores contratados sin turno (`contratarAReserva()`). No trabajan,
@@ -186,14 +186,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
   tabla `niveles.experiencia` (10 niveles) y cada nivel acorta la espera.
   También se guardan `carreras` y `facturado` desde que lo contrataste.
-  Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket);
-  sin conexión la experiencia se suma agrupada y sin aviso. Para probar:
+  Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket).
+  Para probar:
   `Libre.darExperiencia('Laura', 100)` en la consola.
 - Objetos de conductor (`config.objetos`, 37 con categoría de
   `config.categorias`: B, A, S, S+ y LEGENDARIO). No se compran: un
   conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;
   categoría por pesos y objeto al azar dentro de ella), con aviso y sin ir
-  al ticket; tú no encuentras, y sin conexión tampoco. Van al almacén
+  al ticket; tú no encuentras. Van al almacén
   (`estado.objetos`, como mucho `capacidadAlmacen()` sin equipar: 10, y
   hasta 40 con la mejora «Taquillas» de Conductores y jornada) y, si está
   lleno, a `estado.bandeja` hasta que vendas algo (nada se vende solo).
@@ -282,7 +282,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   esta (hay una prueba que las compara). `aportesConductor()` da de dónde
   sale cada factor y `factoresConductor()` los multiplica.
 - Zonas de los conductores: las eligen ellos (`asignarZonasConductores()`,
-  una vez por hora de juego, también sin conexión). Sin el «Curso gestión de
+  una vez por hora de juego). Sin el «Curso gestión de
   zonas», al empezar su turno o si su zona se queda sin clientes eligen al
   azar entre las zonas con clientes; con el curso, cada hora la que más deja
   al dueño contando a los compañeros. En Conductores no se puede elegir su zona;
@@ -293,8 +293,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   vez por jornada como mucho: chubasco o tormenta (`estado.lluvia.tipo`,
   sorteado por pesos de `config.eventos.lluvia.tipos`, cada uno con su
   duración; versión 24 del guardado). Van a la caja como `extras` (dinero que entra), `otros`
-  (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket. Sin
-  conexión no hay eventos nuevos; bajas y averías siguen contando jornadas.
+  (gastos) e `incidencias` agrupadas por tipo, que salen en el ticket.
   Desde el 18-11-2026 (Iván) restan: pinchazos 4 %, bajas 2 % y averías
   0,3 % por turno, sin pagar 2 % por carrera; con 5 conductores B, un 18 %
   frente a no tenerlos (antes un 8 %, casi compensado por propinas). Los
@@ -336,10 +335,6 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
   la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
   efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven.
-- Sin conexión (`avanzar(..., { agregado: true })`): cuenta media por zona y
-  hora, sin carrera a carrera; las carreras a medias se cobran enteras. Da
-  entre un 2 % y un 4 % más que jugando (medido el 17-11-2026 con varias
-  flotas; la prueba hace la media de tres, con tope de ±5 %).
 - Tu turno siempre es a clic, también con conductores contratados: solo
   producen solos los turnos de conductores. Solo se trabaja dentro de la
   franja de tu turno (`jugadorEnTurno()`). Dejar el volante y quedarte solo
@@ -367,8 +362,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Kilometraje (Iván, 19-11-2026; versión 25 del guardado): `lic.km` son
   los km del coche de esa licencia y `estado.totales.km` los de toda la
   partida. Solo se suman con `sumarKm()`, en los mismos sitios que
-  `caja.hoy.km` (carrera tuya, de conductor o tramo en vacío; sin conexión,
-  repartidos entre los coches de la zona), así que cuadran con el ticket.
+  `caja.hoy.km` (carrera tuya, de conductor o tramo en vacío), así que
+  cuadran con el ticket.
   El coche inicial sale usado (`kmCocheUsado()`, entre
   `config.vehiculos.kmInicialMin` y `kmInicialMax`); `comprarVehiculo()`
   lo pone a 0. Precio (Iván, 21-11-2026): `precioCoche(estado, sustituye)`
@@ -411,18 +406,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Libranza (`libra()`, desde el 17 de noviembre de 2026, Iván): la licencia
   no trabaja esa jornada (los dos turnos, también el tuyo): entre semana el
   día de su letra; en fin de semana, si la paridad de su número no coincide
-  con la del «Día N». `puedeTrabajar()` la tiene en cuenta (también sin
-  conexión). `config.licencias.libranza = false` la apaga (las pruebas lo
+  con la del «Día N». `puedeTrabajar()` la tiene en cuenta.
+  `config.licencias.libranza = false` la apaga (las pruebas lo
   hacen; las de libranza la encienden).
 - Modo incógnito (idea 17, Iván 20-11-2026; mejora `incognito`, tras la
   Oficina; versión 27 del guardado): `trabajaIncognito()` deja trabajar en
   la libranza de su licencia a los conductores de nivel máximo;
-  `puedeTrabajar()` lo usa, así que vale en todo (también sin conexión y en
-  las estadísticas). Pesetas (`eventos.pesetas`, 2 % y 2.000 €): pendiente
+  `puedeTrabajar()` lo usa, así que vale en todo (también en las
+  estadísticas). Pesetas (`eventos.pesetas`, 2 % y 2.000 €): pendiente
   'pesetas' al empezar el turno; multa (incidencia 'pesetas') y parado el
-  resto del turno (`motivoParada` 'pesetas'). Sin conexión,
-  `multasFuera()` acumula en `estado.pesetasFuera` la multa media y cobra
-  una cada vez que llega a 1. En «Tus taxis hoy», chip morado «Incógnito».
+  resto del turno (`motivoParada` 'pesetas'). En «Tus taxis hoy», chip morado «Incógnito».
   Tu incógnito (mejora `incognitoTu`, la primera de la rama; versión 28):
   `trabajaIncognito()` también vale para tu turno, así que `buscarCliente()`
   te deja conducir en la libranza y `puedeSaltarDia()` no salta. El pesetas
@@ -593,10 +586,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   juego abierto y a la vista. `main.js` ya no llama a `progresoSinConexion()`
   al cargar; `tic()` no avanza con `document.hidden` y cada vuelta avanza
   como mucho `MAX_SEGUNDOS_POR_VUELTA` (1 s), para que una pestaña dormida
-  no recupere el tiempo al volver. Pendiente (paso 2): borrar el código que
-  queda sin usar (`progresoSinConexion()`, modo `agregado` de `avanzar()`,
-  `sinPausa`, `config.sinConexion`, `pesetasFuera`) y las menciones a «sin
-  conexión» de estas notas.
+  no recupere el tiempo al volver. Se borró el código que lo hacía
+  (`progresoSinConexion()`, el modo `agregado` y `sinPausa` de `avanzar()`,
+  `config.sinConexion` y `estado.pesetasFuera`; versión 32 del guardado).
 
 ## Valores PROVISIONALES (falta el dato real)
 

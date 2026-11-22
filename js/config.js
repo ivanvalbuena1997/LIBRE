@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 31,
+    versionGuardado: 32,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -96,7 +96,7 @@
       // Iván, 20-11-2026: «no te suelen pillar, cada uno va a lo suyo»: 2 %
       // por turno y 2.000 € de multa. Medido (5 licencias, 10 de nivel 10):
       // una multa cada ~20 jornadas y el incógnito deja un +27 % (sin riesgo,
-      // +35 %). Sin conexión se cobra la multa media (ver producirAgregado).
+      // +35 %).
       pesetas: {
         nombre: 'Multas por cargar en libranza', probTurno: 0.02, multa: 2000,
         // Tu turno de incógnito (Iván, 20-11-2026): no te pilla de golpe; un
@@ -354,11 +354,6 @@
      */
     estadisticas: { dias: 30, top: 10 },
 
-    sinConexion: {
-      maximoHoras: 8,              // Equilibrio: horas reales que se recuperan como mucho.
-      minimoSegundos: 10           // Por debajo de esto no se muestra el resumen.
-    },
-
     economia: {
       dineroInicial: 50,          // Equilibrio: caja con la que empiezas.
       // Equilibrio: por debajo de estos viajes por hora la zona se considera
@@ -366,7 +361,7 @@
       demandaMinimaManual: 0.5,
       // Equilibrio: cada jornada, la demanda de cada zona se mueve al azar
       // hasta este porcentaje arriba o abajo (0,2 = ±20 %). El azar sale del
-      // número de día, así que jugando y sin conexión da lo mismo.
+      // número de día, así que el mismo día da siempre lo mismo.
       variacionDiariaDemanda: 0.2
     },
 

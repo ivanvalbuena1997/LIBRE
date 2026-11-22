@@ -224,18 +224,25 @@ prueba('las partidas de la versión 20 juntan las cuatro jornadas largas en nive
 });
 
 prueba('un día más largo da más carreras con el mismo coste fijo', function () {
-  function unDia(conMejora) {
+  // Carrera a carrera hay azar: se suman cuatro partidas de 30 días.
+  function partida(conMejora, semilla) {
     const e = sim.crearEstadoInicial(0);
-    e.azar = 2026;   // el mismo conductor en las dos (si no, uno mejor que otro falsea la comparación)
+    e.azar = semilla;   // el mismo conductor con y sin la mejora
     sim.sortearCandidatos(e);
     e.dinero = 100000;
     sim.contratarConductor(e, 1, 'noche');
     if (conMejora) comprarConRequisitos(e, 'jornadaLarga');
-    return sim.avanzar(e, sim.segundosPorDia(e), { agregado: true });   // cuenta media, sin azar
+    e.ajustes.pararAlCierre = false;
+    return sim.avanzar(e, 30 * sim.segundosPorDia(e));
   }
-  const normal = unDia(false), largo = unDia(true);
-  assert.ok(largo.carreras > normal.carreras);
-  cerca(largo.fijos, normal.fijos);
+  let normal = 0, largo = 0;
+  [1, 2, 3, 4].forEach(function (semilla) {
+    const a = partida(false, semilla), b = partida(true, semilla);
+    normal += a.carreras;
+    largo += b.carreras;
+    cerca(b.fijos / b.cierres.length, a.fijos / a.cierres.length, 1e-6);   // mismo coste fijo por día
+  });
+  assert.ok(largo > normal, largo + ' > ' + normal);
 });
 
 function conConductor() {
@@ -249,54 +256,6 @@ function conConductor() {
   return e;
 }
 const DIA = function () { return config.reloj.segundosPorDia; };
-
-prueba('sin conexión solo avanza con el taxi automatizado y con tope', function () {
-  const e = sim.crearEstadoInicial(0);
-  assert.strictEqual(sim.progresoSinConexion(e, 3600), null, 'a mano el taxi espera');
-  const f = conConductor();
-  f.ajustes.pararAlCierre = false;
-  const r = sim.progresoSinConexion(f, 100 * 3600);
-  assert.strictEqual(r.segundosSimulados, config.sinConexion.maximoHoras * 3600);
-  assert.ok(r.carreras > 0);
-});
-
-prueba('sin conexión da casi lo mismo que jugando (30 días, ±5 %)', function () {
-  function flota(semilla) {
-    const e = sim.crearEstadoInicial(0);
-    e.azar = semilla;   // los mismos conductores (y rasgos) en las dos flotas
-    sim.sortearCandidatos(e);
-    e.dinero = 1e6;
-    e.ajustes.pararAlCierre = false;
-    sim.dejarDeConducir(Object.assign(e, { mejoras: { oficina: true } }));
-    for (let i = 0; i < 4; i++) sim.comprarLicencia(e);
-    e.licencias.forEach(function (l) {
-      if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
-      ['dia', 'noche'].forEach(function (t) { if (!l.turnos[t]) sim.contratarConductor(e, l.id, t); });
-    });
-    return e;
-  }
-  // Mide el modelo de carreras: sin eventos (una avería mueve mucho 30 días)
-  // y con la semilla fija.
-  const eventos = JSON.parse(JSON.stringify(config.eventos));
-  Object.keys(config.eventos).forEach(function (k) {
-    ['probCarrera', 'probTurno', 'probJornada'].forEach(function (p) { if (p in config.eventos[k]) config.eventos[k][p] = 0; });
-  });
-  // Media de tres flotas: con una sola, unos rasgos de espera fuertes
-  // alejan más el cálculo aproximado (medido: del +2 % al +7 %).
-  let a = 0, b = 0, carreras = 0;
-  [777, 101, 202].forEach(function (semilla) {
-    const fuera = flota(semilla), jugando = flota(semilla);
-    jugando.azar = 20261116;
-    const inicio = fuera.dinero;
-    carreras += sim.avanzar(fuera, 30 * DIA(), { sinPausa: true, agregado: true }).carreras;
-    for (let i = 0; i < 300 * DIA(); i++) sim.avanzar(jugando, 0.1);
-    a += fuera.dinero - inicio;
-    b += jugando.dinero - inicio;
-  });
-  config.eventos = eventos;
-  assert.ok(carreras > 0);
-  assert.ok(Math.abs(b / a - 1) < 0.05, 'jugando ' + b.toFixed(0) + ' frente a sin conexión ' + a.toFixed(0));
-});
 
 prueba('los conductores cobran a saltos, al terminar cada carrera', function () {
   const e = conConductor();
@@ -345,28 +304,6 @@ prueba('sin el ajuste de pausa el día siguiente empieza solo', function () {
   const r = sim.avanzar(e, DIA() * 2.5);
   assert.strictEqual(r.cierres.length, 2);
   assert.ok(!sim.enPausa(e));
-});
-
-prueba('sin conexión varios días: un solo ticket con la suma, parado en el último cierre', function () {
-  const e = conConductor();
-  const r = sim.progresoSinConexion(e, DIA() * 4.5);
-  assert.strictEqual(r.cierres.length, 4);
-  assert.ok(sim.enPausa(e));
-  const t = e.cierrePendiente;
-  assert.strictEqual(t.hastaDia - t.desdeDia, 3);
-  cerca(t.ingresos, r.cierres.reduce(function (s, c) { return s + c.ingresos; }, 0));
-  cerca(e.reloj.minutos % sim.MIN_DIA, config.reloj.minutoCierreCaja, 1e-3);
-  // Si se vuelve a cerrar el juego con el ticket en pantalla, el tiempo no corre.
-  assert.strictEqual(sim.progresoSinConexion(e, DIA() * 3), null);
-});
-
-prueba('sin conexión sin llegar al cierre: avanza normal y sin ticket', function () {
-  const e = conConductor();
-  e.reloj.minutos = 19 * 60;                     // turno de noche: el del conductor
-  const r = sim.progresoSinConexion(e, DIA() * 0.4);   // de 19:00 a 4:36, antes del cierre
-  assert.strictEqual(r.cierres.length, 0);
-  assert.ok(!sim.enPausa(e));
-  assert.ok(r.carreras > 0);
 });
 
 prueba('las partidas de la versión 2 cargan y quedan sin pausa', function () {
@@ -528,17 +465,6 @@ prueba('la lluvia dobla la demanda mientras dura', function () {
   sim.forzarEvento(e, 'lluvia', 1);
   assert.ok(sim.lloviendo(e, e.reloj.minutos));
   cerca(sim.demandaZona(e, 'centro', sim.infoReloj(e.reloj.minutos)), antes * config.eventos.lluvia.factorDemanda);
-});
-
-prueba('sin conexión no hay eventos nuevos, pero la avería sigue contando jornadas', function () {
-  const e = flotaDe(3);
-  e.reloj.minutos = 22 * 60;
-  sim.forzarEvento(e, 'averia');
-  const averiada = e.licencias.find(function (l) { return l.averia; });
-  const r = sim.avanzar(e, 25 * DIA(), { sinPausa: true, agregado: true });
-  assert.strictEqual(r.eventos.length, 0);
-  assert.ok(sim.jornadaDe(e.reloj.minutos) >= averiada.averia.hasta, 'la avería ya ha terminado');
-  assert.ok(sim.puedeTrabajar(e, averiada, averiada.turnos.noche, e.reloj.minutos));
 });
 
 // --------------------------------------------------------- Mejoras nuevas
@@ -865,16 +791,6 @@ prueba('subir de nivel avisa; darExperiencia lo prueba desde la consola', functi
   assert.strictEqual(r.eventos[0].tipo, 'nivel');
   assert.strictEqual(r.eventos[0].retrato, t.retrato);
   assert.ok(!sim.darExperiencia(e, 'Nadie', 10).ok);
-});
-
-prueba('sin conexión la experiencia se cuenta agrupada', function () {
-  const e = flotaDe(2);
-  const r = sim.avanzar(e, 2 * DIA(), { sinPausa: true, agregado: true });
-  let xp = 0;
-  e.licencias.forEach(function (l) {
-    ['dia', 'noche'].forEach(function (t) { const x = l.turnos[t]; if (x && x.quien === 'conductor') xp += x.xp; });
-  });
-  cerca(xp, r.carreras * config.conductores.niveles.porCarrera, 1e-6);
 });
 
 prueba('las partidas de la versión 12 empiezan en nivel 1', function () {
@@ -1208,7 +1124,7 @@ prueba('el ticket lleva las licencias que trabajaron ese día', function () {
   assert.ok(sim.enPausa(e), 'se ha cerrado el día');
   const esperadas = [e.licencias[0].numero, e.licencias[1].numero].sort(function (a, b) { return a - b; });
   assert.deepStrictEqual(e.cierrePendiente.licencias, esperadas);
-  // Varios días sin conexión: la unión de todos.
+  // Varios días juntos: la unión de todos.
   const t = sim.sumarCierres([{ dia: 0, licencias: [5, 3], incidencias: {} }, { dia: 1, licencias: [3, 9], incidencias: {} }]);
   assert.deepStrictEqual(t.licencias, [3, 5, 9]);
 });
@@ -1745,11 +1661,11 @@ prueba('estadísticas: cada jornada cerrada va al historial con lo de cada uno',
 prueba('estadísticas: el historial guarda como mucho los días de la config', function () {
   const e = flotaDe(1);
   const dias = config.estadisticas.dias;
-  sim.avanzar(e, segundosDe(e, 24 * 60 * (dias + 3)), { agregado: true });
+  sim.avanzar(e, segundosDe(e, 24 * 60 * (dias + 3)));
   assert.strictEqual(e.historial.length, dias);
   assert.ok(e.historial[dias - 1].dia > e.historial[0].dia);
   assert.ok(e.historial.some(function (r) { return Object.keys(r.conductores).length === 1 && r.ingresos > 0; }),
-    'sin conexión también se apunta lo del conductor');
+    'se apunta lo del conductor');
 });
 
 prueba('estadísticas: la clasificación guarda a los despedidos', function () {
@@ -1786,7 +1702,7 @@ prueba('estadísticas: los días de libranza no cuentan para la media', function
   try {
     const lic = e.licencias[0];
     const id = lic.turnos.noche.id;
-    sim.avanzar(e, segundosDe(e, 24 * 60 * 7), { agregado: true });
+    sim.avanzar(e, segundosDe(e, 24 * 60 * 7));
     const libres = e.historial.filter(function (r) {
       return sim.libra(e, lic, config.reloj.minutoCierreCaja + r.dia * sim.MIN_DIA + 60);
     });
@@ -1898,13 +1814,6 @@ prueba('kilometraje: coche inicial usado, los comprados nuevos, y cuadra con el 
   assert.ok(despues - antes > 0, 'los coches suman km');
   cerca(despues - antes, kmCaja, 1e-6);
   cerca(e.totales.km - totalAntes, kmCaja, 1e-6);
-  // Sin conexión, igual: se reparten entre los coches de cada zona.
-  const f = flotaDe(2);
-  const fAntes = f.licencias.reduce(function (s, l) { return s + l.km; }, 0);
-  const r = sim.avanzar(f, 2 * DIA(), { sinPausa: true, agregado: true });
-  let kmFuera = f.caja.hoy.km;
-  r.cierres.forEach(function (c) { kmFuera += c.km; });
-  cerca(f.licencias.reduce(function (s, l) { return s + l.km; }, 0) - fAntes, kmFuera, 1e-6);
   // Partidas de la versión 24: el primer coche, usado; los demás, desde 0.
   require('../js/guardado.js');
   const viejo = flotaDe(2);
@@ -2119,11 +2028,11 @@ prueba('alquilar coche: 3 jornadas por 400 €, se devuelve solo y no se gasta',
   assert.ok(sim.comprarVehiculo(e, lic.id).ok);
   assert.strictEqual(lic.alquiler, null);
   assert.strictEqual(lic.km, 0);
-  // Sin conexión también se devuelve.
+  // Dejando correr varios días de golpe, también se devuelve.
   const f = flotaDe(2);
   f.licencias[1].vehiculo = null;
   sim.alquilarCoche(f, f.licencias[1].id);
-  sim.avanzar(f, (a.jornadas + 1) * DIA(), { sinPausa: true, agregado: true });
+  sim.avanzar(f, (a.jornadas + 1) * DIA());
   assert.strictEqual(f.licencias[1].vehiculo, null);
 });
 
@@ -2154,18 +2063,6 @@ prueba('modo incógnito: los de nivel 10 trabajan en la libranza y un pesetas lo
     cerca(e.dinero, dinero - config.eventos.pesetas.multa, 50);
     assert.ok(!sim.puedeTrabajar(e, lic, t, e.reloj.minutos), 'parado el resto del turno');
     assert.strictEqual(t.motivoParada, 'pesetas');
-    // Sin conexión: trabajan y se cobra la multa media (probTurno por turno).
-    const f = flotaDe(1);
-    const fl = f.licencias[0];
-    fl.turnos.noche.xp = 1e12;
-    f.mejoras.incognito = 1;
-    f.reloj.minutos = j * sim.MIN_DIA + 19 * 60;   // su turno de noche, aún en la jornada que libra
-    f.pesetasFuera = 0.99;
-    const antes = f.caja.hoy.ingresos;
-    sim.avanzar(f, DIA() / 2 * 0.9, { sinPausa: true, agregado: true });
-    assert.ok(f.caja.hoy.ingresos > antes, 'trabaja de incógnito sin conexión');
-    assert.ok(f.caja.hoy.incidencias.pesetas, 'al pasar de 1 se cobra una multa');
-    assert.ok(f.pesetasFuera < 1);
   } finally {
     config.licencias.libranza = false;
   }

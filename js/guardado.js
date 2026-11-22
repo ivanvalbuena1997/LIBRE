@@ -257,6 +257,11 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 31 → 32: sin progreso fuera (Iván, 22-11-2026): las multas medias del
+    // pesetas sin conexión ya no existen.
+    31: function (estado) {
+      delete estado.pesetasFuera;
+    },
     // 30 → 31: búsquedas del Cazatalentos pagadas hoy (idea 11).
     30: function (estado) {
       if (typeof estado.rebuscasHoy !== 'number') estado.rebuscasHoy = 0;

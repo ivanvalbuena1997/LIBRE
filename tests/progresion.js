@@ -37,7 +37,6 @@
  *     larga) ahorra para la Oficina de gestión y las de su rama que la
  *     preceden (Taquillas, Curso de zonas y RRHH) antes que para nada más, y
  *     al tenerla deja el volante (su turno lo cubre un conductor).
- * No usa el modo sin conexión: todo el tiempo es partida abierta.
  */
 'use strict';
 require('../js/config.js');

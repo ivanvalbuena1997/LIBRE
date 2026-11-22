@@ -121,3 +121,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 94. Nueva mejora «Gestoría propia», al final de Taller y seguros: con la SL montada, abarata su tasa diaria un 30, 60 o 90 % en tres niveles (3.000, 4.500 y 7.000 €).
 95. Nueva mejora «Cazatalentos» (25.000 €), la última de Conductores y jornada: en la hoja de candidatos puedes buscar otros al momento por 1.000 €; cada búsqueda del mismo día cuesta el doble y al cerrar la caja vuelve a 1.000 €.
 96. La partida ya no avanza con el juego cerrado ni con la pestaña escondida o el móvil bloqueado: al volver sigue exactamente donde la dejaste.
+97. Limpieza: se quita del juego todo lo que hacía avanzar la partida sin estar delante (el cálculo de las horas fuera y sus multas).
