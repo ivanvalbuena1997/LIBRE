@@ -285,7 +285,7 @@
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false, incognitoTu: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
-      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1
+      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -317,6 +317,7 @@
       if (e.pinchazoHoras) m.pinchazoHoras = e.pinchazoHoras;
       if (e.pinchazoCoste) m.pinchazoCoste *= e.pinchazoCoste;
       if (e.precioCoche) m.precioCoche *= e.precioCoche;
+      if (e.tasaSociedad) m.tasaSociedad *= e.tasaSociedad;
     });
     return m;
   }
@@ -338,7 +339,8 @@
    */
   const CUENTA_MEJORAS = {
     publicidad: 'ganado', monedasMax: 'ganado', consumo: 'ahorrado', seguro: 'ahorrado',
-    averiaCoste: 'ahorrado', pinchazoCoste: 'ahorrado', precioCoche: 'ahorrado'
+    averiaCoste: 'ahorrado', pinchazoCoste: 'ahorrado', precioCoche: 'ahorrado',
+    tasaSociedad: 'ahorrado'
   };
   function efectoMejora(mejora, nivel) {
     return mejora.niveles ? mejora.niveles[Math.max(1, nivel) - 1].efecto : mejora.efecto;
@@ -371,6 +373,19 @@
     return (estado.ganadoMejoras && estado.ganadoMejoras[id]) || 0;
   }
 
+  /*
+   * Lo que falta para poder comprar una mejora, o null: la anterior de su
+   * rama ({ mejora: id }) o, con requiereSociedad, montar la SL
+   * ({ sociedad: true }). La interfaz y el bot lo leen de aquí.
+   */
+  function faltaParaMejora(estado, mejora) {
+    if (mejora.requiere && !nivelMejora(estado, mejora.requiere)) {
+      return { mejora: mejora.requiere, texto: buscarMejora(mejora.requiere).nombre };
+    }
+    if (mejora.requiereSociedad && !estado.empresa) return { sociedad: true, texto: 'montar una SL' };
+    return null;
+  }
+
   function nivelMejora(estado, id) {
     const v = estado.mejoras[id];
     return v === true ? 1 : Number(v) || 0;
@@ -400,9 +415,8 @@
     if (!mejora) return fallo('Esa mejora no existe.');
     const siguiente = siguienteNivel(estado, id);
     if (!siguiente) return fallo('Ya la tienes completa.');
-    if (mejora.requiere && !nivelMejora(estado, mejora.requiere)) {
-      return fallo('Antes necesitas: ' + buscarMejora(mejora.requiere).nombre + '.');
-    }
+    const falta = faltaParaMejora(estado, mejora);
+    if (falta) return fallo('Antes necesitas: ' + falta.texto + '.');
     if (estado.dinero < siguiente.precio) return fallo('No te llega el dinero.');
     estado.dinero -= siguiente.precio;
     estado.mejoras[id] = siguiente.nivel;
@@ -546,7 +560,7 @@
 
   /* Lo que cuesta la SL cada jornada (0 si no la tienes). */
   function costeSociedadDiario(estado) {
-    return estado.empresa ? cfg().sociedad.porConductorDiario * conductoresConTurno(estado) : 0;
+    return estado.empresa ? cfg().sociedad.porConductorDiario * conductoresConTurno(estado) * modificadores(estado).tasaSociedad : 0;
   }
 
   /* ¿Te hace falta montar la SL para comprar la siguiente licencia? */
@@ -602,6 +616,7 @@
   function cerrarCaja(estado, resumen) {
     gastar(estado, resumen, 'fijos', costesFijosDiarios(estado));
     apuntarAhorro(estado, 'seguro', vehiculosEnServicio(estado) * cfg().costesFijos.seguroDiarioPorVehiculo * modificadores(estado).seguro);
+    apuntarAhorro(estado, 'tasaSociedad', costeSociedadDiario(estado));
     // Publicidad en el taxi: un tanto por cada carrera del día (también sin conexión).
     const porCarrera = modificadores(estado).publicidad;
     const carreras = Math.round(estado.caja.hoy.carreras);
@@ -847,7 +862,7 @@
     });
     c.mejoras.forEach(function (m) {
       const siguiente = siguienteNivel(estado, m.id);
-      if (!siguiente || (m.requiere && !nivelMejora(estado, m.requiere))) return;
+      if (!siguiente || faltaParaMejora(estado, m)) return;
       lista.push({ id: 'mejora-' + m.id + '-' + siguiente.nivel, tipo: 'mejora', mejora: m.id,
         nivel: siguiente.nivel, precio: siguiente.precio });
     });
@@ -3165,6 +3180,7 @@
     comprarVehiculo,
     precioCoche,
     cuentaDeMejora,
+    faltaParaMejora,
     ganadoMejora,
     precioAlquiler,
     cochesPropios,

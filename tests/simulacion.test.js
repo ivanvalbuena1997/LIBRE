@@ -1656,6 +1656,26 @@ prueba('lo que te ha hecho ganar cada mejora (idea 16): combustible, seguro, Lea
   assert.ok(sim.ganadoMejora(e, 'publicidad') > 0, 'la publicidad cobra al cerrar');
 });
 
+prueba('Gestoría propia (idea 18): pide la SL y rebaja su tasa diaria por niveles', function () {
+  const e = flotaDe(3);
+  assert.ok(comprarConRequisitos(e, 'leasing').ok);
+  const g = config.mejoras.find(function (m) { return m.id === 'gestoria'; });
+  assert.strictEqual(g.rama, 'taller');
+  assert.ok(sim.faltaParaMejora(e, g).sociedad, 'sin SL, falta montarla');
+  assert.ok(!sim.comprarMejora(e, 'gestoria').ok);
+  assert.ok(sim.montarSociedad(e, 'Prueba SL').ok);
+  const sinGestoria = sim.costeSociedadDiario(e);
+  assert.ok(sinGestoria > 0);
+  g.niveles.forEach(function (n, i) {
+    assert.ok(sim.comprarMejora(e, 'gestoria').ok, 'nivel ' + (i + 1));
+    cerca(sim.costeSociedadDiario(e), sinGestoria * n.efecto.tasaSociedad);
+  });
+  assert.strictEqual(sim.cuentaDeMejora('gestoria'), 'ahorrado');
+  // Lo ahorrado se apunta al cerrar la caja.
+  for (let i = 0; i < 4000 && sim.ganadoMejora(e, 'gestoria') === 0; i++) sim.avanzar(e, 0.5);
+  cerca(sim.ganadoMejora(e, 'gestoria'), sim.costeSociedadDiario(e) * (1 / g.niveles[2].efecto.tasaSociedad - 1), 0.01);
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;

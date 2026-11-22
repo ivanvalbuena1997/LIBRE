@@ -118,3 +118,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 91. Arreglo: de noche, la luz del faro del taxi se veía cortada. Ahora es un haz que sale del faro y se apaga poco a poco.
 92. Farolas a lo largo de la acera de la calle, que se encienden de noche con una luz suave.
 93. En la hoja de cada mejora comprada sale cuánto te ha hecho ganar o ahorrar: Publicidad, esterillas, combustible, seguro, averías, pinchazos y Leasing. En las demás no se puede saber y no sale nada.
+94. Nueva mejora «Gestoría propia», al final de Taller y seguros: con la SL montada, abarata su tasa diaria un 30, 60 o 90 % en tres niveles (3.000, 4.500 y 7.000 €).

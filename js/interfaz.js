@@ -2160,6 +2160,8 @@
     mampara: '<path d="M7 3.5h4.5a2 2 0 0 1 2 2.2L12.8 13H18a2 2 0 0 1 2 2v3H7.5L5.5 6a2.2 2.2 0 0 1 1.5-2.5z"/><path d="M8 18v3M18 18v3"/>',
     grua: '<path d="M3 17h11V9H8l-3 4H3z"/><path d="M14 13l6-8M20 5v8"/><path d="M20 13a1.5 1.5 0 1 1-1.5 1.5"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="11.5" cy="17.5" r="1.8"/>',
     leasing: '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>',
+    // Gestoría propia: una carpeta con papeles.
+    gestoria: '<path d="M3 7a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M8 13h8M8 16h5"/>',
     oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>',
     // Tu incógnito: medio volante y las gafas del de incógnito.
     incognitoTu: '<path d="M4 11a8 8 0 0 1 16 0"/><path d="M2.5 11h19M12 11V7"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>',
@@ -2172,7 +2174,7 @@
 
   /* Estado de un nodo: 'comprada', 'bloqueada', 'disponible' o 'sinDinero'. */
   function estadoNodo(estado, m) {
-    if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) return 'bloqueada';
+    if (Libre.sim.faltaParaMejora(estado, m)) return 'bloqueada';
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
     if (!siguiente) return 'comprada';
     return estado.dinero >= siguiente.precio ? 'disponible' : 'sinDinero';
@@ -2206,8 +2208,10 @@
     const siguiente = Libre.sim.siguienteNivel(estado, m.id);
     let texto = esc(m.descripcion);
     let pie = '';
-    if (m.requiere && !Libre.sim.nivelMejora(estado, m.requiere)) {
-      pie = '<p class="nodo-requisito">Antes necesitas «' + esc(nombreMejora(m.requiere)) + '».</p>';
+    const falta = Libre.sim.faltaParaMejora(estado, m);
+    if (falta) {
+      pie = '<p class="nodo-requisito">' + (falta.sociedad ? 'Antes tienes que montar una SL (en Conductores, al comprar la 4.ª licencia).'
+        : 'Antes necesitas «' + esc(nombreMejora(falta.mejora)) + '».') + '</p>';
     } else if (!siguiente) {
       pie = '<p class="nodo-completa">Comprada' + (m.niveles ? ' entera: los ' + m.niveles.length + ' niveles' : '') + '.</p>';
     } else {

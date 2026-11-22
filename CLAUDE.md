@@ -435,7 +435,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   'sociedad'; `estado.empresa = { nombre, jornada }`). `necesitaSociedad()`
   lo dice; `comprasPosibles()` ofrece entonces `{ tipo: 'sociedad' }` en vez
   de la licencia. Coste diario: `costeSociedadDiario()` (10 € por conductor
-  con turno) dentro de `costesFijosDiarios()`. `renombrarSociedad()` en
+  con turno, × `tasaSociedad` de la mejora «Gestoría propia») dentro de
+  `costesFijosDiarios()`. Gestoría (idea 18, 22-11-2026): al final de
+  Taller y seguros, con `requiereSociedad`; lo que falta para una mejora
+  (la anterior o montar la SL) lo da `faltaParaMejora()`, que usan
+  `comprarMejora()`, `comprasPosibles()`, la interfaz y el bot. `renombrarSociedad()` en
   Ajustes. En pantalla: la casilla «Montar una SL» (`data-montar-sl`) abre
   `htmlHojaSociedad()` (`montandoSL`, el nombre escrito en `nombreSL`; la hoja
   baja desde arriba, `.hoja-sociedad`, para que el teclado no la tape) y el

@@ -220,7 +220,7 @@ function jugar(semilla, perfil) {
         MEJORAS_ZONA.forEach(function (id) { if (!sim.nivelMejora(e, id)) objetivos.push(pasoHacia(e, id)); });
       }
       c.mejoras.forEach(function (m) {
-        if (m.requiere && !sim.nivelMejora(e, m.requiere)) return;
+        if (sim.faltaParaMejora(e, m)) return;
         const sig = sim.siguienteNivel(e, m.id);
         if (!sig) return;
         const prioritaria = objetivos.indexOf(m.id) !== -1;

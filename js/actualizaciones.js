@@ -425,6 +425,10 @@
         {
           "n": 93,
           "texto": "En la hoja de cada mejora comprada sale cuánto te ha hecho ganar o ahorrar: Publicidad, esterillas, combustible, seguro, averías, pinchazos y Leasing. En las demás no se puede saber y no sale nada."
+        },
+        {
+          "n": 94,
+          "texto": "Nueva mejora «Gestoría propia», al final de Taller y seguros: con la SL montada, abarata su tasa diaria un 30, 60 o 90 % en tres niveles (3.000, 4.500 y 7.000 €)."
         }
       ]
     }

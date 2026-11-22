@@ -975,6 +975,18 @@
         descripcion: 'Un acuerdo con el concesionario: cada coche nuevo te cuesta un 30 % menos.',
         efecto: { precioCoche: 0.7 }
       },
+      {
+        // Idea 18 (Iván, 22-11-2026): rebaja la tasa diaria de la SL
+        // (sociedad.porConductorDiario). Pide además tener la SL montada
+        // (requiereSociedad). Precios de Iván; los efectos, Equilibrio.
+        id: 'gestoria', nombre: 'Gestoría propia', rama: 'taller', requiere: 'leasing', requiereSociedad: true,
+        descripcion: 'Llevas tú los papeles de la sociedad: la SL te cuesta menos cada jornada.',
+        niveles: [
+          { precio: 3000, descripcion: 'La tasa de la SL, un 30 % más barata.', efecto: { tasaSociedad: 0.7 } },
+          { precio: 4500, descripcion: 'Un 60 % más barata.', efecto: { tasaSociedad: 0.4 } },
+          { precio: 7000, descripcion: 'Un 90 % más barata.', efecto: { tasaSociedad: 0.1 } }
+        ]
+      },
       // ---- Rama: Conductores y jornada
       {
         // Iván, 20-11-2026: tu modo incógnito, una mejora del principio (tu

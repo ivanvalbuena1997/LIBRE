@@ -61,9 +61,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 ### 🌳 Mejoras nuevas
 
 17. [x] **Modo incógnito.** Hecho el 20-11-2026 (ver «Hechas»).
-18. [ ] **Rebajar la tasa de la SL.** Una mejora que baje los 10 € por
-    conductor y jornada que cuesta la sociedad limitada (apuntado por Iván al
-    montar la SL, 20-11-2026).
+18. [x] **Rebajar la tasa de la SL.** Hecho el 22-11-2026 (ver «Hechas»).
 19. [ ] **Revisar la Oficina de gestión.** Con el bot arreglado
     (21-11-2026), el perfil Gestor deja el volante con una sola licencia y
     se hunde: a los 150 minutos, 333 € por jornada frente a 602 € del
@@ -76,6 +74,11 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **18. Rebajar la tasa de la SL** (🌳, 22-11-2026). «Gestoría propia»,
+  al final de Taller y seguros (tras el Leasing) y solo con la SL montada:
+  3 niveles de 3.000 / 4.500 / 7.000 € que dejan la tasa en 7 / 4 / 1 € por
+  conductor y jornada.
 
 - [x] **16. Lo que te ha hecho ganar cada mejora** (📈, 22-11-2026). Solo
   las que se cuentan directamente (Iván: «el resto no lo vamos a indicar»):
