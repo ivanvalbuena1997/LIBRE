@@ -550,7 +550,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 
 /* El taxi va a la altura de la acera (y = 196 de la maqueta). */
 /* Carril de delante, hacia la derecha (Iván, 20-11-2026: el autobús va por el otro). */
-.esc-taxi { position: absolute; left: 16px; bottom: 7px; }
+.esc-taxi { position: absolute; left: 16px; bottom: 7px; overflow: visible; }
 .esc-carroceria { fill: var(--coche-carroceria); stroke: var(--coche-perfil); stroke-width: 1.5; }
 .esc-cristal { fill: var(--coche-cristal); }
 .esc-piloto { fill: var(--taxi-piloto); }
@@ -568,6 +568,8 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 /* Brillo de los faros: el amarillo del faro que se desvanece hacia fuera. */
 .esc-faro-centro { stop-color: var(--coche-faro); stop-opacity: 0.7; }
 .esc-faro-borde { stop-color: var(--coche-faro); stop-opacity: 0; }
+.esc-haz-1 { stop-color: var(--coche-faro); stop-opacity: 0.45; }
+.esc-haz-2 { stop-color: var(--coche-faro); stop-opacity: 0.18; }
 .esc-brillo { display: none; }
 .noche .esc-brillo { display: inline; }
 

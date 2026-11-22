@@ -115,3 +115,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 ## 22 de noviembre de 2026 · Zonas más a mano
 
 90. Las zonas de la pestaña Calle van ahora justo debajo del taxímetro: con muchos taxis ya se ven a la vez que conduces.
+91. Arreglo: de noche, la luz del faro del taxi se veía cortada. Ahora es un haz que sale del faro y se apaga poco a poco.

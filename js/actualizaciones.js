@@ -413,6 +413,10 @@
         {
           "n": 90,
           "texto": "Las zonas de la pestaña Calle van ahora justo debajo del taxímetro: con muchos taxis ya se ven a la vez que conduces."
+        },
+        {
+          "n": 91,
+          "texto": "Arreglo: de noche, la luz del faro del taxi se veía cortada. Ahora es un haz que sale del faro y se apaga poco a poco."
         }
       ]
     }

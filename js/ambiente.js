@@ -212,9 +212,15 @@
   function taxi() {
     // 15 % más grande que el dibujo (Iván, 20-11-2026): 150 × 58 en vez de 130 × 50.
     return '<svg class="esc-taxi an-taxi" width="150" height="58" viewBox="0 -20 130 50" aria-hidden="true" focusable="false">' +
-      '<defs><radialGradient id="esc-faro"><stop offset="0" class="esc-faro-centro"/><stop offset="1" class="esc-faro-borde"/></radialGradient></defs>' +
-      // Brillo de los faros de noche: degradado que se pierde (no una mancha).
-      '<ellipse class="esc-brillo" cx="122" cy="13" rx="22" ry="8" fill="url(#esc-faro)"/>' +
+      // Luz de los faros de noche (Iván, 22-11-2026: antes era una mancha
+      // que se cortaba en seco en el borde del dibujo). Ahora es un haz que
+      // sale del faro, se abre hacia el suelo y se apaga poco a poco; el svg
+      // deja ver lo que sale de su caja (.esc-taxi, overflow visible).
+      '<defs><radialGradient id="esc-faro"><stop offset="0" class="esc-faro-centro"/><stop offset="1" class="esc-faro-borde"/></radialGradient>' +
+      '<linearGradient id="esc-haz" gradientUnits="userSpaceOnUse" x1="101" y1="0" x2="150" y2="0">' +
+      '<stop offset="0" class="esc-haz-1"/><stop offset="0.35" class="esc-haz-2"/><stop offset="1" class="esc-faro-borde"/></linearGradient></defs>' +
+      '<g class="esc-brillo"><path d="M101.5 11 Q126 8.6 150 9.6 Q153 16 150 23.4 Q126 18.4 101.5 13.2 Z" fill="url(#esc-haz)"/>' +
+      '<circle cx="101.5" cy="12" r="4.5" fill="url(#esc-faro)"/></g>' +
       // Sombra en el suelo; carrocería de berlina (Corolla como referencia).
       '<ellipse class="esc-sombra-coche" cx="52" cy="28.4" rx="52" ry="2"/>' +
       '<path class="esc-carroceria" d="M1.5 21.5 L0.5 11 Q0.5 6.4 2.8 5.7 L10.5 4.5 C16 3.6 22 0.4 27.5 -2.4 C33.5 -4.6 46 -4.7 54 -3.7 C60.5 -3 66 0.2 75.4 5.4 L92 8.6 C98.5 9.7 102.5 11 103.6 13.6 L104 19 Q104 23 101.5 23.2 L92.4 23.2 A8.4 8.4 0 0 0 75.6 23.2 L29.9 23.2 A8.4 8.4 0 0 0 13.1 23.2 L3.6 23.2 Q1.7 23 1.5 21.5 Z"/>' +

@@ -514,7 +514,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
   autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
   un taxi que pasa (berlina con las formas de un Corolla, colores
-  `--coche-*`; Iván, 20-11-2026) y lluvia. Carriles (se circula por la
+  `--coche-*`; Iván, 20-11-2026; de noche, `.esc-brillo`: haz del faro
+  con degradado lineal que sale del dibujo, `.esc-taxi` con
+  `overflow: visible`) y lluvia. Carriles (se circula por la
   derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;
   autobús y bici de Just Eat, hacia la izquierda, por el de detrás. El orden
   en `montar()` decide quién tapa a quién; con tormenta (clase `.tormenta`, Iván
