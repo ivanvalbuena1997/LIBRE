@@ -111,3 +111,7 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 87. Las ruedas del taxi, de las bicis y del autobús ya giran cuando avanzan por la calle.
 88. Arreglo: el giro de las ruedas casi no se veía. Ahora el taxi lleva llantas de cinco radios, las bicis un reflectante naranja y el autobús tuercas más grandes.
 89. El juego descarga siempre sus archivos al abrirlo, así las actualizaciones se ven enseguida sin tener que borrar nada del navegador.
+
+## 22 de noviembre de 2026 · Zonas más a mano
+
+90. Las zonas de la pestaña Calle van ahora justo debajo del taxímetro: con muchos taxis ya se ven a la vez que conduces.

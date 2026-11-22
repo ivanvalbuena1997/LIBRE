@@ -2392,7 +2392,10 @@
     }
   };
 
-  const secciones = [seccionTaximetro, seccionTicket, seccionCaja, seccionObjetivo, seccionTaxis, seccionZonas,
+  // Iván, 22-11-2026: las zonas, justo debajo del taxímetro (y del ticket o
+  // la caja si están abiertos); antes iban al final y con muchos taxis no se
+  // veían a la vez que el taxímetro.
+  const secciones = [seccionTaximetro, seccionTicket, seccionCaja, seccionZonas, seccionObjetivo, seccionTaxis,
     seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida];
 
   // ---------------------------------------------------------- Ciclo

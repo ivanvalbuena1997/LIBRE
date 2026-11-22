@@ -405,6 +405,16 @@
           "texto": "El juego descarga siempre sus archivos al abrirlo, así las actualizaciones se ven enseguida sin tener que borrar nada del navegador."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-22",
+      "titulo": "Zonas más a mano",
+      "cambios": [
+        {
+          "n": 90,
+          "texto": "Las zonas de la pestaña Calle van ahora justo debajo del taxímetro: con muchos taxis ya se ven a la vez que conduces."
+        }
+      ]
     }
   ];
 })(globalThis);

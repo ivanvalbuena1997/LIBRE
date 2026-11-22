@@ -492,8 +492,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   menos de 830 px de alto, la alta baja a 180 px. Es `sticky` con `top`
   negativo: al desplazar solo queda la placa a la vista. De noche (lo dice
   la escena) cambia sus colores.
-- Pestaña Calle en móvil, de arriba abajo: cabecera, taxímetro,
-  «Siguiente», «Tus taxis hoy» y zonas. Con hasta 5 taxis debe caber sin
+- Pestaña Calle en móvil, de arriba abajo: cabecera, taxímetro (y el
+  ticket o la caja si están abiertos), zonas, «Siguiente» y «Tus taxis hoy»
+  (Iván, 22-11-2026: las zonas, antes al final, no se veían con muchos
+  taxis; el orden es el de `secciones` en `interfaz.js`). Con hasta 5 taxis debe caber sin
   scroll en 390×844 y en 375×800 px (cabecera de 180) por encima del menú
   inferior. Cualquier texto nuevo ahí, a una línea y sin añadir alto.
   Va justo (medido el 17-11-2026: 0 px de scroll en las dos): el relleno de
