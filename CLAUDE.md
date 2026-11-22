@@ -137,7 +137,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (17-11-2026): la categoría debe notarse más que el nivel; un LEGENDARIO
   deja ~+50 % que un B al final de la partida (medido con un bot). Campos: `cualidad`, `cualidad2`, `cualidad3`, `defecto`,
   `defecto2` (null si no los tiene); léelos con `cualidadesDe()` y
-  `defectosDe()`. Al llegar al nivel 10 (`premioNivelMaximo()`) pierde un
+  `defectosDe()`. Cazatalentos (idea 11, Iván 22-11-2026; versión 31 del
+  guardado): mejora de 25.000 € al final de Conductores y jornada
+  (`efecto.rebuscar`); `rebuscarCandidatos()` cobra `precioRebuscar()`
+  (`conductores.rebuscar`: base × factor^`estado.rebuscasHoy`), sortea
+  otros candidatos y suma una búsqueda; `cerrarCaja()` la pone a 0. En la
+  hoja de candidatos, `htmlRebuscar()`. Al llegar al nivel 10 (`premioNivelMaximo()`) pierde un
   defecto (el segundo primero) o, si no tiene, gana una cualidad nueva. Los candidatos cambian cada día (`cerrarCaja()` llama a
   `sortearCandidatos()`, también sin conexión) y tras cada contrato; si
   no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí.

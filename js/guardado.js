@@ -257,6 +257,10 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 30 → 31: búsquedas del Cazatalentos pagadas hoy (idea 11).
+    30: function (estado) {
+      if (typeof estado.rebuscasHoy !== 'number') estado.rebuscasHoy = 0;
+    },
     // 29 → 30: lo que te ha hecho ganar cada mejora (idea 16). Se empieza a
     // contar ahora; las que ya tenías se apuntan para que la hoja lo diga.
     29: function (estado) {

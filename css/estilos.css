@@ -2097,6 +2097,8 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .mejora-ganado strong { color: var(--dinero); font-size: var(--t-seccion); font-variant-numeric: tabular-nums; }
 .mejora-ganado small { grid-column: 1 / -1; color: var(--tinta-suave); font-size: var(--t-mini); }
 .hoja-mejora .nodo-comprar { justify-content: space-between; padding: 0 var(--esp-6); }
+/* «Buscar otros candidatos» del Cazatalentos (idea 11). */
+.candidatos-rebuscar { margin-bottom: var(--esp-3); }
 .nodo-requisito { margin: 0; color: var(--peligro); font-weight: 800; }
 .nodo-completa { margin: 0; color: var(--dinero); font-weight: 800; }
 

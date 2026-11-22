@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 30,
+    versionGuardado: 31,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -391,6 +391,10 @@
       porcentaje: 0.50,
       // El precio de contratar depende de la categoría (config.categorias).
       reserva: 5,                  // Equilibrio: conductores en reserva (sin trabajar).
+      // Idea 11 (Iván, 22-11-2026): con la mejora «Cazatalentos», buscar otros
+      // candidatos cuesta precioBase y cada búsqueda del mismo día el doble
+      // (factor); vuelve a precioBase al cerrar la caja.
+      rebuscar: { precioBase: 1000, factor: 2 },
       candidatos: 3,               // Equilibrio: entre cuántos eliges al contratar.
       // Equilibrio: despedir cuesta base + porNivel × nivel del conductor
       // (160 € en el nivel 1, 700 € en el 10). Sin dinero no se puede.
@@ -1071,6 +1075,13 @@
         id: 'incognito', nombre: 'Modo incógnito', rama: 'jornada', requiere: 'oficina', precio: 15000,
         descripcion: 'Tus conductores de nivel 10 trabajan también los días que libra su licencia. Ojo: si un «pesetas» los pilla cargando, multa y se acabó el turno.',
         efecto: { incognito: true }
+      },
+      {
+        // Idea 11 (Iván, 22-11-2026): la última de la rama, de final de
+        // partida. Precio de Iván; el de cada búsqueda, en conductores.rebuscar.
+        id: 'cazatalentos', nombre: 'Cazatalentos', rama: 'jornada', requiere: 'incognito', precio: 25000,
+        descripcion: 'Un cazatalentos te busca conductores cuando quieras: en la hoja de candidatos, «Buscar otros» trae tres nuevos al momento. La primera búsqueda del día cuesta 1.000 € y cada una más, el doble; al cerrar la caja vuelve a 1.000 €.',
+        efecto: { rebuscar: true }
       }
     ]
   };

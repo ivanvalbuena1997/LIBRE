@@ -84,6 +84,8 @@
       pesetasFuera: 0,
       // Lo que te ha hecho ganar o ahorrar cada mejora (idea 16): { id: euros }.
       ganadoMejoras: {},
+      // Búsquedas de candidatos pagadas hoy (Cazatalentos, idea 11).
+      rebuscasHoy: 0,
       mejorasAntesDeCuenta: [],
       // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
       // mejor día de la partida y los despedidos que entran en el top.
@@ -285,7 +287,7 @@
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false, incognitoTu: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
-      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1
+      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1, rebuscar: false
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -318,6 +320,7 @@
       if (e.pinchazoCoste) m.pinchazoCoste *= e.pinchazoCoste;
       if (e.precioCoche) m.precioCoche *= e.precioCoche;
       if (e.tasaSociedad) m.tasaSociedad *= e.tasaSociedad;
+      if (e.rebuscar) m.rebuscar = true;
     });
     return m;
   }
@@ -631,8 +634,10 @@
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
     estado.licencias.forEach(function (l) { l.facturadoJornada = 0; });
-    // Cada día se presentan otros candidatos (Iván, 17-11-2026).
+    // Cada día se presentan otros candidatos (Iván, 17-11-2026), y las
+    // búsquedas del Cazatalentos vuelven a su precio de partida.
     sortearCandidatos(estado);
+    estado.rebuscasHoy = 0;
     resumen.cierres.push(cerrada);
   }
 
@@ -1249,6 +1254,26 @@
   }
 
   /* Candidatos para el próximo contrato: personajes y cualidades distintos. */
+  /*
+   * Cazatalentos (idea 11, Iván 22-11-2026): pagar para que salgan otros
+   * candidatos al momento. Cada búsqueda del día cuesta el doble que la
+   * anterior (conductores.rebuscar); cerrarCaja() pone la cuenta a cero.
+   */
+  function precioRebuscar(estado) {
+    const r = cfg().conductores.rebuscar;
+    return r.precioBase * Math.pow(r.factor, estado.rebuscasHoy || 0);
+  }
+  function rebuscarCandidatos(estado) {
+    if (!modificadores(estado).rebuscar) return fallo('Para buscar otros candidatos necesitas el «Cazatalentos».');
+    const precio = precioRebuscar(estado);
+    if (estado.dinero < precio) return fallo('No te llega el dinero: buscar otros cuesta ' + Libre.ui_euros(precio) + '.');
+    estado.dinero -= precio;
+    estado.rebuscasHoy = (estado.rebuscasHoy || 0) + 1;
+    sortearCandidatos(estado);
+    return exito('El cazatalentos te trae tres candidatos nuevos. La próxima búsqueda de hoy cuesta ' +
+      Libre.ui_euros(precioRebuscar(estado)) + '.');
+  }
+
   function sortearCandidatos(estado) {
     const c = cfg().conductores;
     const apartados = {}, cualidades = {};
@@ -3180,6 +3205,8 @@
     comprarVehiculo,
     precioCoche,
     cuentaDeMejora,
+    precioRebuscar,
+    rebuscarCandidatos,
     faltaParaMejora,
     ganadoMejora,
     precioAlquiler,

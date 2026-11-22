@@ -1171,6 +1171,7 @@
       // Sin conductor en el turno y sin conducir tú: puedes cogerlo tú.
       (!reserva && !Libre.sim.conduce(estado)
         ? boton('Conducir yo este turno', 'conducir', [lic.id, turno], 'ui-boton ui-boton--secundario ui-boton--ancho') : '') +
+      htmlRebuscar(estado) +
       tarjetas +
       (falta && hayObjetos
         ? '<button type="button" class="ui-boton ui-boton--secundario ui-boton--ancho" data-venta-contratar aria-expanded="' +
@@ -1178,6 +1179,17 @@
           (ventaParaContratar ? htmlListaVenta(estado) : '')
         : '') +
       '</div>';
+  }
+
+  /*
+   * Cazatalentos (idea 11): «Buscar otros» con su precio del momento (se
+   * dobla con cada búsqueda del día). Sin la mejora, no sale.
+   */
+  function htmlRebuscar(estado) {
+    if (!Libre.sim.nivelMejora(estado, 'cazatalentos')) return '';
+    const precio = Libre.sim.precioRebuscar(estado);
+    return boton('Buscar otros candidatos · ' + euros(precio), 'rebuscarCandidatos', [],
+      'ui-boton ui-boton--secundario ui-boton--ancho candidatos-rebuscar', precio);
   }
 
   /* Baja, avería o parado, en una línea bajo el conductor. */
@@ -2166,6 +2178,8 @@
     // Tu incógnito: medio volante y las gafas del de incógnito.
     incognitoTu: '<path d="M4 11a8 8 0 0 1 16 0"/><path d="M2.5 11h19M12 11V7"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>',
     // Sombrero y gafas, como el icono de incógnito de Chrome (Iván, 20-11-2026).
+    // Cazatalentos: una lupa con una persona dentro.
+    cazatalentos: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.2 15.2L21 21"/><circle cx="10.5" cy="8.8" r="2"/><path d="M7 14c.7-1.6 2-2.4 3.5-2.4s2.8.8 3.5 2.4"/>',
     incognito: '<path d="M2 11h20"/><path d="M5.5 11l1.8-6a1 1 0 0 1 1.3-.6L12 5.6l3.4-1.2a1 1 0 0 1 1.3.6l1.8 6"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>'
   };
   function iconoMejora(id) {

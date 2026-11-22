@@ -443,6 +443,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Departamento de RRHH (5 niveles) | 2.500 / 3.500 / 6.000 / 10.000 / 15.000 € | Candidatos de mejor categoría: los B bajan del 65 % al 55, 45, 35, 25 y 15 %; los LEGENDARIOS suben del 0,5 % al 1, 2, 3, 5 y 8 %. Al comprar un nivel salen candidatos nuevos |
 | Oficina de gestión | 4.000 € | Puedes dejar el volante y solo gestionar, y tus conductores se quedan el 45 % en vez del 50 % |
 | Modo incógnito | 15.000 € | Tus conductores de nivel 10 trabajan también los días que libra su licencia (tú no). Riesgo: un «pesetas» (otro taxista) puede pillarlos cargando (ver 5.8). Medido con 5 licencias y 10 conductores de nivel 10: un +27 % de neto; se paga en ~35 jornadas |
+| Cazatalentos | 25.000 € | Idea 11 (Iván, 22-11-2026): la última de la rama, de final de partida. En la hoja de candidatos sale «Buscar otros candidatos · 1.000 €», que trae tres nuevos al momento. Cada búsqueda del mismo día cuesta el doble (1.000 → 2.000 → 4.000 €…) y al cerrar la caja vuelve a 1.000 €, para que no se pueda rebuscar sin límite hasta sacar un LEGENDARIO. Lo que se paga no va al ticket (como contratar). Icono: una lupa con una persona dentro |
 
 ---
 

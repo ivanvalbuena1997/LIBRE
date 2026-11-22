@@ -35,9 +35,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 10. [ ] **Conductores de ETT.** Contratar a un conductor temporal por un
     precio reducido que solo trabaja unas jornadas, para no tener el coche
     parado mientras encuentras a uno fijo.
-11. [ ] **Pagar por más candidatos.** Pagar para que salgan ofertas de
-    conductores nuevas sin esperar al día siguiente (hoy cambian al cerrar la
-    caja y tras cada contrato).
+11. [x] **Pagar por más candidatos.** Hecho el 22-11-2026 (ver «Hechas»).
 
 ### 📈 Progresión y estadísticas
 
@@ -74,6 +72,11 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **11. Pagar por más candidatos** (👨‍✈️, 22-11-2026). Mejora
+  «Cazatalentos» (25.000 €, la última de Conductores y jornada): «Buscar
+  otros candidatos» por 1.000 €, el doble cada vez en el mismo día, y de
+  vuelta a 1.000 € al cerrar la caja.
 
 - [x] **18. Rebajar la tasa de la SL** (🌳, 22-11-2026). «Gestoría propia»,
   al final de Taller y seguros (tras el Leasing) y solo con la SL montada:

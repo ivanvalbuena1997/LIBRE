@@ -429,6 +429,10 @@
         {
           "n": 94,
           "texto": "Nueva mejora «Gestoría propia», al final de Taller y seguros: con la SL montada, abarata su tasa diaria un 30, 60 o 90 % en tres niveles (3.000, 4.500 y 7.000 €)."
+        },
+        {
+          "n": 95,
+          "texto": "Nueva mejora «Cazatalentos» (25.000 €), la última de Conductores y jornada: en la hoja de candidatos puedes buscar otros al momento por 1.000 €; cada búsqueda del mismo día cuesta el doble y al cerrar la caja vuelve a 1.000 €."
         }
       ]
     }

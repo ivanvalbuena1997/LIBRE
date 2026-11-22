@@ -1676,6 +1676,30 @@ prueba('Gestoría propia (idea 18): pide la SL y rebaja su tasa diaria por nivel
   cerca(sim.ganadoMejora(e, 'gestoria'), sim.costeSociedadDiario(e) * (1 / g.niveles[2].efecto.tasaSociedad - 1), 0.01);
 });
 
+prueba('Cazatalentos (idea 11): buscar otros candidatos, cada vez el doble y de vuelta al cerrar la caja', function () {
+  const e = flotaDe(1);
+  const r = config.conductores.rebuscar;
+  assert.ok(!sim.rebuscarCandidatos(e).ok, 'sin la mejora, no');
+  assert.ok(comprarConRequisitos(e, 'cazatalentos').ok);
+  assert.strictEqual(config.mejoras.find(function (m) { return m.id === 'cazatalentos'; }).requiere, 'incognito');
+  cerca(sim.precioRebuscar(e), r.precioBase);
+  const antes = JSON.stringify(e.candidatos);
+  let dinero = e.dinero;
+  assert.ok(sim.rebuscarCandidatos(e).ok);
+  cerca(e.dinero, dinero - r.precioBase);
+  assert.notStrictEqual(JSON.stringify(e.candidatos), antes, 'salen otros');
+  cerca(sim.precioRebuscar(e), r.precioBase * r.factor);
+  dinero = e.dinero;
+  assert.ok(sim.rebuscarCandidatos(e).ok);
+  cerca(e.dinero, dinero - r.precioBase * r.factor);
+  cerca(sim.precioRebuscar(e), r.precioBase * r.factor * r.factor);
+  e.dinero = 1;
+  assert.ok(!sim.rebuscarCandidatos(e).ok, 'sin dinero, no');
+  e.dinero = 1e6;
+  for (let i = 0; i < 4000 && e.rebuscasHoy > 0; i++) sim.avanzar(e, 0.5);
+  cerca(sim.precioRebuscar(e), r.precioBase, 0.001);
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;
