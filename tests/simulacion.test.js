@@ -76,6 +76,9 @@ prueba('avanzar mueve el reloj según la duración del día', function () {
 
 prueba('una carrera a mano cobra al terminar', function () {
   const e = sim.crearEstadoInicial(0);
+  // Semilla fija: con una al azar, en ~1 de cada 750 partidas un pinchazo al
+  // empezar el turno cortaba la carrera y la prueba fallaba.
+  e.azar = 20261122;
   const antes = e.dinero;
   assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok);
   assert.ok(!sim.buscarCliente(e, azarFijo(0.5)).ok, 'no se puede buscar dos veces');
