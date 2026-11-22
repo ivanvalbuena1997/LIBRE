@@ -82,6 +82,9 @@
       // Tu sociedad limitada: { nombre, jornada } desde que la montas (idea 1).
       empresa: null,
       pesetasFuera: 0,
+      // Lo que te ha hecho ganar o ahorrar cada mejora (idea 16): { id: euros }.
+      ganadoMejoras: {},
+      mejorasAntesDeCuenta: [],
       // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
       // mejor día de la partida y los despedidos que entran en el top.
       historial: [],
@@ -324,6 +327,50 @@
   }
 
   /* Nivel comprado de una mejora: 0 si no la tienes (las de un nivel valen 1). */
+  /*
+   * Lo que te ha hecho ganar cada mejora (idea 16, Iván 22-11-2026), solo
+   * en las que se puede contar directamente: lo que cobran (Publicidad,
+   * Sacudir las esterillas) o lo que ahorran de forma visible (combustible,
+   * seguro, averías, pinchazos y precio de los coches). Las que cambian
+   * cuántas carreras se hacen no se cuentan.
+   * Ahorro de una mejora con factor f sobre lo pagado: pagado × (1/f − 1),
+   * lo que habrías pagado de más sin ella (con las demás que tengas).
+   */
+  const CUENTA_MEJORAS = {
+    publicidad: 'ganado', monedasMax: 'ganado', consumo: 'ahorrado', seguro: 'ahorrado',
+    averiaCoste: 'ahorrado', pinchazoCoste: 'ahorrado', precioCoche: 'ahorrado'
+  };
+  function efectoMejora(mejora, nivel) {
+    return mejora.niveles ? mejora.niveles[Math.max(1, nivel) - 1].efecto : mejora.efecto;
+  }
+  /* 'ganado', 'ahorrado' o null si de esa mejora no se lleva la cuenta. */
+  function cuentaDeMejora(id) {
+    const mejora = buscarMejora(id);
+    if (!mejora) return null;
+    const e = efectoMejora(mejora, 1);
+    const clave = Object.keys(CUENTA_MEJORAS).find(function (k) { return e[k] !== undefined; });
+    return clave ? CUENTA_MEJORAS[clave] : null;
+  }
+  function apuntarGanado(estado, id, euros) {
+    if (!(euros > 0)) return;
+    if (!estado.ganadoMejoras) estado.ganadoMejoras = {};
+    estado.ganadoMejoras[id] = (estado.ganadoMejoras[id] || 0) + euros;
+  }
+  /* Reparte el ahorro de lo pagado (ya rebajado) entre las mejoras con ese factor. */
+  function apuntarAhorro(estado, clave, pagado) {
+    if (!(pagado > 0)) return;
+    cfg().mejoras.forEach(function (mejora) {
+      const nivel = nivelMejora(estado, mejora.id);
+      if (!nivel) return;
+      const f = efectoMejora(mejora, nivel)[clave];
+      if (typeof f === 'number' && f > 0 && f < 1) apuntarGanado(estado, mejora.id, pagado * (1 / f - 1));
+    });
+  }
+  /* Lo que lleva una mejora (0 si no se cuenta o aún nada). */
+  function ganadoMejora(estado, id) {
+    return (estado.ganadoMejoras && estado.ganadoMejoras[id]) || 0;
+  }
+
   function nivelMejora(estado, id) {
     const v = estado.mejoras[id];
     return v === true ? 1 : Number(v) || 0;
@@ -545,6 +592,7 @@
   }
 
   function gastar(estado, resumen, concepto, importe) {
+    if (concepto === 'combustible') apuntarAhorro(estado, 'consumo', importe);
     estado.dinero -= importe;
     estado.caja.hoy[concepto] += importe;
     resumen[concepto] += importe;
@@ -553,10 +601,12 @@
   /* Cierra la caja del día: cobra los costes fijos y empieza un día nuevo. */
   function cerrarCaja(estado, resumen) {
     gastar(estado, resumen, 'fijos', costesFijosDiarios(estado));
+    apuntarAhorro(estado, 'seguro', vehiculosEnServicio(estado) * cfg().costesFijos.seguroDiarioPorVehiculo * modificadores(estado).seguro);
     // Publicidad en el taxi: un tanto por cada carrera del día (también sin conexión).
     const porCarrera = modificadores(estado).publicidad;
     const carreras = Math.round(estado.caja.hoy.carreras);
     if (porCarrera > 0 && carreras > 0) {
+      apuntarGanado(estado, 'publicidad', carreras * porCarrera);
       incidencia(estado, resumen, 'publicidad', 'Publicidad en el taxi: ' + carreras + ' carreras a ' +
         Libre.ui_euros(porCarrera) + '.', carreras * porCarrera, 'extras');
     }
@@ -908,6 +958,7 @@
     const precio = precioCoche(estado);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
+    apuntarAhorro(estado, 'precioCoche', precio);
     // Con uno de alquiler, lo devuelves: lo que quedaba de alquiler se pierde.
     const devuelto = !!lic.alquiler;
     lic.alquiler = null;
@@ -2588,6 +2639,7 @@
     const precio = Math.max(0, precioCoche(estado, true) - venta);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
+    apuntarAhorro(estado, 'precioCoche', precioCoche(estado, true));
     lic.km = 0;
     lic.averia = null;
     return exito('Coche nuevo en la licencia ' + textoLicencia(lic) + '. Por el viejo te dan ' + Libre.ui_euros(venta) + '.');
@@ -2618,6 +2670,7 @@
       }
       const m = modificadores(estado);
       const coste = ev.pinchazo.coste * m.pinchazoCoste;
+      apuntarAhorro(estado, 'pinchazoCoste', coste);
       if (m.pinchazoHoras) {
         // Con la Grúa propia: un rato en el taller, no el resto del turno.
         pararUnRato(estado, turno, m.pinchazoHoras * 60, 'pinchazo');
@@ -2657,6 +2710,7 @@
     const m = modificadores(estado);
     const jornadas = Math.max(1, Math.round(enteroEntre(estado, ev.jornadasMin, ev.jornadasMax) * m.averiaDias));
     const coste = entre(estado, ev.costeMin, ev.costeMax) * m.averiaCoste;
+    apuntarAhorro(estado, 'averiaCoste', coste);
     lic.averia = { hasta: jornadaDe(estado.reloj.minutos) + jornadas };
     TURNOS.forEach(function (t) {
       const x = lic.turnos[t];
@@ -2682,6 +2736,7 @@
       if (!lic.vehiculo || !t || t.quien !== 'conductor') return;
       if (!puedeTrabajar(estado, lic, Object.assign({}, t, { paradoHasta: 0 }), ahora - 1)) return;
       const monedas = entre(estado, m.monedasMin, m.monedasMax);
+      apuntarGanado(estado, 'esterillas', monedas);
       incidencia(estado, resumen, 'esterillas', t.nombre + ' encuentra ' + Libre.ui_euros(monedas) +
         ' en las esterillas.', monedas, 'extras', t);
     });
@@ -3109,6 +3164,8 @@
     comprarLicencia,
     comprarVehiculo,
     precioCoche,
+    cuentaDeMejora,
+    ganadoMejora,
     precioAlquiler,
     cochesPropios,
     cambiarTurnoJugador,

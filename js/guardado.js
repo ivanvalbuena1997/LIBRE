@@ -257,6 +257,16 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 29 → 30: lo que te ha hecho ganar cada mejora (idea 16). Se empieza a
+    // contar ahora; las que ya tenías se apuntan para que la hoja lo diga.
+    29: function (estado) {
+      if (!estado.ganadoMejoras) estado.ganadoMejoras = {};
+      if (!Array.isArray(estado.mejorasAntesDeCuenta)) {
+        estado.mejorasAntesDeCuenta = Object.keys(estado.mejoras || {}).filter(function (id) {
+          return Number(estado.mejoras[id]) > 0 || estado.mejoras[id] === true;
+        });
+      }
+    },
     // 28 → 29: la sociedad limitada (estado.empresa, null mientras no la
     // montes). Las partidas con 4 licencias o más ya crecieron sin ella: se
     // les monta una con un nombre por defecto, sin cobrarla.

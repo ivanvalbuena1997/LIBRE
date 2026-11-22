@@ -2215,7 +2215,21 @@
       pie = boton('<span>' + (m.niveles ? 'Comprar nivel ' + siguiente.nivel : 'Comprar') + '</span><span>' + euros(siguiente.precio) + '</span>',
         'comprarMejora', [m.id], 'ui-boton ui-boton--principal ui-boton--ancho nodo-comprar', siguiente.precio);
     }
-    return '<p class="mejora-texto">' + texto + '</p>' + pie;
+    return '<p class="mejora-texto">' + texto + '</p>' + htmlGanadoMejora(estado, m) + pie;
+  }
+
+  /*
+   * Lo que te ha hecho ganar o ahorrar una mejora comprada (idea 16, Iván
+   * 22-11-2026). Solo en las que se puede contar directamente
+   * (Libre.sim.cuentaDeMejora); en las demás no sale nada.
+   */
+  function htmlGanadoMejora(estado, m) {
+    const cuenta = Libre.sim.cuentaDeMejora(m.id);
+    if (!cuenta || !Libre.sim.nivelMejora(estado, m.id)) return '';
+    const antes = (estado.mejorasAntesDeCuenta || []).indexOf(m.id) !== -1;
+    return '<div class="mejora-ganado"><span>' + (cuenta === 'ganado' ? 'Te ha hecho ganar' : 'Te ha ahorrado') + '</span>' +
+      '<strong id="mejora-ganado">' + euros(Libre.sim.ganadoMejora(estado, m.id)) + '</strong>' +
+      '<small>' + (antes ? 'Desde la actualización 93: de antes no se llevaba la cuenta.' : 'Desde que la compraste.') + '</small></div>';
   }
 
   const ICONO_HECHO = '<svg class="icono icono-hecho" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
@@ -2279,6 +2293,9 @@
         const m = Libre.config.mejoras.find(function (x) { return x.id === el.dataset.mejora; });
         if (m) el.dataset.nodoEstado = estadoNodo(estado, m);
       });
+      // Lo ganado sube con cada carrera (el combustible): al día sin redibujar.
+      const ganado = $('mejora-ganado');
+      if (ganado && nodoAbierto) ganado.textContent = euros(Libre.sim.ganadoMejora(estado, nodoAbierto));
       if (enfocarMejora) {
         enfocarMejora = false;
         const cerrar = document.querySelector('.hoja-mejora .hoja-cerrar');

@@ -2087,6 +2087,15 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .mejora-quien .nodo-niveles i { width: 18px; height: 6px; }
 .mejora-quien .nodo-niveles i.hecho { background: var(--dinero); }
 .mejora-texto { margin: 0; font-size: var(--t-cuerpo); line-height: 1.4; }
+/* Lo que te ha hecho ganar una mejora comprada (idea 16). */
+.mejora-ganado {
+  display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px var(--esp-3);
+  margin-top: var(--esp-4); padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--r-tarjeta); background: var(--tinte-verde);
+}
+.mejora-ganado span { font-weight: 700; }
+.mejora-ganado strong { color: var(--dinero); font-size: var(--t-seccion); font-variant-numeric: tabular-nums; }
+.mejora-ganado small { grid-column: 1 / -1; color: var(--tinta-suave); font-size: var(--t-mini); }
 .hoja-mejora .nodo-comprar { justify-content: space-between; padding: 0 var(--esp-6); }
 .nodo-requisito { margin: 0; color: var(--peligro); font-weight: 800; }
 .nodo-completa { margin: 0; color: var(--dinero); font-weight: 800; }

@@ -1624,6 +1624,38 @@ prueba('coches y alquiler suben un 10 % por cada coche propio; renovar y reponer
   cerca(sim.precioCoche(e), Math.round(base * Math.pow(f, 3)));
 });
 
+prueba('lo que te ha hecho ganar cada mejora (idea 16): combustible, seguro, Leasing y Publicidad', function () {
+  const e = flotaDe(2);
+  ['conduccionEficiente', 'hibridos', 'seguroFlota', 'leasing', 'publicidad'].forEach(function (id) {
+    assert.ok(comprarConRequisitos(e, id).ok, id);
+  });
+  const fConduc = config.mejoras.find(function (m) { return m.id === 'conduccionEficiente'; }).efecto.consumo;
+  const fHib = config.mejoras.find(function (m) { return m.id === 'hibridos'; }).efecto.consumo;
+  assert.strictEqual(sim.cuentaDeMejora('conduccionEficiente'), 'ahorrado');
+  assert.strictEqual(sim.cuentaDeMejora('publicidad'), 'ganado');
+  assert.strictEqual(sim.cuentaDeMejora('callejero'), null, 'las difíciles no se cuentan');
+  // Combustible: cada una, lo que habrías pagado de más sin ella.
+  const combustibleAntes = e.caja.hoy.combustible;
+  for (let i = 0; i < 40; i++) sim.avanzar(e, 0.5);   // 20 s, sin cerrar la caja
+  const pagado = e.caja.hoy.combustible - combustibleAntes;
+  assert.ok(pagado > 0);
+  cerca(sim.ganadoMejora(e, 'conduccionEficiente'), pagado * (1 / fConduc - 1), 0.01);
+  cerca(sim.ganadoMejora(e, 'hibridos'), pagado * (1 / fHib - 1), 0.01);
+  assert.strictEqual(sim.ganadoMejora(e, 'callejero'), 0);
+  // Leasing: al comprar un coche, lo que costaría sin el descuento.
+  e.empresa = { nombre: 'Prueba SL', jornada: 0 };
+  sim.comprarLicencia(e);
+  const precio = sim.precioCoche(e);
+  const fLeasing = config.mejoras.find(function (m) { return m.id === 'leasing'; }).efecto.precioCoche;
+  assert.ok(sim.comprarVehiculo(e, e.licencias[e.licencias.length - 1].id).ok);
+  cerca(sim.ganadoMejora(e, 'leasing'), precio * (1 / fLeasing - 1), 0.01);
+  // Seguro y Publicidad, al cerrar la caja.
+  const seguroAntes = sim.ganadoMejora(e, 'seguroFlota');
+  for (let i = 0; i < 4000 && e.reloj.minutos < 31 * 60; i++) sim.avanzar(e, 0.5);
+  assert.ok(sim.ganadoMejora(e, 'seguroFlota') > seguroAntes, 'el seguro ahorra al cerrar');
+  assert.ok(sim.ganadoMejora(e, 'publicidad') > 0, 'la publicidad cobra al cerrar');
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;

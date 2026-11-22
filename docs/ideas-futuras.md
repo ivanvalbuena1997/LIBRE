@@ -45,22 +45,8 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     partida. Ojo: si llevara reinicios con premio, se parecería al
     «prestigio», que DISENO.md deja fuera del alcance actual.
 
-16. [ ] **Lo que te ha hecho ganar cada mejora.** En la hoja de cada mejora
-    comprada, cuánto has ganado de más gracias a ella desde que la tienes.
-    Estudiar si es viable en todos los casos (apunte del 19-11-2026):
-    - **Fácil, se puede contar directamente:** lo que la mejora cobra o
-      ahorra de forma visible: Publicidad y Sacudir esterillas (ya son
-      incidencias del ticket), combustible ahorrado (consumo), seguro y
-      cuota de la emisora, coste de averías y pinchazos, precio de los
-      coches (Leasing).
-    - **Difícil, hay que estimarlo:** lo que cambia cuántas carreras se
-      hacen (demanda, búsqueda, cola, más propinas, zonas nuevas, Jornada
-      larga). No se puede saber qué habría pasado sin ella; se podría
-      calcular con el modelo del juego (lo que haría la flota con y sin el
-      factor) y enseñarlo como «unos X €».
-    - **Sin cifra en euros:** Taquillas, Curso de zonas, RRHH y la
-      Oficina (dejar el volante). Para estas, quizá un texto en vez de
-      dinero.
+16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
+    las fáciles (ver «Hechas»).
 
 ### ⭐️ Clientes y eventos
 
@@ -90,6 +76,12 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **16. Lo que te ha hecho ganar cada mejora** (📈, 22-11-2026). Solo
+  las que se cuentan directamente (Iván: «el resto no lo vamos a indicar»):
+  Publicidad y esterillas (ganado); combustible, seguro, averías, pinchazos
+  y Leasing (ahorrado). Las de demanda, búsqueda, zonas, propinas, Jornada
+  larga, Taquillas, Curso de zonas, RRHH, Oficina y Emisora no enseñan nada.
 
 - [x] **1. Nombre de la empresa** (🏢, 20-11-2026). Para la 4.ª licencia hay
   que montar una SL (3.000 € y 10 € por conductor y jornada) y ponerle nombre

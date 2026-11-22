@@ -421,6 +421,10 @@
         {
           "n": 92,
           "texto": "Farolas a lo largo de la acera de la calle, que se encienden de noche con una luz suave."
+        },
+        {
+          "n": 93,
+          "texto": "En la hoja de cada mejora comprada sale cuánto te ha hecho ganar o ahorrar: Publicidad, esterillas, combustible, seguro, averías, pinchazos y Leasing. En las demás no se puede saber y no sale nada."
         }
       ]
     }

@@ -117,3 +117,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 90. Las zonas de la pestaña Calle van ahora justo debajo del taxímetro: con muchos taxis ya se ven a la vez que conduces.
 91. Arreglo: de noche, la luz del faro del taxi se veía cortada. Ahora es un haz que sale del faro y se apaga poco a poco.
 92. Farolas a lo largo de la acera de la calle, que se encienden de noche con una luz suave.
+93. En la hoja de cada mejora comprada sale cuánto te ha hecho ganar o ahorrar: Publicidad, esterillas, combustible, seguro, averías, pinchazos y Leasing. En las demás no se puede saber y no sale nada.

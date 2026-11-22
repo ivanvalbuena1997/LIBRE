@@ -133,6 +133,13 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 
 Todo el árbol en una pantalla (Iván, 18-11-2026): arriba el logo, del que salen las cinco ramas en columnas (Clientes, Ciudad, Coche, Taller y Equipo). Cada mejora es un círculo con su icono, unido al de antes por una línea (verde si lo de antes está comprado), con las rayitas de sus niveles y el precio de lo siguiente debajo. Estados: **comprada** (verde con ✓), **disponible** (azul relleno), **sin dinero** (azul claro, precio en gris) y **bloqueada** (gris con candado). Al tocar una sube su ficha desde abajo: icono, nombre, rama, nivel, qué hace y «Comprar nivel 3 · 1.000,00 €»; se cierra con ×, el fondo o Escape.
 
+**Lo que te ha hecho ganar cada mejora** (idea 16, Iván, 22-11-2026): en la hoja de una mejora comprada, una cifra en verde, «Te ha hecho ganar» o «Te ha ahorrado», desde que la compraste. Solo en las que se puede contar directamente:
+
+- **Ganado:** Publicidad en el taxi (lo que cobra al cerrar la caja) y Sacudir esterillas (las monedas).
+- **Ahorrado:** combustible (Curso de conducción eficiente, Neumáticos de bajo consumo, Flota híbrida y Depósito de GLP), seguro (Curso de seguridad vial y Póliza de flota), averías (Mecánico propio), pinchazos (Grúa propia) y coches (Leasing). Cada una cuenta lo que habrías pagado de más sin ella, con las demás que tengas: pagado × (1/factor − 1).
+
+Las que cambian cuántas carreras se hacen (demanda, búsqueda, zonas, propinas, Jornada larga…) y las que no dan euros (Taquillas, Curso de zonas, RRHH, Oficina, Emisora) no enseñan nada: no se puede saber qué habría pasado sin ellas. En las partidas de antes se empieza a contar desde esta actualización, y la hoja lo dice.
+
 ### Estadísticas
 
 <p>

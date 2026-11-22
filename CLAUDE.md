@@ -317,6 +317,17 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (verde con ✓), disponible (azul), sin dinero y bloqueada (candado). Al
   tocar uno sube su hoja (`nodoAbierto`, `htmlHojaMejora()`): qué hace y
   «Comprar nivel N · precio»; se cierra con ×, el fondo o Escape.
+- Lo que deja cada mejora (idea 16, Iván 22-11-2026; versión 30 del
+  guardado): `estado.ganadoMejoras = { id: euros }`, solo en las que se
+  cuentan directamente (`CUENTA_MEJORAS`, `cuentaDeMejora()`: 'ganado' para
+  publicidad y monedas de esterillas, 'ahorrado' para consumo, seguro,
+  averiaCoste, pinchazoCoste y precioCoche). `apuntarGanado()` y
+  `apuntarAhorro(estado, clave, pagado)` (cada mejora con ese factor f:
+  pagado × (1/f − 1)) se llaman donde se cobra: `gastar()` del combustible,
+  `cerrarCaja()` (seguro y publicidad), monedas, pinchazo, avería,
+  `comprarVehiculo()` y `renovarCoche()`. `estado.mejorasAntesDeCuenta`:
+  las que ya tenía una partida migrada. En la hoja de la mejora,
+  `htmlGanadoMejora()`, al día en `actualizar` (`#mejora-ganado`).
 - Mejoras: `estado.mejoras[id]` guarda el nivel (número; 0 o ausente si no
   la tienes). Con `niveles` en la config, cada nivel tiene su precio y su
   efecto total; `nivelMejora()` y `siguienteNivel()` lo resuelven.
