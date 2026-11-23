@@ -598,6 +598,17 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   Curso de zonas y RRHH, que ahora la pide). Tu turno usa la misma barra en
   `estado.jugador` (`cansarse()` desde `terminarCarrera()`); el taxímetro
   enseña «Energía N % · Toca para buscar» y «Descansando hasta…».
+- Racha (idea 21, Iván 23-11-2026; a prueba, `config.racha`): solo tu turno.
+  `estado.jugador.racha = { n, turno, hasta }`; `buscarCliente()` llama a
+  `encadenarRacha()` (n + 1 si `rachaViva()`, si no 0; tope `topeRacha()`)
+  y sube `carrera.importe` un `porCarrera` × n; `terminarCarrera()` abre
+  la ventana (`abrirVentanaRacha()`: `reaccionSegundos` reales en minutos
+  de juego) o la corta si toca descansar; el pesetas la corta. Al cambiar
+  de turno (`claveTurnoCansancio`) se pierde sola. Para mejoras y objetos
+  del personaje: `rachaMaximo` y `rachaReaccion` en `modificadores()`.
+  `racha.disponible` (hoy true) dirá si la tienes. En el taxímetro, delante
+  de la etiqueta: «RACHA ×1,04 · …» (`rachaActual()`). Sin cambio de
+  versión del guardado (campo nuevo opcional).
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
   conductores) deja parado hasta que escampa al que no lleva carrera, y el

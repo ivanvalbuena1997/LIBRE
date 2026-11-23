@@ -286,7 +286,7 @@
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false, incognitoTu: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
-      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1, rebuscar: false, cansancio: 1, descanso: 1
+      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1, rebuscar: false, cansancio: 1, descanso: 1, rachaMaximo: 0, rachaReaccion: 0
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -322,6 +322,8 @@
       if (e.rebuscar) m.rebuscar = true;
       if (e.cansancio) m.cansancio *= e.cansancio;
       if (e.descanso) m.descanso *= e.descanso;
+      if (e.rachaMaximo) m.rachaMaximo += e.rachaMaximo;
+      if (e.rachaReaccion) m.rachaReaccion += e.rachaReaccion;
     });
     return m;
   }
@@ -2131,6 +2133,7 @@
       if (estado.reloj.minutos - estado.jugador.vigilancia.desde >= cortesia) {
         const resumen = resumenVacio();
         estado.jugador.vigilancia = null;
+        cortarRacha(estado);
         pararHastaFinDeTurno(estado, turnoDelJugador(estado), 'pesetas');
         incidencia(estado, resumen, 'pesetas', 'El pesetas te ha pillado cargando fuera de tus días de trabajo: ' +
           'multa de ' + Libre.ui_euros(tu.multa) + ' y se acabó tu turno.', -tu.multa, 'otros');
@@ -2144,7 +2147,48 @@
     const porCoche = Math.min(demanda, 60 / minutosPorCarrera(estado, turno.zona, info.tarifa));
     const lic = buscarLicencia(estado, ubicacionJugador(estado).licenciaId);
     estado.jugador.carrera = planearCarrera(estado, turno.zona, lic.vehiculo, porCoche, rnd, 'media');
-    return exito();
+    // Racha: si encadenas, esta carrera cobra un poco más.
+    const r = encadenarRacha(estado);
+    estado.jugador.carrera.importe *= 1 + r.bono;
+    estado.jugador.carrera.racha = r.n;
+    return exito(r.alMaximo ? '¡Racha máxima! Cada carrera cobra un ' + Math.round(r.bono * 100) + ' % más mientras no pares.' : '');
+  }
+
+  /*
+   * Racha (idea 21, Iván 23-11-2026). estado.jugador.racha = { n, turno,
+   * hasta }: n carreras encadenadas, el turno (claveTurnoCansancio) y hasta
+   * qué minuto de juego puedes buscar la siguiente sin cortarla (null
+   * mientras llevas cliente). Sin la racha disponible, siempre 0.
+   */
+  function topeRacha(estado) {
+    const r = cfg().racha;
+    return Math.round((r.maximo + modificadores(estado).rachaMaximo) / r.porCarrera);
+  }
+  function rachaViva(estado) {
+    const r = estado.jugador.racha;
+    if (!cfg().racha.disponible || !r || r.turno !== claveTurnoCansancio(estado.reloj.minutos)) return false;
+    return r.hasta === null || estado.reloj.minutos <= r.hasta;
+  }
+  function encadenarRacha(estado) {
+    if (!cfg().racha.disponible) return { n: 0, bono: 0 };
+    const antes = rachaViva(estado) ? estado.jugador.racha.n : -1;
+    const n = Math.min(antes + 1, topeRacha(estado));
+    estado.jugador.racha = { n, turno: claveTurnoCansancio(estado.reloj.minutos), hasta: null };
+    return { n, bono: n * cfg().racha.porCarrera, alMaximo: n === topeRacha(estado) && antes === n - 1 };
+  }
+  /* Al cobrar: tienes reaccionSegundos reales para buscar la siguiente. */
+  function abrirVentanaRacha(estado) {
+    const r = estado.jugador.racha;
+    if (!r) return;
+    const segundos = cfg().racha.reaccionSegundos + modificadores(estado).rachaReaccion;
+    r.hasta = estado.reloj.minutos + segundos * MIN_DIA / segundosPorDia(estado);
+  }
+  function cortarRacha(estado) { estado.jugador.racha = null; }
+  /* Para la interfaz: { n, bono, maximo } de la racha ahora (0 si está cortada). */
+  function rachaActual(estado) {
+    const viva = rachaViva(estado);
+    const n = viva ? estado.jugador.racha.n : 0;
+    return { n, bono: n * cfg().racha.porCarrera, maximo: topeRacha(estado), disponible: !!cfg().racha.disponible };
   }
 
   /*
@@ -2175,6 +2219,9 @@
     gastar(estado, resumen, 'combustible', carrera.combustible);
     // Tú también te cansas (paso 2): la misma barra, en estado.jugador.
     cansarse(estado, estado.jugador, carrera);
+    // Racha: si toca descansar se corta; si no, abre el segundo para encadenar.
+    if (estado.jugador.motivoParada === 'descanso' && estado.jugador.paradoHasta > estado.reloj.minutos) cortarRacha(estado);
+    else abrirVentanaRacha(estado);
     estado.caja.hoy.km += carrera.km + (carrera.kmVacio || 0);
     const enLicencia = ubicacionJugador(estado);
     sumarKm(estado, enLicencia && buscarLicencia(estado, enLicencia.licenciaId), carrera.km + (carrera.kmVacio || 0));
@@ -3146,6 +3193,7 @@
     precioCoche,
     cuentaDeMejora,
     energia,
+    rachaActual,
     minutosDescanso,
     precioRebuscar,
     rebuscarCandidatos,

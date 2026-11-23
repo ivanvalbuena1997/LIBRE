@@ -264,8 +264,12 @@
           (carrera ? 'No cargues la siguiente · ' : 'No cargues · ') + segVigila + ' s', 'vigilado',
           chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
       } else {
+        // Racha (idea 21): «· RACHA ×1,05» junto a la etiqueta, sin añadir alto.
+        const racha = Libre.sim.rachaActual(estado);
+        // Delante, para que si no cabe se corte lo otro (móviles estrechos).
+        const textoRacha = racha.n > 0 ? 'RACHA ×' + (1 + racha.bono).toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' · ' : '';
         pintarDisplay(conPasajero ? enCurso : 0,
-          conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : 'IMPORTE',
+          textoRacha + (conPasajero ? 'IMPORTE' : ultima ? 'ÚLTIMA ' + euros(ultima.importe) : 'IMPORTE'),
           estadoTexto, conPasajero ? 'ocupado' : 'libre', chipTarifa(conPasajero ? carrera.tarifa : info.tarifa));
       }
       if (vigilanciaAntes && !vigilado && !parado && vistaActual === 'calle') mostrarMensaje('El pesetas se ha ido: ya puedes cargar.');

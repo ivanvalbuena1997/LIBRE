@@ -402,6 +402,17 @@
      * de juego y vuelve con la barra llena; al empezar cada turno, llena.
      * Equilibrio: unos 3 descansos por turno de 12 h (medido con el bot).
      */
+    /*
+     * Racha (idea 21, Iván 23-11-2026): cada carrera tuya que encadenas
+     * (buscas la siguiente en menos de reaccionSegundos reales tras cobrar)
+     * cobra porCarrera más, hasta maximo. Se corta al despistarte, al
+     * descansar, al acabar el turno o si te pilla el pesetas. disponible:
+     * de momento la tiene todo el mundo, para probarla; Iván decidirá luego
+     * cómo se consigue (mejora o reinicio). Las mejoras y objetos de tu
+     * personaje la subirán (rachaMaximo, rachaReaccion en modificadores()).
+     */
+    racha: { disponible: true, porCarrera: 0.01, maximo: 0.10, reaccionSegundos: 1 },
+
     cansancio: {
       maximo: 100,
       gastoPorMinuto: { pasajero: 0.75, buscando: 0.55, cola: 0.2 },

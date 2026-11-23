@@ -131,3 +131,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 101. Dos mejoras para el cansancio: el Climatizador bizona (todos se cansan un 15 % menos, tú también) y la Máquina de café en la cochera (descansos de 25 y luego 20 minutos). La máquina va antes del Departamento de RRHH.
 102. Los códigos para exportar e importar partidas son unas 3 veces más cortos (van comprimidos y empiezan por LIBRE2). Los de antes se siguen pudiendo importar.
 103. Ajustes tras medir: Pago con tarjeta da un 15 % más de demanda (antes un 10 %), el Climatizador bizona quita un 25 % de cansancio (antes un 15 %, y con icono nuevo) y la Máquina de café acorta los descansos un 22 % y un 38 % (antes un 17 % y un 33 %).
+104. A prueba: la racha. Si encadenas carreras sin despistarte (menos de un segundo entre cobrar y buscar la siguiente), cada una cobra un 1 % más, hasta un 10 %. Se corta si te despistas, si descansas o al acabar tu turno. Sale arriba en el taxímetro.

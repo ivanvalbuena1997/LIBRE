@@ -1699,6 +1699,38 @@ prueba('exportar comprime (LIBRE2…), importar da la misma partida, y los texto
   assert.throws(function () { g.importar(texto.slice(0, texto.length - 30)); }, /incompleto/);
 });
 
+prueba('racha: encadenar carreras sube el importe un 1 % cada una, hasta +10 %, y se corta al despistarte', function () {
+  const r = config.racha;
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 99;
+  e.reloj.minutos = 8 * 60;
+  const segundo = sim.MIN_DIA / sim.segundosPorDia(e);   // minutos de juego por segundo real
+  function hacerCarrera(esperaTrasCobrar) {
+    sim.avanzar(e, esperaTrasCobrar);
+    const ok = sim.buscarCliente(e, azarFijo(0.5));
+    assert.ok(ok.ok, ok.mensaje);
+    const carrera = e.jugador.carrera;
+    while (e.jugador.carrera) sim.avanzar(e, 0.05);
+    return carrera;
+  }
+  e.jugador.cansancio = 1e9;   // que no descanse en mitad de la prueba
+  e.jugador.cansancioTurno = Math.floor((e.reloj.minutos - 420) / 720);
+  const primera = hacerCarrera(0);
+  assert.strictEqual(primera.racha, 0, 'la primera no lleva racha');
+  let ultima = primera;
+  for (let i = 1; i <= 12; i++) ultima = hacerCarrera(0.2);
+  assert.strictEqual(ultima.racha, Math.round(r.maximo / r.porCarrera), 'tope en +10 %');
+  cerca(sim.rachaActual(e).bono, r.maximo, 1e-9);
+  // Despiste: más de un segundo real sin buscar cliente.
+  const tras = hacerCarrera(r.reaccionSegundos + 0.3);
+  assert.strictEqual(tras.racha, 0, 'se corta al despistarte');
+  // Otro turno: también se corta.
+  hacerCarrera(0.2);
+  e.jugador.racha.turno = -1;
+  assert.strictEqual(sim.rachaActual(e).n, 0, 'al cambiar de turno, cortada');
+  assert.ok(segundo > 0);
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;

@@ -65,7 +65,10 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 21. [ ] **Racha.** Encadenar carreras sin despistarte sube el importe
     poco a poco; se corta si te despistas o si descansas (así el cansancio
     también cuenta y en el late game se llega a rachas mejores). Más
-    adelante, una rama de mejoras de tu personaje.
+    adelante, una rama de mejoras de tu personaje. **A prueba desde el
+    23-11-2026** (+1 % por carrera hasta +10 %, 1 s de reacción, solo dentro
+    del turno). Falta: decidir cómo se consigue (mejora o reinicio) y las
+    mejoras y objetos que suban el tope y la reacción.
 22. [ ] ~~Decisiones durante la carrera.~~ Descartada (Iván, 23-11-2026: no
     la quiere; el «sí» anterior fue una errata). Tampoco las ofertas de la
     emisora.

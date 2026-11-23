@@ -471,6 +471,10 @@
         {
           "n": 103,
           "texto": "Ajustes tras medir: Pago con tarjeta da un 15 % más de demanda (antes un 10 %), el Climatizador bizona quita un 25 % de cansancio (antes un 15 %, y con icono nuevo) y la Máquina de café acorta los descansos un 22 % y un 38 % (antes un 17 % y un 33 %)."
+        },
+        {
+          "n": 104,
+          "texto": "A prueba: la racha. Si encadenas carreras sin despistarte (menos de un segundo entre cobrar y buscar la siguiente), cada una cobra un 1 % más, hasta un 10 %. Se corta si te despistas, si descansas o al acabar tu turno. Sale arriba en el taxímetro."
         }
       ]
     }
