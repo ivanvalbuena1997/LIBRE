@@ -126,3 +126,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 ## 23 de noviembre de 2026 · Cansancio
 
 98. Los conductores se cansan: una barra de energía se gasta trabajando y, al vaciarse, paran a descansar 30 minutos de juego (unas 3 veces por turno). La energía sale en su ficha.
+99. Tú también te cansas: tus carreras gastan tu energía (sale en el taxímetro) y, al vaciarse, descansas 30 minutos de juego.

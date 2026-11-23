@@ -2156,6 +2156,8 @@
       zona: carrera.zona, tarifa: carrera.tarifa, importe: carrera.importe, km: carrera.km
     };
     gastar(estado, resumen, 'combustible', carrera.combustible);
+    // Tú también te cansas (paso 2): la misma barra, en estado.jugador.
+    cansarse(estado, estado.jugador, carrera);
     estado.caja.hoy.km += carrera.km + (carrera.kmVacio || 0);
     const enLicencia = ubicacionJugador(estado);
     sumarKm(estado, enLicencia && buscarLicencia(estado, enLicencia.licenciaId), carrera.km + (carrera.kmVacio || 0));

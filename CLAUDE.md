@@ -584,7 +584,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   minuto de juego buscando o en cola, y viaje con pasajero) y, a 0, para
   `descansoMinutos` de juego con `motivoParada` 'descanso'. `energia()`
   (solo lectura) la da; en la ficha, `htmlEnergia()`, al día en
-  `actualizar` (`data-energia`). Paso 1 de 4: solo conductores.
+  `actualizar` (`data-energia`). Tu turno usa la misma barra en
+  `estado.jugador` (`cansarse()` desde `terminarCarrera()`); el taxímetro
+  enseña «Energía N % · Toca para buscar» y «Descansando hasta…».
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
   conductores) deja parado hasta que escampa al que no lleva carrera, y el

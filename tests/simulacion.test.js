@@ -1639,6 +1639,20 @@ prueba('cansancio: trabajar gasta energía y a 0 el conductor descansa 30 min de
   assert.strictEqual(sim.energia(e, t), c.maximo);
 });
 
+prueba('cansancio: tú también te cansas con tus carreras y descansas', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 77;
+  e.reloj.minutos = 8 * 60;
+  let paso = 0;
+  while (e.jugador.motivoParada !== 'descanso' && paso++ < 40000) {
+    if (!e.jugador.carrera) sim.buscarCliente(e, azarFijo(0.5));
+    sim.avanzar(e, 0.05);
+  }
+  assert.strictEqual(e.jugador.motivoParada, 'descanso');
+  assert.ok(!sim.buscarCliente(e, azarFijo(0.5)).ok, 'descansando no se busca cliente');
+  assert.strictEqual(sim.energia(e, e.jugador), config.cansancio.maximo);
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;

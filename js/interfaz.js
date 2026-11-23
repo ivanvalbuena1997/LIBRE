@@ -251,9 +251,11 @@
         : sinCoche === 'taller' ? 'Tu coche está en el taller'
         : conPasajero ? 'Con pasajero · ' + numero(carrera.km) + ' km'
         : carrera ? c.zonas[carrera.zona].textoEspera + '…'
-        : parado ? 'Parado hasta las ' + horaDe(estado.jugador.paradoHasta)
+        : parado ? (estado.jugador.motivoParada === 'descanso' ? 'Descansando' : 'Parado') + ' hasta las ' + horaDe(estado.jugador.paradoHasta)
         : !enTurno ? 'Tu turno empieza a las ' + dos(miTurno.horaInicio) + ':00'
-        : 'Toca para buscar cliente';
+        // Tu energía (cansancio), al lado: a 0 descansas 30 min de juego.
+        // Primero la energía: si no cabe (móviles muy estrechos), se corta lo otro.
+        : 'Energía ' + Math.round(Libre.sim.energia(estado, estado.jugador) / c.cansancio.maximo * 100) + ' % · Toca para buscar';
       // Un pesetas te mira (Iván, 20-11-2026): marco y piloto amarillos,
       // cuenta atrás y la barra vaciándose. Lo que ya llevas no cuenta.
       $('sec-taximetro').querySelector('.taximetro').classList.toggle('vigilado', vigilado);
