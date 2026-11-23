@@ -479,6 +479,10 @@
         {
           "n": 105,
           "texto": "La racha es más difícil y se ve mejor. El tiempo para encadenar se acorta a medida que subes: un segundo al empezar y medio segundo en el máximo. Tras cobrar, una raya ámbar bajo las cifras se vacía con el tiempo que te queda. El taxímetro se ilumina como una recreativa: se enciende una luz bajo la tarifa por cada carrera encadenada, el marco y las cifras brillan cada vez más, y en el máximo parpadean."
+        },
+        {
+          "n": 106,
+          "texto": "La racha suena como una recreativa: cada carrera que encadenas hace un «blip» más agudo que el anterior, al llegar al máximo suena una fanfarria y, si la pierdes, una nota que se cae."
         }
       ]
     }

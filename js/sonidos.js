@@ -2,7 +2,8 @@
  * Libre · sonidos.
  *
  * Sonidos sintetizados con Web Audio (sin archivos): cobro, propina, nivel,
- * objeto, avería, ticket y tic. Solo interfaz: la simulación no sabe nada
+ * objeto, avería, ticket, tic y los de la racha (racha, rachaMax, rachaFin).
+ * Solo interfaz: la simulación no sabe nada
  * de ellos.
  *
  * Silenciado hasta el primer toque: los navegadores no dejan sonar nada
@@ -39,7 +40,7 @@
 
   // Lo mínimo entre dos veces el mismo sonido (ms): con muchos taxis
   // cobrando a la vez, uno cada poco basta.
-  const SEPARACION = { cobro: 300, propina: 250, tic: 60, ticket: 1500, averia: 400, nivel: 300, objeto: 300 };
+  const SEPARACION = { cobro: 300, propina: 250, tic: 60, racha: 60, rachaFin: 400, ticket: 1500, averia: 400, nivel: 300, objeto: 300 };
 
   function aplicarVolumen() {
     if (salida) salida.gain.value = ajustesActuales.activo ? ajustesActuales.volumen * 0.6 : 0;
@@ -150,17 +151,42 @@
     // Tic del taxímetro al bajar la bandera.
     tic: function (t) {
       nota(t, 2100, 0.035, 'square', 0.08);
+    },
+    /*
+     * Racha (Iván, 23-11-2026), de recreativa: al encadenar, un «blip» de
+     * onda cuadrada que sube un tono por cada carrera (nivel de 0 a 1, de
+     * Do a casi dos octavas más) y suena más lleno cuanto más alto.
+     */
+    racha: function (t, nivel) {
+      const n = Math.max(0, Math.min(1, nivel || 0));
+      const f = 523.25 * Math.pow(2, n * 19 / 12);
+      nota(t, f, 0.07, 'square', 0.06 + n * 0.03);
+      nota(t + 0.06, f * 1.5, 0.11, 'square', 0.06 + n * 0.03);
+      if (n >= 0.5) nota(t + 0.12, f * 2, 0.14, 'square', 0.04 + n * 0.03);
+    },
+    // Racha al máximo: fanfarria de cuatro notas con trino al final.
+    rachaMax: function (t) {
+      [1046.5, 1318.5, 1568, 2093].forEach(function (f, i) {
+        nota(t + i * 0.07, f, i === 3 ? 0.4 : 0.1, 'square', 0.08);
+      });
+      for (let i = 0; i < 6; i++) nota(t + 0.32 + i * 0.045, i % 2 ? 2349.3 : 2093, 0.05, 'square', 0.04);
+    },
+    // Racha perdida: el «game over» corto, una nota que se cae.
+    rachaFin: function (t) {
+      nota(t, 660, 0.12, 'square', 0.07);
+      nota(t + 0.13, 440, 0.38, 'square', 0.07, 110);
     }
   };
 
-  function tocar(nombre) {
+  /* Toca un sonido; arg (opcional) lo matiza, p. ej. lo alta que va la racha. */
+  function tocar(nombre, arg) {
     if (!ctx || !ajustesActuales.activo || ajustesActuales.volumen <= 0 || !SONIDOS[nombre]) return;
     if (raiz.document && raiz.document.hidden) return;
     const ahora = Date.now();
     if (ahora - (ultimoToque[nombre] || 0) < (SEPARACION[nombre] || 100)) return;
     ultimoToque[nombre] = ahora;
     if (ctx.state === 'suspended') ctx.resume();
-    try { SONIDOS[nombre](ctx.currentTime + 0.01); } catch (e) { /* un sonido que falla no para el juego */ }
+    try { SONIDOS[nombre](ctx.currentTime + 0.01, arg); } catch (e) { /* un sonido que falla no para el juego */ }
   }
 
   function ajustes() { return Object.assign({}, ajustesActuales); }

@@ -291,6 +291,7 @@
       tx.style.setProperty('--racha', rv.nivel.toFixed(2));
       tx.classList.toggle('racha-viva', rv.n > 0);
       tx.classList.toggle('racha-max', rv.n > 0 && rv.n >= rv.maximo);
+      sonarRacha(estado, rv);
       const encendidas = rv.n > 0 ? Math.max(1, Math.round(rv.nivel * LUCES_RACHA)) : 0;
       Array.prototype.forEach.call($('racha-luces').children, function (luz, i) {
         luz.classList.toggle('encendida', i < encendidas);
@@ -728,8 +729,28 @@
   const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia', vigilancia: 'pesetas' };
 
   /* Toca un sonido (js/sonidos.js), si el módulo está cargado. */
-  function sonar(nombre) {
-    if (Libre.sonidos) Libre.sonidos.tocar(nombre);
+  function sonar(nombre, arg) {
+    if (Libre.sonidos) Libre.sonidos.tocar(nombre, arg);
+  }
+
+  /*
+   * Sonidos de la racha (Iván, 23-11-2026), de recreativa: cada carrera
+   * encadenada suena más aguda (racha), al llegar al tope una fanfarria
+   * (rachaMax) y, si se pierde, una nota que cae (rachaFin). Se deciden
+   * comparando con lo que había en el fotograma anterior.
+   */
+  const rachaOida = { n: null, carrera: null };
+  function sonarRacha(estado, rv) {
+    const c = estado.jugador.carrera;
+    const clave = c ? c.inicio : null;
+    if (rachaOida.n !== null) {
+      if (c && clave !== rachaOida.carrera && c.racha > 0) {
+        if (c.racha >= rv.maximo && rachaOida.n < rv.maximo) sonar('rachaMax');
+        else sonar('racha', c.racha / rv.maximo);
+      } else if (rachaOida.n > 0 && rv.n === 0) sonar('rachaFin');
+    }
+    rachaOida.n = rv.n;
+    rachaOida.carrera = clave;
   }
 
   function mostrarEventos(eventos) {

@@ -76,7 +76,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 - Sonidos (`js/sonidos.js`): sintetizados con Web Audio, sin archivos:
   cobro (al cobrar cualquier taxi, como mucho uno cada 300 ms), propina,
   nivel, objeto (hallazgo), avería (también pinchazo), ticket (al salir
-  uno nuevo) y tic (al buscar cliente). Mudos hasta el primer toque de la
+  uno nuevo), tic (al buscar cliente) y los de la racha: `racha` (al
+  encadenar, más agudo y lleno cuanto más alta; `tocar(nombre, arg)` con
+  arg = n / tope), `rachaMax` (fanfarria al llegar al tope) y `rachaFin`
+  (al perderla); los decide `sonarRacha()` comparando fotogramas. Mudos hasta el primer toque de la
   página; sonido sí/no y volumen en la hoja de Ajustes, guardados en
   `localStorage` (`libre-sonido`), aparte de la partida. La interfaz los
   pide con `sonar()`; `SONIDO_EVENTO` dice qué evento lleva cuál. Con la
