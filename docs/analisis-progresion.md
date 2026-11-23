@@ -179,3 +179,53 @@ con ese horario. Quien juega seguido no nota nada.
 Un intento de medirlo con el bot jugando a ratos no terminó: con el
 progreso fuera, la flota crecía tanto que la simulación no acababa en una
 hora.
+
+## Fase 1: medidas tras el cansancio (23-11-2026)
+
+Flotas fijas de conductores B sin rasgos (tu turno sin tocar, salvo en la
+Oficina), sin libranza, 30 jornadas y entre 4 y 12 semillas. Ojo: el azar de
+las carreras mete mucho ruido (±40 € por jornada); las cifras pequeñas no son
+fiables.
+
+**Lo que cuesta el cansancio** (neto por jornada, con y sin cansancio):
+
+| Flota | Con cansancio | Sin cansancio | Diferencia |
+| --- | --- | --- | --- |
+| 3 licencias | 208 € | 321 € | −113 € (−35 %) |
+| 6 licencias | 381 € | 552 € | −171 € (−31 %) |
+
+En neto pesa más que en facturación (−8 a −18 %), porque los costes fijos no
+bajan. Con el bot, la partida va un 15–20 % más lenta en todos los tramos
+(Siguiente: 2.ª licencia 27 → 31 min, 4.ª 101 → 121, 6.ª 129 → 154).
+
+**Lo que deja cada mejora del cansancio.** Medidas directas (ruidosas) y una
+cuenta más estable: cada minuto de descanso cuesta unos 0,25 € (3
+licencias) o 0,17 € (6), lo que quita el cansancio entre los minutos de
+descanso de la flota.
+
+| Mejora | Precio | Medido | Por la cuenta | Se paga en (cuenta, 6 lic.) |
+| --- | --- | --- | --- | --- |
+| Máquina de café, nivel 1 | 2.200 € | +51 / +69 € | +19 / +29 € | ~75 jornadas |
+| Máquina de café, nivel 2 | 3.300 € | +22 / +8 € más | +19 / +29 € más | ~115 jornadas |
+| Climatizador bizona | 5.500 € | entre −41 y +26 € (ruido) | +17 / +26 € | ~210 jornadas |
+| (ref.) Callejero al día | 400 € | +18 / +66 € | — | ~6 jornadas |
+| (ref.) Curso de zonas | 2.000 € | +143 / +347 € | — | ~6 jornadas |
+| (ref.) Pago con tarjeta | 1.500 € | +19 / +10 € | — | ~80–150 jornadas |
+
+El Climatizador rinde poco para lo que cuesta (y el bot no llega a
+comprarlo). La Máquina de café, nivel 1, la compran Siguiente (minuto 96) y
+Gestor (55). De paso: «Pago con tarjeta» también se paga muy despacio.
+
+**La Oficina de gestión (idea 19)**, neto por jornada:
+
+| Flota | Tú conduces, sin Oficina | Con Oficina y sigues conduciendo | Con Oficina y dejas el volante |
+| --- | --- | --- | --- |
+| 1 licencia | 230 € | 307 € | 230 € |
+| 3 licencias | 484 € | 743 € | 621 € |
+| 6 licencias | 647 € | 1.209 € | 1.037 € |
+
+La Oficina en sí rinde mucho (los conductores se quedan menos). Lo que
+pierde es **dejar el volante**: tu turno pasa a un conductor que se queda su
+parte. Con 1 licencia, dejarlo te deja igual que sin la Oficina. Ahora que no
+hay progreso fuera, dejar el volante es la forma de que la partida avance
+sola con el juego abierto; perder un 15–20 % por ello puede ser razonable.
