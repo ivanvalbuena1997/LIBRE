@@ -459,6 +459,10 @@
         {
           "n": 100,
           "texto": "Rasgos y objetos para el cansancio: Incansable y Siesta exprés (y sus contrarios, Blandengue y Remolón), el Antifaz de avión, el Ventilador de pinza y el legendario Café con porras de las 6 de la mañana. El Termo de café y la Silla ergonómica ahora también quitan cansancio."
+        },
+        {
+          "n": 101,
+          "texto": "Dos mejoras para el cansancio: el Climatizador bizona (todos se cansan un 15 % menos, tú también) y la Máquina de café en la cochera (descansos de 25 y luego 20 minutos). La máquina va antes del Departamento de RRHH."
         }
       ]
     }

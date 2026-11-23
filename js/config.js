@@ -978,6 +978,12 @@
         descripcion: 'Instalas un depósito de GLP en toda tu flota: el combustible te cuesta un 30 % menos.',
         efecto: { consumo: 0.7 }
       },
+      {
+        // Cansancio (Iván, 23-11-2026): toda la flota, tú incluido. Equilibrio.
+        id: 'climatizador', nombre: 'Climatizador bizona', rama: 'vehiculo', requiere: 'glp', precio: 5500,
+        descripcion: 'Aire acondicionado a gusto de cada uno en toda tu flota: todos se cansan un 15 % menos, tú también.',
+        efecto: { cansancio: 0.85 }
+      },
       // ---- Rama: Taller y seguros
       {
         id: 'mecanico', nombre: 'Mecánico propio', rama: 'taller',
@@ -1075,11 +1081,22 @@
         efecto: { gestionZonas: true }
       },
       {
+        // Cansancio (Iván, 23-11-2026): descansos de 30 a 25 y a 20 minutos,
+        // para toda la flota (tú también). Entre el Curso de zonas y RRHH para
+        // no quedar al final de la rama (25.000 €). Equilibrio.
+        id: 'cafeCochera', nombre: 'Máquina de café en la cochera', rama: 'jornada', requiere: 'gestionZonas',
+        descripcion: 'Un buen café antes de volver al taxi: los descansos son más cortos para toda la flota.',
+        niveles: [
+          { precio: 2200, descripcion: 'Descansos de 25 minutos.', efecto: { descanso: 25 / 30 } },
+          { precio: 3300, descripcion: 'Descansos de 20 minutos.', efecto: { descanso: 20 / 30 } }
+        ]
+      },
+      {
         // Iván (18-11-2026): mejores candidatos en el late-game. Cada nivel da
         // los pesos de las categorías de los candidatos (suman 1; sin la
         // mejora, los `peso` de config.categorias). No cambia los objetos.
         // Precios y pesos: Equilibrio.
-        id: 'rrhh', nombre: 'Departamento de RRHH', rama: 'jornada', requiere: 'gestionZonas',
+        id: 'rrhh', nombre: 'Departamento de RRHH', rama: 'jornada', requiere: 'cafeCochera',
         descripcion: 'Alguien que hace entrevistas de verdad: los candidatos salen de mejor categoría.',
         niveles: [
           { precio: 2500, descripcion: 'B 55 % · A 30 % · S 11 % · S+ 3 % · LEGENDARIO 1 %.',

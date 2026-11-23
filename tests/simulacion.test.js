@@ -1494,6 +1494,9 @@ prueba('«Siguiente» propone el Curso de zonas y RRHH a partir de 3 licencias',
   comprarConRequisitos(e, 'taquillas');
   assert.ok(ids().indexOf('gestionZonas') !== -1, 'y luego el Curso');
   sim.comprarMejora(e, 'gestionZonas');
+  // Desde el 23-11-2026, entre el Curso y RRHH va la Máquina de café.
+  assert.ok(ids().indexOf('cafeCochera') !== -1, 'y luego la Máquina de café, que va antes de RRHH');
+  sim.comprarMejora(e, 'cafeCochera');
   assert.ok(ids().indexOf('rrhh') !== -1, 'y luego RRHH');
 });
 
@@ -1652,6 +1655,23 @@ prueba('cansancio: tú también te cansas con tus carreras y descansas', functio
   assert.strictEqual(e.jugador.motivoParada, 'descanso');
   assert.ok(!sim.buscarCliente(e, azarFijo(0.5)).ok, 'descansando no se busca cliente');
   assert.strictEqual(sim.energia(e, e.jugador), config.cansancio.maximo);
+});
+
+prueba('cansancio: Climatizador y Máquina de café valen para toda la flota, también para ti', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  const base = config.cansancio.descansoMinutos;
+  cerca(sim.minutosDescanso(e, t), base);
+  assert.ok(comprarConRequisitos(e, 'cafeCochera').ok);
+  cerca(sim.minutosDescanso(e, t), 25, 0.01);
+  cerca(sim.minutosDescanso(e, e.jugador), 25, 0.01, 'tú también');
+  assert.ok(sim.comprarMejora(e, 'cafeCochera').ok);
+  cerca(sim.minutosDescanso(e, t), 20, 0.01);
+  const antes = sim.statsConductor(e, t, 'noche').find(function (s) { return s.clave === 'cansancio'; }).factor;
+  assert.ok(comprarConRequisitos(e, 'climatizador').ok);
+  const cansancio = sim.statsConductor(e, t, 'noche').find(function (s) { return s.clave === 'cansancio'; });
+  cerca(cansancio.factor, antes * 0.85, 0.001);
+  assert.ok(cansancio.fuentes.some(function (f) { return f.tipo === 'mejora' && f.nombre === 'Climatizador bizona'; }));
 });
 
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {

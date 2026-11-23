@@ -588,7 +588,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `cansancio` (lo que gasta) y `descanso` (lo que dura), en
   `VALORES_CONDUCTOR`, con topes; las mejoras, en `modificadores()` (también
   para ti). `factoresCansancio()` y `minutosDescanso()`; en sus stats,
-  'cansancio' y 'descanso'. Tu turno usa la misma barra en
+  'cansancio' y 'descanso'. Mejoras (paso 4): «Climatizador bizona» (final
+  de Vehículo) y «Máquina de café en la cochera» (`cafeCochera`, entre el
+  Curso de zonas y RRHH, que ahora la pide). Tu turno usa la misma barra en
   `estado.jugador` (`cansarse()` desde `terminarCarrera()`); el taxímetro
   enseña «Energía N % · Toca para buscar» y «Descansando hasta…».
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no

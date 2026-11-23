@@ -2195,6 +2195,10 @@
     hibridos: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M12 8.5l-2.5 4h3l-2.5 4"/>',
     // Bombona de gas (GLP).
     glp: '<rect x="6" y="7" width="12" height="14" rx="5"/><path d="M9 7V4h6v3M12 2v2M6 13h12"/>',
+    // Climatizador bizona: un copo de nieve (frío) con aire.
+    climatizador: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M10 4.5l2 2 2-2M10 19.5l2-2 2 2"/>',
+    // Máquina de café: una taza humeante.
+    cafeCochera: '<path d="M5 10h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 12h1.5a2.5 2.5 0 0 1 0 5H16M8 3c-1 1 1 2 0 4M12 3c-1 1 1 2 0 4"/>',
     mecanico: '<path d="M15 4a4 4 0 0 0-4.5 5.5L4 16l4 4 6.5-6.5A4 4 0 0 0 20 9l-3 1-2-2 1-3z"/>',
     seguridadVial: '<path d="M12 3l9 17H3z"/><path d="M12 10v4M12 17h.01"/>',
     seguroFlota: '<path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
