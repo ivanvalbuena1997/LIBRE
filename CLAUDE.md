@@ -189,7 +189,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket).
   Para probar:
   `Libre.darExperiencia('Laura', 100)` en la consola.
-- Objetos de conductor (`config.objetos`, 37 con categoría de
+- Objetos de conductor (`config.objetos`, 40 con categoría de
   `config.categorias`: B, A, S, S+ y LEGENDARIO). No se compran: un
   conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;
   categoría por pesos y objeto al azar dentro de ella), con aviso y sin ir
@@ -584,7 +584,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   minuto de juego buscando o en cola, y viaje con pasajero) y, a 0, para
   `descansoMinutos` de juego con `motivoParada` 'descanso'. `energia()`
   (solo lectura) la da; en la ficha, `htmlEnergia()`, al día en
-  `actualizar` (`data-energia`). Tu turno usa la misma barra en
+  `actualizar` (`data-energia`). Rasgos y objetos (paso 3): factores
+  `cansancio` (lo que gasta) y `descanso` (lo que dura), en
+  `VALORES_CONDUCTOR`, con topes; las mejoras, en `modificadores()` (también
+  para ti). `factoresCansancio()` y `minutosDescanso()`; en sus stats,
+  'cansancio' y 'descanso'. Tu turno usa la misma barra en
   `estado.jugador` (`cansarse()` desde `terminarCarrera()`); el taxímetro
   enseña «Energía N % · Toca para buscar» y «Descansando hasta…».
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no

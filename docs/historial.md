@@ -127,3 +127,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 
 98. Los conductores se cansan: una barra de energía se gasta trabajando y, al vaciarse, paran a descansar 30 minutos de juego (unas 3 veces por turno). La energía sale en su ficha.
 99. Tú también te cansas: tus carreras gastan tu energía (sale en el taxímetro) y, al vaciarse, descansas 30 minutos de juego.
+100. Rasgos y objetos para el cansancio: Incansable y Siesta exprés (y sus contrarios, Blandengue y Remolón), el Antifaz de avión, el Ventilador de pinza y el legendario Café con porras de las 6 de la mañana. El Termo de café y la Silla ergonómica ahora también quitan cansancio.

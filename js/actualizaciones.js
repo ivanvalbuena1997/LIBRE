@@ -455,6 +455,10 @@
         {
           "n": 99,
           "texto": "Tú también te cansas: tus carreras gastan tu energía (sale en el taxímetro) y, al vaciarse, descansas 30 minutos de juego."
+        },
+        {
+          "n": 100,
+          "texto": "Rasgos y objetos para el cansancio: Incansable y Siesta exprés (y sus contrarios, Blandengue y Remolón), el Antifaz de avión, el Ventilador de pinza y el legendario Café con porras de las 6 de la mañana. El Termo de café y la Silla ergonómica ahora también quitan cansancio."
         }
       ]
     }
