@@ -475,6 +475,10 @@
         {
           "n": 104,
           "texto": "A prueba: la racha. Si encadenas carreras sin despistarte (menos de un segundo entre cobrar y buscar la siguiente), cada una cobra un 1 % más, hasta un 10 %. Se corta si te despistas, si descansas o al acabar tu turno. Sale arriba en el taxímetro."
+        },
+        {
+          "n": 105,
+          "texto": "La racha es más difícil y se ve mejor. El tiempo para encadenar se acorta a medida que subes: un segundo al empezar y medio segundo en el máximo. Tras cobrar, una raya ámbar bajo las cifras se vacía con el tiempo que te queda. El taxímetro se ilumina como una recreativa: se enciende una luz bajo la tarifa por cada carrera encadenada, el marco y las cifras brillan cada vez más, y en el máximo parpadean."
         }
       ]
     }

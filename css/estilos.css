@@ -205,6 +205,7 @@
   --taxi-tarifa: #26305c;
   --taxi-tarifa-texto: #e8eeff;
   --taxi-etiqueta: #e8ddf2;
+  --racha-brillo: #ffb52e;     /* racha: luz de recreativa del taxímetro */
 
   /* Sombras y velos */
   --sombra-placa: rgba(16, 25, 54, 0.18);
@@ -1001,6 +1002,37 @@ body[data-vista="calle"] main { padding-top: var(--esp-1); }
   width: 0;
   background: var(--taxi-piloto);
 }
+/*
+ * Racha (Iván, 23-11-2026): como una recreativa. --racha va de 0 a 1 con las
+ * carreras encadenadas: el marco y las cifras brillan cada vez más; en el
+ * tope, parpadean. Tras cobrar, la raya de abajo (ámbar) es el tiempo que
+ * queda para encadenar.
+ */
+.taximetro.racha-viva {
+  box-shadow: 0 8px 20px var(--sombra-taximetro),
+    0 0 0 calc(1px + var(--racha) * 2px) color-mix(in srgb, var(--racha-brillo) calc(35% + var(--racha) * 65%), transparent),
+    0 0 calc(6px + var(--racha) * 22px) color-mix(in srgb, var(--racha-brillo) calc(var(--racha) * 80%), transparent);
+}
+.taximetro.racha-viva .display-cifras {
+  text-shadow: 0 0 calc(var(--racha) * 14px) color-mix(in srgb, var(--racha-brillo) calc(var(--racha) * 90%), transparent);
+}
+.taximetro.racha-viva #tx-etiqueta { color: var(--racha-brillo); }
+/* Fila de luces bajo la tarifa: una por cada décima de la racha. */
+.racha-luces { display: none; justify-content: space-between; padding: 0 2px; }
+.taximetro.racha-viva .racha-luces { display: flex; }
+.racha-luces i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: color-mix(in srgb, var(--racha-brillo) 18%, transparent);
+}
+.racha-luces i.encendida { background: var(--racha-brillo); box-shadow: 0 0 6px var(--racha-brillo); }
+.progreso > span.racha-ventana { height: 4px; margin-top: -1px; background: var(--racha-brillo); }
+@media (prefers-reduced-motion: no-preference) {
+  .taximetro.racha-max { animation: racha-max 0.9s ease-in-out infinite; }
+  .taximetro.racha-max .racha-luces i { animation: luz-persecucion 0.9s steps(1) infinite; }
+  .taximetro.racha-max .racha-luces i:nth-child(odd) { animation-delay: -0.45s; }
+}
+@keyframes luz-persecucion { 50% { opacity: 0.25; } }
+@keyframes racha-max { 50% { box-shadow: 0 8px 20px var(--sombra-taximetro), 0 0 0 4px var(--racha-brillo), 0 0 34px var(--racha-brillo); } }
 
 /* Siguiente: tarjeta con la compra que viene y su barra */
 .objetivo {

@@ -1721,8 +1721,13 @@ prueba('racha: encadenar carreras sube el importe un 1 % cada una, hasta +10 %, 
   for (let i = 1; i <= 12; i++) ultima = hacerCarrera(0.2);
   assert.strictEqual(ultima.racha, Math.round(r.maximo / r.porCarrera), 'tope en +10 %');
   cerca(sim.rachaActual(e).bono, r.maximo, 1e-9);
-  // Despiste: más de un segundo real sin buscar cliente.
-  const tras = hacerCarrera(r.reaccionSegundos + 0.3);
+  // La ventana se estrecha: 1 s al empezar, 0,5 s en el tope.
+  cerca(sim.segundosVentana(e, 0), r.reaccion.inicial, 1e-9);
+  cerca(sim.segundosVentana(e, 10), r.reaccion.final, 1e-9);
+  assert.ok(sim.segundosVentana(e, 5) < r.reaccion.inicial && sim.segundosVentana(e, 5) > r.reaccion.final);
+  assert.ok(sim.rachaActual(e).ventana > 0.9, 'recién cobrada, la ventana está casi entera');
+  // En el tope, 0,7 s ya es despiste (al principio no lo era).
+  const tras = hacerCarrera(r.reaccion.final + 0.2);
   assert.strictEqual(tras.racha, 0, 'se corta al despistarte');
   // Otro turno: también se corta.
   hacerCarrera(0.2);

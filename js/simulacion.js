@@ -2176,19 +2176,34 @@
     estado.jugador.racha = { n, turno: claveTurnoCansancio(estado.reloj.minutos), hasta: null };
     return { n, bono: n * cfg().racha.porCarrera, alMaximo: n === topeRacha(estado) && antes === n - 1 };
   }
-  /* Al cobrar: tienes reaccionSegundos reales para buscar la siguiente. */
+  /* Al cobrar: tienes segundosVentana() reales para buscar la siguiente. */
   function abrirVentanaRacha(estado) {
     const r = estado.jugador.racha;
     if (!r) return;
-    const segundos = cfg().racha.reaccionSegundos + modificadores(estado).rachaReaccion;
-    r.hasta = estado.reloj.minutos + segundos * MIN_DIA / segundosPorDia(estado);
+    r.desde = estado.reloj.minutos;
+    r.hasta = r.desde + segundosVentana(estado, r.n) * MIN_DIA / segundosPorDia(estado);
+  }
+  /* Segundos reales para encadenar tras la carrera n: cada vez menos (reaccion.inicial → final). */
+  function segundosVentana(estado, n) {
+    const re = cfg().racha.reaccion;
+    const avance = Math.min(1, n / Math.max(1, topeRacha(estado)));
+    return re.inicial - (re.inicial - re.final) * avance + modificadores(estado).rachaReaccion;
   }
   function cortarRacha(estado) { estado.jugador.racha = null; }
-  /* Para la interfaz: { n, bono, maximo } de la racha ahora (0 si está cortada). */
+  /*
+   * Para la interfaz: { n, bono, maximo, nivel (0–1), ventana } de la racha
+   * ahora (0 si está cortada). ventana: lo que queda (1 → 0) del tiempo para
+   * encadenar, o null si no está corriendo (llevas cliente o no hay racha).
+   */
   function rachaActual(estado) {
     const viva = rachaViva(estado);
-    const n = viva ? estado.jugador.racha.n : 0;
-    return { n, bono: n * cfg().racha.porCarrera, maximo: topeRacha(estado), disponible: !!cfg().racha.disponible };
+    const r = estado.jugador.racha;
+    const n = viva ? r.n : 0;
+    const maximo = topeRacha(estado);
+    const ventana = viva && r.hasta !== null && r.hasta > r.desde
+      ? Math.max(0, (r.hasta - estado.reloj.minutos) / (r.hasta - r.desde)) : null;
+    return { n, bono: n * cfg().racha.porCarrera, maximo, nivel: maximo ? n / maximo : 0, ventana,
+      disponible: !!cfg().racha.disponible };
   }
 
   /*
@@ -3194,6 +3209,7 @@
     cuentaDeMejora,
     energia,
     rachaActual,
+    segundosVentana,
     minutosDescanso,
     precioRebuscar,
     rebuscarCandidatos,

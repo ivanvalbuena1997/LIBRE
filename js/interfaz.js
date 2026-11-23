@@ -95,10 +95,14 @@
    * qué marca y en qué estás). Sin alto extra: todo cabe en los 132 px de
    * la maqueta.
    */
+  // Luces de la racha bajo la tarifa: se encienden de izquierda a derecha
+  // según lo cerca que estés del tope (solo interfaz, no es un número de juego).
+  const LUCES_RACHA = 10;
   function htmlDisplay() {
     return '<span class="taximetro-izquierda">' +
       '<span class="piloto" id="tx-piloto">LIBRE</span>' +
       '<span class="tx-tarifa" id="tx-tarifa"></span>' +
+      '<span class="racha-luces" id="racha-luces" aria-hidden="true">' + '<i></i>'.repeat(LUCES_RACHA) + '</span>' +
       '</span>' +
       '<span class="display">' +
       '<span class="display-etiqueta"><span id="tx-etiqueta"></span><small id="tx-estado"></small></span>' +
@@ -279,8 +283,23 @@
 
       const barra = $('carrera-barra');
       const v = estado.jugador.vigilancia;
+      // Racha (Iván, 23-11-2026): el taxímetro se ilumina más cuanto más
+      // encadenas (--racha, de 0 a 1) y, tras cobrar, la raya de abajo es el
+      // tiempo que te queda para la siguiente.
+      const rv = Libre.sim.rachaActual(estado);
+      const tx = $('sec-taximetro').querySelector('.taximetro');
+      tx.style.setProperty('--racha', rv.nivel.toFixed(2));
+      tx.classList.toggle('racha-viva', rv.n > 0);
+      tx.classList.toggle('racha-max', rv.n > 0 && rv.n >= rv.maximo);
+      const encendidas = rv.n > 0 ? Math.max(1, Math.round(rv.nivel * LUCES_RACHA)) : 0;
+      Array.prototype.forEach.call($('racha-luces').children, function (luz, i) {
+        luz.classList.toggle('encendida', i < encendidas);
+      });
+      const enVentana = !carrera && !vigilado && rv.ventana !== null;
+      barra.classList.toggle('racha-ventana', enVentana);
       const p = vigilado && !carrera ? (v.hasta - estado.reloj.minutos) / (v.hasta - v.desde)
-        : carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio)) : 0;
+        : carrera ? Math.min(1, (estado.reloj.minutos - carrera.inicio) / (carrera.fin - carrera.inicio))
+        : enVentana ? rv.ventana : 0;
       barra.style.width = (p * 100).toFixed(1) + '%';
     }
   };

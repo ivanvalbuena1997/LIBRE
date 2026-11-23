@@ -599,15 +599,20 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `estado.jugador` (`cansarse()` desde `terminarCarrera()`); el taxímetro
   enseña «Energía N % · Toca para buscar» y «Descansando hasta…».
 - Racha (idea 21, Iván 23-11-2026; a prueba, `config.racha`): solo tu turno.
-  `estado.jugador.racha = { n, turno, hasta }`; `buscarCliente()` llama a
+  `estado.jugador.racha = { n, turno, desde, hasta }`; `buscarCliente()` llama a
   `encadenarRacha()` (n + 1 si `rachaViva()`, si no 0; tope `topeRacha()`)
   y sube `carrera.importe` un `porCarrera` × n; `terminarCarrera()` abre
-  la ventana (`abrirVentanaRacha()`: `reaccionSegundos` reales en minutos
+  la ventana (`abrirVentanaRacha()`: `segundosVentana()` reales, de `reaccion.inicial` a `reaccion.final`
+  según n / tope, en minutos
   de juego) o la corta si toca descansar; el pesetas la corta. Al cambiar
   de turno (`claveTurnoCansancio`) se pierde sola. Para mejoras y objetos
   del personaje: `rachaMaximo` y `rachaReaccion` en `modificadores()`.
   `racha.disponible` (hoy true) dirá si la tienes. En el taxímetro, delante
-  de la etiqueta: «RACHA ×1,04 · …» (`rachaActual()`). Sin cambio de
+  de la etiqueta: «RACHA ×1,04 · …» (`rachaActual()`, que da también `nivel`, n / tope,
+  y `ventana`, lo que queda de 1 a 0). Recreativa: `.taximetro.racha-viva`
+  con `--racha` (brillo de marco y cifras, `--racha-brillo`), `#racha-luces`
+  (10 luces bajo la tarifa), `#carrera-barra.racha-ventana` (raya que se
+  vacía) y `.racha-max` (parpadeo en el tope). Sin cambio de
   versión del guardado (campo nuevo opcional).
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de

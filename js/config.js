@@ -404,14 +404,17 @@
      */
     /*
      * Racha (idea 21, Iván 23-11-2026): cada carrera tuya que encadenas
-     * (buscas la siguiente en menos de reaccionSegundos reales tras cobrar)
+     * (buscas la siguiente a tiempo tras cobrar: ver reaccion)
      * cobra porCarrera más, hasta maximo. Se corta al despistarte, al
      * descansar, al acabar el turno o si te pilla el pesetas. disponible:
      * de momento la tiene todo el mundo, para probarla; Iván decidirá luego
      * cómo se consigue (mejora o reinicio). Las mejoras y objetos de tu
      * personaje la subirán (rachaMaximo, rachaReaccion en modificadores()).
      */
-    racha: { disponible: true, porCarrera: 0.01, maximo: 0.10, reaccionSegundos: 1 },
+    // reaccion (Iván, 23-11-2026: con 1 s fijo no la perdía nunca): la
+    // ventana para encadenar se estrecha con la racha, de inicial (racha 0)
+    // a final (en el tope), en segundos reales.
+    racha: { disponible: true, porCarrera: 0.01, maximo: 0.10, reaccion: { inicial: 1, final: 0.5 } },
 
     cansancio: {
       maximo: 100,
