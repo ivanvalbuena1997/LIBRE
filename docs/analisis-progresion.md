@@ -229,3 +229,13 @@ pierde es **dejar el volante**: tu turno pasa a un conductor que se queda su
 parte. Con 1 licencia, dejarlo te deja igual que sin la Oficina. Ahora que no
 hay progreso fuera, dejar el volante es la forma de que la partida avance
 sola con el juego abierto; perder un 15–20 % por ello puede ser razonable.
+
+**Tras los ajustes del 23-11-2026** (tarjeta +15 %, Climatizador −25 %,
+Máquina de café −22 % / −38 %): el bot (10 semillas, 180 min) da lo mismo que
+antes de los ajustes, porque compra esas mejoras tarde (Pago con tarjeta, el
+perfil Equilibrado hacia el minuto 171; la Máquina de café, Siguiente hacia
+el 96 y Gestor hacia el 55) o nunca (el Climatizador). Por la cuenta de 0,17 €
+por minuto de descanso (6 licencias), el Climatizador pasa a dejar unos 42 €
+por jornada (se paga en ~130 jornadas, antes ~210) y la Máquina de café,
+nivel 1, unos 37 € (~60 jornadas, antes ~75). La partida sigue un 15–20 %
+más lenta que sin cansancio hasta el minuto 180.
