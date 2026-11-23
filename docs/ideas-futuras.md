@@ -1,6 +1,6 @@
 # Ideas para futuras actualizaciones
 
-Tareas pendientes apuntadas por Iván (18, 19 y 22-11-2026), numeradas y por
+Tareas pendientes apuntadas por Iván (18, 19, 22 y 23-11-2026), numeradas y por
 secciones. **Nada de esto está hecho ni se desarrolla todavía:** antes de
 empezar cualquiera hay que verla con Iván y, si cambia el alcance, actualizar
 DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
@@ -45,6 +45,11 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
     las fáciles (ver «Hechas»).
+
+20. [ ] **Revisar tu personaje para que sea más entretenido.** Hacer tu
+    turno más interactivo (apunte de Iván, 23-11-2026, al diseñar el
+    cansancio: de momento sin «parar a tomar un café» a voluntad ni mandar a
+    descansar a un conductor).
 
 ### ⭐️ Clientes y eventos
 
