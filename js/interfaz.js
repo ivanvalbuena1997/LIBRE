@@ -2195,8 +2195,12 @@
     hibridos: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M12 8.5l-2.5 4h3l-2.5 4"/>',
     // Bombona de gas (GLP).
     glp: '<rect x="6" y="7" width="12" height="14" rx="5"/><path d="M9 7V4h6v3M12 2v2M6 13h12"/>',
-    // Climatizador bizona: un copo de nieve (frío) con aire.
-    climatizador: '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M10 4.5l2 2 2-2M10 19.5l2-2 2 2"/>',
+    // Climatizador bizona (Iván, 23-11-2026, con una imagen de referencia): una
+    // hélice de cuatro aspas dentro de un aro abierto, con líneas de aire.
+    climatizador: '<path d="M19.2 8.2A8.5 8.5 0 1 0 19.2 15.8"/><circle cx="11.5" cy="12" r="1.3"/>' +
+      [0, 90, 180, 270].map(function (a) {
+        return '<path transform="rotate(' + a + ' 11.5 12)" d="M11.5 10.7C10.8 8.6 11.2 6.2 13 5.9c1.6-.2 2 1.6 1.1 3.1-.7 1-1.6 1.6-2.6 1.7z"/>';
+      }).join('') + '<path d="M17 5.5h4.5M2.5 18.5h4.5"/>',
     // Máquina de café: una taza humeante.
     cafeCochera: '<path d="M5 10h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 12h1.5a2.5 2.5 0 0 1 0 5H16M8 3c-1 1 1 2 0 4M12 3c-1 1 1 2 0 4"/>',
     mecanico: '<path d="M15 4a4 4 0 0 0-4.5 5.5L4 16l4 4 6.5-6.5A4 4 0 0 0 20 9l-3 1-2-2 1-3z"/>',

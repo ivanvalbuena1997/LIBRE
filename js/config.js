@@ -886,9 +886,10 @@
         ]
       },
       {
+        // Iván, 23-11-2026: +15 % (antes +10 %; se pagaba en 80–150 jornadas).
         id: 'datafono', nombre: 'Pago con tarjeta', rama: 'clientes', requiere: 'propinas', precio: 1500,
-        descripcion: 'Más gente se sube a tus taxis: un 10 % más de demanda en todas las zonas.',
-        efecto: { demanda: 1.1 }
+        descripcion: 'Más gente se sube a tus taxis: un 15 % más de demanda en todas las zonas.',
+        efecto: { demanda: 1.15 }
       },
       {
         id: 'clientesFijos', nombre: 'Clientes de siempre', rama: 'clientes', requiere: 'datafono', precio: 2000,
@@ -981,8 +982,9 @@
       {
         // Cansancio (Iván, 23-11-2026): toda la flota, tú incluido. Equilibrio.
         id: 'climatizador', nombre: 'Climatizador bizona', rama: 'vehiculo', requiere: 'glp', precio: 5500,
-        descripcion: 'Aire acondicionado a gusto de cada uno en toda tu flota: todos se cansan un 15 % menos, tú también.',
-        efecto: { cansancio: 0.85 }
+        // Iván, 23-11-2026: −25 % (antes −15 %: se pagaba en ~210 jornadas).
+        descripcion: 'Aire acondicionado a gusto de cada uno en toda tu flota: todos se cansan un 25 % menos, tú también.',
+        efecto: { cansancio: 0.75 }
       },
       // ---- Rama: Taller y seguros
       {
@@ -1087,8 +1089,9 @@
         id: 'cafeCochera', nombre: 'Máquina de café en la cochera', rama: 'jornada', requiere: 'gestionZonas',
         descripcion: 'Un buen café antes de volver al taxi: los descansos son más cortos para toda la flota.',
         niveles: [
-          { precio: 2200, descripcion: 'Descansos de 25 minutos.', efecto: { descanso: 25 / 30 } },
-          { precio: 3300, descripcion: 'Descansos de 20 minutos.', efecto: { descanso: 20 / 30 } }
+          // Iván, 23-11-2026: 5 puntos más en cada nivel (antes −17 % y −33 %: 25 y 20 min).
+          { precio: 2200, descripcion: 'Descansos un 22 % más cortos (unos 23 minutos).', efecto: { descanso: 0.783 } },
+          { precio: 3300, descripcion: 'Descansos un 38 % más cortos (unos 18,5 minutos).', efecto: { descanso: 0.617 } }
         ]
       },
       {

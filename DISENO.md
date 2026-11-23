@@ -234,7 +234,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 ### 5.6 Conductores
 
-**Cansancio** (Iván, 23-11-2026). Cada conductor tiene una barra de **energía** que se gasta con el tiempo trabajando, por minuto de juego: 0,75 con pasajero, 0,55 buscando cliente y 0,2 esperando en la cola de una parada (sobre 100). Al llegar a 0, termina la carrera que lleve y **descansa 30 minutos de juego** (chip «Descansando» en «Tus taxis hoy»); luego vuelve con la barra llena, y al empezar cada turno también está llena. La barra se ve en la ficha del conductor (en rojo por debajo del 25 %). Medido (3 partidas por flota, 20 días): unos **3 descansos por turno** de 12 h (2,4 si trabaja en Barajas, donde la cola casi no cansa) y entre un 8 y un 18 % menos de facturación. Es margen a propósito: lo recortan los rasgos Incansable y Siesta exprés (y lo empeoran Blandengue y Remolón), el Termo de café, el Antifaz de avión, el Ventilador de pinza, la Silla ergonómica y el Café con porras de las 6 de la mañana, con topes como los demás valores (cansancio hasta ×0,5 y descanso hasta ×0,33 en un B de nivel 1; más con categoría y nivel), y para toda la flota, tú incluido, las mejoras **Climatizador bizona** (−15 % de cansancio) y **Máquina de café en la cochera** (descansos de 25 y 20 min). La ficha enseña «Cansancio» y «Descanso» en sus estadísticas. **Tú también te cansas** con tus carreras (lo que esperas sin tocar no cuenta): el taxímetro dice «Energía 64 % · Toca para buscar» y, al vaciarse, «Descansando hasta las 14:30» sin dejar buscar cliente. Jugando seguido, unas 2,7 paradas por turno y un 8 % menos (medido, 3 partidas de 15 días).
+**Cansancio** (Iván, 23-11-2026). Cada conductor tiene una barra de **energía** que se gasta con el tiempo trabajando, por minuto de juego: 0,75 con pasajero, 0,55 buscando cliente y 0,2 esperando en la cola de una parada (sobre 100). Al llegar a 0, termina la carrera que lleve y **descansa 30 minutos de juego** (chip «Descansando» en «Tus taxis hoy»); luego vuelve con la barra llena, y al empezar cada turno también está llena. La barra se ve en la ficha del conductor (en rojo por debajo del 25 %). Medido (3 partidas por flota, 20 días): unos **3 descansos por turno** de 12 h (2,4 si trabaja en Barajas, donde la cola casi no cansa) y entre un 8 y un 18 % menos de facturación. Es margen a propósito: lo recortan los rasgos Incansable y Siesta exprés (y lo empeoran Blandengue y Remolón), el Termo de café, el Antifaz de avión, el Ventilador de pinza, la Silla ergonómica y el Café con porras de las 6 de la mañana, con topes como los demás valores (cansancio hasta ×0,5 y descanso hasta ×0,33 en un B de nivel 1; más con categoría y nivel), y para toda la flota, tú incluido, las mejoras **Climatizador bizona** (−25 % de cansancio) y **Máquina de café en la cochera** (descansos de unos 23 y 18,5 min). La ficha enseña «Cansancio» y «Descanso» en sus estadísticas. **Tú también te cansas** con tus carreras (lo que esperas sin tocar no cuenta): el taxímetro dice «Energía 64 % · Toca para buscar» y, al vaciarse, «Descansando hasta las 14:30» sin dejar buscar cliente. Jugando seguido, unas 2,7 paradas por turno y un 8 % menos (medido, 3 partidas de 15 días).
 
 **Personajes.** 32 (Iván, 20-11-2026: antes 16), cada uno con su nombre y su retrato, montado por piezas: cara, piel, peinado y color, gafas (redondas, cuadradas o de sol), barba, ropa, edad y accesorios (gorra, pajarita, traje con corbata y pendientes). Los nuevos: Paco, Mari Carmen, José Luis, Juan, Rafa, Cristina, Ángel, Raquel, Miguel, Fernando, Sonia, Rubén, Lola, Daniela, Álvaro y Daniel.
 
@@ -400,7 +400,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Taxi impecable | 600 € | +5 % de demanda en todas las zonas |
 | Publicidad en el taxi (5 niveles) | 900 / 1.800 / 3.200 / 5.000 / 7.500 € | Al cerrar la caja, 0,25 / 0,50 / 0,80 / 1,20 / 1,60 € por cada carrera del día de toda la flota |
 | Propinas (5 niveles) | 1.350 / 1.980 / 2.700 / 3.600 / 4.500 € | De +3 a +15 puntos de probabilidad y propinas de un 15 a un 80 % mayores |
-| Pago con tarjeta | 1.500 € | +10 % de demanda |
+| Pago con tarjeta | 1.500 € | +15 % de demanda (Iván, 23-11-2026; antes +10 %, se pagaba en 80–150 jornadas) |
 | Clientes de siempre | 2.000 € | +8 % de demanda |
 
 **Ciudad y radio**
@@ -426,7 +426,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Mampara y asientos de cuero | 1.620 € | +6 % de demanda en todas las zonas: más clientes eligen tus taxis |
 | Flota híbrida | 4.000 € | −35 % de combustible |
 | Depósito de GLP | 4.800 € | −30 % de combustible en toda la flota (Iván, 20-11-2026: la última de la rama Vehículo). Se suma a las anteriores; con 8 licencias e híbridos ahorra ~53 € por jornada y se paga en ~90 (estimado) |
-| Climatizador bizona | 5.500 € | Cansancio (23-11-2026): toda la flota, tú incluido, se cansa un 15 % menos. La última de la rama Vehículo |
+| Climatizador bizona | 5.500 € | Cansancio (23-11-2026): toda la flota, tú incluido, se cansa un 25 % menos (Iván, 23-11-2026; antes −15 %, se pagaba en ~210 jornadas). La última de la rama Vehículo |
 
 **Taller y seguros**
 
@@ -448,7 +448,7 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 | Jornada larga (5 niveles) | 500 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |
 | Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |
 | Curso gestión de zonas | 2.000 € | Los conductores van cada hora a la zona que más deja |
-| Máquina de café en la cochera (2 niveles) | 2.200 / 3.300 € | Cansancio (23-11-2026): descansos de 25 y luego 20 minutos para toda la flota, tú incluido. Va entre el Curso de zonas y RRHH (al final de la rama costaría más de 25.000 €), así que RRHH la pide antes |
+| Máquina de café en la cochera (2 niveles) | 2.200 / 3.300 € | Cansancio (23-11-2026): descansos un 22 % y luego un 38 % más cortos (unos 23 y 18,5 min; Iván subió 5 puntos cada nivel el mismo día, antes 25 y 20 min) para toda la flota, tú incluido. Va entre el Curso de zonas y RRHH (al final de la rama costaría más de 25.000 €), así que RRHH la pide antes |
 | Departamento de RRHH (5 niveles) | 2.500 / 3.500 / 6.000 / 10.000 / 15.000 € | Candidatos de mejor categoría: los B bajan del 65 % al 55, 45, 35, 25 y 15 %; los LEGENDARIOS suben del 0,5 % al 1, 2, 3, 5 y 8 %. Al comprar un nivel salen candidatos nuevos |
 | Oficina de gestión | 4.000 € | Puedes dejar el volante y solo gestionar, y tus conductores se quedan el 45 % en vez del 50 % |
 | Modo incógnito | 15.000 € | Tus conductores de nivel 10 trabajan también los días que libra su licencia (tú no). Riesgo: un «pesetas» (otro taxista) puede pillarlos cargando (ver 5.8). Medido con 5 licencias y 10 conductores de nivel 10: un +27 % de neto; se paga en ~35 jornadas |

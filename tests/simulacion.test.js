@@ -1662,15 +1662,19 @@ prueba('cansancio: Climatizador y Máquina de café valen para toda la flota, ta
   const t = e.licencias[0].turnos.noche;
   const base = config.cansancio.descansoMinutos;
   cerca(sim.minutosDescanso(e, t), base);
+  const cafe = config.mejoras.find(function (m) { return m.id === 'cafeCochera'; });
   assert.ok(comprarConRequisitos(e, 'cafeCochera').ok);
-  cerca(sim.minutosDescanso(e, t), 25, 0.01);
-  cerca(sim.minutosDescanso(e, e.jugador), 25, 0.01, 'tú también');
+  cerca(sim.minutosDescanso(e, t), base * cafe.niveles[0].efecto.descanso, 0.01);
+  cerca(sim.minutosDescanso(e, e.jugador), base * cafe.niveles[0].efecto.descanso, 0.01, 'tú también');
   assert.ok(sim.comprarMejora(e, 'cafeCochera').ok);
-  cerca(sim.minutosDescanso(e, t), 20, 0.01);
+  cerca(sim.minutosDescanso(e, t), base * cafe.niveles[1].efecto.descanso, 0.01);
+  assert.ok(sim.minutosDescanso(e, t) < base * cafe.niveles[0].efecto.descanso);
   const antes = sim.statsConductor(e, t, 'noche').find(function (s) { return s.clave === 'cansancio'; }).factor;
   assert.ok(comprarConRequisitos(e, 'climatizador').ok);
   const cansancio = sim.statsConductor(e, t, 'noche').find(function (s) { return s.clave === 'cansancio'; });
-  cerca(cansancio.factor, antes * 0.85, 0.001);
+  const clima = config.mejoras.find(function (m) { return m.id === 'climatizador'; }).efecto.cansancio;
+  assert.ok(clima < 1);
+  cerca(cansancio.factor, antes * clima, 0.001);
   assert.ok(cansancio.fuentes.some(function (f) { return f.tipo === 'mejora' && f.nombre === 'Climatizador bizona'; }));
 });
 

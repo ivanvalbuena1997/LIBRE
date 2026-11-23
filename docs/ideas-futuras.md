@@ -65,18 +65,18 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 17. [x] **Modo incógnito.** Hecho el 20-11-2026 (ver «Hechas»).
 18. [x] **Rebajar la tasa de la SL.** Hecho el 22-11-2026 (ver «Hechas»).
-19. [ ] **Revisar la Oficina de gestión.** Con el bot arreglado
-    (21-11-2026), el perfil Gestor deja el volante con una sola licencia y
-    se hunde: a los 150 minutos, 333 € por jornada frente a 602 € del
-    Equilibrado ([analisis-progresion.md](analisis-progresion.md)). Opciones:
-    que el juego desaconseje dejar el volante tan pronto o que la Oficina
-    compense más.
+19. [x] **Revisar la Oficina de gestión.** Cerrada el 23-11-2026 sin cambios (ver «Hechas»).
 
 ### 🖥️ Interfaz y experiencia de usuario
 
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **19. Revisar la Oficina de gestión** (🌳, 23-11-2026). Medido: la
+  Oficina en sí rinde mucho; lo que cuesta un 15–20 % es dejar el volante.
+  Iván: «es el precio a pagar por dejar el volante», así que no se cambia ni
+  se avisa ([analisis-progresion.md](analisis-progresion.md)).
 
 - [x] **11. Pagar por más candidatos** (👨‍✈️, 22-11-2026). Mejora
   «Cazatalentos» (25.000 €, la última de Conductores y jornada): «Buscar

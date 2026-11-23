@@ -467,6 +467,10 @@
         {
           "n": 102,
           "texto": "Los códigos para exportar e importar partidas son unas 3 veces más cortos (van comprimidos y empiezan por LIBRE2). Los de antes se siguen pudiendo importar."
+        },
+        {
+          "n": 103,
+          "texto": "Ajustes tras medir: Pago con tarjeta da un 15 % más de demanda (antes un 10 %), el Climatizador bizona quita un 25 % de cansancio (antes un 15 %, y con icono nuevo) y la Máquina de café acorta los descansos un 22 % y un 38 % (antes un 17 % y un 33 %)."
         }
       ]
     }
