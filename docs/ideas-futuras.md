@@ -41,7 +41,10 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 12. [ ] **Nivel de cuenta.** Un nivel del jugador que refleje cómo avanza la
     partida. Ojo: si llevara reinicios con premio, se parecería al
-    «prestigio», que DISENO.md deja fuera del alcance actual.
+    «prestigio», que DISENO.md deja fuera del alcance actual. Iván
+    (23-11-2026): crece con objetivos de la flota, desbloquea las habilidades
+    de tu personaje y más adelante podría servir para reiniciar la partida
+    (eso sí sería prestigio: decidir antes si entra en el alcance).
 
 16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
     las fáciles (ver «Hechas»).
@@ -49,7 +52,24 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 20. [ ] **Revisar tu personaje para que sea más entretenido.** Hacer tu
     turno más interactivo (apunte de Iván, 23-11-2026, al diseñar el
     cansancio: de momento sin «parar a tomar un café» a voluntad ni mandar a
-    descansar a un conductor).
+    descansar a un conductor). Plan de la fase 2 (Iván, 23-11-2026; el
+    jugador está deseando dejar el volante porque su personaje se queda muy
+    por debajo de los conductores con nivel y objetos):
+    - 21 · Racha (B1) y, después, una rama de mejoras de tu personaje.
+    - 22 · Decisiones durante la carrera (A2).
+    - 12 · Nivel de cuenta: crece con objetivos de la flota y desbloquea tus
+      habilidades (no se compran).
+    - 13 y 15 · Personajes guía con su historia que te entregan tus objetos
+      (no se compran) y guían el juego.
+    - Pendiente, para probar antes solo la racha: café a voluntad (B2).
+
+21. [ ] **Racha.** Encadenar carreras sin despistarte sube el importe
+    poco a poco; se corta si te despistas o si descansas (así el cansancio
+    también cuenta y en el late game se llega a rachas mejores). Más
+    adelante, una rama de mejoras de tu personaje.
+22. [ ] **Decisiones durante la carrera.** De vez en cuando, una elección
+    con consecuencias en mitad del viaje (ruta, ámbar, peticiones del
+    cliente…). Encaja con las anécdotas reales (15).
 
 ### ⭐️ Clientes y eventos
 
