@@ -56,7 +56,6 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     jugador está deseando dejar el volante porque su personaje se queda muy
     por debajo de los conductores con nivel y objetos):
     - 21 · Racha (B1) y, después, una rama de mejoras de tu personaje.
-    - 22 · Decisiones durante la carrera (A2).
     - 12 · Nivel de cuenta: crece con objetivos de la flota y desbloquea tus
       habilidades (no se compran).
     - 13 y 15 · Personajes guía con su historia que te entregan tus objetos
@@ -67,9 +66,9 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     poco a poco; se corta si te despistas o si descansas (así el cansancio
     también cuenta y en el late game se llega a rachas mejores). Más
     adelante, una rama de mejoras de tu personaje.
-22. [ ] **Decisiones durante la carrera.** De vez en cuando, una elección
-    con consecuencias en mitad del viaje (ruta, ámbar, peticiones del
-    cliente…). Encaja con las anécdotas reales (15).
+22. [ ] ~~Decisiones durante la carrera.~~ Descartada (Iván, 23-11-2026: no
+    la quiere; el «sí» anterior fue una errata). Tampoco las ofertas de la
+    emisora.
 
 ### ⭐️ Clientes y eventos
 
