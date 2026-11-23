@@ -286,7 +286,7 @@
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false, incognitoTu: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
-      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1, rebuscar: false
+      pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1, rebuscar: false, cansancio: 1, descanso: 1
     };
     cfg().mejoras.forEach(function (mejora) {
       const nivel = nivelMejora(estado, mejora.id);
@@ -320,6 +320,8 @@
       if (e.precioCoche) m.precioCoche *= e.precioCoche;
       if (e.tasaSociedad) m.tasaSociedad *= e.tasaSociedad;
       if (e.rebuscar) m.rebuscar = true;
+      if (e.cansancio) m.cansancio *= e.cansancio;
+      if (e.descanso) m.descanso *= e.descanso;
     });
     return m;
   }
@@ -1645,7 +1647,8 @@
     return exito(buscarObjeto(id).nombre + ' vuelve al almacén.');
   }
 
-  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza', 'hallazgo', 'suerte', 'importeLluvia'];
+  const VALORES_CONDUCTOR = ['espera', 'propina', 'sinPagar', 'objeto', 'baja', 'pinchazo', 'averia', 'limpieza', 'hallazgo', 'suerte', 'importeLluvia',
+    'cansancio', 'descanso'];
 
   /*
    * De dónde salen los factores de un conductor: una lista de aportes
@@ -1850,6 +1853,20 @@
       averia.fuentes.push({ tipo: 'coche', nombre: 'Kilómetros del coche', factor: fk });
     }
     stats.push(averia);
+
+    // Cansancio (Iván, 23-11-2026): lo que gasta (factor) y lo que dura su descanso (minutos).
+    function conMejoras(clave) {
+      return mejoras.filter(function (x) { return x.efecto[clave]; }).map(function (x) {
+        return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto[clave] };
+      });
+    }
+    ['cansancio', 'descanso'].forEach(function (clave) {
+      const propias = fuentesDe(clave);
+      const bruto = producto(propias);
+      const factor = topeConductor(clave, bruto, t) * m[clave];
+      stats.push({ clave, valor: clave === 'descanso' ? cfg().cansancio.descansoMinutos * factor : factor, factor,
+        tope: topeConductor(clave, bruto, t) !== bruto, limite: limite(clave), fuentes: propias.concat(conMejoras(clave)) });
+    });
 
     const limpieza = fuentesDe('limpieza');
     const brutoLimpieza = producto(limpieza);
@@ -2309,17 +2326,35 @@
     return espera * (zona && zona.colaMin > 0 ? g.cola : g.buscando) + viaje * g.pasajero;
   }
   /* Gasta la energía de la carrera que acaba; a 0, descansa (ya sin cliente). */
+  /*
+   * Factores del cansancio de un turno: lo que gasta y lo que dura su
+   * descanso. Rasgos y objetos (conductores, con sus topes) por las mejoras
+   * (toda la flota, también tú). Paso 3 del cansancio (Iván, 23-11-2026).
+   */
+  function factoresCansancio(estado, t) {
+    const f = factoresConductor(estado, t);
+    const m = modificadores(estado);
+    return {
+      cansancio: topeConductor('cansancio', f.cansancio, t) * m.cansancio,
+      descanso: topeConductor('descanso', f.descanso, t) * m.descanso
+    };
+  }
+  /* Minutos de juego que dura su descanso. */
+  function minutosDescanso(estado, t) {
+    return cfg().cansancio.descansoMinutos * factoresCansancio(estado, t).descanso;
+  }
   function cansarse(estado, t, carrera) {
     const c = cfg().cansancio;
     const clave = claveTurnoCansancio(carrera.inicio);
     if (t.cansancioTurno !== clave) { t.cansancio = c.maximo; t.cansancioTurno = clave; }
-    t.cansancio -= gastoCansancio(estado, carrera);
+    t.cansancio -= gastoCansancio(estado, carrera) * factoresCansancio(estado, t).cansancio;
     if (t.cansancio > 0) return;
     const ahora = estado.reloj.minutos;
+    const minutos = minutosDescanso(estado, t);
     t.cansancio = c.maximo;
     t.cansancioTurno = claveTurnoCansancio(ahora);
-    if ((t.paradoHasta || 0) < ahora + c.descansoMinutos) {
-      t.paradoHasta = ahora + c.descansoMinutos;
+    if ((t.paradoHasta || 0) < ahora + minutos) {
+      t.paradoHasta = ahora + minutos;
       t.motivoParada = 'descanso';
     }
   }
@@ -3111,6 +3146,7 @@
     precioCoche,
     cuentaDeMejora,
     energia,
+    minutosDescanso,
     precioRebuscar,
     rebuscarCandidatos,
     faltaParaMejora,

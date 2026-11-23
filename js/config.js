@@ -230,8 +230,9 @@
         { id: 'cojin', nombre: 'Cojín lumbar', categoria: 'B', efecto: { baja: 0.75 },
           descripcion: 'Doce horas sentado sin dolor de espalda: un 25 % menos de bajas.',
           frase: 'Doce horas sentado. Tu espalda te lo agradece por escrito.' },
-        { id: 'termo', nombre: 'Termo de café', categoria: 'B', efecto: { esperaNoche: 0.94 },
-          descripcion: 'Despierto toda la noche: un 6 % menos de espera en el turno de noche.',
+        // Iván, 23-11-2026: con el cansancio, la mitad de su espera de noche pasa a cansancio.
+        { id: 'termo', nombre: 'Termo de café', categoria: 'B', efecto: { esperaNoche: 0.97, cansancio: 0.94 },
+          descripcion: 'Despierto toda la noche: un 3 % menos de espera en el turno de noche y un 6 % menos de cansancio.',
           frase: 'A las cuatro de la mañana, el café es un derecho fundamental.' },
         { id: 'gafas', nombre: 'Gafas de sol', categoria: 'B', efecto: { esperaDia: 0.94 },
           descripcion: 'Sin deslumbrarse: un 6 % menos de espera en el turno de día.',
@@ -271,6 +272,10 @@
         { id: 'camara', nombre: 'Cámara de seguridad', categoria: 'A', efecto: { sinImpagos: true, propina: 1.1 },
           descripcion: 'Con la cámara a la vista, nadie se va sin pagar de su taxi y los clientes se portan mejor: un 10 % más de propinas.',
           frase: 'Sonría. Y pague.' },
+        // Cansancio (Iván, 23-11-2026). Equilibrio.
+        { id: 'antifaz', nombre: 'Antifaz de avión', categoria: 'A', efecto: { descanso: 0.7 },
+          descripcion: 'Se queda frito en cuanto para: sus descansos duran un 30 % menos.',
+          frase: 'Lo sacó de un vuelo a Canarias en 2009. Funciona.' },
         { id: 'rueda', nombre: 'Rueda de repuesto', categoria: 'S', efecto: { rueda: true },
           descripcion: 'Si pincha, cambia la rueda y sigue: ni neumático que pagar ni turno perdido.',
           frase: 'La de verdad, no la de galleta. Ya te lo explicó tu cuñado.' },
@@ -296,14 +301,18 @@
         { id: 'bufanda', nombre: 'Bufanda mitad y mitad', categoria: 'S', efecto: { propina: 1.35, esperaDia: 0.96 },
           descripcion: 'Un 35 % más de propinas y un 4 % menos de espera de día.',
           frase: 'Media de cada equipo: nadie se baja enfadado del taxi.' },
+        { id: 'ventilador', nombre: 'Ventilador de pinza', categoria: 'S', efecto: { cansancio: 0.85 },
+          descripcion: 'Aire en la cara toda la jornada: un 15 % menos de cansancio.',
+          frase: 'Aire en la cara: despierta más que la radio.' },
         { id: 'bolsaVomito', nombre: 'Bolsa para vómitos', categoria: 'S+', efecto: { bolsa: true },
           descripcion: 'Siempre a mano: si un cliente se marea, no vomita en el coche. Ni limpieza ni rato parado.',
           frase: 'El conductor de noche la saca con reflejos de portero.' },
         { id: 'navegador', nombre: 'Navegador con tráfico en directo', categoria: 'S+', efecto: { espera: 0.86 },
           descripcion: 'Esquiva atascos y llega antes: un 14 % menos de espera entre carreras.',
           frase: 'Sabe dónde va a haber atasco antes de que exista.' },
-        { id: 'silla', nombre: 'Silla ergonómica', categoria: 'S+', efecto: { baja: 0.5, esperaNoche: 0.93 },
-          descripcion: 'Aguanta la noche entera: la mitad de bajas y un 7 % menos de espera de noche.',
+        // Iván, 23-11-2026: su espera de noche pasa a cansancio.
+        { id: 'silla', nombre: 'Silla ergonómica', categoria: 'S+', efecto: { baja: 0.5, cansancio: 0.8 },
+          descripcion: 'Aguanta el turno entero: la mitad de bajas y un 20 % menos de cansancio.',
           frase: 'Más cara que el coche. Bueno, casi.' },
         { id: 'nevera', nombre: 'Nevera con agua fría', categoria: 'S+', efecto: { propina: 1.45, limpieza: 0.7 },
           descripcion: 'Un lujo en agosto: un 45 % más de propinas y vómitos más llevaderos.',
@@ -329,7 +338,11 @@
           frase: 'De tu 24 horas de confianza.' },
         { id: 'bidon', nombre: 'Bidón energético', categoria: 'L', efecto: { esperaNoche: 0.78, baja: 0.8 },
           descripcion: 'Medio litro que salva las noches: un 22 % menos de espera de noche y un 20 % menos de bajas.',
-          frase: 'Medio litro de algo verde. No preguntes.' }
+          frase: 'Medio litro de algo verde. No preguntes.' },
+        // Iván, 23-11-2026: el café legendario. Descansos de 10 min (30 × 0,33).
+        { id: 'porras', nombre: 'Café con porras de las 6 de la mañana', categoria: 'L', efecto: { descanso: 0.33, cansancio: 0.8 },
+          descripcion: 'El desayuno del cambio de turno: descansos de 10 minutos y un 20 % menos de cansancio.',
+          frase: 'Si lo mojas en el café, cuenta como desayuno y como siesta.' }
       ]
     },
 
@@ -457,7 +470,12 @@
         // Medido con un 35 % de tormentas (480 partidas): ×2 vale +2,3 %,
         // ×3 +4,7 % y ×3,5 +5,8 %; ×3,1 queda en +5 %, como las demás.
         { id: 'anfibio', nombre: 'Anfibio', opuesto: 'azucarillo', efecto: { importeLluvia: 3.1 },
-          descripcion: 'Bajo la lluvia está en su salsa: cobra 3,1 veces más en las carreras que empiezan lloviendo.' }
+          descripcion: 'Bajo la lluvia está en su salsa: cobra 3,1 veces más en las carreras que empiezan lloviendo.' },
+        // Cansancio (Iván, 23-11-2026). Equilibrio.
+        { id: 'incansable', nombre: 'Incansable', opuesto: 'blandengue', efecto: { cansancio: 0.75 },
+          descripcion: 'No hay quien lo pare: se cansa un 25 % menos.' },
+        { id: 'siestaExpres', nombre: 'Siesta exprés', opuesto: 'remolon', efecto: { descanso: 0.5 },
+          descripcion: 'Cierra los ojos y como nuevo: sus descansos duran la mitad.' }
       ],
       defectos: [
         { id: 'antipatico', nombre: 'Antipático', efecto: { propina: 0.25, espera: 1.08 },
@@ -483,7 +501,11 @@
         // Iván, 18-11-2026: opuesto de Anfibio. Solo la lluvia: mientras llueve
         // se queda parado en el coche (paraConLluvia, sin factor ni tope).
         { id: 'azucarillo', nombre: 'Azucarillo', efecto: { paraConLluvia: true },
-          descripcion: '¡Que no es de azúcar! Mientras llueve no coge clientes: se queda en el coche hasta que escampa.' }
+          descripcion: '¡Que no es de azúcar! Mientras llueve no coge clientes: se queda en el coche hasta que escampa.' },
+        { id: 'blandengue', nombre: 'Blandengue', efecto: { cansancio: 1.25 },
+          descripcion: 'Se cansa enseguida: un 25 % más de cansancio.' },
+        { id: 'remolon', nombre: 'Remolón', efecto: { descanso: 1.5 },
+          descripcion: 'Cuando para, no hay quien lo levante: sus descansos duran un 50 % más.' }
       ],
 
       /*
@@ -525,7 +547,10 @@
         hallazgo: [0.3, 2.5],
         suerte: [1, 1.4],
         // Lo que cobra en las carreras con lluvia (Anfibio): nunca baja de 1.
-        importeLluvia: [1, 3.1]
+        importeLluvia: [1, 3.1],
+        // Cansancio (Iván, 23-11-2026): lo que gasta y lo que dura el descanso.
+        cansancio: [0.5, 1.6],
+        descanso: [0.33, 2]
       },
       /*
        * Topes que crecen (Equilibrio, Iván 17-11-2026): los de arriba son los
@@ -537,7 +562,7 @@
        */
       topesAbiertos: {
         porNivel: 0.25,
-        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15, hallazgo: 4, suerte: 1.7, importeLluvia: 6 }
+        extremo: { espera: 0.2, propina: 7, sinPagar: 0.05, objeto: 4, baja: 0.05, pinchazo: 0.05, averia: 0.05, limpieza: 0.15, hallazgo: 4, suerte: 1.7, importeLluvia: 6, cansancio: 0.25, descanso: 0.2 }
       },
       /*
        * Personajes: se sortea uno al contratar (sin repetir mientras se pueda).

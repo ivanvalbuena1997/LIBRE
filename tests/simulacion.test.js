@@ -227,7 +227,8 @@ prueba('las partidas de la versión 20 juntan las cuatro jornadas largas en nive
 });
 
 prueba('un día más largo da más carreras con el mismo coste fijo', function () {
-  // Carrera a carrera hay azar: se suman cuatro partidas de 30 días.
+  // Carrera a carrera hay azar (bajas, averías, cansancio…): se suman doce
+  // partidas de 30 días (con cuatro, a veces salía al revés).
   function partida(conMejora, semilla) {
     const e = sim.crearEstadoInicial(0);
     e.azar = semilla;   // el mismo conductor con y sin la mejora
@@ -239,7 +240,7 @@ prueba('un día más largo da más carreras con el mismo coste fijo', function (
     return sim.avanzar(e, 30 * sim.segundosPorDia(e));
   }
   let normal = 0, largo = 0;
-  [1, 2, 3, 4].forEach(function (semilla) {
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].forEach(function (semilla) {
     const a = partida(false, semilla), b = partida(true, semilla);
     normal += a.carreras;
     largo += b.carreras;

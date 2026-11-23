@@ -894,6 +894,12 @@
     urraca: '<path d="M3 15c3 0 5-2 6-5 1-3 3-4 5-4 2.5 0 4 1.5 4 3.5L21 11l-3 1c-.5 3-3 5.5-7 5.5H8l-3 2.5v-3.5"/><circle cx="15" cy="9" r=".6"/><path d="M5 4v3M3.5 5.5h3"/>',
     // Desastre: un bolsillo roto por el que se cae algo.
     desastre: '<path d="M5 4h14v8a7 7 0 0 1-7 7 7 7 0 0 1-7-7z"/><path d="M10 13l2 2 2-2 2 2"/><circle cx="12" cy="22" r=".8"/>',
+    // Cansancio (Iván, 23-11-2026). Incansable: un rayo; Blandengue: una pila casi vacía.
+    incansable: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+    blandengue: '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10v4M6 10v4"/>',
+    // Siesta exprés: un reloj con una «z»; Remolón: una almohada.
+    siestaExpres: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M14 2h4l-4 4h4"/>',
+    remolon: '<path d="M3 9c3-2 15-2 18 0 1 2 1 6 0 8-3 2-15 2-18 0-1-2-1-6 0-8z"/><path d="M8 13h8"/>',
     // Azucarillo: una nube con gotas y un terrón de azúcar.
     azucarillo: '<path d="M7 13a4 4 0 0 1 .5-8A5 5 0 0 1 17 6a3.5 3.5 0 0 1 0 7z"/><path d="M8 16v2M12 16v2"/><rect x="14.5" y="16" width="5" height="5" rx="1"/>'
   };
@@ -1005,6 +1011,8 @@
 
   /* Valor corto de una estadística, para que quepan dos por fila. */
   function textoStatCorto(s) {
+    if (s.clave === 'cansancio') return s.factor === 1 ? 'Normal' : cambio(s.factor);
+    if (s.clave === 'descanso') return Math.round(s.valor) + ' min';
     if (s.clave === 'espera') {
       // Con una cifra decimal si el cambio es pequeño, para que se vea la diferencia.
       const v = (s.factor - 1) * 100;
@@ -1625,7 +1633,7 @@
     espera: 'espera', esperaDia: 'espera de día', esperaNoche: 'espera de noche', propina: 'propinas',
     sinPagar: 'sin pagar', objeto: 'objetos devueltos', baja: 'bajas', pinchazo: 'pinchazos',
     averia: 'averías', limpieza: 'limpieza', hallazgo: 'objetos encontrados', suerte: 'de encontrar algo mejor',
-    importeLluvia: 'lo que cobra con lluvia'
+    importeLluvia: 'lo que cobra con lluvia', cansancio: 'cansancio', descanso: 'descansos'
   };
   // Efectos que no son un porcentaje.
   const TEXTO_EFECTO_ESPECIAL = { bolsa: 'nadie vomita en su taxi', sinImpagos: 'nadie se va sin pagar', rueda: 'pinchazos sin coste' };
@@ -1647,7 +1655,7 @@
     espera: 'Espera entre carreras', propina: 'Propina', sinPagar: 'Se va sin pagar',
     objeto: 'Devuelve un olvido', hallazgo: 'Encuentra un objeto', baja: 'Baja',
     pinchazo: 'Pinchazo', averia: 'Avería', limpieza: 'Limpiar un vómito', suerte: 'Encuentra algo mejor',
-    importeLluvia: 'Cobra con lluvia'
+    importeLluvia: 'Cobra con lluvia', cansancio: 'Cansancio', descanso: 'Descanso'
   };
   const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true, importeLluvia: true };
   const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '', coche: '' };
@@ -1666,6 +1674,8 @@
 
   function textoStat(s) {
     if (s.clave === 'espera') return s.factor === 1 ? 'Normal' : cambio(s.factor);
+    if (s.clave === 'cansancio') return s.factor === 1 ? 'Normal' : cambio(s.factor);
+    if (s.clave === 'descanso') return Math.round(s.valor) + ' min cada vez';
     if (s.clave === 'suerte') return porcentaje(s.valor) + ' de lo que encuentra';
     if (s.clave === 'importeLluvia') {
       return s.factor === 0 ? 'No trabaja si llueve' : '×' + s.factor.toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' si llueve';

@@ -175,7 +175,7 @@ Estilo ilustrado y cálido, tema claro. La referencia completa (maquetas, iconos
 - **Letras:** Bricolage Grotesque para títulos y cifras de dinero; Nunito para el texto; Courier Prime para el ticket; DSEG7 para el LED del taxímetro.
 - **Componentes:** tarjetas de esquinas redondeadas, chips de estado, botones de 48 px (principal azul, secundario blanco, peligro rojo claro), barras de 8 px e insignias de rareza. Todo lo que se toca mide al menos 44 px.
 - **Logo:** un taxi de Madrid de frente, con la luz verde de «libre» y el sol, sobre el azul de marca (`docs/logo/libre-icono.svg`, también icono de la pestaña); con el nombre en Bricolage Grotesque en `docs/logo/libre-logo.svg`.
-- **Iconos:** cada objeto tiene su dibujo (37 en total, con trazo oscuro y relleno plano). Los rasgos y los turnos usan iconos de trazo.
+- **Iconos:** cada objeto tiene su dibujo (40 en total, con trazo oscuro y relleno plano). Los rasgos y los turnos usan iconos de trazo.
 - **Animaciones:** el taxi que cruza la calle (16 s), dos nubes (40 y 55 s), el sol que late (5 s), las ventanas de noche (4 y 6 s), la lluvia, el ticket que se imprime, las filas que se reordenan, los importes que flotan al cobrar y las hojas que suben. Todas se apagan con «reducir movimiento».
 - **Sonidos**, sintetizados en el navegador (sin archivos) y mudos hasta el primer toque: **cobro** (un «ding» de caja registradora al cobrar cualquier taxi), **propina** (monedas), **nivel** (arpegio), **objeto** (brillo), **avería** (golpe sordo; también pinchazos), **ticket** (impresora) y **tic** (al bajar la bandera). Se ajustan a oído.
 
@@ -273,6 +273,8 @@ Equilibrio (Iván, 17-11-2026): cada cualidad vale cerca de **+5 %** de lo que d
 | Pulcro | la mitad de limpieza y +45 % de propinas | Guarro | +70 % de limpieza y −45 % de propinas |
 | Urraca (18-11-2026) | +20 % de objetos encontrados y un 15 % de que suban de categoría | Desastre | −40 % de objetos encontrados |
 | Anfibio (18-11-2026) | cobra ×3,1 en las carreras que empiezan lloviendo | Azucarillo | no trabaja mientras llueve: se queda en el coche hasta que escampa |
+| Incansable (23-11-2026) | −25 % de cansancio | Blandengue | +25 % de cansancio |
+| Siesta exprés (23-11-2026) | descansos la mitad de largos | Remolón | descansos un 50 % más largos |
 
 **Anfibio** (Iván, 18-11-2026): solo cuenta con lluvia (unos 14 minutos por turno de media). Por eso el multiplicador es alto: medido con un bot (480 partidas por valor, con un 35 % de tormentas), ×2 vale +2,3 %, ×3 +4,7 % y ×3,5 +5,8 %; **×3,1 queda en +5 %**, lo mismo que las demás cualidades. Da días de lluvia muy buenos y el resto, nada. Su opuesto, **Azucarillo** («¡que no es de azúcar!»), solo tiene ese efecto, sin nada más (Iván): mientras llueve se queda parado, con el chip «Lluvia» en «Tus taxis hoy», y vuelve en cuanto escampa. Resta un **−2,2 %** a un conductor B (medido con un 35 % de tormentas, 480 partidas): menos que los demás defectos, porque solo cuenta con lluvia.
 
@@ -327,7 +329,7 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | B | Rosario del retrovisor | −40 % de clientes sin pagar, +6 % de propinas | Lo único que importa es la familia… y que el cliente pague. |
 | B | Ambientador | +15 % de propinas | Pino del bosque. O eso dice la etiqueta. |
 | B | Cojín lumbar | −25 % de bajas | Doce horas sentado. Tu espalda te lo agradece por escrito. |
-| B | Termo de café | −6 % de espera de noche | A las cuatro de la mañana, el café es un derecho fundamental. |
+| B | Termo de café | −3 % de espera de noche, −6 % de cansancio (23-11-2026; antes, −6 % de espera de noche) | A las cuatro de la mañana, el café es un derecho fundamental. |
 | B | Gafas de sol | −6 % de espera de día | Para el sol de la Castellana. Y para no cruzar la mirada con el agente de movilidad. |
 | B | Funda de asientos | −40 % de limpieza de un vómito | De cuadros escoceses. Nadie sabe por qué, pero todas son así. |
 | B | Callejero de papel | −4 % de espera | Edición de 2003. Desde entonces solo han cambiado todas las calles. |
@@ -340,6 +342,7 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | A | Paquete de chicles de menta | +10 % de propinas, −5 % de espera de noche | Aliento fresco a las cuatro de la mañana. Los de atrás lo agradecen. |
 | A | Linterna de bolsillo | +40 % de objetos encontrados | Lo que sale de debajo de los asientos, mejor no preguntarlo. |
 | A | Cámara de seguridad | Nadie se va sin pagar de su taxi, +10 % de propinas | Sonría. Y pague. |
+| A | Antifaz de avión (23-11-2026) | Descansos un 30 % más cortos | Lo sacó de un vuelo a Canarias en 2009. Funciona. |
 | S | Rueda de repuesto | Un pinchazo no cuesta ni le para | La de verdad, no la de galleta. Ya te lo explicó tu cuñado. |
 | S | Radio-escáner | −10 % de espera | Se entera de todo antes que la radio. Y antes que los vecinos. |
 | S | Kit de herramientas | −35 % de averías, −20 % de pinchazos | Llave del 13, cinta americana y fe. |
@@ -348,9 +351,10 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | S | Datáfono portátil | −50 % de clientes sin pagar | «¿Aceptas tarjeta?» Siempre. Se acabaron las excusas. |
 | S | Calcetines de la suerte (sin lavar) | −13 % de espera, −15 % de propinas | No se lavan desde que empezaron a funcionar. No vamos a arriesgarnos ahora. |
 | S | Bufanda mitad y mitad | +35 % de propinas, −4 % de espera de día | Media de cada equipo: nadie se baja enfadado del taxi. |
+| S | Ventilador de pinza (23-11-2026) | −15 % de cansancio | Aire en la cara: despierta más que la radio. |
 | S+ | Bolsa para vómitos | Nadie vomita en su taxi | El conductor de noche la saca con reflejos de portero. |
 | S+ | Navegador con tráfico en directo | −14 % de espera | Sabe dónde va a haber atasco antes de que exista. |
-| S+ | Silla ergonómica | −50 % de bajas, −7 % de espera de noche | Más cara que el coche. Bueno, casi. |
+| S+ | Silla ergonómica | −50 % de bajas, −20 % de cansancio (23-11-2026; antes, −7 % de espera de noche) | Más cara que el coche. Bueno, casi. |
 | S+ | Nevera con agua fría | +45 % de propinas, −30 % de limpieza de un vómito | Agua fría en agosto en Madrid: el único lujo de verdad. |
 | S+ | Detector de baches | −50 % de pinchazos, −30 % de averías | Se sabe los baches de la M-30 por su nombre. |
 | S+ | Gato de la suerte | +30 % de propinas, +20 % de objetos encontrados, 15 % de que lo encontrado sea de una categoría mejor | Mueve la patita todo el día. Algo hace. |
@@ -359,6 +363,7 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | LEGENDARIO | Bocata de calamares infinito | −60 % de bajas, −12 % de espera | De la Plaza Mayor. Se acaba uno y aparece otro. |
 | LEGENDARIO | Porción de pizza | −12 % de espera, −40 % de bajas, +30 % de propinas | De tu 24 horas de confianza. |
 | LEGENDARIO | Bidón energético | −22 % de espera de noche, −20 % de bajas | Medio litro de algo verde. No preguntes. |
+| LEGENDARIO | Café con porras de las 6 de la mañana (23-11-2026) | Descansos de 10 minutos, −20 % de cansancio | Si lo mojas en el café, cuenta como desayuno y como siesta. |
 
 **Ya no hay consumibles** (Iván, 18-11-2026): las ruedas de repuesto, las bolsas de papel y la Cámara de seguridad eran mejoras de toda la flota que anulaban otros objetos. Ahora son objetos de un conductor. Las partidas guardadas recuperan lo que pagaron y reciben el objeto.
 
@@ -521,7 +526,7 @@ Las convenciones de código están en `CLAUDE.md`.
   - Cabecera con la calle animada de día y de noche y la placa «Caja total» siempre visible; alta en Calle (180 px en pantallas bajas, para que Calle quepa sin desplazar) y compacta en el resto.
   - Taxímetro con LED DSEG7; ficha del conductor sin desplazar, con «Cambiar de sitio» desactivado durante la jornada; candidatos y selector de objetos en hojas.
   - El almacén enseña los objetos sin nombre, solo dibujo, cantidad y rareza (Iván).
-  - Dibujos propios para los 24 objetos y los 2 consumibles de entonces (hoy, 37 objetos y ningún consumible).
+  - Dibujos propios para los 24 objetos y los 2 consumibles de entonces (hoy, 40 objetos y ningún consumible).
   - Sonidos sintetizados desde cero (cobro, propina, nivel, objeto, avería, ticket y tic), mudos hasta el primer toque, con sonido y volumen en Ajustes.
   - Sin cambios en la simulación ni en el formato de guardado.
 
