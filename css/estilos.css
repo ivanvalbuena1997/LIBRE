@@ -1781,6 +1781,13 @@ button.licencia-km.coche--gastado .licencia-km-flecha, button.licencia-km.coche-
 .ficha-nivel .xp-barra { flex: 1; display: block; }
 .ficha-nivel .ui-barra-relleno { display: block; transition: width 0.4s ease-out; }
 .ficha-nivel small { font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); white-space: nowrap; }
+/* Energía (cansancio): verde, en rojo por debajo del 25 %. */
+.ficha-energia { display: flex; align-items: center; gap: var(--esp-4); margin-top: var(--esp-3); }
+.ficha-energia strong { flex: none; font-family: var(--letra-titulo); font-weight: 800; font-size: 16px; }
+.ficha-energia .energia-barra { flex: 1; display: block; }
+.ficha-energia .ui-barra-relleno { display: block; background: var(--dinero); transition: width 0.4s ease-out; }
+.ficha-energia .energia-baja .ui-barra-relleno { background: var(--peligro); }
+.ficha-energia small { font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); white-space: nowrap; }
 
 .ficha-rasgos { display: flex; flex-direction: column; gap: var(--esp-3); }
 .ficha-rasgo { display: flex; align-items: center; gap: var(--esp-4); }

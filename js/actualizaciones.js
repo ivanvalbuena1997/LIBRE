@@ -443,6 +443,16 @@
           "texto": "Limpieza: se quita del juego todo lo que hacía avanzar la partida sin estar delante (el cálculo de las horas fuera y sus multas)."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-23",
+      "titulo": "Cansancio",
+      "cambios": [
+        {
+          "n": 98,
+          "texto": "Los conductores se cansan: una barra de energía se gasta trabajando y, al vaciarse, paran a descansar 30 minutos de juego (unas 3 veces por turno). La energía sale en su ficha."
+        }
+      ]
     }
   ];
 })(globalThis);

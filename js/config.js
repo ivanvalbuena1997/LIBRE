@@ -381,6 +381,20 @@
       noche: { nombre: 'Noche', horaInicio: 19, horaFin: 7 }
     },
 
+    /*
+     * Cansancio (Iván, 23-11-2026): cada turno tiene una barra de energía
+     * (maximo) que se gasta con el tiempo trabajando, por minuto de juego:
+     * con pasajero, buscando cliente o esperando en la cola de una parada.
+     * Al llegar a 0 (tras terminar la carrera en curso) para descansoMinutos
+     * de juego y vuelve con la barra llena; al empezar cada turno, llena.
+     * Equilibrio: unos 3 descansos por turno de 12 h (medido con el bot).
+     */
+    cansancio: {
+      maximo: 100,
+      gastoPorMinuto: { pasajero: 0.75, buscando: 0.55, cola: 0.2 },
+      descansoMinutos: 30
+    },
+
     conductores: {
       // Dato de Iván: parte de la recaudación que se queda el conductor.
       porcentaje: 0.50,

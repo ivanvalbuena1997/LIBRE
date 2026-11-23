@@ -296,7 +296,7 @@
       '</dl>';
   }
 
-  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia', pesetas: 'Multa' };
+  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia', pesetas: 'Multa', descanso: 'Descansando' };
   const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
 
   /*
@@ -1197,7 +1197,7 @@
       const faltan = t.baja.hasta - jornada;
       return 'De baja: ' + (faltan === 1 ? 'falta 1 día' : 'faltan ' + faltan + ' días');
     }
-    if (t.paradoHasta > estado.reloj.minutos) return 'Parado hasta las ' + horaDe(t.paradoHasta);
+    if (t.paradoHasta > estado.reloj.minutos) return (t.motivoParada === 'descanso' ? 'Descansando' : 'Parado') + ' hasta las ' + horaDe(t.paradoHasta);
     return '';
   }
 
@@ -1486,6 +1486,26 @@
    * experiencia, rasgos explicados, objetos con quitar o equipar, lo que lleva
    * hecho, su zona (la elige el conductor) y despedir con su finiquito.
    */
+  /*
+   * Energía del conductor (cansancio, Iván 23-11-2026): barra que se vacía
+   * trabajando; a 0, descansa 30 min de juego. Se mueve en `actualizar`.
+   */
+  function textoEnergia(estado, t) {
+    if (t.motivoParada === 'descanso' && t.paradoHasta > estado.reloj.minutos) {
+      const v = Libre.sim.infoReloj(t.paradoHasta);
+      return 'Descansa hasta las ' + dos(v.hora) + ':' + dos(v.minuto);
+    }
+    return Math.round(Libre.sim.energia(estado, t) / Libre.config.cansancio.maximo * 100) + ' %';
+  }
+  function htmlEnergia(estado, t) {
+    const pct = Libre.sim.energia(estado, t) / Libre.config.cansancio.maximo * 100;
+    return '<div class="ficha-energia"><strong>Energía</strong>' +
+      '<span class="ui-barra energia-barra' + (pct < 25 ? ' energia-baja' : '') + '" role="progressbar" aria-label="Energía" ' +
+      'aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(pct) + '" data-energia="' + fichaConductor + '">' +
+      '<span class="ui-barra-relleno" style="width:' + pct.toFixed(0) + '%"></span></span>' +
+      '<small id="ficha-energia">' + textoEnergia(estado, t) + '</small></div>';
+  }
+
   function htmlFichaConductor(estado) {
     const x = conductorDe(estado, fichaConductor);
     if (!x) return '';
@@ -1541,6 +1561,7 @@
       'aria-valuemax="100" aria-valuenow="' + Math.round(p.avance * 100) + '" data-xp="' + fichaConductor + '">' +
       '<span class="ui-barra-relleno" style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span>' +
       '<small id="ficha-xp">' + textoXpCorto(p) + '</small></div>' +
+      (x.enReserva ? '' : htmlEnergia(estado, t)) +
       '<div class="ficha-rasgos">' + htmlFilasRasgos(t) + htmlFuerzaCategoria(t) + '</div>' +
       '<div class="ficha-objetos-bloque"><strong>Objetos <span>· ' + llevados.length + ' de ' + huecos +
       (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
@@ -2101,6 +2122,15 @@
         barra.firstElementChild.style.width = (p.avance * 100).toFixed(0) + '%';
         barra.setAttribute('aria-valuenow', Math.round(p.avance * 100));
         barra.setAttribute('aria-label', textoExperiencia(p));
+      });
+      document.querySelectorAll('#sec-conductores [data-energia]').forEach(function (barra) {
+        const y = conductorDe(estado, barra.dataset.energia);
+        if (!y) return;
+        const pct = Libre.sim.energia(estado, y.t) / Libre.config.cansancio.maximo * 100;
+        barra.firstElementChild.style.width = pct.toFixed(0) + '%';
+        barra.classList.toggle('energia-baja', pct < 25);
+        barra.setAttribute('aria-valuenow', Math.round(pct));
+        if ($('ficha-energia')) $('ficha-energia').textContent = textoEnergia(estado, y.t);
       });
       const x = conductorDe(estado, fichaConductor);
       if (x && $('ficha-xp')) {

@@ -234,6 +234,8 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 
 ### 5.6 Conductores
 
+**Cansancio** (Iván, 23-11-2026). Cada conductor tiene una barra de **energía** que se gasta con el tiempo trabajando, por minuto de juego: 0,75 con pasajero, 0,55 buscando cliente y 0,2 esperando en la cola de una parada (sobre 100). Al llegar a 0, termina la carrera que lleve y **descansa 30 minutos de juego** (chip «Descansando» en «Tus taxis hoy»); luego vuelve con la barra llena, y al empezar cada turno también está llena. La barra se ve en la ficha del conductor (en rojo por debajo del 25 %). Medido (3 partidas por flota, 20 días): unos **3 descansos por turno** de 12 h (2,4 si trabaja en Barajas, donde la cola casi no cansa) y entre un 8 y un 18 % menos de facturación. Es margen a propósito: los rasgos, objetos y mejoras del cansancio lo recortan. Tu cansancio llega en el paso siguiente.
+
 **Personajes.** 32 (Iván, 20-11-2026: antes 16), cada uno con su nombre y su retrato, montado por piezas: cara, piel, peinado y color, gafas (redondas, cuadradas o de sol), barba, ropa, edad y accesorios (gorra, pajarita, traje con corbata y pendientes). Los nuevos: Paco, Mari Carmen, José Luis, Juan, Rafa, Cristina, Ángel, Raquel, Miguel, Fernando, Sonia, Rubén, Lola, Daniela, Álvaro y Daniel.
 
 **Contratar.** Hay siempre tres candidatos (personajes y cualidades distintos), con su retrato, categoría, rasgos y precio. Cambian cada día, al cerrar la caja (Iván, 17-11-2026), y también al contratar a uno: entonces salen otros tres. Si no te llega, la tarjeta dice cuánto falta y deja vender objetos ahí mismo. Se puede contratar para un turno libre o para la reserva.

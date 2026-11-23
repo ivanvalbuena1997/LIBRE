@@ -2285,10 +2285,48 @@
     };
   }
 
+  /*
+   * Cansancio (Iván, 23-11-2026). Cada turno lleva su energía en
+   * t.cansancio (de 0 a cansancio.maximo) y en t.cansancioTurno el turno al
+   * que corresponde: al empezar otro turno, vuelve a estar llena.
+   */
+  function claveTurnoCansancio(minutos) {
+    return Math.floor((minutos - cfg().turnos.dia.horaInicio * 60) / (MIN_DIA / 2));
+  }
+  /* Energía que le queda a un turno ahora (llena si aún no ha trabajado en este turno). */
+  function energia(estado, t) {
+    if (!t || t.cansancioTurno !== claveTurnoCansancio(estado.reloj.minutos)) return cfg().cansancio.maximo;
+    return Math.max(0, t.cansancio);
+  }
+  /* Lo que gasta una carrera (o un rato en vacío): espera y viaje por minuto de juego. */
+  function gastoCansancio(estado, carrera) {
+    const g = cfg().cansancio.gastoPorMinuto;
+    const zona = cfg().zonas[carrera.zona];
+    const espera = Math.max(0, carrera.finEspera - carrera.inicio);
+    const viaje = Math.max(0, carrera.fin - carrera.finEspera);
+    return espera * (zona && zona.colaMin > 0 ? g.cola : g.buscando) + viaje * g.pasajero;
+  }
+  /* Gasta la energía de la carrera que acaba; a 0, descansa (ya sin cliente). */
+  function cansarse(estado, t, carrera) {
+    const c = cfg().cansancio;
+    const clave = claveTurnoCansancio(carrera.inicio);
+    if (t.cansancioTurno !== clave) { t.cansancio = c.maximo; t.cansancioTurno = clave; }
+    t.cansancio -= gastoCansancio(estado, carrera);
+    if (t.cansancio > 0) return;
+    const ahora = estado.reloj.minutos;
+    t.cansancio = c.maximo;
+    t.cansancioTurno = claveTurnoCansancio(ahora);
+    if ((t.paradoHasta || 0) < ahora + c.descansoMinutos) {
+      t.paradoHasta = ahora + c.descansoMinutos;
+      t.motivoParada = 'descanso';
+    }
+  }
+
   /* Cobra (o solo gasta, si fue un rato en vacío) la carrera de un conductor. */
   function terminarCarreraConductor(estado, resumen, turno) {
     const carrera = turno.carrera;
     turno.carrera = null;
+    cansarse(estado, turno, carrera);
     gastar(estado, resumen, 'combustible', carrera.combustible);
     estado.caja.hoy.km += carrera.km + carrera.kmVacio;
     sumarKm(estado, licenciaDelTurno(estado, turno), carrera.km + carrera.kmVacio);
@@ -3070,6 +3108,7 @@
     comprarVehiculo,
     precioCoche,
     cuentaDeMejora,
+    energia,
     precioRebuscar,
     rebuscarCandidatos,
     faltaParaMejora,

@@ -575,7 +575,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   destellan al cobrar y llevan a su licencia en Conductores. Más de 6 taxis:
   «Ver los N restantes». Los datos salen de `taxisDeLaFlota()`.
 - Taxis parados: la simulación guarda `motivoParada` ('pinchazo',
-  'vomito', 'lluvia') junto a `paradoHasta`, solo para enseñarlo.
+  'vomito', 'lluvia', 'descanso') junto a `paradoHasta`, solo para enseñarlo.
+- Cansancio (Iván, 23-11-2026; `config.cansancio`): cada turno guarda
+  `cansancio` (energía, de 0 a `maximo`) y `cansancioTurno`
+  (`claveTurnoCansancio()`: al cambiar de turno, la barra está llena; no
+  hizo falta subir la versión del guardado). `cansarse()` la gasta al
+  terminar cada carrera o tramo en vacío (`gastoCansancio()`: espera, por
+  minuto de juego buscando o en cola, y viaje con pasajero) y, a 0, para
+  `descansoMinutos` de juego con `motivoParada` 'descanso'. `energia()`
+  (solo lectura) la da; en la ficha, `htmlEnergia()`, al día en
+  `actualizar` (`data-energia`). Paso 1 de 4: solo conductores.
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
   conductores) deja parado hasta que escampa al que no lleva carrera, y el

@@ -1619,6 +1619,26 @@ prueba('Cazatalentos (idea 11): buscar otros candidatos, cada vez el doble y de 
   cerca(sim.precioRebuscar(e), r.precioBase, 0.001);
 });
 
+prueba('cansancio: trabajar gasta energía y a 0 el conductor descansa 30 min de juego', function () {
+  const e = flotaDe(1);
+  const c = config.cansancio;
+  const t = e.licencias[0].turnos.noche;
+  e.reloj.minutos = 20 * 60;                               // su turno
+  assert.strictEqual(sim.energia(e, t), c.maximo, 'empieza el turno lleno');
+  let paso = 0;
+  while (t.motivoParada !== 'descanso' && paso++ < 20000) sim.avanzar(e, 0.05);
+  assert.strictEqual(t.motivoParada, 'descanso', 'acaba descansando');
+  cerca(t.paradoHasta - e.reloj.minutos, c.descansoMinutos, 1);
+  assert.strictEqual(sim.energia(e, t), c.maximo, 'vuelve con la barra llena');
+  assert.ok(!t.carrera, 'sin cliente mientras descansa');
+  // Gasta por minuto de juego: con pasajero más que buscando.
+  const g = c.gastoPorMinuto;
+  assert.ok(g.pasajero > g.buscando && g.buscando > g.cola);
+  // Otro turno, otra barra: llena.
+  e.reloj.minutos += 12 * 60;
+  assert.strictEqual(sim.energia(e, t), c.maximo);
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;

@@ -122,3 +122,7 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 95. Nueva mejora «Cazatalentos» (25.000 €), la última de Conductores y jornada: en la hoja de candidatos puedes buscar otros al momento por 1.000 €; cada búsqueda del mismo día cuesta el doble y al cerrar la caja vuelve a 1.000 €.
 96. La partida ya no avanza con el juego cerrado ni con la pestaña escondida o el móvil bloqueado: al volver sigue exactamente donde la dejaste.
 97. Limpieza: se quita del juego todo lo que hacía avanzar la partida sin estar delante (el cálculo de las horas fuera y sus multas).
+
+## 23 de noviembre de 2026 · Cansancio
+
+98. Los conductores se cansan: una barra de energía se gasta trabajando y, al vaciarse, paran a descansar 30 minutos de juego (unas 3 veces por turno). La energía sale en su ficha.
