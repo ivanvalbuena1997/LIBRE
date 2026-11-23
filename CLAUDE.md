@@ -25,7 +25,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
     actualizaciones para el panel de Ajustes; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
 - El orden de los `<script>` en `index.html` importa: config, simulación,
-  guardado, ambiente, retratos, sonidos, actualizaciones, interfaz, main.
+  fflate, guardado, ambiente, retratos, sonidos, actualizaciones, interfaz, main.
+  `js/fflate.js` es la única librería de terceros (fflate 0.8.2, MIT, copiada
+  tal cual de npm; deja el global `fflate`): comprime el texto de exportar.
   No van escritos a mano: una lista en `index.html` los escribe con
   `document.write` y `?v=<Date.now()>` (también `css/estilos.css`), para que
   el navegador descargue siempre los nuevos (Iván, 21-11-2026: no veía las
@@ -495,7 +497,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   bloquean) y el texto pegado vive en `textoPartida`, así que redibujar la
   hoja no lo borra. `Libre.guardado.limpiarTexto()` quita lo que no es
   base64 (espacios duros, invisibles, comillas, saltos) antes de importar
-  (Iván, 19-11-2026: una importación falló). Al final, el panel plegado «Actualizaciones» (`htmlActualizaciones()`,
+  (Iván, 19-11-2026: una importación falló). Exportar comprime (Iván,
+  23-11-2026): `PREFIJO_COMPRIMIDO` ('LIBRE2') + base64 del JSON con
+  `fflate.deflateSync`; `importar()` acepta ese formato y el de antes (base64
+  del JSON, empieza por «eyJ»). Al final, el panel plegado «Actualizaciones» (`htmlActualizaciones()`,
   un `<details>`): **cada actualización que se termine se apunta en
   `js/actualizaciones.js` (número siguiente, en el grupo de su día, en
   lenguaje de jugador) y en `docs/historial.md`**.

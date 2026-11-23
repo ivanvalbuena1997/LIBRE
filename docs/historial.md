@@ -129,3 +129,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 99. Tú también te cansas: tus carreras gastan tu energía (sale en el taxímetro) y, al vaciarse, descansas 30 minutos de juego.
 100. Rasgos y objetos para el cansancio: Incansable y Siesta exprés (y sus contrarios, Blandengue y Remolón), el Antifaz de avión, el Ventilador de pinza y el legendario Café con porras de las 6 de la mañana. El Termo de café y la Silla ergonómica ahora también quitan cansancio.
 101. Dos mejoras para el cansancio: el Climatizador bizona (todos se cansan un 15 % menos, tú también) y la Máquina de café en la cochera (descansos de 25 y luego 20 minutos). La máquina va antes del Departamento de RRHH.
+102. Los códigos para exportar e importar partidas son unas 3 veces más cortos (van comprimidos y empiezan por LIBRE2). Los de antes se siguen pudiendo importar.

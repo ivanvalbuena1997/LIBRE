@@ -355,13 +355,31 @@
     try { raiz.localStorage.removeItem(CLAVE); } catch (e) { /* nada que borrar */ }
   }
 
-  /* Texto en base64 (con acentos a salvo) para copiar y pegar. */
-  function exportar(estado) {
-    const json = JSON.stringify(estado);
-    const bytes = new TextEncoder().encode(json);
+  /*
+   * Exportar e importar comprimido (Iván, 23-11-2026): el JSON se comprime
+   * con deflate (js/fflate.js) antes del base64 y el texto empieza por
+   * PREFIJO_COMPRIMIDO. Unas 3 veces más corto. Los textos de antes (base64
+   * del JSON, empiezan por «eyJ») se siguen importando.
+   */
+  const PREFIJO_COMPRIMIDO = 'LIBRE2';
+  function compresor() {
+    if (raiz.fflate) return raiz.fflate;
+    if (typeof require === 'function') return require('./fflate.js');   // en Node (pruebas)
+    throw new Error('Falta js/fflate.js');
+  }
+  function aBase64(bytes) {
     let binario = '';
-    bytes.forEach(function (b) { binario += String.fromCharCode(b); });
+    for (let i = 0; i < bytes.length; i++) binario += String.fromCharCode(bytes[i]);
     return btoa(binario);
+  }
+  function deBase64(texto) {
+    return Uint8Array.from(atob(texto), function (ch) { return ch.charCodeAt(0); });
+  }
+
+  /* Texto para copiar y pegar: el JSON (con acentos a salvo) comprimido y en base64. */
+  function exportar(estado) {
+    const bytes = new TextEncoder().encode(JSON.stringify(estado));
+    return PREFIJO_COMPRIMIDO + aBase64(compresor().deflateSync(bytes, { level: 9 }));
   }
 
   /*
@@ -372,7 +390,11 @@
    * con - y _ y le repone el relleno = que falte.
    */
   function limpiarTexto(texto) {
-    let t = String(texto).replace(/-/g, '+').replace(/_/g, '/').replace(/[^A-Za-z0-9+/]/g, '');
+    const t = String(texto).replace(/-/g, '+').replace(/_/g, '/').replace(/[^A-Za-z0-9+/]/g, '');
+    // El formato comprimido lleva delante el prefijo: el relleno va tras él.
+    return t.indexOf(PREFIJO_COMPRIMIDO) === 0 ? PREFIJO_COMPRIMIDO + rellenar(t.slice(PREFIJO_COMPRIMIDO.length)) : rellenar(t);
+  }
+  function rellenar(t) {
     while (t.length % 4) t += '=';
     return t;
   }
@@ -383,8 +405,10 @@
     if (!limpio) throw new Error('No hay ningún texto de partida que importar.');
     let json;
     try {
-      const binario = atob(limpio);
-      const bytes = Uint8Array.from(binario, function (ch) { return ch.charCodeAt(0); });
+      // Formato nuevo (comprimido) o el de antes (el JSON en base64).
+      const comprimido = limpio.indexOf(PREFIJO_COMPRIMIDO) === 0;
+      let bytes = deBase64(comprimido ? rellenar(limpio.slice(PREFIJO_COMPRIMIDO.length)) : limpio);
+      if (comprimido) bytes = compresor().inflateSync(bytes);
       json = JSON.parse(new TextDecoder().decode(bytes));
     } catch (e) {
       throw new Error('El texto está incompleto o no es una partida de Libre. Copia otra vez todo el texto exportado.');

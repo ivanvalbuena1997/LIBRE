@@ -463,6 +463,10 @@
         {
           "n": 101,
           "texto": "Dos mejoras para el cansancio: el Climatizador bizona (todos se cansan un 15 % menos, tú también) y la Máquina de café en la cochera (descansos de 25 y luego 20 minutos). La máquina va antes del Departamento de RRHH."
+        },
+        {
+          "n": 102,
+          "texto": "Los códigos para exportar e importar partidas son unas 3 veces más cortos (van comprimidos y empiezan por LIBRE2). Los de antes se siguen pudiendo importar."
         }
       ]
     }

@@ -1674,6 +1674,27 @@ prueba('cansancio: Climatizador y Máquina de café valen para toda la flota, ta
   assert.ok(cansancio.fuentes.some(function (f) { return f.tipo === 'mejora' && f.nombre === 'Climatizador bizona'; }));
 });
 
+prueba('exportar comprime (LIBRE2…), importar da la misma partida, y los textos de antes siguen valiendo', function () {
+  require('../js/guardado.js');
+  const g = globalThis.Libre.guardado;
+  const e = flotaDe(3);
+  e.empresa = { nombre: 'Taxis Ñandú SL', jornada: 0 };   // con acentos
+  e.objetos = { porras: 1, antifaz: 2 };
+  for (let i = 0; i < 200; i++) sim.avanzar(e, 0.5);
+  const texto = g.exportar(e);
+  assert.ok(texto.indexOf('LIBRE2') === 0, 'formato nuevo');
+  const antiguo = Buffer.from(JSON.stringify(e), 'utf8').toString('base64');
+  assert.ok(texto.length < antiguo.length / 2, texto.length + ' frente a ' + antiguo.length);
+  assert.deepStrictEqual(g.importar(texto), JSON.parse(JSON.stringify(e)), 'la misma partida');
+  // Pegado con saltos, espacios y comillas, como desde el móvil.
+  const sucio = '«' + texto.slice(0, 40) + '\n  ' + texto.slice(40, 200) + '\u00a0' + texto.slice(200) + '»';
+  assert.deepStrictEqual(g.importar(sucio), JSON.parse(JSON.stringify(e)));
+  // El formato de antes (el JSON en base64) sigue entrando.
+  assert.deepStrictEqual(g.importar(antiguo), JSON.parse(JSON.stringify(e)));
+  // Cortado: avisa y no carga nada.
+  assert.throws(function () { g.importar(texto.slice(0, texto.length - 30)); }, /incompleto/);
+});
+
 prueba('Leasing de coches: cada coche cuesta un 30 % menos', function () {
   const e = sim.crearEstadoInicial(0);
   const base = config.vehiculos.modelos[config.vehiculos.modeloInicial].precio;
