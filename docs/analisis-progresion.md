@@ -151,3 +151,31 @@ Medido después (10 semillas, 240 minutos; coches a ×1,10 desde el 21-11):
   602 €). Es decir, **dejar el volante pronto sale muy caro**. No he cambiado
   nada del juego por esto; queda apuntado por si se quiere revisar la
   Oficina o cuándo la propone el juego.
+
+## Sin progreso fuera: cuánto cambia (23-11-2026)
+
+Desde el 22-11-2026 la partida solo avanza con el juego abierto y a la vista
+(antes contaba hasta 8 horas fuera, a la media). El bot siempre juega sin
+parar, así que **su ritmo por minuto jugado no cambia**: todas las cifras de
+arriba siguen valiendo.
+
+Lo que cambia es el ritmo **por día real** de quien juega a ratos. Medido
+con el código de antes (mismas flotas, 3 semillas, sin comprar nada mientras
+tanto):
+
+| Flota | 20 min jugando | 4 h fuera (antes) | 8 h fuera (antes, el tope) |
+| --- | --- | --- | --- |
+| 1 licencia | 258 € · 11 jornadas | 7.337 € · 144 jornadas | 15.272 € · 288 jornadas |
+| 3 licencias | 2.324 € · 11 jornadas | 40.021 € · 144 jornadas | 78.844 € · 288 jornadas |
+| 6 licencias | 5.162 € · 11 jornadas | 69.581 € · 144 jornadas | 137.878 € · 288 jornadas |
+
+Una jornada dura 100 s, así que 8 horas fuera eran 288 jornadas de golpe.
+Con un horario de 3 sesiones de 20 minutos al día (descansos de 4, 4 y 16
+horas; el de 16, recortado a 8), antes el **~95 % del avance de cada día
+salía de las horas fuera** (unas 576 jornadas fuera frente a unas 33
+jugando). Ahora solo cuentan esas ~33: unas **17 veces menos por día real**
+con ese horario. Quien juega seguido no nota nada.
+
+Un intento de medirlo con el bot jugando a ratos no terminó: con el
+progreso fuera, la flota crecía tanto que la simulación no acababa en una
+hora.
