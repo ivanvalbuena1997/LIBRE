@@ -2286,4 +2286,63 @@ prueba('sociedad limitada: con 3 licencias, la 4.ª pide montar la SL, que cuest
   assert.strictEqual(globalThis.Libre.guardado.migrar(vieja2).empresa, null);
 });
 
+prueba('personaje: la experiencia sale de tus carreras (4), las de tus conductores (1) y los legendarios vendidos (1), y el nivel sigue la curva', function () {
+  require('../js/guardado.js');
+  const p = config.personaje;
+  // Curva: 1.000, 2.600, 5.160…
+  assert.strictEqual(sim.experienciaParaNivel(0), 0);
+  assert.strictEqual(sim.experienciaParaNivel(1), p.niveles.base);
+  assert.strictEqual(sim.experienciaParaNivel(2), Math.round(p.niveles.base * (1 + p.niveles.factor)));
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 20261124;
+  assert.deepStrictEqual(e.personaje, { xp: 0 });
+  assert.strictEqual(sim.nivelPersonaje(e).nivel, 0);
+  // Una carrera tuya.
+  e.reloj.minutos = 8 * 60;
+  assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok);
+  while (e.jugador.carrera) sim.avanzar(e, 0.05);
+  assert.strictEqual(e.personaje.xp, p.experiencia.tuCarrera);
+  const antes = e.personaje.xp;
+  // Vender un legendario suma; uno B no.
+  const b = config.objetos.lista.find(function (o) { return o.categoria === 'B'; }).id;
+  e.objetos.paconi = 1;
+  e.objetos[b] = 1;
+  sim.venderObjeto(e, b);
+  assert.strictEqual(e.personaje.xp, antes);
+  sim.venderObjeto(e, 'paconi');
+  assert.strictEqual(e.personaje.xp, antes + p.experiencia.legendarioVendido);
+  // Subir de nivel avisa una vez.
+  const resumen = { eventos: [] };
+  sim.ganarExperienciaPersonaje(e, resumen, p.niveles.base);
+  assert.strictEqual(sim.nivelPersonaje(e).nivel, 1);
+  assert.strictEqual(resumen.eventos.filter(function (x) { return x.tipo === 'nivelPersonaje'; }).length, 1);
+  const n = sim.nivelPersonaje(e);
+  assert.ok(n.progreso >= 0 && n.progreso < 1 && n.hasta === sim.experienciaParaNivel(2));
+  // Migración: una partida de la versión 32 empieza a contar desde 0.
+  const viejo = JSON.parse(JSON.stringify(sim.crearEstadoInicial(0)));
+  viejo.version = 32;
+  delete viejo.personaje;
+  assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).personaje, { xp: 0 });
+});
+
+prueba('personaje: cada carrera terminada de un conductor da su punto de experiencia', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 7;
+  const libranza = config.licencias.libranza;
+  config.licencias.libranza = false;
+  // Contrata al primer candidato que llegue para el turno de noche.
+  e.dinero = 1e6;
+  const r = sim.contratarConductor(e, e.licencias[0].id, 'noche', 0);
+  assert.ok(r.ok, r.mensaje);
+  e.reloj.minutos = 20 * 60;
+  const t = e.licencias[0].turnos.noche;
+  for (let i = 0; i < 4000 && !(t.carreras >= 3); i++) sim.avanzar(e, 0.25);
+  assert.ok(t.carreras >= 3, 'el conductor hace carreras');
+  // Lo tuyo no cuenta aquí (no conduces de noche): la experiencia es la del conductor.
+  assert.strictEqual(e.personaje.xp, t.carreras * config.personaje.experiencia.carreraConductor);
+  config.licencias.libranza = libranza;
+});
+
+
 console.log(pasadas + ' pruebas correctas');
+

@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 32,
+    versionGuardado: 33,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -414,6 +414,20 @@
     // reaccion (Iván, 23-11-2026: con 1 s fijo no la perdía nunca): la
     // ventana para encadenar se estrecha con la racha, de inicial (racha 0)
     // a final (en el tope), en segundos reales.
+    /*
+     * Tu personaje (Iván, 24-11-2026; idea 12, nivel de cuenta): experiencia
+     * por cada carrera tuya (tuCarrera), de tus conductores (carreraConductor)
+     * y por cada objeto LEGENDARIO que vendes. El nivel N pide en total
+     * base × (factor^N − 1) / (factor − 1) puntos: 1.000, 2.600, 5.160…
+     * Equilibrio (medido con el bot: nivel 3 hacia la 1 h 20 min, nivel 9
+     * hacia las 8 h). Cada nivel dará un punto de prestigio y hará falta
+     * nivelPrestigio para reiniciar (pasos siguientes).
+     */
+    personaje: {
+      experiencia: { tuCarrera: 4, carreraConductor: 1, legendarioVendido: 1 },
+      niveles: { base: 1000, factor: 1.6 },
+      nivelPrestigio: 3
+    },
     racha: { disponible: true, porCarrera: 0.01, maximo: 0.10, reaccion: { inicial: 1, final: 0.5 } },
 
     cansancio: {

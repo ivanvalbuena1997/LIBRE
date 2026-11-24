@@ -726,7 +726,7 @@
   const colaAvisos = [];
   let ultimoAviso = 0;
   // Qué sonido lleva cada evento de la simulación (los demás, ninguno).
-  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia', vigilancia: 'pesetas' };
+  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia', vigilancia: 'pesetas', nivelPersonaje: 'nivel' };
 
   /* Toca un sonido (js/sonidos.js), si el módulo está cargado. */
   function sonar(nombre, arg) {

@@ -45,6 +45,14 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     (23-11-2026): crece con objetivos de la flota, desbloquea las habilidades
     de tu personaje y más adelante podría servir para reiniciar la partida
     (eso sí sería prestigio: decidir antes si entra en el alcance).
+    **En marcha desde el 24-11-2026** (Iván: entra en el alcance). Nivel de
+    cuenta = nivel de tu personaje: 4 puntos por carrera tuya, 1 por carrera
+    de conductor, 1 por legendario vendido; cada nivel, 1 punto de
+    prestigio; reinicio desde el nivel 3, eligiendo mejoras del personaje
+    (las únicas que quedan; el nivel vuelve a 0). Hecho el paso 1
+    (experiencia y nivel). Pendiente: hoja del personaje en la cabecera,
+    mejoras por puntos (unos 10 reinicios para tenerlas todas), el
+    reinicio, y **coches de distintas gamas** que se desbloqueen aquí.
 
 16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
     las fáciles (ver «Hechas»).

@@ -134,3 +134,7 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 104. A prueba: la racha. Si encadenas carreras sin despistarte (menos de un segundo entre cobrar y buscar la siguiente), cada una cobra un 1 % más, hasta un 10 %. Se corta si te despistas, si descansas o al acabar tu turno. Sale arriba en el taxímetro.
 105. La racha es más difícil y se ve mejor. El tiempo para encadenar se acorta a medida que subes: un segundo al empezar y medio segundo en el máximo. Tras cobrar, una raya ámbar bajo las cifras se vacía con el tiempo que te queda. El taxímetro se ilumina como una recreativa: se enciende una luz bajo la tarifa por cada carrera encadenada, el marco y las cifras brillan cada vez más, y en el máximo parpadean.
 106. La racha suena como una recreativa: cada carrera que encadenas hace un «blip» más agudo que el anterior, al llegar al máximo suena una fanfarria y, si la pierdes, una nota que se cae.
+
+## 24 de noviembre de 2026 · Tu personaje
+
+107. Tu personaje empieza a ganar experiencia: 4 puntos por cada carrera tuya, 1 por cada carrera de tus conductores y 1 por cada objeto legendario que vendas. Al subir de nivel te avisa. Es la base de lo que viene: la hoja de tu personaje, sus mejoras y el prestigio.

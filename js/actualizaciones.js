@@ -485,6 +485,16 @@
           "texto": "La racha suena como una recreativa: cada carrera que encadenas hace un «blip» más agudo que el anterior, al llegar al máximo suena una fanfarria y, si la pierdes, una nota que se cae."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-24",
+      "titulo": "Tu personaje",
+      "cambios": [
+        {
+          "n": 107,
+          "texto": "Tu personaje empieza a ganar experiencia: 4 puntos por cada carrera tuya, 1 por cada carrera de tus conductores y 1 por cada objeto legendario que vendas. Al subir de nivel te avisa. Es la base de lo que viene: la hoja de tu personaje, sus mejoras y el prestigio."
+        }
+      ]
     }
   ];
 })(globalThis);

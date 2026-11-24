@@ -69,6 +69,8 @@
       // Tu turno siempre es a clic. zona recuerda dónde trabajabas para cuando
       // vuelvas a conducir tras dejarlo.
       jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial, vigilancia: null },
+      // Tu personaje: experiencia de esta partida (el nivel sale de ella).
+      personaje: { xp: 0 },
       conductoresContratados: 0,
       mejoras: {},
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
@@ -1373,6 +1375,40 @@
     }
   }
 
+  // ---------------------------------------------------- Tu personaje
+
+  /* Experiencia total que pide el nivel n (n = 0 → 0). */
+  function experienciaParaNivel(n) {
+    const p = cfg().personaje.niveles;
+    return Math.round(p.base * (Math.pow(p.factor, n) - 1) / (p.factor - 1));
+  }
+
+  /*
+   * Solo lectura: { nivel, xp, desde, hasta, progreso } de tu personaje.
+   * desde/hasta: experiencia total del nivel actual y del siguiente.
+   */
+  function nivelPersonaje(estado) {
+    const xp = (estado.personaje && estado.personaje.xp) || 0;
+    let nivel = 0;
+    while (experienciaParaNivel(nivel + 1) <= xp) nivel++;
+    const desde = experienciaParaNivel(nivel);
+    const hasta = experienciaParaNivel(nivel + 1);
+    return { nivel, xp, desde, hasta, progreso: (xp - desde) / (hasta - desde) };
+  }
+
+  /* Suma experiencia a tu personaje; avisa (evento 'nivelPersonaje') al subir. Devuelve el texto del aviso o ''. */
+  function ganarExperienciaPersonaje(estado, resumen, puntos) {
+    if (!(puntos > 0)) return '';
+    if (!estado.personaje) estado.personaje = { xp: 0 };
+    const antes = nivelPersonaje(estado).nivel;
+    estado.personaje.xp += puntos;
+    const despues = nivelPersonaje(estado).nivel;
+    if (despues <= antes) return '';
+    const texto = '¡Subes a nivel ' + despues + ' de taxista!';
+    if (resumen) resumen.eventos.push({ tipo: 'nivelPersonaje', nivel: despues, texto });
+    return texto;
+  }
+
   /*
    * Para probar desde la consola: da experiencia al conductor que se llama
    * `nombre` (el primero que encuentre). Devuelve los avisos de nivel.
@@ -1529,7 +1565,9 @@
     const precio = buscarCategoria(o.categoria).venta;
     incidencia(estado, resumenVacio(), 'venta', 'Vendes ' + o.nombre + '.', precio, 'extras');
     guardarBandeja(estado);
-    return exito('Vendes ' + o.nombre + ' por ' + Libre.ui_euros(precio) + '.');
+    const legendaria = cfg().categorias[cfg().categorias.length - 1].id;
+    const subes = o.categoria === legendaria ? ganarExperienciaPersonaje(estado, null, cfg().personaje.experiencia.legendarioVendido) : '';
+    return exito('Vendes ' + o.nombre + ' por ' + Libre.ui_euros(precio) + '.' + (subes ? ' ' + subes : ''));
   }
 
   /*
@@ -2245,6 +2283,7 @@
     const u = ubicacionJugador(estado);
     if (u) sumarFacturado(estado, buscarLicencia(estado, u.licenciaId), estado.totales.ingresos - antes);
     apuntarFacturado(estado, { quien: 'jugador' }, estado.totales.ingresos - antes);
+    ganarExperienciaPersonaje(estado, resumen, cfg().personaje.experiencia.tuCarrera);
   }
 
   /* Lo que lleva facturado cada taxi en la jornada (para la lista de taxis). */
@@ -2438,6 +2477,7 @@
     turno.facturado = (turno.facturado || 0) + cobrado;
     apuntarFacturado(estado, turno, cobrado);
     ganarExperiencia(estado, resumen, turno, cfg().conductores.niveles.porCarrera);
+    ganarExperienciaPersonaje(estado, resumen, cfg().personaje.experiencia.carreraConductor);
     hallazgo(estado, resumen, turno);
   }
 
@@ -3209,6 +3249,9 @@
     cuentaDeMejora,
     energia,
     rachaActual,
+    nivelPersonaje,
+    experienciaParaNivel,
+    ganarExperienciaPersonaje,
     segundosVentana,
     minutosDescanso,
     precioRebuscar,

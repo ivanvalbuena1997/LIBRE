@@ -4,7 +4,8 @@ Juego incremental de gestión de taxis en Madrid. El diseño completo está en
 `DISENO.md` (pensado para leerlo como diseñador, con capturas en
 `docs/capturas/`); la versión actual cubre solo las etapas 1 y 2 (apartado
 «Alcance de la versión actual»). No añadir nada de lo que ese apartado
-deja fuera (VTC, gerentes, otras ciudades, prestigio). Si cambia una regla o
+deja fuera (VTC, gerentes, otras ciudades, el prestigio de la etapa 3). El
+prestigio de tu personaje sí entra (Iván, 24-11-2026). Si cambia una regla o
 un número, se actualiza también DISENO.md. Las averías y bajas entran como eventos
 aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 
@@ -617,6 +618,18 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (10 luces bajo la tarifa), `#carrera-barra.racha-ventana` (raya que se
   vacía) y `.racha-max` (parpadeo en el tope). Sin cambio de
   versión del guardado (campo nuevo opcional).
+- Tu personaje (Iván, 24-11-2026; idea 12; versión 33 del guardado):
+  `estado.personaje = { xp }`. `ganarExperienciaPersonaje(estado, resumen,
+  puntos)` suma `config.personaje.experiencia` (tuCarrera 4 en
+  `terminarCarrera()`, carreraConductor 1 en `terminarCarreraConductor()`,
+  legendarioVendido 1 en `venderObjeto()`) y, al subir, deja el evento
+  'nivelPersonaje' (aviso y sonido 'nivel'). `nivelPersonaje()` (solo
+  lectura: nivel, xp, desde, hasta, progreso) con la curva de
+  `experienciaParaNivel(n)` = base × (factor^n − 1) / (factor − 1). Por
+  pasos: 2, botón en la cabecera y hoja del personaje; 3, mejoras del
+  personaje por puntos (Racha e Incógnito para ti pasan ahí); 4, prestigio
+  desde `nivelPrestigio` (3): elegir mejoras, reiniciar (el nivel vuelve a
+  0) y migrar.
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
   conductores) deja parado hasta que escampa al que no lleva carrera, y el

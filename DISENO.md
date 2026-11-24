@@ -473,9 +473,14 @@ El juego completo tiene cinco etapas; cada una añade un tipo de vehículo y una
 
 **Prestigio:** a partir de la etapa 3, vender la empresa y empezar en otra ciudad con una ventaja permanente (por ejemplo, reputación que aumenta la demanda).
 
+**Tu personaje y el prestigio de hoy** (Iván, 24-11-2026; idea 12, en construcción por pasos). Entra en el alcance por decisión de Iván, antes de la etapa 3 y dentro de Madrid:
+
+- **Experiencia y nivel** (paso 1, hecho): tu personaje gana **4 puntos por cada carrera tuya**, **1 por cada carrera de tus conductores** y **1 por cada objeto LEGENDARIO vendido**. El nivel N pide en total 1.000 × (1,6^N − 1) / 0,6 puntos: 1.000, 2.600, 5.160, 9.256… Medido con el bot (2 partidas, perfil equilibrado, que reacciona en 0,7 s): unos 1.900 puntos a los 30 min, 7.500 a las 2 h, 19.000 a las 4 h y 106.000 a las 8 h (las carreras de la flota mandan a partir de las 4 h; los legendarios vendidos son 1 o 2 en 8 h). Con esta curva, nivel 3 hacia la 1 h 20 min y nivel 9 hacia las 8 h. Al subir de nivel sale un aviso.
+- **Por hacer:** un botón en la cabecera, junto a Ajustes, con la hoja de tu personaje (nivel, barra, puntos y mejoras); cada nivel da **1 punto de prestigio**; desde el **nivel 3** se puede **reiniciar**: antes te ofrece las mejoras del personaje para gastar los puntos, se pierde todo lo de la partida y el nivel vuelve a 0, y solo quedan esas mejoras. Las mejoras no tienen precio en euros sino en puntos, algunas más caras que otras para que tenerlas todas pida unos 10 reinicios: Racha (deja de estar para todos), Racha larga, Reflejos de taxista, Incógnito para ti (sale del árbol; quien la compró la conserva), Fondo físico, Callejero de memoria, Ahorros, Coche a estrenar, Agenda de contactos y Veterano. También, coches de distintas gamas que se desbloquean aquí.
+
 ### Alcance de la versión actual
 
-Incluye todo lo descrito en las secciones 4 y 5. Queda fuera: VTC y otros vehículos, gerentes, otras ciudades, prestigio, la tarifa 7 y los suplementos de Nochebuena y Nochevieja. Las ideas apuntadas para más adelante están en [docs/ideas-futuras.md](docs/ideas-futuras.md).
+Incluye todo lo descrito en las secciones 4 y 5. Queda fuera: VTC y otros vehículos, gerentes, otras ciudades, el prestigio de la etapa 3 (vender la empresa y cambiar de ciudad; el de tu personaje, en Madrid, sí entra desde el 24-11-2026), la tarifa 7 y los suplementos de Nochebuena y Nochevieja. Las ideas apuntadas para más adelante están en [docs/ideas-futuras.md](docs/ideas-futuras.md).
 
 ---
 
@@ -486,7 +491,7 @@ HTML, CSS y JavaScript sin framework ni paso de compilación; se juega abriendo 
 - **Datos separados del código:** todos los números están en `js/config.js`, marcados como dato real, dato de Iván o equilibrio.
 - **Lógica separada de la pantalla:** una sola función avanza el tiempo (`avanzar`), con el juego abierto (no hay progreso sin conexión desde el 22-11-2026); la simulación no sabe nada del HTML y se prueba sin navegador (`node tests/simulacion.test.js`).
 - **Azar con semilla:** todo lo que afecta a la flota sale de un generador guardado en la partida.
-- **Guardado:** `localStorage` con número de versión (hoy, la 32) y migraciones para que las partidas antiguas sigan cargando; exportar e importar como texto, comprimido con deflate (la librería fflate 0.8.2, licencia MIT, copiada en `js/fflate.js`; la única de terceros del proyecto). El rework visual no cambió el formato: la pestaña elegida (`libre-vista`), la rama de mejoras y los ajustes de sonido (`libre-sonido`) se guardan aparte, como comodidades del navegador.
+- **Guardado:** `localStorage` con número de versión (hoy, la 33) y migraciones para que las partidas antiguas sigan cargando; exportar e importar como texto, comprimido con deflate (la librería fflate 0.8.2, licencia MIT, copiada en `js/fflate.js`; la única de terceros del proyecto). El rework visual no cambió el formato: la pestaña elegida (`libre-vista`), la rama de mejoras y los ajustes de sonido (`libre-sonido`) se guardan aparte, como comodidades del navegador.
 - **Módulos de la interfaz:** `js/ambiente.js` dibuja la calle de la cabecera (se puede cambiar por otro módulo, un mapa, sin tocar el resto); `js/retratos.js`, las caras de los conductores; `js/sonidos.js`, los sonidos con Web Audio; `js/interfaz.js`, las pantallas.
 - **Recursos propios:** las fuentes van en `fuentes/` (licencias en `fuentes/LICENCIAS.md`, por verificar antes de publicar) y los dibujos de los objetos en `iconos/`. No se carga nada de internet.
 - **Diseño:** primero para móvil, una sola columna; colores, letras, espaciados y radios como variables CSS, y componentes base reutilizables (prefijo `ui-`). Todas las animaciones se apagan con «reducir movimiento».
@@ -541,6 +546,10 @@ Las convenciones de código están en `CLAUDE.md`.
 **22 de noviembre de 2026**
 
 - **Sin progreso fuera** (Iván): la partida solo avanza con el juego abierto y a la vista. Se quitó el progreso sin conexión (hasta 8 horas, a la media) y también que una pestaña escondida o dormida recuperara el tiempo al volver. Deja de ser un juego idle: los conductores solo trabajan mientras juegas.
+
+**24 de noviembre de 2026**
+
+- **Prestigio de tu personaje** (Iván): entra en el alcance. Tu personaje sube de nivel con experiencia (tus carreras, las de tus conductores y los legendarios vendidos), cada nivel da un punto de prestigio y desde el nivel 3 puedes reiniciar la partida gastando los puntos en mejoras del personaje, las únicas que se conservan. Se construye por pasos (ver «Tu personaje y el prestigio de hoy»).
 ---
 
 ## Anexo: primer prompt para Claude Code

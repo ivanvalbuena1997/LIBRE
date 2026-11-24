@@ -257,6 +257,11 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 32 → 33: tu personaje (Iván, 24-11-2026): experiencia de la partida.
+    // Empieza a contar ahora.
+    32: function (estado) {
+      if (!estado.personaje) estado.personaje = { xp: 0 };
+    },
     // 31 → 32: sin progreso fuera (Iván, 22-11-2026): las multas medias del
     // pesetas sin conexión ya no existen.
     31: function (estado) {
