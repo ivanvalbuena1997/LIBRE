@@ -2516,8 +2516,66 @@
   // Iván, 22-11-2026: las zonas, justo debajo del taxímetro (y del ticket o
   // la caja si están abiertos); antes iban al final y con muchos taxis no se
   // veían a la vez que el taxímetro.
+  /*
+   * Tu personaje (Iván, 24-11-2026; idea 12): hoja que abre el botón de la
+   * gorra, a la izquierda del engranaje. Paso 2: nivel, barra de
+   * experiencia y de dónde sale; las mejoras y el prestigio, en los pasos
+   * siguientes. La barra y la cifra van al día en actualizar (sin redibujar).
+   */
+  let personajeAbierto = false;
+  let enfocarPersonaje = false;
+  function textoXpPersonaje(n) {
+    return numero(n.xp - n.desde) + ' de ' + numero(n.hasta - n.desde) + ' puntos · faltan ' + numero(n.hasta - n.xp) + ' para el nivel ' + (n.nivel + 1);
+  }
+  const seccionPersonaje = {
+    id: 'sec-personaje',
+    firma: function (estado) {
+      return 'personaje:' + personajeAbierto + ':' + Libre.sim.nivelPersonaje(estado).nivel;
+    },
+    html: function (estado) {
+      if (!personajeAbierto) return '';
+      const p = Libre.config.personaje;
+      const n = Libre.sim.nivelPersonaje(estado);
+      const pct = (n.progreso * 100).toFixed(1);
+      return '<div class="hoja-fondo" data-cerrar-personaje></div>' +
+        '<div class="hoja hoja-personaje" role="dialog" aria-modal="true" aria-labelledby="personaje-titulo">' +
+        '<button type="button" class="hoja-cerrar" data-cerrar-personaje aria-label="Cerrar tu personaje">×</button>' +
+        '<h2 id="personaje-titulo">Tu personaje</h2>' +
+        '<div class="personaje-nivel"><strong>Nivel ' + n.nivel + '</strong>' +
+        '<span class="ui-barra" role="progressbar" aria-label="Experiencia" aria-valuemin="0" aria-valuemax="100" ' +
+        'aria-valuenow="' + Math.round(n.progreso * 100) + '" id="personaje-barra">' +
+        '<span class="ui-barra-relleno" style="width:' + pct + '%"></span></span></div>' +
+        '<p class="personaje-xp" id="personaje-xp">' + textoXpPersonaje(n) + '</p>' +
+        '<h3>Cómo ganas experiencia</h3>' +
+        '<ul class="personaje-fuentes">' +
+        '<li>Cada carrera tuya: <strong>' + p.experiencia.tuCarrera + ' puntos</strong></li>' +
+        '<li>Cada carrera de tus conductores: <strong>' + p.experiencia.carreraConductor + ' punto' + (p.experiencia.carreraConductor === 1 ? '' : 's') + '</strong></li>' +
+        '<li>Cada objeto LEGENDARIO que vendes: <strong>' + p.experiencia.legendarioVendido + ' punto' + (p.experiencia.legendarioVendido === 1 ? '' : 's') + '</strong></li>' +
+        '</ul>' +
+        '<p class="ayuda">Cada nivel te dará un punto de prestigio. Desde el nivel ' + p.nivelPrestigio +
+        ' podrás empezar de cero y gastarlos en mejoras de tu personaje, las únicas que se conservan. Llegará en las próximas actualizaciones.</p>' +
+        '</div>';
+    },
+    actualizar: function (estado) {
+      if (!personajeAbierto) return;
+      const n = Libre.sim.nivelPersonaje(estado);
+      const barra = $('personaje-barra');
+      if (barra) {
+        barra.firstChild.style.width = (n.progreso * 100).toFixed(1) + '%';
+        barra.setAttribute('aria-valuenow', Math.round(n.progreso * 100));
+      }
+      const t = textoXpPersonaje(n);
+      if ($('personaje-xp') && $('personaje-xp').textContent !== t) $('personaje-xp').textContent = t;
+      if (enfocarPersonaje) {
+        enfocarPersonaje = false;
+        const cerrar = document.querySelector('#sec-personaje .hoja-cerrar');
+        if (cerrar) cerrar.focus({ preventScroll: true });
+      }
+    }
+  };
+
   const secciones = [seccionTaximetro, seccionTicket, seccionCaja, seccionZonas, seccionObjetivo, seccionTaxis,
-    seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida];
+    seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida, seccionPersonaje];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -2692,7 +2750,7 @@
     'sec-taximetro': 'calle', 'sec-ticket': 'calle',
     'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
     'sec-conductores': 'conductores', 'sec-almacen': 'almacen', 'sec-mejoras': 'mejoras',
-    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre'
+    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre'
   };
   // Pestañas de antes del rework: Flota se partió y Partida es ahora una hoja.
   const VISTA_ANTIGUA = { flota: 'conductores', partida: 'calle' };
@@ -2804,6 +2862,7 @@
     fichaConductor = null;
     fichaInventario = null;
     ajustesAbiertos = false;
+    personajeAbierto = false;
     confirmarPartida = null;
     montandoSL = false;
     cogido = null;
@@ -3031,10 +3090,21 @@
       if (!abrir) $('abrir-ajustes').focus({ preventScroll: true });
     }
     $('abrir-ajustes').addEventListener('click', function () { abrirAjustes(true); });
+    function abrirPersonaje(abrir) {
+      personajeAbierto = abrir;
+      enfocarPersonaje = abrir;
+      opciones.redibujar();
+      if (!abrir) $('abrir-personaje').focus({ preventScroll: true });
+    }
+    $('abrir-personaje').addEventListener('click', function () { abrirPersonaje(true); });
 
     main.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-cerrar-ajustes]')) {
         abrirAjustes(false);
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-personaje]')) {
+        abrirPersonaje(false);
         return;
       }
       if (ev.target.closest('[data-cerrar-ticket]')) {
@@ -3313,6 +3383,10 @@
         abrirAjustes(false);
         return;
       }
+      if (ev.key === 'Escape' && personajeAbierto) {
+        abrirPersonaje(false);
+        return;
+      }
       if (ev.key === 'Escape' && cogido) {
         soltarCogido();
         return;
@@ -3419,6 +3493,9 @@
     // Placa con el nombre de tu SL, junto al logo.
     const empresa = estado.empresa ? estado.empresa.nombre : '';
     if ($('empresa').textContent !== empresa) { $('empresa').textContent = empresa; $('empresa').hidden = !empresa; }
+    // Nivel de tu personaje en la insignia del botón de la gorra.
+    const nivelP = String(Libre.sim.nivelPersonaje(estado).nivel);
+    if ($('nivel-personaje').textContent !== nivelP) $('nivel-personaje').textContent = nivelP;
     dibujarEscena(estado);
 
     secciones.forEach(function (s) {

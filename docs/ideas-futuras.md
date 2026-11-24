@@ -81,6 +81,27 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     la quiere; el «sí» anterior fue una errata). Tampoco las ofertas de la
     emisora.
 
+23. [ ] **Gamas de coche** (Iván, 24-11-2026; se desbloquean con las
+    mejoras del personaje, paso 3 o 4 del prestigio). Tres gamas:
+    - **Turismo: Toyota Corolla.** El de ahora (el más usado por los
+      taxistas). Sin cambios.
+    - **Tesla Model 3.** Más caro, eléctrico: el «combustible» cuesta
+      menos. Cuenta orientativa, por verificar: el Corolla gasta 6 l/100 km
+      × 1,55 € = unos 9,3 €/100 km; un Model 3, unos 15 kWh/100 km a
+      0,20–0,25 €/kWh (cargando en la cochera) = unos 3–3,75 €/100 km, un
+      35–40 % del Corolla. Propuestas de Claude, por decidir: menos averías
+      (motor eléctrico, sin aceite ni embrague: −40 %) y el piloto
+      automático en atascos (te cansas un 10 % menos). Ojo: decidir si
+      Híbridos y GLP (consumo) le afectan, porque no tienen sentido en un
+      eléctrico.
+    - **Mercedes Clase S.** La más alta y cara: más propinas (Iván).
+      Propuestas de Claude, por decidir: clientes de más nivel que casi
+      nunca se van sin pagar (−50 %) y más demanda en el Centro y el
+      Aeropuerto (ejecutivos y hoteles). Como contrapartida, gasta más
+      combustible y sus averías y pinchazos cuestan más. La tarifa del taxi
+      es la misma en cualquier coche (está regulada), así que no se cobra
+      más por la carrera.
+
 ### ⭐️ Clientes y eventos
 
 13. [ ] **Eventos guiados.** Darle contexto al juego y una pequeña historia.

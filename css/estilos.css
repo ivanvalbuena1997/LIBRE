@@ -314,7 +314,7 @@ body:not([data-vista="calle"]) .cabecera {
   position: absolute;
   left: 20px;
   top: 16px;
-  right: 84px;
+  right: 124px;                 /* deja sitio al personaje y al engranaje */
   display: flex;
   align-items: center;
   gap: var(--esp-3);
@@ -359,6 +359,24 @@ body:not([data-vista="calle"]) .cabecera {
   stroke-linejoin: round;
 }
 .cabecera-ajustes:focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
+/* Tu personaje: a la izquierda del engranaje, con su nivel en una insignia. */
+.cabecera-personaje { right: 68px; }
+.cabecera-nivel {
+  position: absolute; right: -4px; bottom: -3px;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 4px;
+  border-radius: 10px; background: var(--marca); color: var(--blanco);
+  font-family: var(--letra-titulo); font-size: var(--t-micro); font-weight: 800; line-height: 1;
+}
+/* Hoja del personaje. */
+.hoja-personaje h2 { display: flex; align-items: center; min-height: 48px; margin-top: 0; padding-right: 56px; margin-bottom: var(--esp-4); }
+.personaje-nivel { display: flex; align-items: center; gap: var(--esp-4); }
+.personaje-nivel strong { flex: none; font-family: var(--letra-titulo); font-weight: 800; font-size: 20px; }
+.personaje-nivel .ui-barra { flex: 1; display: block; }
+.personaje-nivel .ui-barra-relleno { display: block; transition: width 0.4s ease-out; }
+.personaje-xp { margin: var(--esp-2) 0 var(--esp-5); font-size: var(--t-pequeno); color: var(--tinta-suave); }
+.personaje-fuentes { margin: 0 0 var(--esp-5); padding-left: 1.2em; font-size: var(--t-pequeno); }
+.personaje-fuentes li { margin: 2px 0; }
 
 /* Placa «Caja total»: en Calle, título y reloj arriba y el dinero grande
    debajo; en las demás pestañas, una sola fila. */

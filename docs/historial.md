@@ -138,3 +138,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 ## 24 de noviembre de 2026 · Tu personaje
 
 107. Tu personaje empieza a ganar experiencia: 4 puntos por cada carrera tuya, 1 por cada carrera de tus conductores y 1 por cada objeto legendario que vendas. Al subir de nivel te avisa. Es la base de lo que viene: la hoja de tu personaje, sus mejoras y el prestigio.
+108. Botón nuevo en la cabecera, junto al engranaje: tu personaje, con tu nivel en una insignia. Al tocarlo ves tu nivel, la barra de experiencia con lo que falta para el siguiente y cómo se gana. Las gamas de coche (Tesla Model 3 y Mercedes Clase S) quedan anotadas para cuando lleguen las mejoras del personaje.

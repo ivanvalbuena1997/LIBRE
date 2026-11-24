@@ -625,8 +625,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   legendarioVendido 1 en `venderObjeto()`) y, al subir, deja el evento
   'nivelPersonaje' (aviso y sonido 'nivel'). `nivelPersonaje()` (solo
   lectura: nivel, xp, desde, hasta, progreso) con la curva de
-  `experienciaParaNivel(n)` = base × (factor^n − 1) / (factor − 1). Por
-  pasos: 2, botón en la cabecera y hoja del personaje; 3, mejoras del
+  `experienciaParaNivel(n)` = base × (factor^n − 1) / (factor − 1). Hoja
+  del personaje (paso 2): botón `#abrir-personaje` (silueta, a la izquierda
+  del engranaje, insignia `#nivel-personaje` al día en `dibujar()`) que abre
+  `seccionPersonaje` (`personajeAbierto`, vista 'siempre'; se cierra con ×,
+  el fondo o Escape; barra y cifra al día en `actualizar`). La marca de la
+  cabecera deja 124 px a la derecha para los dos botones. Por pasos: 3, mejoras del
   personaje por puntos (Racha e Incógnito para ti pasan ahí); 4, prestigio
   desde `nivelPrestigio` (3): elegir mejoras, reiniciar (el nivel vuelve a
   0) y migrar.
