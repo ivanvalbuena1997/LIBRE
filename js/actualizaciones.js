@@ -517,6 +517,10 @@
         {
           "n": 113,
           "texto": "El Mercedes Clase S, un 10 % mejor: aún más propinas (2,2 veces más a menudo y un 65 % mayores), menos clientes que se van sin pagar y algo más de clientes en el Centro y el Aeropuerto."
+        },
+        {
+          "n": 114,
+          "texto": "Tu personaje, rediseñado: tu cara en el botón de la cabecera y en grande en su hoja, con un lápiz para cambiarla (piel, cara, edad, pelo y su color, barba, gafas, ropa, cuello, gorra y pendientes) y ponerte nombre. Las mejoras van en pestañas (Al volante, Al empezar, Coches), cada una en una tarjeta con su icono y el color de su estado. Tu cara y tu nombre salen también en Tus taxis hoy, en Conductores y en Estadísticas, y se conservan al empezar de cero."
         }
       ]
     }

@@ -351,7 +351,9 @@
       const motivoParada = t ? (t.quien === 'jugador' ? estado.jugador.motivoParada : t.motivoParada) : null;
       return {
         licencia: lic,
-        quien: t ? (t.quien === 'jugador' ? 'Tú' : t.nombre) : 'Sin conductor',
+        quien: t ? (t.quien === 'jugador' ? Libre.sim.nombrePersonaje(estado) : t.nombre) : 'Sin conductor',
+        tu: !!t && t.quien === 'jugador',
+        aspecto: t && t.quien === 'jugador' ? Libre.sim.aspectoPersonaje(estado) : null,
         conductor: t && t.quien === 'conductor' ? t : null,
         retrato: t && t.quien === 'conductor' ? t.retrato : null,
         zona: t ? t.zona : null,
@@ -383,8 +385,13 @@
       return '<span class="cara-foto"><span class="retrato' + (t.icono === 'baja' ? ' atenuado' : '') + '">' +
         Libre.retratos.svg(t.retrato) + '</span>' + (t.conductor ? htmlCirculos(t.conductor) : '') + '</span>';
     }
-    // Tú, o un turno sin conductor.
-    return '<span class="retrato retrato-texto' + (t.quien === 'Tú' ? ' tu' : '') + '">' + (t.quien === 'Tú' ? 'TÚ' : '') + '</span>';
+    // Tú, con tu cara; o un turno sin conductor.
+    if (t.tu) return '<span class="retrato tu">' + Libre.retratos.svg(t.aspecto) + '</span>';
+    return '<span class="retrato retrato-texto"></span>';
+  }
+  /* Tu cara (el retrato que eliges en la hoja del personaje). */
+  function htmlCaraTu(estado) {
+    return '<span class="retrato tu">' + Libre.retratos.svg(Libre.sim.aspectoPersonaje(estado)) + '</span>';
   }
 
   /* Chip de estado de un taxi: Libre, Ocupado, Libranza, De baja o parado (ámbar). */
@@ -444,7 +451,7 @@
         const li = filas[t.licencia.id];
         if (!li) return;
         // El retrato solo se rehace si cambia quién conduce.
-        const claveRetrato = t.quien + '|' + t.retrato + '|' + (t.icono === 'baja') +
+        const claveRetrato = t.quien + '|' + t.retrato + '|' + (t.aspecto ? JSON.stringify(t.aspecto) : '') + '|' + (t.icono === 'baja') +
           (t.conductor ? '|' + t.conductor.categoria + '|' + Libre.sim.nivelConductor(t.conductor) : '');
         if (li.dataset.retrato !== claveRetrato) {
           li.querySelector('.taxi-retrato').innerHTML = htmlRetratoFila(t);
@@ -1361,7 +1368,7 @@
   function htmlMedias(estado) {
     const m = Libre.sim.mediasDiarias(estado);
     const filas = [];
-    if (m.tu) filas.push({ nombre: 'Tú', retrato: '<span class="retrato retrato-texto tu">TÚ</span>', media: m.tu.media, dias: m.tu.dias, tu: true });
+    if (m.tu) filas.push({ nombre: Libre.sim.nombrePersonaje(estado), retrato: htmlCaraTu(estado), media: m.tu.media, dias: m.tu.dias, tu: true });
     m.conductores.forEach(function (x) {
       filas.push({
         nombre: x.t.nombre, media: x.media, dias: x.dias, clave: x.licenciaId + '|' + x.turno,
@@ -1452,7 +1459,7 @@
     } else if (t.quien === 'jugador') {
       cara = '<button type="button" class="cara" data-panel-tu="' + clave + '" aria-expanded="' + (panelTu === clave) + '"' +
         ' aria-label="Tu turno: zona y opciones">' +
-        '<span class="cara-foto"><span class="retrato retrato-texto tu">TÚ</span></span><span class="cara-nombre">Tú</span></button>';
+        '<span class="cara-foto">' + htmlCaraTu(estado) + '</span><span class="cara-nombre">' + esc(Libre.sim.nombrePersonaje(estado)) + '</span></button>';
     } else {
       cara = htmlCara(estado, clave, t, lic);
     }
@@ -1782,7 +1789,7 @@
    */
   function firmaFlota(estado) {
     const jornada = Libre.sim.jornadaDe(estado.reloj.minutos);
-    return JSON.stringify([Libre.sim.enPausa(estado), estado.licencias.map(function (l) {
+    return JSON.stringify([Libre.sim.enPausa(estado), estado.personaje.nombre, estado.personaje.aspecto, estado.licencias.map(function (l) {
       return [l.id, l.numero, l.vehiculo, l.averia && jornada < l.averia.hasta ? l.averia.hasta : 0,
         ['dia', 'noche'].map(function (tn) {
           const t = l.turnos[tn];
@@ -2567,10 +2574,24 @@
   }
   const GRUPOS_PERSONAJE = [
     { id: 'volante', nombre: 'Al volante' },
-    { id: 'arranque', nombre: 'Al empezar cada partida' },
-    { id: 'gamas', nombre: 'Gamas de coche' }
+    { id: 'arranque', nombre: 'Al empezar' },
+    { id: 'gamas', nombre: 'Coches' }
   ];
-  /* Lista de las mejoras del personaje: nivel, lo que tienes, lo siguiente y su coste en puntos. */
+  // Iconos de trazo de las mejoras del personaje (24×24), como los del árbol.
+  const ICONOS_PERSONAJE = {
+    racha: '<path d="M13 2 L4.5 13.5 H11 L10 22 L19.5 10 H13 Z"/>',
+    rachaLarga: '<path d="M3 17 L9 11 L13 15 L21 7"/><path d="M15 7 H21 V13"/>',
+    reflejos: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5 V13.5 L14.5 16"/><path d="M10 2.5 H14 M12 2.5 V6"/>',
+    incognitoTu: '<path d="M4 11a8 8 0 0 1 16 0"/><path d="M2.5 11h19M12 11V7"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>',
+    fondoFisico: '<path d="M20.5 9a4.8 4.8 0 0 0-8.5-3.1A4.8 4.8 0 0 0 3.5 9c0 5.2 8.5 11 8.5 11s8.5-5.8 8.5-11z"/><path d="M5 11.5h4l1.5-2.5 2.5 5 1.5-2.5h4.5"/>',
+    callejero: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+    ahorros: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+    cocheNuevo: '<path d="M3 16l1.5-5h12L18 16v3H3z"/><path d="M6 11l1.5-3h7l1.5 3M6 19v2M15 19v2"/><path d="M20 2.5v4M18 4.5h4"/>',
+    agenda: '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8.5 16.5c.8-1.8 2-2.5 3.5-2.5s2.7.7 3.5 2.5M3 7.5h2M3 12h2M3 16.5h2"/>',
+    veterano: '<circle cx="12" cy="14.5" r="6"/><path d="M12 11.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z"/><path d="M8 3l2 5.2M16 3l-2 5.2"/>',
+    tesla: '<path d="M9 2.5v4.5M15 2.5v4.5"/><path d="M6 7h12v3.5a6 6 0 0 1-12 0z"/><path d="M12 16.5v5"/>',
+    mercedes: '<path d="M6 3.5h12l4 5.5-10 12L2 9z"/><path d="M2 9h20M12 21L8.5 9 12 3.5 15.5 9z"/>'
+  };
   /*
    * Prestigio (paso 4): null o { compras: [ids], confirmar }. compras es la
    * lista de niveles que vas añadiendo (un id repetido, otro nivel); la
@@ -2578,48 +2599,114 @@
    */
   let prestigio = null;
   function textoPuntos(n) { return n + ' punto' + (n === 1 ? '' : 's'); }
+  let pjGrupo = 'volante';      // pestaña de mejoras abierta en la hoja
+  let editandoAspecto = false;  // hoja para cambiar tu cara y tu nombre
+  // El nombre que vas escribiendo: se guarda al cerrar el editor (guardarlo al
+  // salir del campo redibujaba la hoja justo debajo del dedo).
+  let nombreEditado = '';
   /*
-   * Lista de las mejoras del personaje: nivel, lo que tienes, lo siguiente y
-   * su coste. Con `compra` ({ mejoras, restantes }), cada una lleva «+» para
-   * añadir un nivel y «−» para quitar lo añadido.
+   * Mejoras del personaje en tarjetas con icono (Iván, 24-11-2026), por
+   * pestañas. El círculo dice su estado: la tienes (verde), la puedes coger
+   * en el reinicio (azul), aún no (gris) o te falta otra antes (candado).
+   * Con `compra` ({ mejoras, restantes }), botones «−» y «+ N».
    */
   function htmlMejorasPersonaje(estado, compra) {
     const sim = Libre.sim;
     const base = estado.personaje.mejoras || {};
     const prueba = compra ? { personaje: { mejoras: compra.mejoras } } : estado;
-    return GRUPOS_PERSONAJE.map(function (g) {
-      const filas = Libre.config.personaje.mejoras.filter(function (m) { return m.grupo === g.id; }).map(function (m) {
-        const n = sim.nivelMejoraPersonaje(prueba, m.id);
-        const antes = base[m.id] || 0;
-        const max = m.niveles.length;
-        const actual = n ? m.niveles[n - 1] : null;
-        const sig = m.niveles[n];
-        const falta = sim.faltaParaMejoraPersonaje(prueba, m.id);
-        const rayas = max > 1 ? '<span class="nodo-niveles" aria-label="Nivel ' + n + ' de ' + max + '">' +
-          m.niveles.map(function (x, i) {
-            return '<i' + (i < antes ? ' class="hecho"' : i < n ? ' class="nuevo"' : '') + '></i>';
-          }).join('') + '</span>' : '';
-        const lineas = [];
-        if (actual && actual.descripcion) lineas.push((n > antes ? 'Tendrás: ' : 'Tienes: ') + esc(actual.descripcion));
-        if (sig) lineas.push((n ? 'Siguiente: ' : '') + esc(sig.descripcion || '') + (sig.descripcion ? ' · ' : '') +
-          '<strong>' + textoPuntos(sig.coste) + '</strong>' + (falta ? ' · ' + esc(falta) : ''));
-        let botones = '';
-        if (compra) {
-          const puede = sig && !falta && sig.coste <= compra.restantes;
-          botones = '<div class="pj-mejora-botones">' +
-            (n > antes ? '<button type="button" class="ui-boton ui-boton--secundario" data-pj-quitar="' + m.id +
-              '" aria-label="Quitar un nivel de ' + esc(m.nombre) + '">−</button>' : '') +
-            (sig ? '<button type="button" class="ui-boton ui-boton--principal" data-pj-comprar="' + m.id + '"' +
-              (puede ? '' : ' disabled') + '>+ ' + textoPuntos(sig.coste) + '</button>' : '') + '</div>';
-        }
-        return '<li class="pj-mejora' + (n ? ' pj-tiene' : '') + (n > antes ? ' pj-nueva' : '') + '">' +
-          '<div class="pj-mejora-titulo"><strong>' + esc(m.nombre) + '</strong>' + rayas +
-          (n >= max ? '<span class="ui-chip">' + (max > 1 ? 'Al máximo' : n > antes ? 'Nueva' : 'La tienes') + '</span>' : '') + '</div>' +
-          '<p>' + esc(m.descripcion) + '</p>' +
-          (lineas.length ? '<p class="pj-mejora-nivel">' + lineas.join('<br>') + '</p>' : '') + botones + '</li>';
-      }).join('');
-      return '<h3>' + g.nombre + '</h3><ul class="pj-mejoras">' + filas + '</ul>';
+    const pestañas = '<div class="pj-pestanas" role="tablist">' + GRUPOS_PERSONAJE.map(function (g) {
+      const lista = Libre.config.personaje.mejoras.filter(function (m) { return m.grupo === g.id; });
+      const tiene = lista.filter(function (m) { return sim.nivelMejoraPersonaje(prueba, m.id) > 0; }).length;
+      return '<button type="button" role="tab" class="pj-pestana' + (pjGrupo === g.id ? ' activa' : '') +
+        '" aria-selected="' + (pjGrupo === g.id) + '" data-pj-grupo="' + g.id + '">' + g.nombre +
+        ' <small>' + tiene + '/' + lista.length + '</small></button>';
+    }).join('') + '</div>';
+    const filas = Libre.config.personaje.mejoras.filter(function (m) { return m.grupo === pjGrupo; }).map(function (m) {
+      const n = sim.nivelMejoraPersonaje(prueba, m.id);
+      const antes = base[m.id] || 0;
+      const max = m.niveles.length;
+      const actual = n ? m.niveles[n - 1] : null;
+      const sig = m.niveles[n];
+      const falta = sim.faltaParaMejoraPersonaje(prueba, m.id);
+      const bloqueada = sig && m.requiere && !sim.nivelMejoraPersonaje(prueba, m.requiere);
+      const puede = compra && sig && !falta && sig.coste <= compra.restantes;
+      const estadoCss = n > antes ? 'nueva' : n ? 'tiene' : bloqueada ? 'bloqueada' : puede ? 'disponible' : 'no';
+      const rayas = max > 1 ? '<span class="nodo-niveles pj-rayas" aria-label="Nivel ' + n + ' de ' + max + '">' +
+        m.niveles.map(function (x, i) {
+          return '<i' + (i < antes ? ' class="hecho"' : i < n ? ' class="nuevo"' : '') + '></i>';
+        }).join('') + '</span>' : '';
+      // Una línea: lo que tienes (y lo siguiente) o lo que da.
+      const efecto = actual && actual.descripcion
+        ? (sig ? esc(actual.descripcion) + ' → ' + esc(sig.descripcion || '') : esc(actual.descripcion))
+        : esc((sig && sig.descripcion) || m.descripcion);
+      const pie = n >= max
+        ? '<span class="ui-chip pj-chip-ok">' + (max > 1 ? 'Al máximo' : 'La tienes') + '</span>'
+        : bloqueada ? '<span class="pj-falta">' + esc(falta) + '</span>'
+        : '<span class="pj-coste"><strong>' + sig.coste + '</strong> ' + (sig.coste === 1 ? 'punto' : 'puntos') + '</span>';
+      const botones = compra ? '<div class="pj-mejora-botones">' +
+        (n > antes ? '<button type="button" class="ui-boton ui-boton--secundario" data-pj-quitar="' + m.id +
+          '" aria-label="Quitar un nivel de ' + esc(m.nombre) + '">−</button>' : '') +
+        (sig ? '<button type="button" class="ui-boton ui-boton--principal" data-pj-comprar="' + m.id + '"' +
+          (puede ? '' : ' disabled') + ' aria-label="Añadir ' + esc(m.nombre) + ' por ' + sig.coste + ' puntos">+ ' + sig.coste + '</button>' : '') +
+        '</div>' : '';
+      return '<li class="pj-mejora pj-' + estadoCss + '">' +
+        '<span class="pj-icono" aria-hidden="true">' + (estadoCss === 'bloqueada' ? ICONO_CANDADO
+          : '<svg class="icono" viewBox="0 0 24 24">' + (ICONOS_PERSONAJE[m.id] || '') + '</svg>') + '</span>' +
+        '<div class="pj-mejora-cuerpo"><div class="pj-mejora-titulo"><strong>' + esc(m.nombre) + '</strong>' + rayas + '</div>' +
+        '<p>' + efecto + '</p><div class="pj-mejora-pie">' + pie + botones + '</div></div></li>';
     }).join('');
+    return pestañas + '<ul class="pj-mejoras">' + filas + '</ul>';
+  }
+
+  /* Cabecera de la hoja: tu cara (con el lápiz para cambiarla), nombre, nivel y experiencia. */
+  function htmlCabeceraPersonaje(estado) {
+    const n = Libre.sim.nivelPersonaje(estado);
+    const reinicios = estado.personaje.reinicios || 0;
+    return '<div class="pj-cabecera">' +
+      '<button type="button" class="pj-cara" data-pj-editar aria-label="Cambiar tu cara y tu nombre">' + htmlCaraTu(estado) +
+      '<span class="pj-lapiz" aria-hidden="true"><svg class="icono" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span></button>' +
+      '<div class="pj-quien"><h2 id="personaje-titulo">' + esc(Libre.sim.nombrePersonaje(estado)) + '</h2>' +
+      '<p>Taxista de nivel <strong>' + n.nivel + '</strong>' + (reinicios ? ' · ' + reinicios + (reinicios === 1 ? ' reinicio' : ' reinicios') : '') + '</p>' +
+      '<span class="ui-barra" role="progressbar" aria-label="Experiencia" aria-valuemin="0" aria-valuemax="100" ' +
+      'aria-valuenow="' + Math.round(n.progreso * 100) + '" id="personaje-barra">' +
+      '<span class="ui-barra-relleno" style="width:' + (n.progreso * 100).toFixed(1) + '%"></span></span>' +
+      '<p class="personaje-xp" id="personaje-xp">' + textoXpPersonaje(n) + '</p></div></div>';
+  }
+
+  /*
+   * Hoja para cambiar tu cara y tu nombre: arriba, tu cara en grande y el
+   * nombre; debajo, una fila por pieza con cada opción dibujada sobre tu
+   * cara (tocarla la elige).
+   */
+  const PIEZAS_ASPECTO = [
+    { campo: 'piel', nombre: 'Piel' }, { campo: 'cara', nombre: 'Cara' }, { campo: 'edad', nombre: 'Edad' },
+    { campo: 'pelo', nombre: 'Pelo' }, { campo: 'colorPelo', nombre: 'Color del pelo' }, { campo: 'barba', nombre: 'Barba' },
+    { campo: 'gafas', nombre: 'Gafas' }, { campo: 'ropa', nombre: 'Ropa' }, { campo: 'cuello', nombre: 'Cuello' },
+    { campo: 'gorra', nombre: 'Gorra' }, { campo: 'pendientes', nombre: 'Pendientes' }
+  ];
+  function htmlHojaAspecto(estado) {
+    const a = Libre.sim.aspectoPersonaje(estado);
+    const ops = Libre.config.personaje.aspecto.opciones;
+    const filas = PIEZAS_ASPECTO.map(function (p) {
+      return '<div class="pj-pieza"><span class="pj-pieza-nombre">' + p.nombre + '</span><div class="pj-opciones">' +
+        ops[p.campo].map(function (v) {
+          const prueba = Object.assign({}, a);
+          prueba[p.campo] = v;
+          const elegida = a[p.campo] === v;
+          return '<button type="button" class="pj-opcion' + (elegida ? ' elegida' : '') + '" aria-pressed="' + elegida +
+            '" aria-label="' + p.nombre + ': ' + (v === null || v === false ? 'sin' : String(v)) + '" data-pj-aspecto="' +
+            p.campo + '|' + String(v) + '"><span class="retrato">' + Libre.retratos.svg(prueba) + '</span></button>';
+        }).join('') + '</div></div>';
+    }).join('');
+    return '<div class="hoja-fondo" data-pj-cerrar-aspecto></div>' +
+      '<div class="hoja hoja-personaje hoja-aspecto" role="dialog" aria-modal="true" aria-labelledby="aspecto-titulo">' +
+      '<button type="button" class="hoja-cerrar" data-pj-cerrar-aspecto aria-label="Volver">×</button>' +
+      '<h2 id="aspecto-titulo">Tu taxista</h2>' +
+      '<div class="pj-aspecto-arriba"><span class="pj-cara pj-cara--grande">' + htmlCaraTu(estado) + '</span>' +
+      '<label class="pj-nombre">Nombre<input type="text" id="pj-nombre" maxlength="' + Libre.config.personaje.aspecto.nombreMax +
+      '" autocomplete="off" placeholder="Tú" value="' + esc(nombreEditado) + '" data-pj-nombre></label></div>' +
+      filas +
+      '<div class="pj-prestigio-pie"><button type="button" class="ui-boton ui-boton--principal" data-pj-cerrar-aspecto>Listo</button></div></div>';
   }
 
   /* Bloque «Empezar de cero» de la hoja normal. */
@@ -2655,7 +2742,7 @@
       }).join('');
       return cab +
         '<p class="pj-aviso"><strong>Se pierde toda la partida:</strong> el dinero, las licencias, los coches, los conductores, los objetos y las mejoras del árbol. Tu nivel vuelve a 0.</p>' +
-        '<h3>Te quedas con</h3>' + (quedan ? '<ul class="personaje-fuentes">' + quedan + '</ul>' : '<p class="ayuda">Ninguna mejora.</p>') +
+        '<h3>Te quedas con</h3>' + (quedan ? '<ul class="pj-lista">' + quedan + '</ul>' : '<p class="ayuda">Ninguna mejora.</p>') +
         (restantes ? '<p>Y te guardas <strong>' + textoPuntos(restantes) + '</strong> para el próximo reinicio.</p>' : '') +
         '<div class="pj-prestigio-pie">' +
         '<button type="button" class="ui-boton ui-boton--secundario" data-pj-volver>Volver</button>' +
@@ -2674,34 +2761,29 @@
     id: 'sec-personaje',
     firma: function (estado) {
       return 'personaje:' + personajeAbierto + ':' + Libre.sim.nivelPersonaje(estado).nivel + ':' +
-        JSON.stringify(estado.personaje.mejoras || {}) + ':' + (estado.personaje.puntos || 0) + ':' + JSON.stringify(prestigio);
+        JSON.stringify(estado.personaje.mejoras || {}) + ':' + (estado.personaje.puntos || 0) + ':' + JSON.stringify(prestigio) + ':' +
+        pjGrupo + ':' + editandoAspecto + ':' + estado.personaje.nombre + ':' + JSON.stringify(estado.personaje.aspecto);
     },
     html: function (estado) {
       if (!personajeAbierto) return '';
+      if (editandoAspecto) return htmlHojaAspecto(estado);
       if (prestigio) return htmlHojaPrestigio(estado);
       const p = Libre.config.personaje;
-      const n = Libre.sim.nivelPersonaje(estado);
-      const pct = (n.progreso * 100).toFixed(1);
+      const e = p.experiencia;
       return '<div class="hoja-fondo" data-cerrar-personaje></div>' +
         '<div class="hoja hoja-personaje" role="dialog" aria-modal="true" aria-labelledby="personaje-titulo">' +
         '<button type="button" class="hoja-cerrar" data-cerrar-personaje aria-label="Cerrar tu personaje">×</button>' +
-        '<h2 id="personaje-titulo">Tu personaje</h2>' +
-        '<div class="personaje-nivel"><strong>Nivel ' + n.nivel + '</strong>' +
-        '<span class="ui-barra" role="progressbar" aria-label="Experiencia" aria-valuemin="0" aria-valuemax="100" ' +
-        'aria-valuenow="' + Math.round(n.progreso * 100) + '" id="personaje-barra">' +
-        '<span class="ui-barra-relleno" style="width:' + pct + '%"></span></span></div>' +
-        '<p class="personaje-xp" id="personaje-xp">' + textoXpPersonaje(n) + '</p>' +
+        htmlCabeceraPersonaje(estado) +
+        // De dónde sale la experiencia, en chips pequeños.
+        '<div class="pj-fuentes"><span class="ui-chip">Tu carrera +' + e.tuCarrera + '</span>' +
+        '<span class="ui-chip">Carrera de un conductor +' + e.carreraConductor + '</span>' +
+        '<span class="ui-chip">Legendario vendido +' + e.legendarioVendido + '</span></div>' +
         htmlBloquePrestigio(estado) +
-        '<h3>Cómo ganas experiencia</h3>' +
-        '<ul class="personaje-fuentes">' +
-        '<li>Cada carrera tuya: <strong>' + textoPuntos(p.experiencia.tuCarrera) + '</strong></li>' +
-        '<li>Cada carrera de tus conductores: <strong>' + textoPuntos(p.experiencia.carreraConductor) + '</strong></li>' +
-        '<li>Cada objeto LEGENDARIO que vendes: <strong>' + textoPuntos(p.experiencia.legendarioVendido) + '</strong></li>' +
-        '</ul>' +
+        '<h3 class="pj-subtitulo">Mejoras de tu taxista</h3>' +
         htmlMejorasPersonaje(estado) + '</div>';
     },
     actualizar: function (estado) {
-      if (!personajeAbierto || prestigio) return;
+      if (!personajeAbierto || prestigio || editandoAspecto) return;
       const n = Libre.sim.nivelPersonaje(estado);
       const barra = $('personaje-barra');
       if (barra) {
@@ -3236,9 +3318,19 @@
       if (!abrir) $('abrir-ajustes').focus({ preventScroll: true });
     }
     $('abrir-ajustes').addEventListener('click', function () { abrirAjustes(true); });
+    /* Sale del editor de tu cara guardando el nombre escrito. */
+    function cerrarAspecto() {
+      if ((nombreEditado.trim() || null) !== (estadoActual.personaje.nombre || null)) ejecutar('renombrarPersonaje', [nombreEditado]);
+      editandoAspecto = false;
+      opciones.redibujar();
+    }
+    document.addEventListener('input', function (ev) {
+      if (ev.target.matches && ev.target.matches('[data-pj-nombre]')) nombreEditado = ev.target.value;
+    });
     function abrirPersonaje(abrir) {
       personajeAbierto = abrir;
       prestigio = null;
+      editandoAspecto = false;
       enfocarPersonaje = abrir;
       opciones.redibujar();
       if (!abrir) $('abrir-personaje').focus({ preventScroll: true });
@@ -3252,6 +3344,21 @@
       }
       if (ev.target.closest('[data-cerrar-personaje]')) {
         abrirPersonaje(false);
+        return;
+      }
+      const pjGrupoBoton = ev.target.closest('[data-pj-grupo]');
+      if (pjGrupoBoton) { pjGrupo = pjGrupoBoton.dataset.pjGrupo; opciones.redibujar(); return; }
+      if (ev.target.closest('[data-pj-editar]')) {
+        editandoAspecto = true;
+        nombreEditado = estadoActual.personaje.nombre || '';
+        opciones.redibujar();
+        return;
+      }
+      if (ev.target.closest('[data-pj-cerrar-aspecto]')) { cerrarAspecto(); return; }
+      const pjPieza = ev.target.closest('[data-pj-aspecto]');
+      if (pjPieza) {
+        const partes = pjPieza.dataset.pjAspecto.split('|');
+        ejecutar('cambiarAspecto', [partes[0], partes[1]]);
         return;
       }
       // Prestigio: elegir mejoras, confirmar y empezar de cero.
@@ -3582,6 +3689,10 @@
         abrirAjustes(false);
         return;
       }
+      if (ev.key === 'Escape' && personajeAbierto && editandoAspecto) {
+        cerrarAspecto();
+        return;
+      }
       if (ev.key === 'Escape' && personajeAbierto) {
         abrirPersonaje(false);
         return;
@@ -3661,7 +3772,7 @@
       const el = ev.target.closest('[data-cambio]');
       if (!el) return;
       const valor = el.type === 'checkbox' ? String(el.checked) : el.value;
-      ejecutar(el.dataset.cambio, el.dataset.args.split('|').concat([valor]));
+      ejecutar(el.dataset.cambio, (el.dataset.args ? el.dataset.args.split('|') : []).concat([valor]));
     });
   }
 
@@ -3697,7 +3808,13 @@
     // Placa con el nombre de tu SL, junto al logo.
     const empresa = estado.empresa ? estado.empresa.nombre : '';
     if ($('empresa').textContent !== empresa) { $('empresa').textContent = empresa; $('empresa').hidden = !empresa; }
-    // Nivel de tu personaje en la insignia del botón de la gorra.
+    // Tu cara en el botón de la cabecera (solo si ha cambiado).
+    const claveCara = JSON.stringify(estado.personaje.aspecto);
+    if ($('cara-personaje').dataset.clave !== claveCara) {
+      $('cara-personaje').innerHTML = Libre.retratos.svg(Libre.sim.aspectoPersonaje(estado));
+      $('cara-personaje').dataset.clave = claveCara;
+    }
+    // Nivel de tu personaje en la insignia de su botón.
     const nivelP = String(Libre.sim.nivelPersonaje(estado).nivel);
     if ($('nivel-personaje').textContent !== nivelP) $('nivel-personaje').textContent = nivelP;
     dibujarEscena(estado);

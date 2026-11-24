@@ -60,11 +60,12 @@
   };
 
   /*
-   * SVG del retrato del personaje `indice`. clase: clases extra para el <svg>.
-   * Si el índice no existe (partidas antiguas), devuelve una silueta neutra.
+   * SVG del retrato del personaje `indice` (o de unos rasgos sueltos: tu
+   * personaje, Iván 24-11-2026). clase: clases extra para el <svg>. Si el
+   * índice no existe (partidas antiguas), devuelve una silueta neutra.
    */
   function svg(indice, clase) {
-    const p = Libre.config.conductores.personajes[indice] ||
+    const p = (indice && typeof indice === 'object' ? indice : null) || Libre.config.conductores.personajes[indice] ||
       { piel: 2, cara: 'redonda', pelo: 'corto', colorPelo: 'gris', gafas: null, barba: null, ropa: 6, edad: 'media' };
     const pelo = 'r-pelo-' + p.colorPelo;
     let s = '<svg class="retrato-svg ' + (clase || '') + '" viewBox="0 0 40 40" aria-hidden="true">';

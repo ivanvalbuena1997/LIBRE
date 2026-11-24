@@ -657,7 +657,20 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `aplicarArranque()`. `main.js` la cambia (`partida.empezarDeCero`). En la
   hoja: `htmlBloquePrestigio()` y, con `prestigio = { compras, confirmar }`,
   `htmlHojaPrestigio()` (`data-pj-comprar`/`quitar`/`seguir`/`volver`/
-  `reiniciar`; el pie, `.pj-prestigio-pie`, fijo abajo).
+  `reiniciar`; el pie, `.pj-prestigio-pie`, fijo abajo). Aspecto y nombre
+  (Iván, 24-11-2026; versión 35): `estado.personaje.aspecto` (piezas de
+  `config.personaje.aspecto.opciones`, las mismas que los retratos) y
+  `nombre` (null = «Tú»); `cambiarAspecto(estado, campo, valor)`,
+  `renombrarPersonaje()`, `aspectoPersonaje()` y `nombrePersonaje()`; se
+  conservan en `empezarDeCero()`. `Libre.retratos.svg()` acepta también un
+  objeto de rasgos. En pantalla: `htmlCaraTu()` en la cabecera
+  (`#cara-personaje`), «Tus taxis hoy» (`tu`, `aspecto` en
+  `taxisDeLaFlota()`), Conductores y Estadísticas. Hoja:
+  `htmlCabeceraPersonaje()`, pestañas (`pjGrupo`, `data-pj-grupo`) y
+  tarjetas con `ICONOS_PERSONAJE` (una mejora nueva necesita el suyo);
+  editor `htmlHojaAspecto()` (`editandoAspecto`, `data-pj-aspecto`; el
+  nombre se escribe en `nombreEditado` y se guarda al cerrar: guardarlo al
+  salir del campo redibujaba la hoja bajo el dedo).
 - Gamas de coche (idea 23, Iván 24-11-2026): `config.vehiculos.modelos`
   (turismo = Toyota Corolla, tesla, mercedes) con `precio`, consumo
   (`consumoLitros100Km`, o `electrico` + `kwh100Km` × `combustible.precioKwh`)

@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 34,
+    versionGuardado: 35,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -431,6 +431,30 @@
       // nivel N junta 1 + 2 + … + N. Con 1 punto por nivel lo que más
       // rendía era reiniciar en cuanto se llegaba al 3.
       puntosPorNivel: 1,
+      /*
+       * Tu aspecto (Iván, 24-11-2026): las mismas piezas que los retratos de
+       * los conductores (js/retratos.js). inicial: el de una partida nueva;
+       * opciones: lo que se puede elegir en cada pieza. nombreMax: letras
+       * del nombre. Se conservan al empezar de cero.
+       */
+      aspecto: {
+        inicial: { edad: 'media', piel: 2, cara: 'redonda', pelo: 'corto', colorPelo: 'castano', gafas: null,
+          barba: null, ropa: 6, gorra: null, cuello: null, pendientes: false },
+        opciones: {
+          piel: [1, 2, 3, 4],
+          cara: ['redonda', 'alargada', 'cuadrada'],
+          edad: ['joven', 'media', 'mayor'],
+          pelo: ['corto', 'largo', 'rizado', 'coleta', 'moño', 'calvo'],
+          colorPelo: ['negro', 'castano', 'rubio', 'pelirrojo', 'gris', 'blanco'],
+          barba: [null, 'bigote', 'perilla', 'barba'],
+          gafas: [null, 'redondas', 'cuadradas', 'sol'],
+          ropa: [1, 2, 3, 4, 5, 6],
+          cuello: [null, 'pajarita', 'corbata'],
+          gorra: [null, 1, 2, 3, 4, 5, 6],
+          pendientes: [false, true]
+        },
+        nombreMax: 14
+      },
       /*
        * Mejoras de tu personaje (Iván, 24-11-2026): no se compran con euros
        * sino con puntos de prestigio (uno por nivel), al reiniciar, y son lo

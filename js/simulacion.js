@@ -71,7 +71,7 @@
       jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial, vigilancia: null },
       // Tu personaje: experiencia de esta partida (el nivel sale de ella),
       // puntos de prestigio sin gastar y sus mejoras (nivel de cada una).
-      personaje: { xp: 0, puntos: 0, mejoras: {} },
+      personaje: { xp: 0, puntos: 0, mejoras: {}, nombre: null, aspecto: Object.assign({}, c.personaje.aspecto.inicial) },
       conductoresContratados: 0,
       mejoras: {},
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
@@ -1549,13 +1549,45 @@
       xp: 0,
       puntos: puntosPrestigio(estado) - p.gastados,
       mejoras: p.mejoras,
-      reinicios: ((estado.personaje && estado.personaje.reinicios) || 0) + 1
+      reinicios: ((estado.personaje && estado.personaje.reinicios) || 0) + 1,
+      // Tu cara y tu nombre se quedan.
+      nombre: (estado.personaje && estado.personaje.nombre) || null,
+      aspecto: Object.assign({}, nuevo.personaje.aspecto, estado.personaje && estado.personaje.aspecto)
     };
     aplicarArranque(nuevo);
     const r = exito('Empiezas de cero' + (nuevo.personaje.puntos ? '; te guardas ' + nuevo.personaje.puntos +
       ' punto' + (nuevo.personaje.puntos === 1 ? '' : 's') + ' para el próximo reinicio.' : '.'));
     r.nuevo = nuevo;
     return r;
+  }
+
+  /*
+   * Tu aspecto (Iván, 24-11-2026): cambia una pieza del retrato (campo de
+   * config.personaje.aspecto.opciones). valor llega como texto desde la
+   * interfaz ('null', '3', 'true'…): se busca entre las opciones.
+   */
+  function cambiarAspecto(estado, campo, valor) {
+    const opciones = cfg().personaje.aspecto.opciones[campo];
+    if (!opciones) return fallo('Eso no se puede cambiar.');
+    const elegido = opciones.find(function (o) { return String(o) === String(valor); });
+    if (elegido === undefined) return fallo('Esa opción no existe.');
+    estado.personaje.aspecto = Object.assign({}, cfg().personaje.aspecto.inicial, estado.personaje.aspecto);
+    estado.personaje.aspecto[campo] = elegido;
+    return exito('');
+  }
+  /* Tu nombre (vacío: «Tú»). */
+  function renombrarPersonaje(estado, nombre) {
+    const limpio = String(nombre || '').replace(/\s+/g, ' ').trim().slice(0, cfg().personaje.aspecto.nombreMax);
+    estado.personaje.nombre = limpio || null;
+    return exito(limpio ? 'Ahora te llamas ' + limpio + '.' : 'Vuelves a ser «Tú».');
+  }
+  /* Solo lectura: tu nombre para la interfaz. */
+  function nombrePersonaje(estado) {
+    return (estado.personaje && estado.personaje.nombre) || 'Tú';
+  }
+  /* Solo lectura: tu aspecto completo (con las piezas que falten, las de serie). */
+  function aspectoPersonaje(estado) {
+    return Object.assign({}, cfg().personaje.aspecto.inicial, estado.personaje && estado.personaje.aspecto);
   }
 
   /*
@@ -3444,6 +3476,10 @@
     faltaParaMejoraPersonaje,
     costeMejoraPersonaje,
     aplicarArranque,
+    cambiarAspecto,
+    renombrarPersonaje,
+    nombrePersonaje,
+    aspectoPersonaje,
     gamasDisponibles,
     modeloCoche,
     efectoCoche,

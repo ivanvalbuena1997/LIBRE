@@ -2296,7 +2296,9 @@ prueba('personaje: la experiencia sale de tus carreras (4), las de tus conductor
   assert.strictEqual(sim.experienciaParaNivel(2), Math.round(p.niveles.base * (1 + p.niveles.factor)));
   const e = sim.crearEstadoInicial(0);
   e.azar = 20261124;
-  assert.deepStrictEqual(e.personaje, { xp: 0, puntos: 0, mejoras: {} });
+  assert.strictEqual(e.personaje.xp, 0);
+  assert.strictEqual(e.personaje.puntos, 0);
+  assert.deepStrictEqual(e.personaje.mejoras, {});
   assert.strictEqual(sim.nivelPersonaje(e).nivel, 0);
   // Una carrera tuya.
   e.reloj.minutos = 8 * 60;
@@ -2429,7 +2431,9 @@ prueba('personaje: «Incógnito al volante» sale del árbol y quien la compró 
   viejo.mejoras.incognitoTu = 1;
   const m = globalThis.Libre.guardado.migrar(viejo);
   assert.strictEqual(m.mejoras.incognitoTu, undefined);
-  assert.deepStrictEqual(m.personaje, { xp: 1234, puntos: 0, mejoras: { incognitoTu: 1 } });
+  assert.strictEqual(m.personaje.xp, 1234);
+  assert.strictEqual(m.personaje.puntos, 0);
+  assert.deepStrictEqual(m.personaje.mejoras, { incognitoTu: 1 });
 });
 
 prueba('prestigio: desde el nivel 3, empezar de cero gasta los puntos y solo conserva las mejoras del personaje', function () {
@@ -2542,6 +2546,39 @@ prueba('gamas de coche: el Mercedes da más propinas, menos impagos y encuentra 
   const s = function (lista, clave) { return lista.find(function (x) { return x.clave === clave; }).valor; };
   cerca(s(stats, 'propina') / s(base, 'propina'), ef.propinaProb, 1e-9);
   cerca(s(stats, 'sinPagar') / s(base, 'sinPagar'), ef.sinPagar, 1e-9);
+});
+
+prueba('tu aspecto y tu nombre: se cambian con las opciones de la config y se conservan al empezar de cero', function () {
+  require('../js/guardado.js');
+  const e = sim.crearEstadoInicial(0);
+  assert.strictEqual(sim.nombrePersonaje(e), 'Tú');
+  assert.deepStrictEqual(sim.aspectoPersonaje(e), config.personaje.aspecto.inicial);
+  assert.ok(sim.cambiarAspecto(e, 'gafas', 'sol').ok);
+  assert.ok(sim.cambiarAspecto(e, 'gorra', '3').ok);
+  assert.ok(sim.cambiarAspecto(e, 'pendientes', 'true').ok);
+  assert.ok(sim.cambiarAspecto(e, 'barba', 'null').ok);
+  assert.strictEqual(sim.aspectoPersonaje(e).gafas, 'sol');
+  assert.strictEqual(sim.aspectoPersonaje(e).gorra, 3);
+  assert.strictEqual(sim.aspectoPersonaje(e).pendientes, true);
+  assert.strictEqual(sim.cambiarAspecto(e, 'gafas', 'monóculo').ok, false);
+  assert.strictEqual(sim.cambiarAspecto(e, 'alas', 'sí').ok, false);
+  sim.renombrarPersonaje(e, '  Iván   el del taxi muy largo ');
+  assert.strictEqual(sim.nombrePersonaje(e), 'Iván el del ta'.slice(0, config.personaje.aspecto.nombreMax));
+  sim.renombrarPersonaje(e, '   ');
+  assert.strictEqual(sim.nombrePersonaje(e), 'Tú');
+  sim.renombrarPersonaje(e, 'Iván');
+  e.personaje.xp = sim.experienciaParaNivel(3);
+  const n = sim.empezarDeCero(e, [], 0).nuevo;
+  assert.strictEqual(sim.nombrePersonaje(n), 'Iván');
+  assert.strictEqual(sim.aspectoPersonaje(n).gafas, 'sol');
+  // Migración 34 → 35: el aspecto de serie y sin nombre.
+  const viejo = JSON.parse(JSON.stringify(sim.crearEstadoInicial(0)));
+  viejo.version = 34;
+  delete viejo.personaje.aspecto;
+  delete viejo.personaje.nombre;
+  const m = globalThis.Libre.guardado.migrar(viejo);
+  assert.deepStrictEqual(m.personaje.aspecto, config.personaje.aspecto.inicial);
+  assert.strictEqual(m.personaje.nombre, null);
 });
 
 console.log(pasadas + ' pruebas correctas');

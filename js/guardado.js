@@ -257,6 +257,12 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 34 → 35: tu cara y tu nombre (Iván, 24-11-2026): los de serie.
+    34: function (estado) {
+      const p = estado.personaje = estado.personaje || { xp: 0, puntos: 0, mejoras: {} };
+      if (p.nombre === undefined) p.nombre = null;
+      if (!p.aspecto) p.aspecto = Object.assign({}, Libre.config.personaje.aspecto.inicial);
+    },
     // 33 → 34: mejoras de tu personaje (Iván, 24-11-2026). «Incógnito al
     // volante» sale del árbol: quien la compró la conserva como mejora del
     // personaje, gratis. La racha deja de estar para todos.
