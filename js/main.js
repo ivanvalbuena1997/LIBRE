@@ -54,6 +54,18 @@
       ui.mostrarMensaje('Partida importada.');
       return true;
     },
+    // Prestigio (paso 4): la partida nueva sustituye a esta.
+    empezarDeCero: function (compras) {
+      const r = sim.empezarDeCero(estado, compras, Date.now());
+      if (!r.ok) { ui.mostrarMensaje(r.mensaje); return false; }
+      estado = r.nuevo;
+      anterior = Date.now();
+      guardar();
+      ui.reiniciar();
+      ui.dibujar(estado);
+      ui.mostrarMensaje(r.mensaje);
+      return true;
+    },
     borrar: function () {
       guardado.borrar();
       estado = sim.crearEstadoInicial(Date.now());

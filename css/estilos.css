@@ -384,6 +384,21 @@ body:not([data-vista="calle"]) .cabecera {
 .pj-mejora-titulo .ui-chip { margin-left: auto; }
 .pj-mejora p { margin: 2px 0 0; font-size: var(--t-pequeno); color: var(--tinta-suave); }
 .pj-mejora .pj-mejora-nivel { color: var(--tinta); }
+.pj-mejora.pj-nueva { border-color: var(--marca); background: var(--tinte-azul); }
+.nodo-niveles i.nuevo { background: var(--dinero); }
+.pj-mejora-botones { display: flex; justify-content: flex-end; gap: var(--esp-3); margin-top: var(--esp-3); }
+.pj-mejora-botones .ui-boton { min-width: 44px; }
+.pj-prestigio { margin: 0 0 var(--esp-5); padding: var(--esp-4); border-radius: var(--r-tarjeta); background: var(--tinte-azul); }
+.pj-prestigio p { margin: 0 0 var(--esp-2); }
+.pj-puntos { margin: 0 0 var(--esp-4); }
+.pj-aviso { padding: var(--esp-4); border-radius: var(--r-tarjeta); background: var(--tinte-rojo); color: var(--peligro); }
+/* Pie fijo de la hoja del reinicio: siempre a mano. */
+.pj-prestigio-pie {
+  position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom));
+  display: flex; gap: var(--esp-3); margin: var(--esp-5) -18px calc(-20px - env(safe-area-inset-bottom));
+  padding: var(--esp-4) 18px calc(20px + env(safe-area-inset-bottom)); background: var(--tarjeta); border-top: 1.5px solid var(--linea);
+}
+.pj-prestigio-pie .ui-boton { flex: 1; }
 
 /* Placa «Caja total»: en Calle, título y reloj arriba y el dinero grande
    debajo; en las demás pestañas, una sola fila. */

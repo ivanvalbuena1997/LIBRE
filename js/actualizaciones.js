@@ -501,6 +501,10 @@
         {
           "n": 109,
           "texto": "Las mejoras de tu personaje ya existen y salen en su hoja: Racha, Racha larga, Reflejos de taxista, Incógnito al volante, Fondo físico (en el nivel V, Incansable), Callejero de memoria, Ahorros, Coche a estrenar, Agenda de contactos, Veterano y las gamas Tesla y Mercedes. Cuestan puntos de prestigio, no euros, y se conseguirán al reiniciar (próxima actualización). La racha deja de estar para todos e Incógnito al volante sale del árbol de mejoras: si la habías comprado, la conservas."
+        },
+        {
+          "n": 110,
+          "texto": "Ya puedes empezar de cero. Desde el nivel 3 de taxista, en la hoja de tu personaje sale el botón «Empezar de cero»: eliges en qué mejoras gastas tus puntos de prestigio (uno por nivel), confirmas y empiezas una partida nueva con ellas. Se pierde todo lo demás y tu nivel vuelve a 0; los puntos que no gastes se guardan para la próxima vez. Además, el coche del principio se llama Toyota Corolla."
         }
       ]
     }

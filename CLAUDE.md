@@ -645,9 +645,17 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   y `costeMejoraPersonaje()`. En la hoja, `htmlMejorasPersonaje()` (solo
   lectura). `sortearCategoria()` reparte sobre el total de los pesos (con
   `sortearCandidatos(estado, minimo)` no suman 1). Para probar:
-  `Libre.darMejoraPersonaje('racha')` en la consola. Por pasos: 4, prestigio
-  desde `nivelPrestigio` (3): elegir mejoras, reiniciar (el nivel vuelve a
-  0) y migrar.
+  `Libre.darMejoraPersonaje('racha')` en la consola. Prestigio (paso 4):
+  `puntosPrestigio()` (nivel + `personaje.puntos` guardados),
+  `faltaParaReiniciar()` (desde `nivelPrestigio`, 3),
+  `probarComprasPersonaje(estado, compras)` (lista de ids; repetido, otro
+  nivel: requisitos y puntos) y `empezarDeCero(estado, compras, ahoraMs)`,
+  que devuelve `{ ok, mensaje, nuevo }`: partida nueva con las mejoras del
+  personaje, los puntos sobrantes, los ajustes y `personaje.reinicios`, con
+  `aplicarArranque()`. `main.js` la cambia (`partida.empezarDeCero`). En la
+  hoja: `htmlBloquePrestigio()` y, con `prestigio = { compras, confirmar }`,
+  `htmlHojaPrestigio()` (`data-pj-comprar`/`quitar`/`seguir`/`volver`/
+  `reiniciar`; el pie, `.pj-prestigio-pie`, fijo abajo).
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
   conductores) deja parado hasta que escampa al que no lleva carrera, y el

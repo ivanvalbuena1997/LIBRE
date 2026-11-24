@@ -495,7 +495,8 @@ El juego completo tiene cinco etapas; cada una añade un tipo de vehículo y una
 | Tesla Model 3 | 5 | Desbloquea la gama (idea 23; aún sin coche) | — |
 | Mercedes Clase S | 8 | Desbloquea la gama más alta (aún sin coche) | Tesla |
 
-- **Por hacer:** cada nivel da **1 punto de prestigio**; desde el **nivel 3** se puede **reiniciar**: antes te ofrece las mejoras del personaje para gastar los puntos, se pierde todo lo de la partida y el nivel vuelve a 0, y solo quedan esas mejoras. Las mejoras no tienen precio en euros sino en puntos, algunas más caras que otras para que tenerlas todas pida unos 10 reinicios: Racha (deja de estar para todos), Racha larga, Reflejos de taxista, Incógnito para ti (sale del árbol; quien la compró la conserva), Fondo físico, Callejero de memoria, Ahorros, Coche a estrenar, Agenda de contactos y Veterano. También, coches de distintas gamas que se desbloquean aquí.
+- **Empezar de cero** (paso 4, hecho): cada nivel da **1 punto de prestigio**. En la hoja del personaje, los puntos que tienes (los de tu nivel más los guardados de reinicios anteriores) y, desde el **nivel 3**, el botón **«Empezar de cero»**. Primero eliges las mejoras: cada una con «+ N puntos» para añadir un nivel y «−» para quitarlo (al quitar una, se va también lo que la pedía); arriba, «Gastas X de Y». Después, una confirmación en rojo: se pierde toda la partida (dinero, licencias, coches, conductores, objetos y mejoras del árbol) y tu nivel vuelve a 0; lista con lo que te quedas y los puntos que te guardas. La partida nueva conserva las mejoras del personaje, los puntos sin gastar, los ajustes y cuántas veces has reiniciado, y aplica las de arranque (Ahorros, Coche a estrenar, Agenda de contactos).
+- **Por hacer:** las gamas de coche (idea 23) y medir con el bot cuánto se tarda en cada reinicio.
 
 ### Alcance de la versión actual
 

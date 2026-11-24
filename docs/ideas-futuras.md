@@ -51,8 +51,8 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     prestigio; reinicio desde el nivel 3, eligiendo mejoras del personaje
     (las únicas que quedan; el nivel vuelve a 0). Hecho el paso 1
     (experiencia y nivel), el 2 (hoja del personaje) y el 3 (mejoras por
-    puntos, 100 en total). Pendiente: el
-    reinicio, y **coches de distintas gamas** que se desbloqueen aquí.
+    puntos, 100 en total) y el 4 (empezar de cero). Pendiente: **coches de
+    distintas gamas** (idea 23) y medir con el bot el ritmo de reinicios.
 
 16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
     las fáciles (ver «Hechas»).

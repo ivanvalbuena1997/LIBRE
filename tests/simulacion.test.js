@@ -2432,5 +2432,47 @@ prueba('personaje: «Incógnito al volante» sale del árbol y quien la compró 
   assert.deepStrictEqual(m.personaje, { xp: 1234, puntos: 0, mejoras: { incognitoTu: 1 } });
 });
 
+prueba('prestigio: desde el nivel 3, empezar de cero gasta los puntos y solo conserva las mejoras del personaje', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 3;
+  e.personaje.mejoras = { incognitoTu: 1 };
+  e.personaje.puntos = 1;
+  e.dinero = 99999;
+  e.mejoras.callejero = 1;
+  e.ajustes.pararAlCierre = false;
+  // Nivel 2: aún no.
+  e.personaje.xp = sim.experienciaParaNivel(2);
+  assert.ok(/nivel 3/.test(sim.faltaParaReiniciar(e)));
+  assert.strictEqual(sim.empezarDeCero(e, [], 0).ok, false);
+  // Nivel 5 + 1 guardado = 6 puntos.
+  e.personaje.xp = sim.experienciaParaNivel(5) + 10;
+  assert.strictEqual(sim.faltaParaReiniciar(e), '');
+  assert.strictEqual(sim.puntosPrestigio(e), 6);
+  // Compras que no valen: sin requisito o sin puntos.
+  assert.ok(/Racha/.test(sim.empezarDeCero(e, ['reflejos'], 0).mensaje));
+  assert.ok(/puntos/.test(sim.empezarDeCero(e, ['racha', 'tesla'], 0).mensaje));
+  // Racha (3) + Ahorros I (1) + Coche a estrenar (1) = 5; sobra 1.
+  const r = sim.empezarDeCero(e, 'racha,ahorros,cocheNuevo', 0);
+  assert.ok(r.ok, r.mensaje);
+  const n = r.nuevo;
+  assert.deepStrictEqual(n.personaje.mejoras, { incognitoTu: 1, racha: 1, ahorros: 1, cocheNuevo: 1 });
+  assert.strictEqual(n.personaje.puntos, 1);
+  assert.strictEqual(n.personaje.xp, 0);
+  assert.strictEqual(n.personaje.reinicios, 1);
+  assert.strictEqual(sim.nivelPersonaje(n).nivel, 0);
+  assert.strictEqual(n.dinero, config.economia.dineroInicial + 1000);
+  assert.strictEqual(n.licencias.length, 1);
+  assert.strictEqual(n.licencias[0].km, 0);
+  assert.deepStrictEqual(n.mejoras, {});
+  assert.strictEqual(n.ajustes.pararAlCierre, false, 'los ajustes se quedan');
+  // La partida vieja no se toca.
+  assert.strictEqual(e.dinero, 99999);
+  // Dos niveles de la misma mejora en un reinicio.
+  const d = sim.probarComprasPersonaje(e, ['fondoFisico', 'fondoFisico']);
+  assert.ok(d.ok);
+  assert.strictEqual(d.gastados, 6);
+  assert.strictEqual(d.mejoras.fondoFisico, 2);
+});
+
 console.log(pasadas + ' pruebas correctas');
 

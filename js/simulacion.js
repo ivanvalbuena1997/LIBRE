@@ -1463,6 +1463,68 @@
     return sig ? sig.coste : null;
   }
   /*
+   * Prestigio (Iván, 24-11-2026; paso 4). Puntos que puedes gastar al
+   * reiniciar: uno por nivel de esta partida más los que guardaste sin
+   * gastar en reinicios anteriores.
+   */
+  function puntosPrestigio(estado) {
+    return nivelPersonaje(estado).nivel + ((estado.personaje && estado.personaje.puntos) || 0);
+  }
+  /* '' si puedes empezar de cero; si no, por qué. */
+  function faltaParaReiniciar(estado) {
+    const minimo = cfg().personaje.nivelPrestigio;
+    const nivel = nivelPersonaje(estado).nivel;
+    return nivel >= minimo ? '' : 'Necesitas el nivel ' + minimo + ' de taxista (te ' +
+      (minimo - nivel === 1 ? 'falta 1 nivel' : 'faltan ' + (minimo - nivel) + ' niveles') + ').';
+  }
+  /*
+   * Comprueba una lista de compras (ids; un id repetido compra otro nivel)
+   * sobre las mejoras que ya tienes: { ok, mensaje, mejoras, gastados }.
+   * La usan la hoja (para ir sumando) y empezarDeCero().
+   */
+  function probarComprasPersonaje(estado, compras) {
+    const mejoras = Object.assign({}, (estado.personaje && estado.personaje.mejoras) || {});
+    const prueba = { personaje: { mejoras } };
+    const disponibles = puntosPrestigio(estado);
+    let gastados = 0;
+    for (const id of compras || []) {
+      const falta = faltaParaMejoraPersonaje(prueba, id);
+      if (falta) return { ok: false, mensaje: falta, mejoras, gastados };
+      const coste = costeMejoraPersonaje(prueba, id);
+      if (gastados + coste > disponibles) return { ok: false, mensaje: 'No te llegan los puntos.', mejoras, gastados };
+      gastados += coste;
+      mejoras[id] = (mejoras[id] || 0) + 1;
+    }
+    return { ok: true, mensaje: '', mejoras, gastados };
+  }
+  /*
+   * Empezar de cero: desde el nivel nivelPrestigio, gasta los puntos en
+   * `compras` y devuelve { ok, mensaje, nuevo }: una partida nueva donde solo
+   * quedan las mejoras del personaje, los puntos sin gastar y los ajustes;
+   * el nivel vuelve a 0. Quien la llama cambia la partida por `nuevo`.
+   */
+  function empezarDeCero(estado, compras, ahoraMs, rng) {
+    const falta = faltaParaReiniciar(estado);
+    if (falta) return fallo(falta);
+    const lista = typeof compras === 'string' ? compras.split(',').filter(Boolean) : (compras || []);
+    const p = probarComprasPersonaje(estado, lista);
+    if (!p.ok) return fallo(p.mensaje);
+    const nuevo = crearEstadoInicial(ahoraMs, rng);
+    nuevo.ajustes = JSON.parse(JSON.stringify(estado.ajustes || nuevo.ajustes));
+    nuevo.personaje = {
+      xp: 0,
+      puntos: puntosPrestigio(estado) - p.gastados,
+      mejoras: p.mejoras,
+      reinicios: ((estado.personaje && estado.personaje.reinicios) || 0) + 1
+    };
+    aplicarArranque(nuevo);
+    const r = exito('Empiezas de cero' + (nuevo.personaje.puntos ? '; te guardas ' + nuevo.personaje.puntos +
+      ' punto' + (nuevo.personaje.puntos === 1 ? '' : 's') + ' para el próximo reinicio.' : '.'));
+    r.nuevo = nuevo;
+    return r;
+  }
+
+  /*
    * Lo de las mejoras «de arranque» en una partida recién creada: dinero de
    * más, el primer coche a 0 km y los primeros candidatos de categoría
    * mínima. Lo llamará el reinicio (prestigio) tras crear la partida nueva.
@@ -3325,6 +3387,10 @@
     faltaParaMejoraPersonaje,
     costeMejoraPersonaje,
     aplicarArranque,
+    puntosPrestigio,
+    faltaParaReiniciar,
+    probarComprasPersonaje,
+    empezarDeCero,
     nivelPersonaje,
     experienciaParaNivel,
     ganarExperienciaPersonaje,

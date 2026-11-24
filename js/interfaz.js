@@ -2532,39 +2532,114 @@
     { id: 'gamas', nombre: 'Gamas de coche' }
   ];
   /* Lista de las mejoras del personaje: nivel, lo que tienes, lo siguiente y su coste en puntos. */
-  function htmlMejorasPersonaje(estado) {
+  /*
+   * Prestigio (paso 4): null o { compras: [ids], confirmar }. compras es la
+   * lista de niveles que vas añadiendo (un id repetido, otro nivel); la
+   * simulación la comprueba con probarComprasPersonaje().
+   */
+  let prestigio = null;
+  function textoPuntos(n) { return n + ' punto' + (n === 1 ? '' : 's'); }
+  /*
+   * Lista de las mejoras del personaje: nivel, lo que tienes, lo siguiente y
+   * su coste. Con `compra` ({ mejoras, restantes }), cada una lleva «+» para
+   * añadir un nivel y «−» para quitar lo añadido.
+   */
+  function htmlMejorasPersonaje(estado, compra) {
     const sim = Libre.sim;
+    const base = estado.personaje.mejoras || {};
+    const prueba = compra ? { personaje: { mejoras: compra.mejoras } } : estado;
     return GRUPOS_PERSONAJE.map(function (g) {
       const filas = Libre.config.personaje.mejoras.filter(function (m) { return m.grupo === g.id; }).map(function (m) {
-        const n = sim.nivelMejoraPersonaje(estado, m.id);
+        const n = sim.nivelMejoraPersonaje(prueba, m.id);
+        const antes = base[m.id] || 0;
         const max = m.niveles.length;
         const actual = n ? m.niveles[n - 1] : null;
         const sig = m.niveles[n];
-        const falta = sim.faltaParaMejoraPersonaje(estado, m.id);
+        const falta = sim.faltaParaMejoraPersonaje(prueba, m.id);
         const rayas = max > 1 ? '<span class="nodo-niveles" aria-label="Nivel ' + n + ' de ' + max + '">' +
-          m.niveles.map(function (x, i) { return '<i' + (i < n ? ' class="hecho"' : '') + '></i>'; }).join('') + '</span>' : '';
+          m.niveles.map(function (x, i) {
+            return '<i' + (i < antes ? ' class="hecho"' : i < n ? ' class="nuevo"' : '') + '></i>';
+          }).join('') + '</span>' : '';
         const lineas = [];
-        if (actual && actual.descripcion) lineas.push('Tienes: ' + esc(actual.descripcion));
+        if (actual && actual.descripcion) lineas.push((n > antes ? 'Tendrás: ' : 'Tienes: ') + esc(actual.descripcion));
         if (sig) lineas.push((n ? 'Siguiente: ' : '') + esc(sig.descripcion || '') + (sig.descripcion ? ' · ' : '') +
-          '<strong>' + sig.coste + ' punto' + (sig.coste === 1 ? '' : 's') + '</strong>' +
-          (falta && sig ? ' · ' + esc(falta) : ''));
-        return '<li class="pj-mejora' + (n ? ' pj-tiene' : '') + '">' +
+          '<strong>' + textoPuntos(sig.coste) + '</strong>' + (falta ? ' · ' + esc(falta) : ''));
+        let botones = '';
+        if (compra) {
+          const puede = sig && !falta && sig.coste <= compra.restantes;
+          botones = '<div class="pj-mejora-botones">' +
+            (n > antes ? '<button type="button" class="ui-boton ui-boton--secundario" data-pj-quitar="' + m.id +
+              '" aria-label="Quitar un nivel de ' + esc(m.nombre) + '">−</button>' : '') +
+            (sig ? '<button type="button" class="ui-boton ui-boton--principal" data-pj-comprar="' + m.id + '"' +
+              (puede ? '' : ' disabled') + '>+ ' + textoPuntos(sig.coste) + '</button>' : '') + '</div>';
+        }
+        return '<li class="pj-mejora' + (n ? ' pj-tiene' : '') + (n > antes ? ' pj-nueva' : '') + '">' +
           '<div class="pj-mejora-titulo"><strong>' + esc(m.nombre) + '</strong>' + rayas +
-          (n >= max ? '<span class="ui-chip">' + (max > 1 ? 'Al máximo' : 'La tienes') + '</span>' : '') + '</div>' +
+          (n >= max ? '<span class="ui-chip">' + (max > 1 ? 'Al máximo' : n > antes ? 'Nueva' : 'La tienes') + '</span>' : '') + '</div>' +
           '<p>' + esc(m.descripcion) + '</p>' +
-          (lineas.length ? '<p class="pj-mejora-nivel">' + lineas.join('<br>') + '</p>' : '') + '</li>';
+          (lineas.length ? '<p class="pj-mejora-nivel">' + lineas.join('<br>') + '</p>' : '') + botones + '</li>';
       }).join('');
       return '<h3>' + g.nombre + '</h3><ul class="pj-mejoras">' + filas + '</ul>';
     }).join('');
   }
+
+  /* Bloque «Empezar de cero» de la hoja normal. */
+  function htmlBloquePrestigio(estado) {
+    const falta = Libre.sim.faltaParaReiniciar(estado);
+    const puntos = Libre.sim.puntosPrestigio(estado);
+    const guardados = estado.personaje.puntos || 0;
+    return '<div class="pj-prestigio">' +
+      '<p><strong>Puntos de prestigio: ' + puntos + '</strong>' +
+      (guardados ? ' (' + textoPuntos(guardados) + ' guardados de antes)' : '') + '</p>' +
+      (falta ? '<p class="ayuda">' + esc(falta) + ' Cada nivel da un punto; al empezar de cero los gastas en mejoras de tu personaje, las únicas que se conservan.</p>'
+        : '<p class="ayuda">Empieza una partida nueva y gasta los puntos en mejoras de tu personaje, las únicas que se conservan.</p>' +
+          '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-pj-prestigio>Empezar de cero</button>') +
+      '</div>';
+  }
+
+  /* Hoja del reinicio: elegir mejoras y, después, confirmar. */
+  function htmlHojaPrestigio(estado) {
+    const sim = Libre.sim;
+    const total = sim.puntosPrestigio(estado);
+    const pr = sim.probarComprasPersonaje(estado, prestigio.compras);
+    const restantes = total - pr.gastados;
+    const cab = '<div class="hoja-fondo" data-cerrar-personaje></div>' +
+      '<div class="hoja hoja-personaje hoja-prestigio" role="dialog" aria-modal="true" aria-labelledby="personaje-titulo">' +
+      '<button type="button" class="hoja-cerrar" data-cerrar-personaje aria-label="Cerrar">×</button>' +
+      '<h2 id="personaje-titulo">Empezar de cero</h2>';
+    if (prestigio.confirmar) {
+      const nuevas = {};
+      prestigio.compras.forEach(function (id) { nuevas[id] = (nuevas[id] || 0) + 1; });
+      const quedan = Libre.config.personaje.mejoras.filter(function (m) { return pr.mejoras[m.id]; }).map(function (m) {
+        const n = pr.mejoras[m.id];
+        return '<li>' + esc(m.nombre) + (m.niveles.length > 1 ? ' ' + n : '') + (nuevas[m.id] ? ' <strong>(nueva)</strong>' : '') + '</li>';
+      }).join('');
+      return cab +
+        '<p class="pj-aviso"><strong>Se pierde toda la partida:</strong> el dinero, las licencias, los coches, los conductores, los objetos y las mejoras del árbol. Tu nivel vuelve a 0.</p>' +
+        '<h3>Te quedas con</h3>' + (quedan ? '<ul class="personaje-fuentes">' + quedan + '</ul>' : '<p class="ayuda">Ninguna mejora.</p>') +
+        (restantes ? '<p>Y te guardas <strong>' + textoPuntos(restantes) + '</strong> para el próximo reinicio.</p>' : '') +
+        '<div class="pj-prestigio-pie">' +
+        '<button type="button" class="ui-boton ui-boton--secundario" data-pj-volver>Volver</button>' +
+        '<button type="button" class="ui-boton ui-boton--peligro" data-pj-reiniciar>Empezar de cero</button></div></div>';
+    }
+    return cab +
+      '<p class="pj-puntos">Gastas <strong>' + pr.gastados + '</strong> de <strong>' + textoPuntos(total) + '</strong>' +
+      (restantes ? ' · te guardas ' + textoPuntos(restantes) : '') + '</p>' +
+      htmlMejorasPersonaje(estado, { mejoras: pr.mejoras, restantes }) +
+      '<div class="pj-prestigio-pie">' +
+      '<button type="button" class="ui-boton ui-boton--secundario" data-pj-cancelar>Cancelar</button>' +
+      '<button type="button" class="ui-boton ui-boton--principal" data-pj-seguir>Seguir</button></div></div>';
+  }
+
   const seccionPersonaje = {
     id: 'sec-personaje',
     firma: function (estado) {
       return 'personaje:' + personajeAbierto + ':' + Libre.sim.nivelPersonaje(estado).nivel + ':' +
-        JSON.stringify(estado.personaje.mejoras || {});
+        JSON.stringify(estado.personaje.mejoras || {}) + ':' + (estado.personaje.puntos || 0) + ':' + JSON.stringify(prestigio);
     },
     html: function (estado) {
       if (!personajeAbierto) return '';
+      if (prestigio) return htmlHojaPrestigio(estado);
       const p = Libre.config.personaje;
       const n = Libre.sim.nivelPersonaje(estado);
       const pct = (n.progreso * 100).toFixed(1);
@@ -2577,18 +2652,17 @@
         'aria-valuenow="' + Math.round(n.progreso * 100) + '" id="personaje-barra">' +
         '<span class="ui-barra-relleno" style="width:' + pct + '%"></span></span></div>' +
         '<p class="personaje-xp" id="personaje-xp">' + textoXpPersonaje(n) + '</p>' +
+        htmlBloquePrestigio(estado) +
         '<h3>Cómo ganas experiencia</h3>' +
         '<ul class="personaje-fuentes">' +
-        '<li>Cada carrera tuya: <strong>' + p.experiencia.tuCarrera + ' puntos</strong></li>' +
-        '<li>Cada carrera de tus conductores: <strong>' + p.experiencia.carreraConductor + ' punto' + (p.experiencia.carreraConductor === 1 ? '' : 's') + '</strong></li>' +
-        '<li>Cada objeto LEGENDARIO que vendes: <strong>' + p.experiencia.legendarioVendido + ' punto' + (p.experiencia.legendarioVendido === 1 ? '' : 's') + '</strong></li>' +
+        '<li>Cada carrera tuya: <strong>' + textoPuntos(p.experiencia.tuCarrera) + '</strong></li>' +
+        '<li>Cada carrera de tus conductores: <strong>' + textoPuntos(p.experiencia.carreraConductor) + '</strong></li>' +
+        '<li>Cada objeto LEGENDARIO que vendes: <strong>' + textoPuntos(p.experiencia.legendarioVendido) + '</strong></li>' +
         '</ul>' +
-        '<p class="ayuda">Cada nivel te dará un punto de prestigio. Desde el nivel ' + p.nivelPrestigio +
-        ' podrás empezar de cero y gastarlos en estas mejoras, las únicas que se conservan. El reinicio llegará en la próxima actualización.</p>' +
         htmlMejorasPersonaje(estado) + '</div>';
     },
     actualizar: function (estado) {
-      if (!personajeAbierto) return;
+      if (!personajeAbierto || prestigio) return;
       const n = Libre.sim.nivelPersonaje(estado);
       const barra = $('personaje-barra');
       if (barra) {
@@ -2894,6 +2968,7 @@
     fichaInventario = null;
     ajustesAbiertos = false;
     personajeAbierto = false;
+    prestigio = null;
     confirmarPartida = null;
     montandoSL = false;
     cogido = null;
@@ -3123,6 +3198,7 @@
     $('abrir-ajustes').addEventListener('click', function () { abrirAjustes(true); });
     function abrirPersonaje(abrir) {
       personajeAbierto = abrir;
+      prestigio = null;
       enfocarPersonaje = abrir;
       opciones.redibujar();
       if (!abrir) $('abrir-personaje').focus({ preventScroll: true });
@@ -3136,6 +3212,42 @@
       }
       if (ev.target.closest('[data-cerrar-personaje]')) {
         abrirPersonaje(false);
+        return;
+      }
+      // Prestigio: elegir mejoras, confirmar y empezar de cero.
+      if (ev.target.closest('[data-pj-prestigio]')) {
+        prestigio = { compras: [], confirmar: false };
+        opciones.redibujar();
+        return;
+      }
+      const pjComprar = ev.target.closest('[data-pj-comprar]');
+      if (pjComprar && prestigio && !pjComprar.disabled) {
+        const lista = prestigio.compras.concat([pjComprar.dataset.pjComprar]);
+        if (Libre.sim.probarComprasPersonaje(estadoActual, lista).ok) prestigio.compras = lista;
+        opciones.redibujar();
+        return;
+      }
+      const pjQuitar = ev.target.closest('[data-pj-quitar]');
+      if (pjQuitar && prestigio) {
+        // Quita el último nivel añadido de esa mejora y lo que dependía de él.
+        const lista = prestigio.compras.slice();
+        lista.splice(lista.lastIndexOf(pjQuitar.dataset.pjQuitar), 1);
+        const validas = [];
+        lista.forEach(function (id) {
+          if (Libre.sim.probarComprasPersonaje(estadoActual, validas.concat([id])).ok) validas.push(id);
+        });
+        prestigio.compras = validas;
+        opciones.redibujar();
+        return;
+      }
+      if (ev.target.closest('[data-pj-cancelar]')) { prestigio = null; opciones.redibujar(); return; }
+      if (ev.target.closest('[data-pj-seguir]')) { prestigio.confirmar = true; opciones.redibujar(); return; }
+      if (ev.target.closest('[data-pj-volver]')) { prestigio.confirmar = false; opciones.redibujar(); return; }
+      if (ev.target.closest('[data-pj-reiniciar]') && prestigio) {
+        const compras = prestigio.compras;
+        prestigio = null;
+        if (opciones.partida.empezarDeCero(compras)) sonar('nivel');
+        else opciones.redibujar();
         return;
       }
       if (ev.target.closest('[data-cerrar-ticket]')) {
