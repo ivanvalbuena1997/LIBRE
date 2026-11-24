@@ -785,10 +785,12 @@
       // riesgo y «Al límite» desde probLimite por turno.
       kmNuevo: 20000,
       probLimite: 0.01,
-      // Un solo modelo en la primera versión.
+      // Un solo modelo de momento: el Toyota Corolla, el más usado hoy por
+      // los taxistas (Iván, 24-11-2026; el id sigue siendo 'turismo'). Las
+      // gamas Tesla y Mercedes llegarán con la idea 23.
       modelos: {
         turismo: {
-          nombre: 'Turismo',
+          nombre: 'Toyota Corolla',
           precio: 1500,              // Iván (valor de juego): precio del coche.
           consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
         }
