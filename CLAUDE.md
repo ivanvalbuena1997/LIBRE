@@ -635,7 +635,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   el fondo o Escape; barra y cifra al día en `actualizar`). La marca de la
   cabecera deja 124 px a la derecha para los dos botones. Mejoras del
   personaje (paso 3; versión 34): `config.personaje.mejoras` (grupo,
-  requiere y `niveles` con `coste` en puntos y efecto total; 100 puntos
+  requiere y `niveles` con `coste` en puntos y efecto total; 300 puntos
   entre todas, hay una prueba) y `estado.personaje = { xp, puntos,
   mejoras: { id: nivel } }`. `modificadoresPersonaje()` las suma (racha,
   incognitoTu, rachaMaximo, rachaReaccion, cansancio y espera solo tuyos en
@@ -646,7 +646,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   lectura). `sortearCategoria()` reparte sobre el total de los pesos (con
   `sortearCandidatos(estado, minimo)` no suman 1). Para probar:
   `Libre.darMejoraPersonaje('racha')` en la consola. Prestigio (paso 4):
-  `puntosPrestigio()` (nivel + `personaje.puntos` guardados),
+  `puntosPrestigio()` (`puntosDeNivel(nivel)` = `puntosPorNivel` × 1 + 2 + …
+  + N, más `personaje.puntos` guardados; Iván 24-11-2026, tras medir: con
+  1 punto por nivel compensaba reiniciar siempre en el 3),
   `faltaParaReiniciar()` (desde `nivelPrestigio`, 3),
   `probarComprasPersonaje(estado, compras)` (lista de ids; repetido, otro
   nivel: requisitos y puntos) y `empezarDeCero(estado, compras, ahoraMs)`,
@@ -689,6 +691,11 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
   30/60/90/120/150 minutos y cuándo llega cada hito (unos 25 s). Sirve para
   medir cambios de equilibrio; el último informe está en
   `docs/analisis-progresion.md`.
+- `node tests/prestigio.js [semillas] [niveles]` tampoco: un bot reinicia en
+  cada nivel objetivo (3,5,7,9) hasta tener todas las mejoras del personaje
+  y da cuántos reinicios y horas hacen falta. Usa `jugar()` de
+  `tests/progresion.js` (que lo exporta, con `opciones`: `personaje`,
+  `hastaNivel`, `minutos`). Informe en `docs/analisis-prestigio.md`.
 - `node tests/objetos.js [semillas] [jornadas]` tampoco es una prueba: mide
   cuánto deja cada objeto por conductor y jornada (sin mejoras y con
   propinas y otras mejoras). Informe en `docs/analisis-objetos.md`.

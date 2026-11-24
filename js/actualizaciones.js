@@ -505,6 +505,10 @@
         {
           "n": 110,
           "texto": "Ya puedes empezar de cero. Desde el nivel 3 de taxista, en la hoja de tu personaje sale el botón «Empezar de cero»: eliges en qué mejoras gastas tus puntos de prestigio (uno por nivel), confirmas y empiezas una partida nueva con ellas. Se pierde todo lo demás y tu nivel vuelve a 0; los puntos que no gastes se guardan para la próxima vez. Además, el coche del principio se llama Toyota Corolla."
+        },
+        {
+          "n": 111,
+          "texto": "Prestigio más justo: cada nivel da tantos puntos como su número (el nivel 5 da 5, así que una partida que llega al 5 junta 15) y las mejoras del personaje cuestan el triple. Antes compensaba reiniciar siempre en el nivel 3; ahora llegar lejos también merece la pena: llegando al nivel 7, tenerlo todo pide unos 11 reinicios."
         }
       ]
     }

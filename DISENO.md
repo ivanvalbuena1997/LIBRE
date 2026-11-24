@@ -478,25 +478,25 @@ El juego completo tiene cinco etapas; cada una añade un tipo de vehículo y una
 
 - **Experiencia y nivel** (paso 1, hecho): tu personaje gana **4 puntos por cada carrera tuya**, **1 por cada carrera de tus conductores** y **1 por cada objeto LEGENDARIO vendido**. El nivel N pide en total 1.000 × (1,6^N − 1) / 0,6 puntos: 1.000, 2.600, 5.160, 9.256… Medido con el bot (2 partidas, perfil equilibrado, que reacciona en 0,7 s): unos 1.900 puntos a los 30 min, 7.500 a las 2 h, 19.000 a las 4 h y 106.000 a las 8 h (las carreras de la flota mandan a partir de las 4 h; los legendarios vendidos son 1 o 2 en 8 h). Con esta curva, nivel 3 hacia la 1 h 20 min y nivel 9 hacia las 8 h. Al subir de nivel sale un aviso.
 - **Hoja del personaje** (paso 2, hecho): botón con tu silueta y tu nivel, junto al engranaje; la hoja enseña el nivel, la barra de experiencia (lo que llevas del nivel, lo que pide y lo que falta) y de dónde sale.
-- **Mejoras del personaje** (paso 3, hecho): no cuestan euros sino puntos de prestigio; entre todas, **100 puntos** (unos 12–13 reinicios). En la hoja del personaje, por grupos, con lo que tienes, lo siguiente y su coste (de momento solo se miran: se consiguen al reiniciar).
+- **Mejoras del personaje** (paso 3, hecho): no cuestan euros sino puntos de prestigio; entre todas, **300 puntos** (costes ×3 desde que el nivel N da N puntos; ver «Empezar de cero»). En la hoja del personaje, por grupos, con lo que tienes, lo siguiente y su coste (de momento solo se miran: se consiguen al reiniciar).
 
 | Mejora | Puntos por nivel | Efecto | Pide |
 | --- | --- | --- | --- |
-| Racha | 3 | La racha (+1 % por carrera encadenada, hasta +10 %) | — |
-| Racha larga (3 niveles) | 2 / 4 / 6 | Tope de la racha: +15, +20 y +25 % | Racha |
-| Reflejos de taxista (2) | 3 / 5 | 0,15 y 0,3 s más para encadenar | Racha |
-| Incógnito al volante | 2 | Conducir en tu libranza, con el riesgo del pesetas (antes, 400 € en el árbol; quien la compró la conserva) | — |
-| Fondo físico (5) | 2 / 4 / 6 / 8 / 10 | Te cansas un 15, 30, 50 y 75 % menos; en el V, **Incansable**: nunca descansas | — |
-| Callejero de memoria (2) | 3 / 5 | Tu espera, un 10 y un 20 % más corta | — |
-| Ahorros (3) | 1 / 3 / 5 | Cada partida empieza con 1.000, 3.000 y 6.000 € más | — |
-| Coche a estrenar | 1 | Tu primer coche, a 0 km | — |
-| Agenda de contactos | 4 | Los primeros candidatos de cada partida, de categoría A o mejor | — |
-| Veterano (2) | 4 / 6 | Un 25 y un 50 % más de experiencia | — |
-| Tesla Model 3 | 5 | Desbloquea la gama (idea 23; aún sin coche) | — |
-| Mercedes Clase S | 8 | Desbloquea la gama más alta (aún sin coche) | Tesla |
+| Racha | 9 | La racha (+1 % por carrera encadenada, hasta +10 %) | — |
+| Racha larga (3 niveles) | 6 / 12 / 18 | Tope de la racha: +15, +20 y +25 % | Racha |
+| Reflejos de taxista (2) | 9 / 15 | 0,15 y 0,3 s más para encadenar | Racha |
+| Incógnito al volante | 6 | Conducir en tu libranza, con el riesgo del pesetas (antes, 400 € en el árbol; quien la compró la conserva) | — |
+| Fondo físico (5) | 6 / 12 / 18 / 24 / 30 | Te cansas un 15, 30, 50 y 75 % menos; en el V, **Incansable**: nunca descansas | — |
+| Callejero de memoria (2) | 9 / 15 | Tu espera, un 10 y un 20 % más corta | — |
+| Ahorros (3) | 3 / 9 / 15 | Cada partida empieza con 1.000, 3.000 y 6.000 € más | — |
+| Coche a estrenar | 3 | Tu primer coche, a 0 km | — |
+| Agenda de contactos | 12 | Los primeros candidatos de cada partida, de categoría A o mejor | — |
+| Veterano (2) | 12 / 18 | Un 25 y un 50 % más de experiencia | — |
+| Tesla Model 3 | 15 | Desbloquea la gama (idea 23; aún sin coche) | — |
+| Mercedes Clase S | 24 | Desbloquea la gama más alta (aún sin coche) | Tesla |
 
-- **Empezar de cero** (paso 4, hecho): cada nivel da **1 punto de prestigio**. En la hoja del personaje, los puntos que tienes (los de tu nivel más los guardados de reinicios anteriores) y, desde el **nivel 3**, el botón **«Empezar de cero»**. Primero eliges las mejoras: cada una con «+ N puntos» para añadir un nivel y «−» para quitarlo (al quitar una, se va también lo que la pedía); arriba, «Gastas X de Y». Después, una confirmación en rojo: se pierde toda la partida (dinero, licencias, coches, conductores, objetos y mejoras del árbol) y tu nivel vuelve a 0; lista con lo que te quedas y los puntos que te guardas. La partida nueva conserva las mejoras del personaje, los puntos sin gastar, los ajustes y cuántas veces has reiniciado, y aplica las de arranque (Ahorros, Coche a estrenar, Agenda de contactos).
-- **Por hacer:** las gamas de coche (idea 23) y medir con el bot cuánto se tarda en cada reinicio.
+- **Empezar de cero** (paso 4, hecho): el nivel N da **N puntos de prestigio**, así que una partida que llega al nivel N junta 1 + 2 + … + N (nivel 3: 6; 5: 15; 7: 28; 9: 45). Primero era 1 punto por nivel, pero el bot mostró que lo que más rendía era reiniciar en cuanto se llegaba al 3, unas 33 veces con una sola licencia; con los puntos crecientes (y los costes ×3), tenerlo todo pide unas 45–49 h reinicie donde reinicie, y **llegando al nivel 7, unos 11 reinicios de 4–6 h** ([análisis](docs/analisis-prestigio.md), `node tests/prestigio.js`). En la hoja del personaje, los puntos que tienes (los de tu nivel más los guardados de reinicios anteriores) y, desde el **nivel 3**, el botón **«Empezar de cero»**. Primero eliges las mejoras: cada una con «+ N puntos» para añadir un nivel y «−» para quitarlo (al quitar una, se va también lo que la pedía); arriba, «Gastas X de Y». Después, una confirmación en rojo: se pierde toda la partida (dinero, licencias, coches, conductores, objetos y mejoras del árbol) y tu nivel vuelve a 0; lista con lo que te quedas y los puntos que te guardas. La partida nueva conserva las mejoras del personaje, los puntos sin gastar, los ajustes y cuántas veces has reiniciado, y aplica las de arranque (Ahorros, Coche a estrenar, Agenda de contactos).
+- **Por hacer:** las gamas de coche (idea 23).
 
 ### Alcance de la versión actual
 
@@ -569,7 +569,7 @@ Las convenciones de código están en `CLAUDE.md`.
 
 **24 de noviembre de 2026**
 
-- **Prestigio de tu personaje** (Iván): entra en el alcance. Tu personaje sube de nivel con experiencia (tus carreras, las de tus conductores y los legendarios vendidos), cada nivel da un punto de prestigio y desde el nivel 3 puedes reiniciar la partida gastando los puntos en mejoras del personaje, las únicas que se conservan. Se construye por pasos (ver «Tu personaje y el prestigio de hoy»).
+- **Prestigio de tu personaje** (Iván): entra en el alcance. Tu personaje sube de nivel con experiencia (tus carreras, las de tus conductores y los legendarios vendidos), cada nivel da puntos de prestigio (el nivel N, N puntos) y desde el nivel 3 puedes reiniciar la partida gastando los puntos en mejoras del personaje, las únicas que se conservan. Se construye por pasos (ver «Tu personaje y el prestigio de hoy»).
 ---
 
 ## Anexo: primer prompt para Claude Code
