@@ -724,7 +724,10 @@
     },
 
     combustible: {
-      precioLitro: 1.55            // Dato de Iván: precio medio del litro.
+      precioLitro: 1.55,           // Dato de Iván: precio medio del litro.
+      // PROVISIONAL (estimación de Claude, 24-11-2026, sin fuente): precio
+      // del kWh cargando en la cochera, para el Tesla.
+      precioKwh: 0.225
     },
 
     // Costes fijos: se cobran una vez al día, al cerrar la caja.
@@ -791,14 +794,41 @@
       // riesgo y «Al límite» desde probLimite por turno.
       kmNuevo: 20000,
       probLimite: 0.01,
-      // Un solo modelo de momento: el Toyota Corolla, el más usado hoy por
-      // los taxistas (Iván, 24-11-2026; el id sigue siendo 'turismo'). Las
-      // gamas Tesla y Mercedes llegarán con la idea 23.
+      /*
+       * Gamas de coche (idea 23, Iván 24-11-2026). El Toyota Corolla (id
+       * 'turismo', el más usado hoy por los taxistas) lo tiene todo el mundo;
+       * el Tesla y el Mercedes se desbloquean con las mejoras de tu personaje
+       * (gamas). Precio base de cada uno: sube igual (factorSubida) por cada
+       * coche propio, sea de la gama que sea. Equilibrio (precios y efectos
+       * acordados con Iván a partir de una estimación de lo que deja cada uno).
+       *   electrico: gasta kWh (kwh100Km × combustible.precioKwh); no le
+       *              valen las mejoras de consumoCombustion (Híbridos y GLP)
+       *   efecto     averia (probabilidad), cansancio (de sus conductores y el
+       *              tuyo), propinaProb y propinaImporte, sinPagar,
+       *              averiaCoste y pinchazoCoste: multiplican, sobre los topes
+       *              del conductor; esperaZonas: su espera en esas zonas
+       */
       modelos: {
         turismo: {
           nombre: 'Toyota Corolla',
           precio: 1500,              // Iván (valor de juego): precio del coche.
           consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
+        },
+        tesla: {
+          nombre: 'Tesla Model 3', descripcion: 'Eléctrico: la carga cuesta mucho menos que la gasolina, se avería menos y el piloto automático cansa menos.',
+          precio: 5000, electrico: true,
+          kwh100Km: 15,              // PROVISIONAL (estimación de Claude, sin fuente)
+          efecto: { averia: 0.6, cansancio: 0.9 }
+        },
+        mercedes: {
+          nombre: 'Mercedes Clase S', descripcion: 'La gama más alta: muchas más propinas, clientes que pagan y más carreras en el Centro y el Aeropuerto; gasta más y sus reparaciones son más caras.',
+          precio: 7500,
+          consumoLitros100Km: 7.8,   // un 30 % más que el Corolla (Equilibrio)
+          efecto: {
+            propinaProb: 2, propinaImporte: 1.5, sinPagar: 0.5,
+            esperaZonas: { centro: 0.87, aeropuerto: 0.87 },   // ~+15 % de clientes
+            averiaCoste: 1.5, pinchazoCoste: 1.5
+          }
         }
       }
     },
@@ -923,6 +953,7 @@
      *             una cadena (Iván, 18-11-2026): solo la primera no pide nada.
      *   efecto    segundosDia: alarga el día (segundos reales)
      *             consumo / busqueda / cola / demanda: multiplicadores
+     *             consumoCombustion: como consumo, solo en coches de gasolina
      *             soloZona: el efecto solo cuenta en esa zona
      *             desbloqueaZona: abre una zona
      *             cuotaEmisora: activa el coste diario de la emisora
@@ -1078,8 +1109,8 @@
       },
       {
         id: 'hibridos', nombre: 'Flota híbrida', rama: 'vehiculo', requiere: 'mampara', precio: 4000,
-        descripcion: 'Pasas todos tus coches a híbridos: un 35 % menos de combustible.',
-        efecto: { consumo: 0.65 }
+        descripcion: 'Pasas tus coches de gasolina a híbridos: un 35 % menos de combustible (al Tesla no le afecta).',
+        efecto: { consumoCombustion: 0.65 }
       },
       {
         // Iván, 20-11-2026: la última de la rama. En la realidad el GLP sale
@@ -1087,8 +1118,8 @@
         // de los precios de hoy). Equilibrio: con 8 licencias e híbridos
         // ahorra ~53 € por jornada y se paga en ~90 (estimado).
         id: 'glp', nombre: 'Depósito de GLP', rama: 'vehiculo', requiere: 'hibridos', precio: 4800,
-        descripcion: 'Instalas un depósito de GLP en toda tu flota: el combustible te cuesta un 30 % menos.',
-        efecto: { consumo: 0.7 }
+        descripcion: 'Instalas un depósito de GLP en tus coches de gasolina: el combustible te cuesta un 30 % menos (al Tesla no le afecta).',
+        efecto: { consumoCombustion: 0.7 }
       },
       {
         // Cansancio (Iván, 23-11-2026): toda la flota, tú incluido. Equilibrio.

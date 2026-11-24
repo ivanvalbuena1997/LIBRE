@@ -285,7 +285,7 @@
    */
   function modificadores(estado, zonaId) {
     const m = {
-      segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
+      segundosDia: 0, consumo: 1, consumoCombustion: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
       cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
@@ -298,6 +298,7 @@
       if (e.soloZona && e.soloZona !== zonaId) return;
       if (e.segundosDia) m.segundosDia += e.segundosDia;
       if (e.consumo) m.consumo *= e.consumo;
+      if (e.consumoCombustion) m.consumoCombustion *= e.consumoCombustion;
       if (e.busqueda) m.busqueda *= e.busqueda;
       if (e.cola) m.cola *= e.cola;
       if (e.demanda) m.demanda *= e.demanda;
@@ -346,7 +347,7 @@
    * lo que habrías pagado de más sin ella (con las demás que tengas).
    */
   const CUENTA_MEJORAS = {
-    publicidad: 'ganado', monedasMax: 'ganado', consumo: 'ahorrado', seguro: 'ahorrado',
+    publicidad: 'ganado', monedasMax: 'ganado', consumo: 'ahorrado', consumoCombustion: 'ahorrado', seguro: 'ahorrado',
     averiaCoste: 'ahorrado', pinchazoCoste: 'ahorrado', precioCoche: 'ahorrado',
     tasaSociedad: 'ahorrado'
   };
@@ -534,11 +535,37 @@
 
   // ------------------------------------------------------------ Costes
 
-  /* Euros de combustible por km recorrido con un modelo de coche. */
+  /* Euros de combustible (o de carga, el Tesla) por km recorrido con un modelo de coche. */
   function costePorKm(estado, modeloId) {
     const c = cfg();
-    const modelo = c.vehiculos.modelos[modeloId || c.vehiculos.modeloInicial];
-    return modelo.consumoLitros100Km / 100 * c.combustible.precioLitro * modificadores(estado).consumo;
+    const modelo = modeloCoche(modeloId);
+    const m = modificadores(estado);
+    if (modelo.electrico) return modelo.kwh100Km / 100 * c.combustible.precioKwh * m.consumo;
+    return modelo.consumoLitros100Km / 100 * c.combustible.precioLitro * m.consumo * m.consumoCombustion;
+  }
+  /* El modelo de coche (de config.vehiculos.modelos); sin id, el Corolla. */
+  function modeloCoche(id) {
+    const v = cfg().vehiculos;
+    return v.modelos[id] || v.modelos[v.modeloInicial];
+  }
+  /* Lo que cambia el coche de una licencia ({} sin coche o con el Corolla). */
+  function efectoCoche(lic) {
+    return (lic && lic.vehiculo && modeloCoche(lic.vehiculo).efecto) || {};
+  }
+  /* Efecto del coche que lleva un turno (conductor o tú). */
+  function efectoCocheDe(estado, quien) {
+    if (!quien) return {};
+    if (quien.quien === 'jugador') {
+      const u = ubicacionJugador(estado);
+      return efectoCoche(u && buscarLicencia(estado, u.licenciaId));
+    }
+    return efectoCoche(licenciaDelTurno(estado, quien));
+  }
+  /* Gamas que puedes comprar: el Corolla y las desbloqueadas por tu personaje. */
+  function gamasDisponibles(estado) {
+    const v = cfg().vehiculos;
+    const gamas = modificadoresPersonaje(estado).gamas;
+    return Object.keys(v.modelos).filter(function (id) { return id === v.modeloInicial || gamas.indexOf(id) !== -1; });
   }
 
   function vehiculosEnServicio(estado) {
@@ -612,8 +639,11 @@
     return exito('Tu empresa se llama ahora ' + n.nombre + '.');
   }
 
-  function gastar(estado, resumen, concepto, importe) {
-    if (concepto === 'combustible') apuntarAhorro(estado, 'consumo', importe);
+  function gastar(estado, resumen, concepto, importe, modeloId) {
+    if (concepto === 'combustible') {
+      apuntarAhorro(estado, 'consumo', importe);
+      if (!modeloCoche(modeloId).electrico) apuntarAhorro(estado, 'consumoCombustion', importe);
+    }
     estado.dinero -= importe;
     estado.caja.hoy[concepto] += importe;
     resumen[concepto] += importe;
@@ -963,23 +993,24 @@
     const n = cochesPropios(estado) - (sustituye ? 1 : 0);
     return Math.pow(cfg().vehiculos.factorSubida || 1, Math.max(0, n - 1));
   }
-  function precioCoche(estado, sustituye) {
-    const c = cfg();
-    return Math.round(c.vehiculos.modelos[c.vehiculos.modeloInicial].precio *
-      escalaCoches(estado, sustituye) * modificadores(estado).precioCoche);
+  function precioCoche(estado, sustituye, modeloId) {
+    return Math.round(modeloCoche(modeloId).precio * escalaCoches(estado, sustituye) * modificadores(estado).precioCoche);
   }
   /* Alquiler: sube igual que el coche (sin el descuento del Leasing). */
   function precioAlquiler(estado) {
     return Math.round(cfg().vehiculos.alquiler.precio * escalaCoches(estado));
   }
 
-  function comprarVehiculo(estado, licenciaId) {
+  function comprarVehiculo(estado, licenciaId, modeloId) {
     const c = cfg();
     const lic = buscarLicencia(estado, licenciaId);
     if (!lic) return fallo('Esa licencia no existe.');
     if (lic.vehiculo && !lic.alquiler) return fallo('Esa licencia ya tiene coche.');
-    const modelo = c.vehiculos.modelos[c.vehiculos.modeloInicial];
-    const precio = precioCoche(estado);
+    const id = modeloId || c.vehiculos.modeloInicial;
+    if (!c.vehiculos.modelos[id]) return fallo('Ese coche no existe.');
+    if (gamasDisponibles(estado).indexOf(id) === -1) return fallo('Aún no has desbloqueado el ' + c.vehiculos.modelos[id].nombre + ': es una mejora de tu personaje.');
+    const modelo = c.vehiculos.modelos[id];
+    const precio = precioCoche(estado, false, id);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
     apuntarAhorro(estado, 'precioCoche', precio);
@@ -987,7 +1018,7 @@
     const devuelto = !!lic.alquiler;
     lic.alquiler = null;
     lic.averia = null;
-    lic.vehiculo = c.vehiculos.modeloInicial;
+    lic.vehiculo = id;
     lic.km = 0;   // los coches que compras salen nuevos
     return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. ' +
       (devuelto ? 'Devuelves el de alquiler.' : 'Contrata conductores para sus turnos.'));
@@ -1963,10 +1994,24 @@
     const brutoPropina = (ev.propina.probCarrera + m.propinaProb) / ev.propina.probCarrera *
       producto(fuentesDe('propina'));
     const factorPropina = topeConductor('propina', brutoPropina, t);
-    stats.push({ clave: 'propina', valor: ev.propina.probCarrera * factorPropina, factor: factorPropina, tope: factorPropina !== brutoPropina,
-      limite: limite('propina'), fuentes: propina });
+    // El coche que lleva (gamas, idea 23) va aparte, sobre el tope.
+    const suCoche = turno ? efectoCoche(estado.licencias.find(function (l) { return l.turnos[turno] === t; })) : {};
+    const nombreCoche = function () {
+      const lic = estado.licencias.find(function (l) { return l.turnos[turno] === t; });
+      return modeloCoche(lic && lic.vehiculo).nombre;
+    };
+    function porCoche(stat, clave) {
+      const f = suCoche[clave];
+      if (!f || f === 1) return stat;
+      stat.valor *= f;
+      stat.factor *= f;
+      stat.fuentes.push({ tipo: 'coche', nombre: nombreCoche(), factor: f });
+      return stat;
+    }
+    stats.push(porCoche({ clave: 'propina', valor: ev.propina.probCarrera * factorPropina, factor: factorPropina, tope: factorPropina !== brutoPropina,
+      limite: limite('propina'), fuentes: propina }, 'propinaProb'));
 
-    const sinPagar = probabilidad('sinPagar', ev.sinPagar.probCarrera);
+    const sinPagar = porCoche(probabilidad('sinPagar', ev.sinPagar.probCarrera), 'sinPagar');
     const camara = conEfecto(t, 'sinImpagos');
     if (camara) {
       sinPagar.valor = 0;
@@ -2024,7 +2069,7 @@
       averia.factor *= fk;
       averia.fuentes.push({ tipo: 'coche', nombre: 'Kilómetros del coche', factor: fk });
     }
-    stats.push(averia);
+    stats.push(porCoche(averia, 'averia'));
 
     // Cansancio (Iván, 23-11-2026): lo que gasta (factor) y lo que dura su descanso (minutos).
     function conMejoras(clave) {
@@ -2036,8 +2081,8 @@
       const propias = fuentesDe(clave);
       const bruto = producto(propias);
       const factor = topeConductor(clave, bruto, t) * m[clave];
-      stats.push({ clave, valor: clave === 'descanso' ? cfg().cansancio.descansoMinutos * factor : factor, factor,
-        tope: topeConductor(clave, bruto, t) !== bruto, limite: limite(clave), fuentes: propias.concat(conMejoras(clave)) });
+      stats.push(porCoche({ clave, valor: clave === 'descanso' ? cfg().cansancio.descansoMinutos * factor : factor, factor,
+        tope: topeConductor(clave, bruto, t) !== bruto, limite: limite(clave), fuentes: propias.concat(conMejoras(clave)) }, clave));
     });
 
     const limpieza = fuentesDe('limpieza');
@@ -2222,7 +2267,9 @@
     const zona = c.zonas[zonaId];
     const info = infoReloj(estado.reloj.minutos);
     const m = modificadores(estado, zonaId);
-    const fe = factorEspera || 1;
+    // El Mercedes encuentra antes cliente en algunas zonas (esperaZonas).
+    const porZona = (modeloCoche(vehiculo).efecto || {}).esperaZonas || {};
+    const fe = (factorEspera || 1) * (porZona[zonaId] || 1);
 
     const viaje = elegirViaje(zona, rnd);
     const variacion = 1 + (rnd() * 2 - 1) * zona.variacion;
@@ -2256,6 +2303,7 @@
       importe,
       km,
       kmVacio,
+      vehiculo,
       combustible: (km + kmVacio) * costePorKm(estado, vehiculo)
     };
   }
@@ -2403,7 +2451,7 @@
     estado.jugador.ultimaCarrera = {
       zona: carrera.zona, tarifa: carrera.tarifa, importe: carrera.importe, km: carrera.km
     };
-    gastar(estado, resumen, 'combustible', carrera.combustible);
+    gastar(estado, resumen, 'combustible', carrera.combustible, carrera.vehiculo);
     // Tú también te cansas (paso 2): la misma barra, en estado.jugador.
     cansarse(estado, estado.jugador, carrera);
     // Racha: si toca descansar se corta; si no, abre el segundo para encadenar.
@@ -2535,7 +2583,7 @@
     const kmVacio = zona.colaMin > 0 ? 0 : minutosReales / 60 * cfg().conduccion.velocidadVacioKmH;
     return {
       vacio: true, zona: zonaId, inicio: ahora, finEspera: hasta, fin: hasta,
-      importe: 0, km: 0, kmVacio, combustible: kmVacio * costePorKm(estado, vehiculo)
+      importe: 0, km: 0, kmVacio, vehiculo, combustible: kmVacio * costePorKm(estado, vehiculo)
     };
   }
 
@@ -2571,8 +2619,10 @@
     const m = modificadores(estado);
     // Tú, además, con Fondo físico (mejora de tu personaje).
     const tuyo = t === estado.jugador ? modificadoresPersonaje(estado).cansancio : 1;
+    // Y el coche que lleva (el Tesla cansa menos).
+    const coche = (t === estado.jugador ? efectoCocheDe(estado, { quien: 'jugador' }) : efectoCocheDe(estado, t)).cansancio || 1;
     return {
-      cansancio: topeConductor('cansancio', f.cansancio, t) * m.cansancio * tuyo,
+      cansancio: topeConductor('cansancio', f.cansancio, t) * m.cansancio * tuyo * coche,
       descanso: topeConductor('descanso', f.descanso, t) * m.descanso
     };
   }
@@ -2601,7 +2651,7 @@
     const carrera = turno.carrera;
     turno.carrera = null;
     cansarse(estado, turno, carrera);
-    gastar(estado, resumen, 'combustible', carrera.combustible);
+    gastar(estado, resumen, 'combustible', carrera.combustible, carrera.vehiculo);
     estado.caja.hoy.km += carrera.km + carrera.kmVacio;
     sumarKm(estado, licenciaDelTurno(estado, turno), carrera.km + carrera.kmVacio);
     if (carrera.vacio) return;
@@ -2667,9 +2717,11 @@
     const m = modificadores(estado);
     // Rasgos del conductor (todo 1 en tu turno), con sus topes.
     const f = factoresConductor(estado, quien);
+    // El coche (Mercedes) va aparte, sobre los topes del conductor.
+    const coche = efectoCocheDe(estado, quien);
     const baseProp = ev.propina.probCarrera;
-    const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina, quien);
-    if (!conEfecto(quien, 'sinImpagos') && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien))) {
+    const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina, quien) * (coche.propinaProb || 1);
+    if (!conEfecto(quien, 'sinImpagos') && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien) * (coche.sinPagar || 1))) {
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
@@ -2681,7 +2733,7 @@
 
     if (toca(estado, 'propina', probPropina)) {
       consumirForzado(estado, 'propina');
-      const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax) * m.propinaImporte;
+      const propina = carrera.importe * entre(estado, ev.propina.porcentajeMin, ev.propina.porcentajeMax) * m.propinaImporte * (coche.propinaImporte || 1);
       incidencia(estado, resumen, 'propina', 'Propina de ' + Libre.ui_euros(propina) + '.', propina, 'extras', quien);
     }
 
@@ -2838,7 +2890,7 @@
         // Tu coche: pinchazo, avería definitiva y avería normal (sin rasgos).
         if (azar(estado) < ev.pinchazo.probTurno * modificadores(estado).pinchazo) t.pendiente = { tipo: 'pinchazo', minuto: entre(estado, ahora, fin) };
         else if (tocaRotura(estado, lic)) t.pendiente = { tipo: 'rotura', minuto: entre(estado, ahora, fin) };
-        else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * factorAveriaKm(lic)) {
+        else if (averiaPosible(estado, lic) && azar(estado) < ev.averia.probTurno * factorAveriaKm(lic) * (efectoCoche(lic).averia || 1)) {
           t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
         }
         return;
@@ -2863,7 +2915,7 @@
       } else if (tocaRotura(estado, lic)) {
         t.pendiente = { tipo: 'rotura', minuto: entre(estado, ahora, fin) };
       } else if (averiaPosible(estado, lic) &&
-        azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia, t) * factorAveriaKm(lic)) {
+        azar(estado) < ev.averia.probTurno * topeConductor('averia', f.averia, t) * factorAveriaKm(lic) * (efectoCoche(lic).averia || 1)) {
         t.pendiente = { tipo: 'averia', minuto: entre(estado, ahora, fin) };
       }
     });
@@ -2945,7 +2997,7 @@
   /* Lo que te dan por el coche de una licencia si lo renuevas. */
   function valorVentaCoche(estado, lic) {
     const v = cfg().vehiculos.venta;
-    const valor = precioCoche(estado, true) * v.fraccion * (1 - (lic.km || 0) / v.kmSinValor);
+    const valor = precioCoche(estado, true, lic.vehiculo) * v.fraccion * (1 - (lic.km || 0) / v.kmSinValor);
     return Math.max(cfg().eventos.rotura.chatarra, Math.round(valor));
   }
 
@@ -2966,7 +3018,7 @@
     const venta = valorVentaCoche(estado, lic);
     return {
       km, probRotura: p, factorAveria: factorAveriaKm(lic), venta,
-      precioRenovar: Math.max(0, precioCoche(estado, true) - venta),
+      precioRenovar: Math.max(0, precioCoche(estado, true, lic.vehiculo) - venta),
       nivel: p >= v.probLimite ? 'limite' : p > 0 ? 'gastado' : km < v.kmNuevo ? 'nuevo' : 'rodado'
     };
   }
@@ -2983,10 +3035,11 @@
     if (lic.alquiler) return fallo('Ese coche es de alquiler: no se renueva, se devuelve o se compra uno.');
     if (!enPausa(estado)) return fallo('Solo puedes renovar el coche con el día cerrado.');
     const venta = valorVentaCoche(estado, lic);
-    const precio = Math.max(0, precioCoche(estado, true) - venta);
+    const nuevo = precioCoche(estado, true, lic.vehiculo);
+    const precio = Math.max(0, nuevo - venta);
     if (estado.dinero < precio) return fallo('No te llega el dinero.');
     estado.dinero -= precio;
-    apuntarAhorro(estado, 'precioCoche', precioCoche(estado, true));
+    apuntarAhorro(estado, 'precioCoche', nuevo);
     lic.km = 0;
     lic.averia = null;
     return exito('Coche nuevo en la licencia ' + textoLicencia(lic) + '. Por el viejo te dan ' + Libre.ui_euros(venta) + '.');
@@ -3016,7 +3069,7 @@
         return;
       }
       const m = modificadores(estado);
-      const coste = ev.pinchazo.coste * m.pinchazoCoste;
+      const coste = ev.pinchazo.coste * m.pinchazoCoste * (efectoCoche(lic).pinchazoCoste || 1);
       apuntarAhorro(estado, 'pinchazoCoste', coste);
       if (m.pinchazoHoras) {
         // Con la Grúa propia: un rato en el taller, no el resto del turno.
@@ -3056,7 +3109,7 @@
     const ev = cfg().eventos.averia;
     const m = modificadores(estado);
     const jornadas = Math.max(1, Math.round(enteroEntre(estado, ev.jornadasMin, ev.jornadasMax) * m.averiaDias));
-    const coste = entre(estado, ev.costeMin, ev.costeMax) * m.averiaCoste;
+    const coste = entre(estado, ev.costeMin, ev.costeMax) * m.averiaCoste * (efectoCoche(lic).averiaCoste || 1);
     apuntarAhorro(estado, 'averiaCoste', coste);
     lic.averia = { hasta: jornadaDe(estado.reloj.minutos) + jornadas };
     TURNOS.forEach(function (t) {
@@ -3353,6 +3406,7 @@
     viajeMedio,
     netoCaja,
     costePorKm,
+    factoresCansancio,
     costesFijosDiarios,
     porcentajeConductor,
     demandaZona,
@@ -3390,6 +3444,9 @@
     faltaParaMejoraPersonaje,
     costeMejoraPersonaje,
     aplicarArranque,
+    gamasDisponibles,
+    modeloCoche,
+    efectoCoche,
     puntosPrestigio,
     puntosDeNivel,
     faltaParaReiniciar,

@@ -1553,7 +1553,7 @@ prueba('lo que te ha hecho ganar cada mejora (idea 16): combustible, seguro, Lea
     assert.ok(comprarConRequisitos(e, id).ok, id);
   });
   const fConduc = config.mejoras.find(function (m) { return m.id === 'conduccionEficiente'; }).efecto.consumo;
-  const fHib = config.mejoras.find(function (m) { return m.id === 'hibridos'; }).efecto.consumo;
+  const fHib = config.mejoras.find(function (m) { return m.id === 'hibridos'; }).efecto.consumoCombustion;
   assert.strictEqual(sim.cuentaDeMejora('conduccionEficiente'), 'ahorrado');
   assert.strictEqual(sim.cuentaDeMejora('publicidad'), 'ganado');
   assert.strictEqual(sim.cuentaDeMejora('callejero'), null, 'las difíciles no se cuentan');
@@ -2473,6 +2473,75 @@ prueba('prestigio: desde el nivel 3, empezar de cero gasta los puntos y solo con
   assert.ok(d.ok);
   assert.strictEqual(d.gastados, 12);
   assert.strictEqual(d.mejoras.ahorros, 2);
+});
+
+prueba('gamas de coche: el Tesla y el Mercedes se desbloquean con tu personaje y cuestan su precio con la misma subida', function () {
+  const v = config.vehiculos;
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e6;
+  assert.deepStrictEqual(sim.gamasDisponibles(e), ['turismo']);
+  e.licencias[0].vehiculo = null;
+  assert.ok(/personaje/.test(sim.comprarVehiculo(e, e.licencias[0].id, 'tesla').mensaje));
+  e.personaje.mejoras.tesla = 1;
+  assert.deepStrictEqual(sim.gamasDisponibles(e), ['turismo', 'tesla']);
+  // Primer coche: su precio base; el siguiente, con la subida (sea de la gama que sea).
+  assert.strictEqual(sim.precioCoche(e, false, 'tesla'), v.modelos.tesla.precio);
+  const r = sim.comprarVehiculo(e, e.licencias[0].id, 'tesla');
+  assert.ok(r.ok, r.mensaje);
+  assert.strictEqual(e.licencias[0].vehiculo, 'tesla');
+  e.personaje.mejoras.mercedes = 1;
+  // Con un coche propio, el siguiente aún va a precio base; con dos, sube.
+  assert.strictEqual(sim.precioCoche(e, false, 'mercedes'), v.modelos.mercedes.precio);
+  e.dinero = 1e6;
+  sim.comprarLicencia(e);
+  assert.ok(sim.comprarVehiculo(e, e.licencias[1].id, 'mercedes').ok);
+  assert.strictEqual(sim.precioCoche(e, false, 'mercedes'), Math.round(v.modelos.mercedes.precio * v.factorSubida));
+  // Renovar uno cuesta lo de su gama.
+  assert.strictEqual(sim.estadoCoche(e, e.licencias[0]).precioRenovar, v.modelos.tesla.precio - sim.valorVentaCoche(e, e.licencias[0]));
+});
+
+prueba('gamas de coche: al Tesla no le afectan Híbridos ni GLP, gasta electricidad, se avería y cansa menos', function () {
+  const v = config.vehiculos;
+  const e = sim.crearEstadoInicial(0);
+  const kwh = v.modelos.tesla.kwh100Km / 100 * config.combustible.precioKwh;
+  cerca(sim.costePorKm(e, 'tesla'), kwh, 1e-9);
+  e.mejoras.hibridos = 1;
+  e.mejoras.glp = 1;
+  cerca(sim.costePorKm(e, 'tesla'), kwh, 1e-9);
+  cerca(sim.costePorKm(e, 'turismo'), v.modelos.turismo.consumoLitros100Km / 100 * config.combustible.precioLitro * 0.65 * 0.7, 1e-9);
+  e.mejoras.conduccionEficiente = 1;
+  cerca(sim.costePorKm(e, 'tesla'), kwh * 0.9, 1e-9);
+  // Tú, en un Tesla: te cansas un 10 % menos.
+  e.licencias[0].vehiculo = 'tesla';
+  cerca(sim.factoresCansancio(e, e.jugador).cansancio, v.modelos.tesla.efecto.cansancio, 1e-9);
+});
+
+prueba('gamas de coche: el Mercedes da más propinas, menos impagos y encuentra antes en el Centro', function () {
+  const ef = config.vehiculos.modelos.mercedes.efecto;
+  function partida(modelo) {
+    const e = sim.crearEstadoInicial(0);
+    e.azar = 5;
+    e.reloj.minutos = 8 * 60;
+    e.licencias[0].vehiculo = modelo;
+    return e;
+  }
+  const a = partida('turismo'), b = partida('mercedes');
+  sim.buscarCliente(a, azarFijo(0.5));
+  sim.buscarCliente(b, azarFijo(0.5));
+  assert.strictEqual(a.jugador.carrera.zona, 'centro');
+  const ea = a.jugador.carrera.finEspera - a.jugador.carrera.inicio;
+  const eb = b.jugador.carrera.finEspera - b.jugador.carrera.inicio;
+  cerca(eb / ea, ef.esperaZonas.centro, 1e-9);
+  // Las estadísticas de un conductor en un Mercedes lo cuentan.
+  b.dinero = 1e6;
+  assert.ok(sim.contratarConductor(b, b.licencias[0].id, 'noche', 0).ok);
+  const t = b.licencias[0].turnos.noche;
+  const stats = sim.statsConductor(b, t, 'noche');
+  b.licencias[0].vehiculo = 'turismo';
+  const base = sim.statsConductor(b, t, 'noche');
+  const s = function (lista, clave) { return lista.find(function (x) { return x.clave === clave; }).valor; };
+  cerca(s(stats, 'propina') / s(base, 'propina'), ef.propinaProb, 1e-9);
+  cerca(s(stats, 'sinPagar') / s(base, 'sinPagar'), ef.sinPagar, 1e-9);
 });
 
 console.log(pasadas + ' pruebas correctas');

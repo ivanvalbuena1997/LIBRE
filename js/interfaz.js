@@ -994,6 +994,7 @@
   // Conductor con la ficha abierta ('licencia|turno') o null.
   let fichaConductor = null;
   let cocheAbierto = null;   // id de la licencia cuya hoja del coche está abierta
+  let eligiendoCoche = null; // id de la licencia para la que eliges gama (idea 23)
   // Objeto del almacén con su panel abierto (id) o null.
   let fichaInventario = null;
   // Lo que el jugador ha elegido gastar al combinar: { id del objeto abierto, cuenta: { id: n } }.
@@ -1792,6 +1793,7 @@
     }), !!estado.jugador.carrera, estado.mejoras, jornada, estado.objetos, estado.bandeja, eligiendoConductor,
     eligiendoConductor ? estado.candidatos : null, ventaParaContratar, fichaConductor, fichaInventario, equipando, comparando,
     eligiendoPlaca, eligiendoPlaca ? Libre.sim.placasEnVenta(estado) : null, panelTu, cocheAbierto, combinarSel,
+    eligiendoCoche, Libre.sim.gamasDisponibles(estado),
     montandoSL, estado.empresa,
     estado.licencias.map(function (l) {
       const e = Libre.sim.estadoCoche(estado, l);
@@ -2027,7 +2029,7 @@
       (lic.vehiculo || lic.turnos.dia || lic.turnos.noche
         ? '<div class="licencia-turnos">' + htmlHuecoTurno(estado, lic, 'dia') + htmlHuecoTurno(estado, lic, 'noche') + '</div>' : '') +
       (lic.vehiculo ? ''
-        : '<div class="licencia-sin-coche">' + botonCompra('Coche', Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]) +
+        : '<div class="licencia-sin-coche">' + botonComprarCoche(estado, lic, 'Coche') +
           // Alquilar (idea 5, Iván 20-11-2026): un apaño de pocas jornadas.
           botonCompra('Alquilar', Libre.sim.precioAlquiler(estado), 'alquilarCoche', [lic.id]) +
           '<small class="sin-coche-nota">Alquiler de ' + Libre.config.vehiculos.alquiler.jornadas + ' días</small></div>') +
@@ -2059,8 +2061,45 @@
       '</div>' +
       boton('Alquilar ' + a.jornadas + ' jornadas más · ' + euros(alquiler), 'alquilarCoche', [lic.id],
         'ui-boton ui-boton--secundario ui-boton--ancho', alquiler) +
-      boton('Comprar uno propio · ' + euros(precio), 'comprarVehiculo', [lic.id], 'ui-boton ui-boton--principal ui-boton--ancho', precio) +
+      (Libre.sim.gamasDisponibles(estado).length > 1
+        ? '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-elegir-coche="' + lic.id + '">Comprar uno propio ›</button>'
+        : boton('Comprar uno propio · ' + euros(precio), 'comprarVehiculo', [lic.id], 'ui-boton ui-boton--principal ui-boton--ancho', precio)) +
       '<p class="coche-nota">Si compras uno, devuelves el de alquiler y pierdes lo que quedaba.</p>';
+  }
+  /*
+   * Gamas de coche (idea 23, Iván 24-11-2026): con más de una desbloqueada,
+   * «Coche» abre una hoja para elegir; con solo el Corolla, compra directa.
+   */
+  function botonComprarCoche(estado, lic, texto) {
+    if (Libre.sim.gamasDisponibles(estado).length <= 1) {
+      return botonCompra(texto, Libre.sim.precioCoche(estado), 'comprarVehiculo', [lic.id]);
+    }
+    return '<button type="button" class="boton-compra" data-elegir-coche="' + lic.id + '"><span>' + texto +
+      '</span><span class="precio">Elegir ›</span></button>';
+  }
+  function htmlHojaElegirCoche(estado) {
+    const lic = eligiendoCoche && estado.licencias.find(function (l) { return l.id === eligiendoCoche; });
+    if (!lic || (lic.vehiculo && !lic.alquiler)) return '';
+    const sim = Libre.sim;
+    const tarjetas = sim.gamasDisponibles(estado).map(function (id) {
+      const m = Libre.config.vehiculos.modelos[id];
+      const precio = sim.precioCoche(estado, false, id);
+      const coste = sim.costePorKm(estado, id) * 100;
+      return '<div class="ui-tarjeta gama">' +
+        '<div class="gama-titulo"><strong>' + esc(m.nombre) + '</strong>' +
+        (m.electrico ? '<span class="ui-chip">Eléctrico</span>' : '') + '</div>' +
+        (m.descripcion ? '<p>' + esc(m.descripcion) + '</p>' : '<p>El de siempre: el coche más usado por los taxistas.</p>') +
+        '<p class="gama-dato">' + (m.electrico ? 'Carga' : 'Combustible') + ': ' + euros(coste) + ' cada 100 km</p>' +
+        boton('Comprar · ' + euros(precio), 'comprarVehiculo', [lic.id, id], 'ui-boton ui-boton--principal ui-boton--ancho', precio) +
+        '</div>';
+    }).join('');
+    return '<div class="hoja-fondo" data-cerrar-elegir-coche></div>' +
+      '<div class="hoja hoja-gamas" role="dialog" aria-modal="true" aria-labelledby="gamas-titulo">' +
+      '<span class="hoja-asa" aria-hidden="true"></span>' +
+      '<div class="hoja-cabecera"><h3 id="gamas-titulo">Coche para la licencia ' + esc(sim.textoLicencia(lic)) + '</h3>' +
+      botonCerrarHoja('data-cerrar-elegir-coche', 'Cerrar') + '</div>' + tarjetas +
+      '<p class="coche-nota">Cada coche propio sube el precio de los siguientes un ' +
+      Math.round((Libre.config.vehiculos.factorSubida - 1) * 100) + ' %, sea de la gama que sea.</p></div>';
   }
   function htmlHojaCoche(estado) {
     const lic = cocheAbierto && estado.licencias.find(function (l) { return l.id === cocheAbierto; });
@@ -2162,7 +2201,7 @@
         '<div class="licencias">' + estado.licencias.map(function (lic) { return htmlLicencia(estado, lic); }).join('') +
         htmlComprarLicencia(estado) + '</div>' +
         htmlFichaConductor(estado) + htmlHojaEquipar(estado) + htmlHojaCandidatos(estado) + htmlHojaComparar(estado) +
-        htmlHojaCoche(estado) + htmlHojaSociedad(estado);
+        htmlHojaCoche(estado) + htmlHojaElegirCoche(estado) + htmlHojaSociedad(estado);
     },
     // La experiencia y lo hecho cambian con cada carrera: se mueven aquí.
     actualizar: function (estado) {
@@ -2967,6 +3006,7 @@
     fichaConductor = null;
     fichaInventario = null;
     ajustesAbiertos = false;
+    eligiendoCoche = null;
     personajeAbierto = false;
     prestigio = null;
     confirmarPartida = null;
@@ -3367,6 +3407,18 @@
         opciones.redibujar();
         return;
       }
+      const elegirCoche = ev.target.closest('[data-elegir-coche]');
+      if (elegirCoche) {
+        eligiendoCoche = Number(elegirCoche.dataset.elegirCoche);
+        cocheAbierto = null;
+        opciones.redibujar();
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-elegir-coche]')) {
+        eligiendoCoche = null;
+        opciones.redibujar();
+        return;
+      }
       if (ev.target.closest('[data-cerrar-coche]')) {
         const id = cocheAbierto;
         cocheAbierto = null;
@@ -3466,7 +3518,11 @@
       if (!el || el.disabled) return;
       const args = el.dataset.args ? el.dataset.args.split('|') : [];
       if (el.dataset.accion === 'despedirConductor' && !confirmarDespido(args)) return;
+      // Comprar el coche cierra la hoja de gamas (antes de redibujar).
+      const eligiendo = eligiendoCoche;
+      if (el.dataset.accion === 'comprarVehiculo' && eligiendoCoche) eligiendoCoche = null;
       const resultado = ejecutar(el.dataset.accion, args);
+      if (eligiendo && el.dataset.accion === 'comprarVehiculo' && !(resultado && resultado.ok)) { eligiendoCoche = eligiendo; opciones.redibujar(); }
       if (resultado && resultado.ok && el.dataset.accion === 'buscarCliente') sonar('tic');
       if (resultado && resultado.pillado) sonar('averia');
       if (resultado && resultado.ok && el.dataset.accion === 'comprarLicencia') {
@@ -3536,6 +3592,11 @@
       }
       if (ev.key === 'Escape' && montandoSL) {
         montandoSL = false;
+        opciones.redibujar();
+        return;
+      }
+      if (ev.key === 'Escape' && eligiendoCoche) {
+        eligiendoCoche = null;
         opciones.redibujar();
         return;
       }
