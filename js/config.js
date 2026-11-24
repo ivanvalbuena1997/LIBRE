@@ -825,8 +825,9 @@
           precio: 5000,
           consumoLitros100Km: 7.8,   // un 30 % más que el Corolla (Equilibrio)
           efecto: {
-            propinaProb: 2, propinaImporte: 1.5, sinPagar: 0.5,
-            esperaZonas: { centro: 0.87, aeropuerto: 0.87 },   // ~+15 % de clientes
+            // Iván, 24-11-2026: sus ventajas, un 10 % más fuertes que al principio.
+            propinaProb: 2.2, propinaImporte: 1.65, sinPagar: 0.45,
+            esperaZonas: { centro: 0.858, aeropuerto: 0.858 },   // ~+16,5 % de clientes
             averiaCoste: 1.5, pinchazoCoste: 1.5
           }
         }

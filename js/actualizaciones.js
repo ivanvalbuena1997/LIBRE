@@ -513,6 +513,10 @@
         {
           "n": 112,
           "texto": "Gamas de coche: si las desbloqueas con las mejoras de tu personaje, al comprar coche eliges entre el Toyota Corolla (1.500 €), el Tesla Model 3 (3.500 €: eléctrico, la carga cuesta mucho menos, se avería mucho menos y cansa un 20 % menos) y el Mercedes Clase S (5.000 €: muchas más propinas, la mitad de impagos y más clientes en el Centro y el Aeropuerto, pero gasta más y sus reparaciones cuestan más). Híbridos y GLP ya solo afectan a los coches de gasolina."
+        },
+        {
+          "n": 113,
+          "texto": "El Mercedes Clase S, un 10 % mejor: aún más propinas (2,2 veces más a menudo y un 65 % mayores), menos clientes que se van sin pagar y algo más de clientes en el Centro y el Aeropuerto."
         }
       ]
     }
