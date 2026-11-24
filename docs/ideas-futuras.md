@@ -50,8 +50,8 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     de conductor, 1 por legendario vendido; cada nivel, 1 punto de
     prestigio; reinicio desde el nivel 3, eligiendo mejoras del personaje
     (las únicas que quedan; el nivel vuelve a 0). Hecho el paso 1
-    (experiencia y nivel). Pendiente: hoja del personaje en la cabecera,
-    mejoras por puntos (unos 10 reinicios para tenerlas todas), el
+    (experiencia y nivel), el 2 (hoja del personaje) y el 3 (mejoras por
+    puntos, 100 en total). Pendiente: el
     reinicio, y **coches de distintas gamas** que se desbloqueen aquí.
 
 16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo

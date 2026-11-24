@@ -2262,7 +2262,6 @@
     gestoria: '<path d="M3 7a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M8 13h8M8 16h5"/>',
     oficina: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12h18"/>',
     // Tu incógnito: medio volante y las gafas del de incógnito.
-    incognitoTu: '<path d="M4 11a8 8 0 0 1 16 0"/><path d="M2.5 11h19M12 11V7"/><circle cx="7.5" cy="16.5" r="3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M10.5 16.5c1-.7 2-.7 3 0"/>',
     // Sombrero y gafas, como el icono de incógnito de Chrome (Iván, 20-11-2026).
     // Cazatalentos: una lupa con una persona dentro.
     cazatalentos: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.2 15.2L21 21"/><circle cx="10.5" cy="8.8" r="2"/><path d="M7 14c.7-1.6 2-2.4 3.5-2.4s2.8.8 3.5 2.4"/>',
@@ -2527,10 +2526,42 @@
   function textoXpPersonaje(n) {
     return numero(n.xp - n.desde) + ' de ' + numero(n.hasta - n.desde) + ' puntos · faltan ' + numero(n.hasta - n.xp) + ' para el nivel ' + (n.nivel + 1);
   }
+  const GRUPOS_PERSONAJE = [
+    { id: 'volante', nombre: 'Al volante' },
+    { id: 'arranque', nombre: 'Al empezar cada partida' },
+    { id: 'gamas', nombre: 'Gamas de coche' }
+  ];
+  /* Lista de las mejoras del personaje: nivel, lo que tienes, lo siguiente y su coste en puntos. */
+  function htmlMejorasPersonaje(estado) {
+    const sim = Libre.sim;
+    return GRUPOS_PERSONAJE.map(function (g) {
+      const filas = Libre.config.personaje.mejoras.filter(function (m) { return m.grupo === g.id; }).map(function (m) {
+        const n = sim.nivelMejoraPersonaje(estado, m.id);
+        const max = m.niveles.length;
+        const actual = n ? m.niveles[n - 1] : null;
+        const sig = m.niveles[n];
+        const falta = sim.faltaParaMejoraPersonaje(estado, m.id);
+        const rayas = max > 1 ? '<span class="nodo-niveles" aria-label="Nivel ' + n + ' de ' + max + '">' +
+          m.niveles.map(function (x, i) { return '<i' + (i < n ? ' class="hecho"' : '') + '></i>'; }).join('') + '</span>' : '';
+        const lineas = [];
+        if (actual && actual.descripcion) lineas.push('Tienes: ' + esc(actual.descripcion));
+        if (sig) lineas.push((n ? 'Siguiente: ' : '') + esc(sig.descripcion || '') + (sig.descripcion ? ' · ' : '') +
+          '<strong>' + sig.coste + ' punto' + (sig.coste === 1 ? '' : 's') + '</strong>' +
+          (falta && sig ? ' · ' + esc(falta) : ''));
+        return '<li class="pj-mejora' + (n ? ' pj-tiene' : '') + '">' +
+          '<div class="pj-mejora-titulo"><strong>' + esc(m.nombre) + '</strong>' + rayas +
+          (n >= max ? '<span class="ui-chip">' + (max > 1 ? 'Al máximo' : 'La tienes') + '</span>' : '') + '</div>' +
+          '<p>' + esc(m.descripcion) + '</p>' +
+          (lineas.length ? '<p class="pj-mejora-nivel">' + lineas.join('<br>') + '</p>' : '') + '</li>';
+      }).join('');
+      return '<h3>' + g.nombre + '</h3><ul class="pj-mejoras">' + filas + '</ul>';
+    }).join('');
+  }
   const seccionPersonaje = {
     id: 'sec-personaje',
     firma: function (estado) {
-      return 'personaje:' + personajeAbierto + ':' + Libre.sim.nivelPersonaje(estado).nivel;
+      return 'personaje:' + personajeAbierto + ':' + Libre.sim.nivelPersonaje(estado).nivel + ':' +
+        JSON.stringify(estado.personaje.mejoras || {});
     },
     html: function (estado) {
       if (!personajeAbierto) return '';
@@ -2553,8 +2584,8 @@
         '<li>Cada objeto LEGENDARIO que vendes: <strong>' + p.experiencia.legendarioVendido + ' punto' + (p.experiencia.legendarioVendido === 1 ? '' : 's') + '</strong></li>' +
         '</ul>' +
         '<p class="ayuda">Cada nivel te dará un punto de prestigio. Desde el nivel ' + p.nivelPrestigio +
-        ' podrás empezar de cero y gastarlos en mejoras de tu personaje, las únicas que se conservan. Llegará en las próximas actualizaciones.</p>' +
-        '</div>';
+        ' podrás empezar de cero y gastarlos en estas mejoras, las únicas que se conservan. El reinicio llegará en la próxima actualización.</p>' +
+        htmlMejorasPersonaje(estado) + '</div>';
     },
     actualizar: function (estado) {
       if (!personajeAbierto) return;

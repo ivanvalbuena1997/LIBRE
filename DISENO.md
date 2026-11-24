@@ -209,7 +209,7 @@ Cada zona tiene una demanda de viajes por hora que cambia con la hora, el día d
 ### 5.3 Carreras
 
 - **Tus carreras (a clic):** tocas el taxímetro, esperas según la demanda de tu zona (con poca demanda, hasta que aparece alguien), viajas y cobras. Solo puedes trabajar dentro de la franja de tu turno y no el día que libra tu licencia.
-- **Racha** (idea 21, Iván, 23-11-2026; a prueba): cada carrera tuya que **encadenas** (buscas la siguiente a tiempo tras cobrar) cobra un **1 % más**, hasta **+10 %**. Se corta si te despistas, si descansas, al acabar tu turno o si te pilla el pesetas. Sale en la línea de arriba del taxímetro («RACHA ×1,04 · ÚLTIMA 9,80 €») y avisa al llegar al máximo. Medido (4 partidas de 15 días, solo tú): con 0,7 s de reacción, **+2,7 %** de facturación; el descanso la corta antes del tope (como mucho ×1,09). Margen a propósito para mejoras y objetos de tu personaje que suban el tope y el tiempo de reacción. El tiempo para encadenar **se estrecha con la racha** (Iván, 23-11-2026: con 1 s fijo no se perdía nunca): **1 s** reales al empezar y **0,5 s** en el tope, en línea recta. Taxímetro de recreativa: tras cobrar, una raya ámbar bajo las cifras se vacía con el tiempo que queda; bajo la tarifa, una fila de **10 luces** se enciende según lo cerca que estés del tope; el marco y las cifras brillan cada vez más y, en el tope, parpadean (sin animación con movimiento reducido). Suena también como una recreativa: cada carrera encadenada, un «blip» más agudo que el anterior; al llegar al tope, una fanfarria; al perderla, una nota que se cae. Las mediciones de arriba son de antes de estrechar la ventana. De momento la tiene todo el mundo para probarla; falta decidir cómo se consigue (una mejora o un reinicio de partida).
+- **Racha** (idea 21, Iván, 23-11-2026; a prueba): cada carrera tuya que **encadenas** (buscas la siguiente a tiempo tras cobrar) cobra un **1 % más**, hasta **+10 %**. Se corta si te despistas, si descansas, al acabar tu turno o si te pilla el pesetas. Sale en la línea de arriba del taxímetro («RACHA ×1,04 · ÚLTIMA 9,80 €») y avisa al llegar al máximo. Medido (4 partidas de 15 días, solo tú): con 0,7 s de reacción, **+2,7 %** de facturación; el descanso la corta antes del tope (como mucho ×1,09). Margen a propósito para mejoras y objetos de tu personaje que suban el tope y el tiempo de reacción. El tiempo para encadenar **se estrecha con la racha** (Iván, 23-11-2026: con 1 s fijo no se perdía nunca): **1 s** reales al empezar y **0,5 s** en el tope, en línea recta. Taxímetro de recreativa: tras cobrar, una raya ámbar bajo las cifras se vacía con el tiempo que queda; bajo la tarifa, una fila de **10 luces** se enciende según lo cerca que estés del tope; el marco y las cifras brillan cada vez más y, en el tope, parpadean (sin animación con movimiento reducido). Suena también como una recreativa: cada carrera encadenada, un «blip» más agudo que el anterior; al llegar al tope, una fanfarria; al perderla, una nota que se cae. Las mediciones de arriba son de antes de estrechar la ventana. Desde el 24-11-2026 no la tiene nadie de serie: es una mejora de tu personaje (3 puntos de prestigio), con Racha larga (tope de +15, +20 y +25 %) y Reflejos de taxista (+0,15 y +0,3 s).
 - **Las de tus conductores (solas):** cada conductor espera su parte de la demanda de la zona, viaja y cobra al terminar; el 50 % es suyo. Sin clientes, hace un tramo en vacío hasta la hora siguiente.
 - **Zonas de los conductores:** las eligen ellos. Sin el Curso gestión de zonas, al azar entre las que tienen clientes; con el curso, cada hora la que más deja al dueño contando a los compañeros. La tuya la eliges tú.
 
@@ -446,7 +446,6 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 
 | Mejora | Precio | Efecto |
 | --- | --- | --- |
-| Incógnito al volante | 400 € | La primera de la rama (Iván, 20-11-2026: tu turno rinde menos que el de un conductor). Conduces también los días que libra tu licencia, con el riesgo del pesetas que te vigila (ver 5.8). El bot, esperando a que se vaya el pesetas, va igual o algo más rápido con ella |
 | Sacudir esterillas (5 niveles) | 450 / 720 / 990 / 1.350 / 1.800 € | Cada conductor encuentra de 0,50–2 € a 3–8 € al acabar su turno |
 | Jornada larga (5 niveles) | 500 / 700 / 1.000 / 1.400 / 1.900 € | El día dura 10, 20, 30, 45 y 60 s más |
 | Taquillas (3 niveles) | 600 / 1.800 / 4.500 € | Almacén de 20, 30 y 40 objetos |
@@ -479,7 +478,24 @@ El juego completo tiene cinco etapas; cada una añade un tipo de vehículo y una
 
 - **Experiencia y nivel** (paso 1, hecho): tu personaje gana **4 puntos por cada carrera tuya**, **1 por cada carrera de tus conductores** y **1 por cada objeto LEGENDARIO vendido**. El nivel N pide en total 1.000 × (1,6^N − 1) / 0,6 puntos: 1.000, 2.600, 5.160, 9.256… Medido con el bot (2 partidas, perfil equilibrado, que reacciona en 0,7 s): unos 1.900 puntos a los 30 min, 7.500 a las 2 h, 19.000 a las 4 h y 106.000 a las 8 h (las carreras de la flota mandan a partir de las 4 h; los legendarios vendidos son 1 o 2 en 8 h). Con esta curva, nivel 3 hacia la 1 h 20 min y nivel 9 hacia las 8 h. Al subir de nivel sale un aviso.
 - **Hoja del personaje** (paso 2, hecho): botón con tu silueta y tu nivel, junto al engranaje; la hoja enseña el nivel, la barra de experiencia (lo que llevas del nivel, lo que pide y lo que falta) y de dónde sale.
-- **Por hacer:** en la hoja, los puntos y las mejoras; cada nivel da **1 punto de prestigio**; desde el **nivel 3** se puede **reiniciar**: antes te ofrece las mejoras del personaje para gastar los puntos, se pierde todo lo de la partida y el nivel vuelve a 0, y solo quedan esas mejoras. Las mejoras no tienen precio en euros sino en puntos, algunas más caras que otras para que tenerlas todas pida unos 10 reinicios: Racha (deja de estar para todos), Racha larga, Reflejos de taxista, Incógnito para ti (sale del árbol; quien la compró la conserva), Fondo físico, Callejero de memoria, Ahorros, Coche a estrenar, Agenda de contactos y Veterano. También, coches de distintas gamas que se desbloquean aquí.
+- **Mejoras del personaje** (paso 3, hecho): no cuestan euros sino puntos de prestigio; entre todas, **100 puntos** (unos 12–13 reinicios). En la hoja del personaje, por grupos, con lo que tienes, lo siguiente y su coste (de momento solo se miran: se consiguen al reiniciar).
+
+| Mejora | Puntos por nivel | Efecto | Pide |
+| --- | --- | --- | --- |
+| Racha | 3 | La racha (+1 % por carrera encadenada, hasta +10 %) | — |
+| Racha larga (3 niveles) | 2 / 4 / 6 | Tope de la racha: +15, +20 y +25 % | Racha |
+| Reflejos de taxista (2) | 3 / 5 | 0,15 y 0,3 s más para encadenar | Racha |
+| Incógnito al volante | 2 | Conducir en tu libranza, con el riesgo del pesetas (antes, 400 € en el árbol; quien la compró la conserva) | — |
+| Fondo físico (5) | 2 / 4 / 6 / 8 / 10 | Te cansas un 15, 30, 50 y 75 % menos; en el V, **Incansable**: nunca descansas | — |
+| Callejero de memoria (2) | 3 / 5 | Tu espera, un 10 y un 20 % más corta | — |
+| Ahorros (3) | 1 / 3 / 5 | Cada partida empieza con 1.000, 3.000 y 6.000 € más | — |
+| Coche a estrenar | 1 | Tu primer coche, a 0 km | — |
+| Agenda de contactos | 4 | Los primeros candidatos de cada partida, de categoría A o mejor | — |
+| Veterano (2) | 4 / 6 | Un 25 y un 50 % más de experiencia | — |
+| Tesla Model 3 | 5 | Desbloquea la gama (idea 23; aún sin coche) | — |
+| Mercedes Clase S | 8 | Desbloquea la gama más alta (aún sin coche) | Tesla |
+
+- **Por hacer:** cada nivel da **1 punto de prestigio**; desde el **nivel 3** se puede **reiniciar**: antes te ofrece las mejoras del personaje para gastar los puntos, se pierde todo lo de la partida y el nivel vuelve a 0, y solo quedan esas mejoras. Las mejoras no tienen precio en euros sino en puntos, algunas más caras que otras para que tenerlas todas pida unos 10 reinicios: Racha (deja de estar para todos), Racha larga, Reflejos de taxista, Incógnito para ti (sale del árbol; quien la compró la conserva), Fondo físico, Callejero de memoria, Ahorros, Coche a estrenar, Agenda de contactos y Veterano. También, coches de distintas gamas que se desbloquean aquí.
 
 ### Alcance de la versión actual
 

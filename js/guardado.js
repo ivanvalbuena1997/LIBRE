@@ -257,6 +257,20 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 33 → 34: mejoras de tu personaje (Iván, 24-11-2026). «Incógnito al
+    // volante» sale del árbol: quien la compró la conserva como mejora del
+    // personaje, gratis. La racha deja de estar para todos.
+    33: function (estado) {
+      const p = estado.personaje = estado.personaje || { xp: 0 };
+      if (typeof p.puntos !== 'number') p.puntos = 0;
+      if (!p.mejoras) p.mejoras = {};
+      if (estado.mejoras && estado.mejoras.incognitoTu) p.mejoras.incognitoTu = 1;
+      if (estado.mejoras) delete estado.mejoras.incognitoTu;
+      if (estado.ganadoMejoras) delete estado.ganadoMejoras.incognitoTu;
+      if (Array.isArray(estado.mejorasAntesDeCuenta)) {
+        estado.mejorasAntesDeCuenta = estado.mejorasAntesDeCuenta.filter(function (id) { return id !== 'incognitoTu'; });
+      }
+    },
     // 32 → 33: tu personaje (Iván, 24-11-2026): experiencia de la partida.
     // Empieza a contar ahora.
     32: function (estado) {

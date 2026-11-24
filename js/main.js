@@ -86,6 +86,20 @@
     return r.mensaje;
   };
 
+  /*
+   * Para probar desde la consola, hasta que llegue el reinicio: pone una
+   * mejora de tu personaje en un nivel (sin gastar puntos).
+   *   Libre.darMejoraPersonaje('racha')      Libre.darMejoraPersonaje('fondoFisico', 5)
+   */
+  Libre.darMejoraPersonaje = function (id, nivel) {
+    const m = Libre.config.personaje.mejoras.find(function (x) { return x.id === id; });
+    if (!m) return 'No existe: ' + Libre.config.personaje.mejoras.map(function (x) { return x.id; }).join(', ');
+    estado.personaje.mejoras[id] = Math.max(0, Math.min(m.niveles.length, nivel === undefined ? 1 : nivel));
+    guardar();
+    ui.dibujar(estado);
+    return m.nombre + ': nivel ' + estado.personaje.mejoras[id];
+  };
+
   Libre.forzarEvento = function (tipo, arg) {
     const r = sim.forzarEvento(estado, tipo, arg);
     if (r.eventos.length > 0) ui.mostrarEventos(r.eventos);

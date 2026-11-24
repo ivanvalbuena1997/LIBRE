@@ -497,6 +497,10 @@
         {
           "n": 108,
           "texto": "Botón nuevo en la cabecera, junto al engranaje: tu personaje, con tu nivel en una insignia. Al tocarlo ves tu nivel, la barra de experiencia con lo que falta para el siguiente y cómo se gana. Las gamas de coche (Tesla Model 3 y Mercedes Clase S) quedan anotadas para cuando lleguen las mejoras del personaje."
+        },
+        {
+          "n": 109,
+          "texto": "Las mejoras de tu personaje ya existen y salen en su hoja: Racha, Racha larga, Reflejos de taxista, Incógnito al volante, Fondo físico (en el nivel V, Incansable), Callejero de memoria, Ahorros, Coche a estrenar, Agenda de contactos, Veterano y las gamas Tesla y Mercedes. Cuestan puntos de prestigio, no euros, y se conseguirán al reiniciar (próxima actualización). La racha deja de estar para todos e Incógnito al volante sale del árbol de mejoras: si la habías comprado, la conservas."
         }
       ]
     }

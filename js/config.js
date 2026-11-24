@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 33,
+    versionGuardado: 34,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -406,10 +406,9 @@
      * Racha (idea 21, Iván 23-11-2026): cada carrera tuya que encadenas
      * (buscas la siguiente a tiempo tras cobrar: ver reaccion)
      * cobra porCarrera más, hasta maximo. Se corta al despistarte, al
-     * descansar, al acabar el turno o si te pilla el pesetas. disponible:
-     * de momento la tiene todo el mundo, para probarla; Iván decidirá luego
-     * cómo se consigue (mejora o reinicio). Las mejoras y objetos de tu
-     * personaje la subirán (rachaMaximo, rachaReaccion en modificadores()).
+     * descansar, al acabar el turno o si te pilla el pesetas. Desde el
+     * 24-11-2026 es una mejora de tu personaje (personaje.mejoras: Racha,
+     * Racha larga y Reflejos de taxista).
      */
     // reaccion (Iván, 23-11-2026: con 1 s fijo no la perdía nunca): la
     // ventana para encadenar se estrecha con la racha, de inicial (racha 0)
@@ -426,9 +425,85 @@
     personaje: {
       experiencia: { tuCarrera: 4, carreraConductor: 1, legendarioVendido: 1 },
       niveles: { base: 1000, factor: 1.6 },
-      nivelPrestigio: 3
+      nivelPrestigio: 3,
+      /*
+       * Mejoras de tu personaje (Iván, 24-11-2026): no se compran con euros
+       * sino con puntos de prestigio (uno por nivel), al reiniciar, y son lo
+       * único que se conserva. Cada nivel lleva su coste y su efecto total.
+       * Equilibrio: entre todas, 100 puntos (unos 12–13 reinicios).
+       *   grupo     'volante' (tu turno), 'arranque' (cada partida nueva) o
+       *             'gamas' (coches que se pueden comprar; sin efecto todavía)
+       *   requiere  otra mejora del personaje (basta su nivel 1)
+       *   efecto    racha / incognitoTu: sí o no
+       *             rachaMaximo, rachaReaccion (s), dineroInicial (€): se suman
+       *             cansancio, espera, experiencia: multiplican (solo tú)
+       *             cocheNuevo: tu primer coche, a 0 km
+       *             candidatosMinimo: categoría mínima de los primeros candidatos
+       *             gama: coche que desbloquea (idea 23)
+       */
+      mejoras: [
+        { id: 'racha', nombre: 'Racha', grupo: 'volante',
+          descripcion: 'Encadena carreras sin despistarte y cada una cobra un 1 % más, hasta un 10 %.',
+          niveles: [{ coste: 3, efecto: { racha: true } }] },
+        { id: 'rachaLarga', nombre: 'Racha larga', grupo: 'volante', requiere: 'racha',
+          descripcion: 'Sube el tope de la racha.',
+          niveles: [
+            { coste: 2, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 } },
+            { coste: 4, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 } },
+            { coste: 6, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 } }
+          ] },
+        { id: 'reflejos', nombre: 'Reflejos de taxista', grupo: 'volante', requiere: 'racha',
+          descripcion: 'Más tiempo para encadenar la siguiente carrera.',
+          niveles: [
+            { coste: 3, descripcion: '0,15 s más.', efecto: { rachaReaccion: 0.15 } },
+            { coste: 5, descripcion: '0,3 s más.', efecto: { rachaReaccion: 0.3 } }
+          ] },
+        { id: 'incognitoTu', nombre: 'Incógnito al volante', grupo: 'volante',
+          descripcion: 'Puedes conducir también los días que libra tu licencia. Ojo con los pesetas: si uno te está mirando y cargas, 2.000 € de multa.',
+          niveles: [{ coste: 2, efecto: { incognitoTu: true } }] },
+        { id: 'fondoFisico', nombre: 'Fondo físico', grupo: 'volante',
+          descripcion: 'Te cansas menos.',
+          niveles: [
+            { coste: 2, descripcion: 'Un 15 % menos.', efecto: { cansancio: 0.85 } },
+            { coste: 4, descripcion: 'Un 30 % menos.', efecto: { cansancio: 0.7 } },
+            { coste: 6, descripcion: 'Un 50 % menos.', efecto: { cansancio: 0.5 } },
+            { coste: 8, descripcion: 'Un 75 % menos.', efecto: { cansancio: 0.25 } },
+            { coste: 10, descripcion: 'Incansable: nunca necesitas descansar.', efecto: { cansancio: 0 } }
+          ] },
+        { id: 'callejero', nombre: 'Callejero de memoria', grupo: 'volante',
+          descripcion: 'Encuentras cliente antes.',
+          niveles: [
+            { coste: 3, descripcion: 'Un 10 % antes.', efecto: { espera: 0.9 } },
+            { coste: 5, descripcion: 'Un 20 % antes.', efecto: { espera: 0.8 } }
+          ] },
+        { id: 'ahorros', nombre: 'Ahorros', grupo: 'arranque',
+          descripcion: 'Empiezas cada partida con dinero de más.',
+          niveles: [
+            { coste: 1, descripcion: '1.000 € más.', efecto: { dineroInicial: 1000 } },
+            { coste: 3, descripcion: '3.000 € más.', efecto: { dineroInicial: 3000 } },
+            { coste: 5, descripcion: '6.000 € más.', efecto: { dineroInicial: 6000 } }
+          ] },
+        { id: 'cocheNuevo', nombre: 'Coche a estrenar', grupo: 'arranque',
+          descripcion: 'Tu primer coche sale de fábrica, a 0 km, en vez de usado.',
+          niveles: [{ coste: 1, efecto: { cocheNuevo: true } }] },
+        { id: 'agenda', nombre: 'Agenda de contactos', grupo: 'arranque',
+          descripcion: 'Los primeros candidatos de cada partida son como mínimo de categoría A.',
+          niveles: [{ coste: 4, efecto: { candidatosMinimo: 'A' } }] },
+        { id: 'veterano', nombre: 'Veterano', grupo: 'arranque',
+          descripcion: 'Ganas más experiencia y llegas antes al siguiente reinicio.',
+          niveles: [
+            { coste: 4, descripcion: 'Un 25 % más.', efecto: { experiencia: 1.25 } },
+            { coste: 6, descripcion: 'Un 50 % más.', efecto: { experiencia: 1.5 } }
+          ] },
+        { id: 'tesla', nombre: 'Tesla Model 3', grupo: 'gamas',
+          descripcion: 'Eléctrico: podrás comprarlo para tus licencias. Llegará con las gamas de coche.',
+          niveles: [{ coste: 5, efecto: { gama: 'tesla' } }] },
+        { id: 'mercedes', nombre: 'Mercedes Clase S', grupo: 'gamas', requiere: 'tesla',
+          descripcion: 'La gama más alta: podrás comprarlo para tus licencias. Llegará con las gamas de coche.',
+          niveles: [{ coste: 8, efecto: { gama: 'mercedes' } }] }
+      ]
     },
-    racha: { disponible: true, porCarrera: 0.01, maximo: 0.10, reaccion: { inicial: 1, final: 0.5 } },
+    racha: { porCarrera: 0.01, maximo: 0.10, reaccion: { inicial: 1, final: 0.5 } },
 
     cansancio: {
       maximo: 100,
@@ -1061,16 +1136,10 @@
           { precio: 7000, descripcion: 'Un 90 % más barata.', efecto: { tasaSociedad: 0.1 } }
         ]
       },
-      // ---- Rama: Conductores y jornada
+      // ---- Rama: Conductores y jornada (Incógnito al volante pasó a las
+      // mejoras de tu personaje el 24-11-2026: personaje.mejoras).
       {
-        // Iván, 20-11-2026: tu modo incógnito, una mejora del principio (tu
-        // turno rinde menos que el de un conductor). Riesgo: eventos.pesetas.tu.
-        id: 'incognitoTu', nombre: 'Incógnito al volante', rama: 'jornada', precio: 400,
-        descripcion: 'Puedes conducir también los días que libra tu licencia. Ojo con los pesetas: si uno te está mirando y cargas, 2.000 € de multa.',
-        efecto: { incognitoTu: true }
-      },
-      {
-        id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada', requiere: 'incognitoTu',
+        id: 'esterillas', nombre: 'Sacudir esterillas', rama: 'jornada',
         descripcion: 'Al acabar su turno, cada conductor sacude las esterillas y encuentra unas monedas.',
         niveles: [
           { precio: 450, descripcion: 'De 0,50 a 2 € por turno.', efecto: { monedasMin: 0.5, monedasMax: 2 } },

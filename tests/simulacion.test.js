@@ -1703,6 +1703,7 @@ prueba('racha: encadenar carreras sube el importe un 1 % cada una, hasta +10 %, 
   const r = config.racha;
   const e = sim.crearEstadoInicial(0);
   e.azar = 99;
+  e.personaje.mejoras.racha = 1;   // la racha es una mejora de tu personaje
   e.reloj.minutos = 8 * 60;
   const segundo = sim.MIN_DIA / sim.segundosPorDia(e);   // minutos de juego por segundo real
   function hacerCarrera(esperaTrasCobrar) {
@@ -2203,12 +2204,12 @@ prueba('tu incógnito: conduces en la libranza y el pesetas te multa solo si car
     };
     const e = preparar();
     assert.ok(/libra tu licencia/.test(sim.buscarCliente(e, azarFijo(0.5)).mensaje), 'sin la mejora, libras');
-    e.mejoras.incognitoTu = 1;
+    e.personaje.mejoras.incognitoTu = 1;
     assert.ok(sim.buscarCliente(e, azarFijo(0.5)).ok, 'con «Incógnito al volante» conduces');
     assert.ok(!sim.puedeSaltarDia(e), 'ya no es día de saltar al cierre');
     // Aparece el pesetas: te vigila, no te multa todavía.
     const f = preparar();
-    f.mejoras.incognitoTu = 1;
+    f.personaje.mejoras.incognitoTu = 1;
     const t = sim.ubicacionJugador(f).datos;
     t.pendiente = { tipo: 'pesetas', minuto: f.reloj.minutos };
     const r = sim.avanzar(f, 0.01);
@@ -2230,7 +2231,7 @@ prueba('tu incógnito: conduces en la libranza y el pesetas te multa solo si car
     assert.strictEqual(f.caja.hoy.incidencias.pesetas.importe, -tu.multa);
     // Si esperas a que se vaya, no pasa nada.
     const g = preparar();
-    g.mejoras.incognitoTu = 1;
+    g.personaje.mejoras.incognitoTu = 1;
     sim.ubicacionJugador(g).datos.pendiente = { tipo: 'pesetas', minuto: g.reloj.minutos };
     sim.avanzar(g, 0.01);
     sim.avanzar(g, sim.segundosVigilancia(g) + 0.5);
@@ -2295,7 +2296,7 @@ prueba('personaje: la experiencia sale de tus carreras (4), las de tus conductor
   assert.strictEqual(sim.experienciaParaNivel(2), Math.round(p.niveles.base * (1 + p.niveles.factor)));
   const e = sim.crearEstadoInicial(0);
   e.azar = 20261124;
-  assert.deepStrictEqual(e.personaje, { xp: 0 });
+  assert.deepStrictEqual(e.personaje, { xp: 0, puntos: 0, mejoras: {} });
   assert.strictEqual(sim.nivelPersonaje(e).nivel, 0);
   // Una carrera tuya.
   e.reloj.minutos = 8 * 60;
@@ -2322,7 +2323,7 @@ prueba('personaje: la experiencia sale de tus carreras (4), las de tus conductor
   const viejo = JSON.parse(JSON.stringify(sim.crearEstadoInicial(0)));
   viejo.version = 32;
   delete viejo.personaje;
-  assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).personaje, { xp: 0 });
+  assert.strictEqual(globalThis.Libre.guardado.migrar(viejo).personaje.xp, 0);
 });
 
 prueba('personaje: cada carrera terminada de un conductor da su punto de experiencia', function () {
@@ -2343,6 +2344,93 @@ prueba('personaje: cada carrera terminada de un conductor da su punto de experie
   config.licencias.libranza = libranza;
 });
 
+
+prueba('personaje: mejoras por puntos (100 en total), requisitos y efectos', function () {
+  require('../js/guardado.js');
+  const lista = config.personaje.mejoras;
+  const total = lista.reduce(function (s, m) { return s + m.niveles.reduce(function (a, n) { return a + n.coste; }, 0); }, 0);
+  assert.strictEqual(total, 100, 'entre todas, 100 puntos');
+  const e = sim.crearEstadoInicial(0);
+  // Sin mejoras, ni racha ni incógnito.
+  const m0 = sim.modificadoresPersonaje(e);
+  assert.strictEqual(m0.racha, false);
+  assert.strictEqual(m0.incognitoTu, false);
+  assert.strictEqual(sim.rachaActual(e).maximo, 10);
+  // Requisitos y costes.
+  assert.ok(/Racha/.test(sim.faltaParaMejoraPersonaje(e, 'rachaLarga')));
+  assert.strictEqual(sim.costeMejoraPersonaje(e, 'racha'), 3);
+  e.personaje.mejoras.racha = 1;
+  assert.strictEqual(sim.faltaParaMejoraPersonaje(e, 'rachaLarga'), '');
+  assert.ok(/máximo/.test(sim.faltaParaMejoraPersonaje(e, 'racha')));
+  assert.strictEqual(sim.costeMejoraPersonaje(e, 'racha'), null);
+  assert.strictEqual(sim.costeMejoraPersonaje(e, 'fondoFisico'), 2);
+  // Racha larga III: tope +25 %; Reflejos II: +0,3 s de ventana.
+  const antes = sim.segundosVentana(e, 0);
+  e.personaje.mejoras.rachaLarga = 3;
+  e.personaje.mejoras.reflejos = 2;
+  assert.strictEqual(sim.rachaActual(e).maximo, 25);
+  cerca(sim.segundosVentana(e, 0), antes + 0.3, 1e-9);
+  // Callejero II: tu espera, un 20 % menos; Veterano I: +25 % de experiencia.
+  e.personaje.mejoras.callejero = 2;
+  e.personaje.mejoras.veterano = 1;
+  const m = sim.modificadoresPersonaje(e);
+  cerca(m.espera, 0.8, 1e-9);
+  const xp = e.personaje.xp;
+  sim.ganarExperienciaPersonaje(e, null, 4);
+  cerca(e.personaje.xp - xp, 5, 1e-9);
+  // Gamas: Mercedes pide Tesla.
+  assert.ok(/Tesla/.test(sim.faltaParaMejoraPersonaje(e, 'mercedes')));
+  e.personaje.mejoras.tesla = 1;
+  assert.deepStrictEqual(sim.modificadoresPersonaje(e).gamas, ['tesla']);
+});
+
+prueba('personaje: con Callejero buscas antes y con Fondo físico V (Incansable) nunca descansas', function () {
+  function partida(mejoras) {
+    const e = sim.crearEstadoInicial(0);
+    e.azar = 5;
+    e.reloj.minutos = 8 * 60;
+    Object.assign(e.personaje.mejoras, mejoras);
+    return e;
+  }
+  const a = partida({}), b = partida({ callejero: 2 });
+  sim.buscarCliente(a, azarFijo(0.5));
+  sim.buscarCliente(b, azarFijo(0.5));
+  const ea = a.jugador.carrera.finEspera - a.jugador.carrera.inicio;
+  const eb = b.jugador.carrera.finEspera - b.jugador.carrera.inicio;
+  cerca(eb / ea, 0.8, 1e-9);
+  // Incansable: un turno entero de carreras sin parar a descansar.
+  const e = partida({ fondoFisico: 5 });
+  for (let i = 0; i < 4000 && e.reloj.minutos < 18 * 60; i++) {
+    if (!e.jugador.carrera) sim.buscarCliente(e, azarFijo(0.5));
+    sim.avanzar(e, 0.25);
+    assert.notStrictEqual(e.jugador.motivoParada, 'descanso', 'Incansable no descansa');
+  }
+  assert.strictEqual(sim.energia(e, e.jugador), config.cansancio.maximo);
+});
+
+prueba('personaje: las mejoras de arranque dan dinero, coche a 0 km y candidatos de categoría A o mejor', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 11;
+  const dinero = e.dinero;
+  e.personaje.mejoras = { ahorros: 3, cocheNuevo: 1, agenda: 1 };
+  sim.aplicarArranque(e);
+  assert.strictEqual(e.dinero, dinero + 6000);
+  assert.strictEqual(e.licencias[0].km, 0);
+  assert.ok(e.candidatos.length > 0);
+  e.candidatos.forEach(function (x) { assert.notStrictEqual(x.categoria, 'B', 'sin candidatos B'); });
+});
+
+prueba('personaje: «Incógnito al volante» sale del árbol y quien la compró la conserva (versión 34)', function () {
+  require('../js/guardado.js');
+  assert.ok(!config.mejoras.some(function (m) { return m.id === 'incognitoTu'; }), 'ya no está en el árbol');
+  const viejo = JSON.parse(JSON.stringify(sim.crearEstadoInicial(0)));
+  viejo.version = 33;
+  viejo.personaje = { xp: 1234 };
+  viejo.mejoras.incognitoTu = 1;
+  const m = globalThis.Libre.guardado.migrar(viejo);
+  assert.strictEqual(m.mejoras.incognitoTu, undefined);
+  assert.deepStrictEqual(m.personaje, { xp: 1234, puntos: 0, mejoras: { incognitoTu: 1 } });
+});
 
 console.log(pasadas + ' pruebas correctas');
 

@@ -422,7 +422,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   estadísticas). Pesetas (`eventos.pesetas`, 2 % y 2.000 €): pendiente
   'pesetas' al empezar el turno; multa (incidencia 'pesetas') y parado el
   resto del turno (`motivoParada` 'pesetas'). En «Tus taxis hoy», chip morado «Incógnito».
-  Tu incógnito (mejora `incognitoTu`, la primera de la rama; versión 28):
+  Tu incógnito (`incognitoTu`; versión 28; desde el 24-11-2026, mejora de
+  tu personaje, versión 34):
   `trabajaIncognito()` también vale para tu turno, así que `buscarCliente()`
   te deja conducir en la libranza y `puedeSaltarDia()` no salta. El pesetas
   contigo (`eventos.pesetas.tu`) es interactivo: un pendiente 'pesetas' en
@@ -611,7 +612,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   de juego) o la corta si toca descansar; el pesetas la corta. Al cambiar
   de turno (`claveTurnoCansancio`) se pierde sola. Para mejoras y objetos
   del personaje: `rachaMaximo` y `rachaReaccion` en `modificadores()`.
-  `racha.disponible` (hoy true) dirá si la tienes. En el taxímetro, delante
+  Desde el 24-11-2026 la da la mejora del personaje `racha`
+  (`modificadoresPersonaje().racha`); `rachaLarga` y `reflejos` suman a
+  `rachaMaximo` y `rachaReaccion`. En el taxímetro, delante
   de la etiqueta: «RACHA ×1,04 · …» (`rachaActual()`, que da también `nivel`, n / tope,
   y `ventana`, lo que queda de 1 a 0). Recreativa: `.taximetro.racha-viva`
   con `--racha` (brillo de marco y cifras, `--racha-brillo`), `#racha-luces`
@@ -630,8 +633,19 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   del engranaje, insignia `#nivel-personaje` al día en `dibujar()`) que abre
   `seccionPersonaje` (`personajeAbierto`, vista 'siempre'; se cierra con ×,
   el fondo o Escape; barra y cifra al día en `actualizar`). La marca de la
-  cabecera deja 124 px a la derecha para los dos botones. Por pasos: 3, mejoras del
-  personaje por puntos (Racha e Incógnito para ti pasan ahí); 4, prestigio
+  cabecera deja 124 px a la derecha para los dos botones. Mejoras del
+  personaje (paso 3; versión 34): `config.personaje.mejoras` (grupo,
+  requiere y `niveles` con `coste` en puntos y efecto total; 100 puntos
+  entre todas, hay una prueba) y `estado.personaje = { xp, puntos,
+  mejoras: { id: nivel } }`. `modificadoresPersonaje()` las suma (racha,
+  incognitoTu, rachaMaximo, rachaReaccion, cansancio y espera solo tuyos en
+  `factoresCansancio()` y `buscarCliente()`, experiencia, y las de arranque:
+  dineroInicial, cocheNuevo, candidatosMinimo, que aplica
+  `aplicarArranque()`; gamas, sin efecto aún). `faltaParaMejoraPersonaje()`
+  y `costeMejoraPersonaje()`. En la hoja, `htmlMejorasPersonaje()` (solo
+  lectura). `sortearCategoria()` reparte sobre el total de los pesos (con
+  `sortearCandidatos(estado, minimo)` no suman 1). Para probar:
+  `Libre.darMejoraPersonaje('racha')` en la consola. Por pasos: 4, prestigio
   desde `nivelPrestigio` (3): elegir mejoras, reiniciar (el nivel vuelve a
   0) y migrar.
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no

@@ -69,8 +69,9 @@
       // Tu turno siempre es a clic. zona recuerda dónde trabajabas para cuando
       // vuelvas a conducir tras dejarlo.
       jugador: { carrera: null, ultimaCarrera: null, zona: c.zonaInicial, vigilancia: null },
-      // Tu personaje: experiencia de esta partida (el nivel sale de ella).
-      personaje: { xp: 0 },
+      // Tu personaje: experiencia de esta partida (el nivel sale de ella),
+      // puntos de prestigio sin gastar y sus mejoras (nivel de cada una).
+      personaje: { xp: 0, puntos: 0, mejoras: {} },
       conductoresContratados: 0,
       mejoras: {},
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
@@ -285,7 +286,7 @@
   function modificadores(estado, zonaId) {
     const m = {
       segundosDia: 0, consumo: 1, busqueda: 1, cola: 1, demanda: 1, seguro: 1,
-      cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false, incognitoTu: false,
+      cuotaEmisora: false, dejarVolante: false, gestionZonas: false, incognito: false,
       propinaProb: 0, propinaImporte: 1, averiaDias: 1, averiaCoste: 1,
       monedasMin: 0, monedasMax: 0, almacen: 0, baja: 1, pinchazo: 1, porcentajeConductor: 1,
       pesosCandidatos: null, publicidad: 0, pinchazoHoras: 0, pinchazoCoste: 1, precioCoche: 1, tasaSociedad: 1, rebuscar: false, cansancio: 1, descanso: 1, rachaMaximo: 0, rachaReaccion: 0
@@ -304,7 +305,6 @@
       if (e.cuotaEmisora) m.cuotaEmisora = true;
       if (e.dejarVolante) m.dejarVolante = true;
       if (e.incognito) m.incognito = true;
-      if (e.incognitoTu) m.incognitoTu = true;
       if (e.propinaProb) m.propinaProb += e.propinaProb;
       if (e.propinaImporte) m.propinaImporte *= e.propinaImporte;
       if (e.averiaDias) m.averiaDias *= e.averiaDias;
@@ -1278,14 +1278,20 @@
       Libre.ui_euros(precioRebuscar(estado)) + '.');
   }
 
-  function sortearCandidatos(estado) {
+  function sortearCandidatos(estado, minimo) {
     const c = cfg().conductores;
+    // Con una categoría mínima (Agenda de contactos), las de debajo no salen.
+    const pesos = pesosCandidatos(estado);
+    if (minimo) {
+      const orden = cfg().categorias.map(function (x) { return x.id; });
+      orden.slice(0, orden.indexOf(minimo)).forEach(function (id) { pesos[id] = 0; });
+    }
     const apartados = {}, cualidades = {};
     estado.candidatos = [];
     for (let i = 0; i < c.candidatos; i++) {
       const retrato = sortearPersonaje(estado, apartados);
       apartados[retrato] = true;
-      const categoria = sortearCategoria(estado, pesosCandidatos(estado));
+      const categoria = sortearCategoria(estado, pesos);
       const r = sortearRasgos(estado, cualidades, categoria);
       cualidades[r.cualidad] = true;
       estado.candidatos.push({
@@ -1399,14 +1405,73 @@
   /* Suma experiencia a tu personaje; avisa (evento 'nivelPersonaje') al subir. Devuelve el texto del aviso o ''. */
   function ganarExperienciaPersonaje(estado, resumen, puntos) {
     if (!(puntos > 0)) return '';
-    if (!estado.personaje) estado.personaje = { xp: 0 };
+    if (!estado.personaje) estado.personaje = { xp: 0, puntos: 0, mejoras: {} };
     const antes = nivelPersonaje(estado).nivel;
-    estado.personaje.xp += puntos;
+    estado.personaje.xp += puntos * modificadoresPersonaje(estado).experiencia;
     const despues = nivelPersonaje(estado).nivel;
     if (despues <= antes) return '';
     const texto = '¡Subes a nivel ' + despues + ' de taxista!';
     if (resumen) resumen.eventos.push({ tipo: 'nivelPersonaje', nivel: despues, texto });
     return texto;
+  }
+
+  /*
+   * Mejoras de tu personaje (Iván, 24-11-2026): estado.personaje.mejoras
+   * = { id: nivel }. Cada nivel de la config lleva su efecto total.
+   */
+  function buscarMejoraPersonaje(id) {
+    return cfg().personaje.mejoras.find(function (m) { return m.id === id; }) || null;
+  }
+  function nivelMejoraPersonaje(estado, id) {
+    return (estado.personaje && estado.personaje.mejoras && estado.personaje.mejoras[id]) || 0;
+  }
+  /* Lo que suman tus mejoras del personaje (ver config.personaje.mejoras). */
+  function modificadoresPersonaje(estado) {
+    const m = {
+      racha: false, incognitoTu: false, cocheNuevo: false, candidatosMinimo: null,
+      rachaMaximo: 0, rachaReaccion: 0, dineroInicial: 0,
+      cansancio: 1, espera: 1, experiencia: 1, gamas: []
+    };
+    cfg().personaje.mejoras.forEach(function (mej) {
+      const n = nivelMejoraPersonaje(estado, mej.id);
+      if (!n) return;
+      const e = mej.niveles[Math.min(n, mej.niveles.length) - 1].efecto;
+      Object.keys(e).forEach(function (k) {
+        if (k === 'gama') m.gamas.push(e.gama);
+        else if (typeof e[k] === 'boolean' || typeof e[k] === 'string') m[k] = e[k];
+        else if (k === 'rachaMaximo' || k === 'rachaReaccion' || k === 'dineroInicial') m[k] += e[k];
+        else m[k] *= e[k];
+      });
+    });
+    return m;
+  }
+  /*
+   * Solo lectura: lo que falta para poder tener el siguiente nivel de una
+   * mejora del personaje ('' si nada): su requisito o que ya está al máximo.
+   */
+  function faltaParaMejoraPersonaje(estado, id) {
+    const mej = buscarMejoraPersonaje(id);
+    if (!mej) return 'Esa mejora no existe.';
+    if (nivelMejoraPersonaje(estado, id) >= mej.niveles.length) return 'Ya la tienes al máximo.';
+    if (mej.requiere && !nivelMejoraPersonaje(estado, mej.requiere)) return 'Antes necesitas ' + buscarMejoraPersonaje(mej.requiere).nombre + '.';
+    return '';
+  }
+  /* Coste del siguiente nivel de una mejora del personaje (null si ya está al máximo). */
+  function costeMejoraPersonaje(estado, id) {
+    const mej = buscarMejoraPersonaje(id);
+    const sig = mej && mej.niveles[nivelMejoraPersonaje(estado, id)];
+    return sig ? sig.coste : null;
+  }
+  /*
+   * Lo de las mejoras «de arranque» en una partida recién creada: dinero de
+   * más, el primer coche a 0 km y los primeros candidatos de categoría
+   * mínima. Lo llamará el reinicio (prestigio) tras crear la partida nueva.
+   */
+  function aplicarArranque(estado) {
+    const m = modificadoresPersonaje(estado);
+    estado.dinero += m.dineroInicial;
+    if (m.cocheNuevo) estado.licencias[0].km = 0;
+    if (m.candidatosMinimo) sortearCandidatos(estado, m.candidatosMinimo);
   }
 
   /*
@@ -1454,13 +1519,15 @@
    */
   function sortearCategoria(estado, pesos) {
     const lista = cfg().categorias;
-    let r = azar(estado);
+    const peso = function (c) { return pesos && pesos[c.id] !== undefined ? pesos[c.id] : c.peso; };
+    // Sobre el total (con una categoría mínima, los pesos ya no suman 1).
+    const total = lista.reduce(function (s, c) { return s + peso(c); }, 0);
+    let r = azar(estado) * total;
     for (const c of lista) {
-      const p = pesos && pesos[c.id] !== undefined ? pesos[c.id] : c.peso;
-      if (r < p) return c.id;
-      r -= p;
+      if (r < peso(c)) return c.id;
+      r -= peso(c);
     }
-    return lista[0].id;
+    return lista.filter(function (c) { return peso(c) > 0; }).pop().id;
   }
 
   /* Probabilidad de cada categoría en los candidatos: { id: peso }. */
@@ -2184,7 +2251,8 @@
     // Con mucha demanda esperas lo normal; con poca, hasta que aparece alguien.
     const porCoche = Math.min(demanda, 60 / minutosPorCarrera(estado, turno.zona, info.tarifa));
     const lic = buscarLicencia(estado, ubicacionJugador(estado).licenciaId);
-    estado.jugador.carrera = planearCarrera(estado, turno.zona, lic.vehiculo, porCoche, rnd, 'media');
+    estado.jugador.carrera = planearCarrera(estado, turno.zona, lic.vehiculo, porCoche, rnd, 'media',
+      modificadoresPersonaje(estado).espera);
     // Racha: si encadenas, esta carrera cobra un poco más.
     const r = encadenarRacha(estado);
     estado.jugador.carrera.importe *= 1 + r.bono;
@@ -2196,19 +2264,19 @@
    * Racha (idea 21, Iván 23-11-2026). estado.jugador.racha = { n, turno,
    * hasta }: n carreras encadenadas, el turno (claveTurnoCansancio) y hasta
    * qué minuto de juego puedes buscar la siguiente sin cortarla (null
-   * mientras llevas cliente). Sin la racha disponible, siempre 0.
+   * mientras llevas cliente). Sin la mejora Racha de tu personaje, siempre 0.
    */
   function topeRacha(estado) {
     const r = cfg().racha;
-    return Math.round((r.maximo + modificadores(estado).rachaMaximo) / r.porCarrera);
+    return Math.round((r.maximo + modificadores(estado).rachaMaximo + modificadoresPersonaje(estado).rachaMaximo) / r.porCarrera);
   }
   function rachaViva(estado) {
     const r = estado.jugador.racha;
-    if (!cfg().racha.disponible || !r || r.turno !== claveTurnoCansancio(estado.reloj.minutos)) return false;
+    if (!modificadoresPersonaje(estado).racha || !r || r.turno !== claveTurnoCansancio(estado.reloj.minutos)) return false;
     return r.hasta === null || estado.reloj.minutos <= r.hasta;
   }
   function encadenarRacha(estado) {
-    if (!cfg().racha.disponible) return { n: 0, bono: 0 };
+    if (!modificadoresPersonaje(estado).racha) return { n: 0, bono: 0 };
     const antes = rachaViva(estado) ? estado.jugador.racha.n : -1;
     const n = Math.min(antes + 1, topeRacha(estado));
     estado.jugador.racha = { n, turno: claveTurnoCansancio(estado.reloj.minutos), hasta: null };
@@ -2225,7 +2293,8 @@
   function segundosVentana(estado, n) {
     const re = cfg().racha.reaccion;
     const avance = Math.min(1, n / Math.max(1, topeRacha(estado)));
-    return re.inicial - (re.inicial - re.final) * avance + modificadores(estado).rachaReaccion;
+    return re.inicial - (re.inicial - re.final) * avance + modificadores(estado).rachaReaccion +
+      modificadoresPersonaje(estado).rachaReaccion;
   }
   function cortarRacha(estado) { estado.jugador.racha = null; }
   /*
@@ -2241,7 +2310,7 @@
     const ventana = viva && r.hasta !== null && r.hasta > r.desde
       ? Math.max(0, (r.hasta - estado.reloj.minutos) / (r.hasta - r.desde)) : null;
     return { n, bono: n * cfg().racha.porCarrera, maximo, nivel: maximo ? n / maximo : 0, ventana,
-      disponible: !!cfg().racha.disponible };
+      disponible: modificadoresPersonaje(estado).racha };
   }
 
   /*
@@ -2435,8 +2504,10 @@
   function factoresCansancio(estado, t) {
     const f = factoresConductor(estado, t);
     const m = modificadores(estado);
+    // Tú, además, con Fondo físico (mejora de tu personaje).
+    const tuyo = t === estado.jugador ? modificadoresPersonaje(estado).cansancio : 1;
     return {
-      cansancio: topeConductor('cansancio', f.cansancio, t) * m.cansancio,
+      cansancio: topeConductor('cansancio', f.cansancio, t) * m.cansancio * tuyo,
       descanso: topeConductor('descanso', f.descanso, t) * m.descanso
     };
   }
@@ -2648,7 +2719,7 @@
   function trabajaIncognito(estado, lic, turno, minutos) {
     if (!turno || !libra(estado, lic, minutos)) return false;
     // Tú, con «Incógnito al volante» (Iván, 20-11-2026).
-    if (turno.quien === 'jugador') return modificadores(estado).incognitoTu;
+    if (turno.quien === 'jugador') return modificadoresPersonaje(estado).incognitoTu;
     return turno.quien === 'conductor' && modificadores(estado).incognito &&
       nivelConductor(turno) >= cfg().conductores.niveles.experiencia.length;
   }
@@ -3249,6 +3320,11 @@
     cuentaDeMejora,
     energia,
     rachaActual,
+    modificadoresPersonaje,
+    nivelMejoraPersonaje,
+    faltaParaMejoraPersonaje,
+    costeMejoraPersonaje,
+    aplicarArranque,
     nivelPersonaje,
     experienciaParaNivel,
     ganarExperienciaPersonaje,
