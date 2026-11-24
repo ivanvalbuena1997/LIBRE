@@ -1464,11 +1464,14 @@
   }
   /*
    * Prestigio (Iván, 24-11-2026; paso 4). Puntos que puedes gastar al
-   * reiniciar: uno por nivel de esta partida más los que guardaste sin
-   * gastar en reinicios anteriores.
+   * reiniciar: los de esta partida (el nivel N da N × puntosPorNivel: en
+   * total, 1 + 2 + … + N) más los que guardaste sin gastar antes.
    */
+  function puntosDeNivel(nivel) {
+    return cfg().personaje.puntosPorNivel * nivel * (nivel + 1) / 2;
+  }
   function puntosPrestigio(estado) {
-    return nivelPersonaje(estado).nivel + ((estado.personaje && estado.personaje.puntos) || 0);
+    return puntosDeNivel(nivelPersonaje(estado).nivel) + ((estado.personaje && estado.personaje.puntos) || 0);
   }
   /* '' si puedes empezar de cero; si no, por qué. */
   function faltaParaReiniciar(estado) {
@@ -3388,6 +3391,7 @@
     costeMejoraPersonaje,
     aplicarArranque,
     puntosPrestigio,
+    puntosDeNivel,
     faltaParaReiniciar,
     probarComprasPersonaje,
     empezarDeCero,

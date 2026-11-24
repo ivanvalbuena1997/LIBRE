@@ -2591,7 +2591,7 @@
     return '<div class="pj-prestigio">' +
       '<p><strong>Puntos de prestigio: ' + puntos + '</strong>' +
       (guardados ? ' (' + textoPuntos(guardados) + ' guardados de antes)' : '') + '</p>' +
-      (falta ? '<p class="ayuda">' + esc(falta) + ' Cada nivel da un punto; al empezar de cero los gastas en mejoras de tu personaje, las únicas que se conservan.</p>'
+      (falta ? '<p class="ayuda">' + esc(falta) + ' Cada nivel da tantos puntos como su número (el 3, 3; el 4, 4…); al empezar de cero los gastas en mejoras de tu personaje, las únicas que se conservan.</p>'
         : '<p class="ayuda">Empieza una partida nueva y gasta los puntos en mejoras de tu personaje, las únicas que se conservan.</p>' +
           '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-pj-prestigio>Empezar de cero</button>') +
       '</div>';

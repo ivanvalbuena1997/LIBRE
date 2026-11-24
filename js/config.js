@@ -426,11 +426,17 @@
       experiencia: { tuCarrera: 4, carreraConductor: 1, legendarioVendido: 1 },
       niveles: { base: 1000, factor: 1.6 },
       nivelPrestigio: 3,
+      // Puntos de prestigio (Iván, 24-11-2026, tras medir con el bot): el
+      // nivel N da N × puntosPorNivel, así que una partida que llega al
+      // nivel N junta 1 + 2 + … + N. Con 1 punto por nivel lo que más
+      // rendía era reiniciar en cuanto se llegaba al 3.
+      puntosPorNivel: 1,
       /*
        * Mejoras de tu personaje (Iván, 24-11-2026): no se compran con euros
        * sino con puntos de prestigio (uno por nivel), al reiniciar, y son lo
        * único que se conserva. Cada nivel lleva su coste y su efecto total.
-       * Equilibrio: entre todas, 100 puntos (unos 12–13 reinicios).
+       * Equilibrio: entre todas, 300 puntos (costes ×3 el 24-11-2026, con los
+       * puntos crecientes por nivel; ver tests/prestigio.js).
        *   grupo     'volante' (tu turno), 'arranque' (cada partida nueva) o
        *             'gamas' (coches que se pueden comprar; sin efecto todavía)
        *   requiere  otra mejora del personaje (basta su nivel 1)
@@ -444,63 +450,63 @@
       mejoras: [
         { id: 'racha', nombre: 'Racha', grupo: 'volante',
           descripcion: 'Encadena carreras sin despistarte y cada una cobra un 1 % más, hasta un 10 %.',
-          niveles: [{ coste: 3, efecto: { racha: true } }] },
+          niveles: [{ coste: 9, efecto: { racha: true } }] },
         { id: 'rachaLarga', nombre: 'Racha larga', grupo: 'volante', requiere: 'racha',
           descripcion: 'Sube el tope de la racha.',
           niveles: [
-            { coste: 2, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 } },
-            { coste: 4, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 } },
-            { coste: 6, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 } }
+            { coste: 6, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 } },
+            { coste: 12, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 } },
+            { coste: 18, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 } }
           ] },
         { id: 'reflejos', nombre: 'Reflejos de taxista', grupo: 'volante', requiere: 'racha',
           descripcion: 'Más tiempo para encadenar la siguiente carrera.',
           niveles: [
-            { coste: 3, descripcion: '0,15 s más.', efecto: { rachaReaccion: 0.15 } },
-            { coste: 5, descripcion: '0,3 s más.', efecto: { rachaReaccion: 0.3 } }
+            { coste: 9, descripcion: '0,15 s más.', efecto: { rachaReaccion: 0.15 } },
+            { coste: 15, descripcion: '0,3 s más.', efecto: { rachaReaccion: 0.3 } }
           ] },
         { id: 'incognitoTu', nombre: 'Incógnito al volante', grupo: 'volante',
           descripcion: 'Puedes conducir también los días que libra tu licencia. Ojo con los pesetas: si uno te está mirando y cargas, 2.000 € de multa.',
-          niveles: [{ coste: 2, efecto: { incognitoTu: true } }] },
+          niveles: [{ coste: 6, efecto: { incognitoTu: true } }] },
         { id: 'fondoFisico', nombre: 'Fondo físico', grupo: 'volante',
           descripcion: 'Te cansas menos.',
           niveles: [
-            { coste: 2, descripcion: 'Un 15 % menos.', efecto: { cansancio: 0.85 } },
-            { coste: 4, descripcion: 'Un 30 % menos.', efecto: { cansancio: 0.7 } },
-            { coste: 6, descripcion: 'Un 50 % menos.', efecto: { cansancio: 0.5 } },
-            { coste: 8, descripcion: 'Un 75 % menos.', efecto: { cansancio: 0.25 } },
-            { coste: 10, descripcion: 'Incansable: nunca necesitas descansar.', efecto: { cansancio: 0 } }
+            { coste: 6, descripcion: 'Un 15 % menos.', efecto: { cansancio: 0.85 } },
+            { coste: 12, descripcion: 'Un 30 % menos.', efecto: { cansancio: 0.7 } },
+            { coste: 18, descripcion: 'Un 50 % menos.', efecto: { cansancio: 0.5 } },
+            { coste: 24, descripcion: 'Un 75 % menos.', efecto: { cansancio: 0.25 } },
+            { coste: 30, descripcion: 'Incansable: nunca necesitas descansar.', efecto: { cansancio: 0 } }
           ] },
         { id: 'callejero', nombre: 'Callejero de memoria', grupo: 'volante',
           descripcion: 'Encuentras cliente antes.',
           niveles: [
-            { coste: 3, descripcion: 'Un 10 % antes.', efecto: { espera: 0.9 } },
-            { coste: 5, descripcion: 'Un 20 % antes.', efecto: { espera: 0.8 } }
+            { coste: 9, descripcion: 'Un 10 % antes.', efecto: { espera: 0.9 } },
+            { coste: 15, descripcion: 'Un 20 % antes.', efecto: { espera: 0.8 } }
           ] },
         { id: 'ahorros', nombre: 'Ahorros', grupo: 'arranque',
           descripcion: 'Empiezas cada partida con dinero de más.',
           niveles: [
-            { coste: 1, descripcion: '1.000 € más.', efecto: { dineroInicial: 1000 } },
-            { coste: 3, descripcion: '3.000 € más.', efecto: { dineroInicial: 3000 } },
-            { coste: 5, descripcion: '6.000 € más.', efecto: { dineroInicial: 6000 } }
+            { coste: 3, descripcion: '1.000 € más.', efecto: { dineroInicial: 1000 } },
+            { coste: 9, descripcion: '3.000 € más.', efecto: { dineroInicial: 3000 } },
+            { coste: 15, descripcion: '6.000 € más.', efecto: { dineroInicial: 6000 } }
           ] },
         { id: 'cocheNuevo', nombre: 'Coche a estrenar', grupo: 'arranque',
           descripcion: 'Tu primer coche sale de fábrica, a 0 km, en vez de usado.',
-          niveles: [{ coste: 1, efecto: { cocheNuevo: true } }] },
+          niveles: [{ coste: 3, efecto: { cocheNuevo: true } }] },
         { id: 'agenda', nombre: 'Agenda de contactos', grupo: 'arranque',
           descripcion: 'Los primeros candidatos de cada partida son como mínimo de categoría A.',
-          niveles: [{ coste: 4, efecto: { candidatosMinimo: 'A' } }] },
+          niveles: [{ coste: 12, efecto: { candidatosMinimo: 'A' } }] },
         { id: 'veterano', nombre: 'Veterano', grupo: 'arranque',
           descripcion: 'Ganas más experiencia y llegas antes al siguiente reinicio.',
           niveles: [
-            { coste: 4, descripcion: 'Un 25 % más.', efecto: { experiencia: 1.25 } },
-            { coste: 6, descripcion: 'Un 50 % más.', efecto: { experiencia: 1.5 } }
+            { coste: 12, descripcion: 'Un 25 % más.', efecto: { experiencia: 1.25 } },
+            { coste: 18, descripcion: 'Un 50 % más.', efecto: { experiencia: 1.5 } }
           ] },
         { id: 'tesla', nombre: 'Tesla Model 3', grupo: 'gamas',
           descripcion: 'Eléctrico: podrás comprarlo para tus licencias. Llegará con las gamas de coche.',
-          niveles: [{ coste: 5, efecto: { gama: 'tesla' } }] },
+          niveles: [{ coste: 15, efecto: { gama: 'tesla' } }] },
         { id: 'mercedes', nombre: 'Mercedes Clase S', grupo: 'gamas', requiere: 'tesla',
           descripcion: 'La gama más alta: podrás comprarlo para tus licencias. Llegará con las gamas de coche.',
-          niveles: [{ coste: 8, efecto: { gama: 'mercedes' } }] }
+          niveles: [{ coste: 24, efecto: { gama: 'mercedes' } }] }
       ]
     },
     racha: { porCarrera: 0.01, maximo: 0.10, reaccion: { inicial: 1, final: 0.5 } },

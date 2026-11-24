@@ -85,10 +85,20 @@ function generador(semilla) {
 
 function rangoCat(id) { return ORDEN_CAT.indexOf(id); }
 
-function jugar(semilla, perfil) {
+/*
+ * opciones (las usa tests/prestigio.js): personaje con el que empieza (sus
+ * mejoras y puntos; aplica las de arranque), hastaNivel (para en cuanto tu
+ * personaje llega a ese nivel) y minutos (tope; por defecto MINUTOS).
+ */
+function jugar(semilla, perfil, opciones) {
+  opciones = opciones || {};
   const rng = generador(semilla * 7919 + 13);
   const e = sim.crearEstadoInicial(0, rng);
   e.azar = semilla * 104729 + 7;
+  if (opciones.personaje) {
+    e.personaje = JSON.parse(JSON.stringify(opciones.personaje));
+    sim.aplicarArranque(e);
+  }
   let t = 0, espera = 0, tienda = 0, ticket = 0;
   const hitos = {};
   const hallados = { total: 0 };
@@ -275,7 +285,7 @@ function jugar(semilla, perfil) {
     };
   }
 
-  const fin = MINUTOS * 60;
+  const fin = (opciones.minutos || MINUTOS) * 60;
   let corte = 0;
   while (t < fin) {
     // Ticket en pantalla: lo lee y arranca.
@@ -322,8 +332,9 @@ function jugar(semilla, perfil) {
     }
     t += DT;
     while (corte < CORTES.length && t >= CORTES[corte] * 60) { cortes.push(foto(CORTES[corte])); corte++; }
+    if (opciones.hastaNivel && sim.nivelPersonaje(e).nivel >= opciones.hastaNivel && !e.jugador.carrera) break;
   }
-  return { semilla, perfil, cortes, hitos };
+  return { semilla, perfil, cortes, hitos, minutos: t / 60, estado: e };
 }
 
 // ------------------------------------------------------------ resumen
@@ -336,6 +347,9 @@ function stats(valores) {
 function euros(n) { return Math.round(n).toLocaleString('es-ES') + ' €'; }
 function num(n, d) { return n.toLocaleString('es-ES', { maximumFractionDigits: d === undefined ? 1 : d }); }
 function rango(s, f) { return f(s.media) + ' (' + f(s.min) + '–' + f(s.max) + ')'; }
+
+module.exports = { jugar };
+if (require.main !== module) return;
 
 const resultados = [];
 const inicio = Date.now();
