@@ -91,9 +91,14 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
       0,20–0,25 €/kWh (cargando en la cochera) = unos 3–3,75 €/100 km, un
       35–40 % del Corolla. Propuestas de Claude, por decidir: menos averías
       (motor eléctrico, sin aceite ni embrague: −40 %) y el piloto
-      automático en atascos (te cansas un 10 % menos). Ojo: decidir si
-      Híbridos y GLP (consumo) le afectan, porque no tienen sentido en un
-      eléctrico.
+      automático en atascos (te cansas un 10 % menos). Híbridos y GLP no
+      le afectan (Iván, 24-11-2026); Conducción eficiente y Neumáticos de
+      bajo consumo, sí. Efecto (cuentas de Claude): las cuatro mejoras de
+      consumo dejan el Corolla en 9,3 × 0,9 × 0,92 × 0,65 × 0,7 = unos
+      3,5 €/100 km; el Tesla, con las dos que le valen, en unos 2,5–3,1
+      €/100 km. Su ventaja en combustible pasa de un 60–65 % sin mejoras a
+      un 10–30 % con todas, así que al final de la partida lo que lo
+      distingue son sus otros beneficios.
     - **Mercedes Clase S.** La más alta y cara: más propinas (Iván).
       Propuestas de Claude, por decidir: clientes de más nivel que casi
       nunca se van sin pagar (−50 %) y más demanda en el Centro y el
