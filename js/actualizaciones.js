@@ -509,6 +509,10 @@
         {
           "n": 111,
           "texto": "Prestigio más justo: cada nivel da tantos puntos como su número (el nivel 5 da 5, así que una partida que llega al 5 junta 15) y las mejoras del personaje cuestan el triple. Antes compensaba reiniciar siempre en el nivel 3; ahora llegar lejos también merece la pena: llegando al nivel 7, tenerlo todo pide unos 11 reinicios."
+        },
+        {
+          "n": 112,
+          "texto": "Gamas de coche: si las desbloqueas con las mejoras de tu personaje, al comprar coche eliges entre el Toyota Corolla (1.500 €), el Tesla Model 3 (3.500 €: eléctrico, la carga cuesta mucho menos, se avería mucho menos y cansa un 20 % menos) y el Mercedes Clase S (5.000 €: muchas más propinas, la mitad de impagos y más clientes en el Centro y el Aeropuerto, pero gasta más y sus reparaciones cuestan más). Híbridos y GLP ya solo afectan a los coches de gasolina."
         }
       ]
     }

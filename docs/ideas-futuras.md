@@ -51,8 +51,8 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     prestigio; reinicio desde el nivel 3, eligiendo mejoras del personaje
     (las únicas que quedan; el nivel vuelve a 0). Hecho el paso 1
     (experiencia y nivel), el 2 (hoja del personaje) y el 3 (mejoras por
-    puntos, 100 en total) y el 4 (empezar de cero). Pendiente: **coches de
-    distintas gamas** (idea 23) y medir con el bot el ritmo de reinicios.
+    puntos, 300 en total) y el 4 (empezar de cero). Hechos también las gamas de coche (idea 23) y la medida del ritmo de
+    reinicios (docs/analisis-prestigio.md).
 
 16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
     las fáciles (ver «Hechas»).
@@ -81,7 +81,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
     la quiere; el «sí» anterior fue una errata). Tampoco las ofertas de la
     emisora.
 
-23. [ ] **Gamas de coche** (Iván, 24-11-2026; se desbloquean con las
+23. [x] **Gamas de coche** (hechas el 24-11-2026: Tesla 3.500 € y Mercedes 5.000 €, con los efectos de abajo reforzados en el Tesla; ver DISENO.md) (Iván, 24-11-2026; se desbloquean con las
     mejoras del personaje, paso 3 o 4 del prestigio). Tres gamas:
     - **Turismo: Toyota Corolla.** El de ahora (el más usado por los
       taxistas). Sin cambios.

@@ -377,7 +377,7 @@ body:not([data-vista="calle"]) .cabecera {
 .personaje-xp { margin: var(--esp-2) 0 var(--esp-5); font-size: var(--t-pequeno); color: var(--tinta-suave); }
 .personaje-fuentes { margin: 0 0 var(--esp-5); padding-left: 1.2em; font-size: var(--t-pequeno); }
 .personaje-fuentes li { margin: 2px 0; }
-.gama { margin-bottom: var(--esp-4); }
+.gama { margin-bottom: var(--esp-4); padding: var(--esp-4); }
 .gama-titulo { display: flex; align-items: center; gap: var(--esp-3); font-size: var(--t-cuerpo); }
 .gama p { margin: var(--esp-2) 0; font-size: var(--t-pequeno); color: var(--tinta-suave); }
 .gama .gama-dato { color: var(--tinta); font-weight: 800; }

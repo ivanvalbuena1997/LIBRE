@@ -641,7 +641,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   incognitoTu, rachaMaximo, rachaReaccion, cansancio y espera solo tuyos en
   `factoresCansancio()` y `buscarCliente()`, experiencia, y las de arranque:
   dineroInicial, cocheNuevo, candidatosMinimo, que aplica
-  `aplicarArranque()`; gamas, sin efecto aún). `faltaParaMejoraPersonaje()`
+  `aplicarArranque()`; gamas: ver «Gamas de coche»). `faltaParaMejoraPersonaje()`
   y `costeMejoraPersonaje()`. En la hoja, `htmlMejorasPersonaje()` (solo
   lectura). `sortearCategoria()` reparte sobre el total de los pesos (con
   `sortearCandidatos(estado, minimo)` no suman 1). Para probar:
@@ -658,6 +658,20 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   hoja: `htmlBloquePrestigio()` y, con `prestigio = { compras, confirmar }`,
   `htmlHojaPrestigio()` (`data-pj-comprar`/`quitar`/`seguir`/`volver`/
   `reiniciar`; el pie, `.pj-prestigio-pie`, fijo abajo).
+- Gamas de coche (idea 23, Iván 24-11-2026): `config.vehiculos.modelos`
+  (turismo = Toyota Corolla, tesla, mercedes) con `precio`, consumo
+  (`consumoLitros100Km`, o `electrico` + `kwh100Km` × `combustible.precioKwh`)
+  y `efecto` (averia, cansancio, propinaProb, propinaImporte, sinPagar,
+  averiaCoste, pinchazoCoste: multiplican aparte, sobre los topes del
+  conductor; `esperaZonas` en `planearCarrera()`). `gamasDisponibles()`
+  (Corolla + las de `modificadoresPersonaje().gamas`), `comprarVehiculo(estado,
+  licenciaId, modeloId)`, `precioCoche(estado, sustituye, modeloId)`,
+  `modeloCoche()`, `efectoCoche(lic)` y `efectoCocheDe(estado, quien)`.
+  Híbridos y GLP usan `consumoCombustion` (no en eléctricos; `gastar()` lo
+  apunta aparte). `carrera.vehiculo` guarda el modelo. En `statsConductor()`,
+  fuente 'coche'. En Conductores, `botonComprarCoche()` y, con más de una
+  gama, la hoja `htmlHojaElegirCoche()` (`eligiendoCoche`,
+  `data-elegir-coche`).
 - Azucarillo (Iván, 18-11-2026; defecto opuesto de Anfibio): efecto sí/no
   `paraConLluvia`. `pararPorLluvia()` (al empezar las carreras de
   conductores) deja parado hasta que escampa al que no lleva carrera, y el
@@ -674,11 +688,14 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
 
 ## Valores PROVISIONALES (falta el dato real)
 
-Ahora mismo ninguno: Iván confirmó el 13 de noviembre de 2026 combustible,
+Solo los del Tesla (abajo). Iván confirmó el 13 de noviembre de 2026 combustible,
 consumo, cuota de autónomo (535 €/mes), seguro, emisora y porcentaje del
 conductor (marcados «Dato de Iván»). Licencia (2.500 €, desde el 18-11-2026) y coche (1.500 €, ×1,10 por coche desde el 21-11-2026) son valores de juego
 fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
 `PROVISIONAL` y se apunta aquí.
+
+- `combustible.precioKwh` (0,225 €) y `vehiculos.modelos.tesla.kwh100Km`
+  (15): estimaciones de Claude para el Tesla (24-11-2026), sin fuente.
 
 ## Pruebas
 

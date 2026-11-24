@@ -815,14 +815,14 @@
           consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
         },
         tesla: {
-          nombre: 'Tesla Model 3', descripcion: 'Eléctrico: la carga cuesta mucho menos que la gasolina, se avería menos y el piloto automático cansa menos.',
-          precio: 5000, electrico: true,
+          nombre: 'Tesla Model 3', descripcion: 'Eléctrico: la carga cuesta mucho menos que la gasolina, se avería mucho menos y el piloto automático cansa menos.',
+          precio: 3500, electrico: true,
           kwh100Km: 15,              // PROVISIONAL (estimación de Claude, sin fuente)
-          efecto: { averia: 0.6, cansancio: 0.9 }
+          efecto: { averia: 0.4, cansancio: 0.8 }
         },
         mercedes: {
           nombre: 'Mercedes Clase S', descripcion: 'La gama más alta: muchas más propinas, clientes que pagan y más carreras en el Centro y el Aeropuerto; gasta más y sus reparaciones son más caras.',
-          precio: 7500,
+          precio: 5000,
           consumoLitros100Km: 7.8,   // un 30 % más que el Corolla (Equilibrio)
           efecto: {
             propinaProb: 2, propinaImporte: 1.5, sinPagar: 0.5,
