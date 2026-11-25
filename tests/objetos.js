@@ -50,6 +50,7 @@ function partida(semilla, escenario, prueba) {
   const rng = generador(semilla * 31 + 7);
   const e = sim.crearEstadoInicial(0, rng);
   e.azar = semilla * 7919 + 1;
+  sim.terminarIntro(e);
   e.dinero = 1e7;
   sim.comprarLicencia(e); sim.comprarLicencia(e);
   e.licencias.forEach(function (l) {

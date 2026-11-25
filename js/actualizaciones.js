@@ -551,6 +551,10 @@
         {
           "n": 120,
           "texto": "Llegan los conductores ÚNICOS, un rango por encima de LEGENDARIO con marco granate, retrato propio, habilidades y debilidades fijas y sin topes. El primero es Paconi: tocayos, sinergia con su planta, «ajuste de periodos anteriores» al cerrar la caja… y sus frases. De momento llegarán con los eventos de clientes, que vienen pronto."
+        },
+        {
+          "n": 121,
+          "texto": "En la ficha de un ÚNICO, sus estadísticas dicen «ÚNICO» en vez de «Categoría LEGENDARIO»."
         }
       ]
     }

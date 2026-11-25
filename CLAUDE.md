@@ -772,6 +772,9 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
 - `node tests/objetos.js [semillas] [jornadas]` tampoco es una prueba: mide
   cuánto deja cada objeto por conductor y jornada (sin mejoras y con
   propinas y otras mejoras). Informe en `docs/analisis-objetos.md`.
+- `node tests/unicos.js [semillas] [jornadas]` tampoco: compara a Paconi
+  (con y sin su planta y tocayos) con un LEGENDARIO en la misma flota.
+  Informe en `docs/analisis-unicos.md`.
 
 ## Forma de trabajar
 

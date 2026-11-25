@@ -154,3 +154,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 118. Nueva introducción: al empezar una partida nueva, la historia de cómo acabas de taxista (te despiden, conoces a un taxista que se jubila y te lanzas con su licencia y su Corolla). Las ilustraciones llegarán pronto.
 119. La introducción ya tiene sus tres ilustraciones: el despido, la noche en el taxi del taxista que se jubila y tu primer amanecer al volante.
 120. Llegan los conductores ÚNICOS, un rango por encima de LEGENDARIO con marco granate, retrato propio, habilidades y debilidades fijas y sin topes. El primero es Paconi: tocayos, sinergia con su planta, «ajuste de periodos anteriores» al cerrar la caja… y sus frases. De momento llegarán con los eventos de clientes, que vienen pronto.
+121. En la ficha de un ÚNICO, sus estadísticas dicen «ÚNICO» en vez de «Categoría LEGENDARIO».

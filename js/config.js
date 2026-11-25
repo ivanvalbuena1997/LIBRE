@@ -771,7 +771,7 @@
       unicos: {
         paconi: {
           nombre: 'Paconi', categoriaBase: 'L', imagen: 'imagenes/unico-paconi.webp',
-          descripcion: 'Venezolano de origen español, 67 años, volvió hace unos años. No es el más eficiente y se pone malo con facilidad, pero nadie sabe cuadrar las cuentas como él.',
+          descripcion: 'Venezolano de origen español, 67 años. No es el más eficiente y se pone malo con facilidad, pero nadie sabe cuadrar las cuentas como él.',
           frases: [
             '¡No jodah, hermano!',
             'Es una trampa, muchachos.',

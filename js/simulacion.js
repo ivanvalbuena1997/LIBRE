@@ -1759,6 +1759,12 @@
     return t && t.quien === 'conductor' ? t : null;
   }
 
+  /* «Categoría LEGENDARIO» en las fuentes de sus stats; un ÚNICO rinde
+     como su categoría de base, pero se nombra como ÚNICO. */
+  function textoCategoria(t, cat) {
+    return unicoDe(t) ? 'ÚNICO' : 'Categoría ' + cat.nombre;
+  }
+
   function buscarCategoria(id) {
     return cfg().categorias.find(function (c) { return c.id === id; }) || null;
   }
@@ -2051,7 +2057,7 @@
       efecto: { espera: 1 - cfg().conductores.niveles.esperaPorNivel * (nivel - 1) } });
     // El plus de serie de su categoría (los B no tienen).
     if (cat.esperaBase && cat.esperaBase !== 1) {
-      lista.push({ tipo: 'categoria', id: cat.id, nombre: 'Categoría ' + cat.nombre, efecto: { espera: cat.esperaBase } });
+      lista.push({ tipo: 'categoria', id: cat.id, nombre: textoCategoria(t, cat), efecto: { espera: cat.esperaBase } });
     }
     return lista;
   }
@@ -2189,7 +2195,7 @@
     const factorHallazgo = topeConductor('hallazgo', brutoHallazgo, t);
     stats.push({ clave: 'hallazgo', valor: cfg().objetos.probHallazgo * cat.hallazgo * factorHallazgo,
       factor: cat.hallazgo * factorHallazgo, tope: factorHallazgo !== brutoHallazgo, limite: limite('hallazgo'),
-      fuentes: (cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: 'Categoría ' + cat.nombre, factor: cat.hallazgo, multiplica: true }])
+      fuentes: (cat.hallazgo === 1 ? [] : [{ tipo: 'categoria', nombre: textoCategoria(t, cat), factor: cat.hallazgo, multiplica: true }])
         .concat(hallazgo) });
     // Lo que cobra con lluvia (Anfibio): solo si algo lo cambia.
     const lluvia = fuentesDe('importeLluvia');
