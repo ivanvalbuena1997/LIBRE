@@ -152,7 +152,11 @@ Formato: vertical 2:3 (1024 × 1536), lo importante en la mitad de arriba
 y el trapero salen como personajes genéricos), para no usar la cara de
 nadie con IA.
 
-### Imagen base (la primera, para generar las demás a partir de ella)
+### Imagen base (hecha: `imagenes/evento-base.webp`)
+
+Generada por Iván con este prompt, volteada (el conductor tiene que ir a la
+derecha: la cámara mira desde el salpicadero) y con el asiento del
+copiloto añadido a la izquierda.
 
 > Vertical 2:3 illustration, flat editorial vector style, clean shapes, flat shadows, subtle grain. Limited palette: deep teal, toasted orange, cream and dark brown. Interior of a white Madrid taxi (Toyota Corolla) at night, seen from the dashboard looking back into the car. The driver sits at the wheel on the left side of the image: a man about 30 years old, short dark brown hair with a quiff, rosy cheeks, dark teal blazer over a white shirt. Hands on the steering wheel, relaxed. The back seat is empty and visible behind him, with the rear window showing a blurred city street with warm street lights. A taxi meter and a small green light on the dashboard edge at the bottom. Keep the upper half of the image as the main focus; the lower third can be calm and simple. No text, no logos.
 
@@ -160,7 +164,7 @@ nadie con IA.
 
 Con la imagen base adjunta, empieza siempre así:
 
-> Using the attached image as the base: keep exactly the same camera angle, car interior, driver, art style and palette. Change only the following:
+> Using the attached image as the base: keep exactly the same camera angle, car interior, driver, art style and palette. Change only the following (the driver stays on the right; the front passenger seat is on the left):
 
 y añade la línea del evento:
 
