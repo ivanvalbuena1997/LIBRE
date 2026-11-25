@@ -112,6 +112,17 @@
     return m.nombre + ': nivel ' + estado.personaje.mejoras[id];
   };
 
+  /*
+   * Para probar los conductores ÚNICOS hasta que lleguen con los eventos:
+   *   Libre.forzarUnico('paconi')   → sale el primero entre los candidatos
+   */
+  Libre.forzarUnico = function (id) {
+    const r = sim.ofrecerUnico(estado, id);
+    guardar();
+    ui.dibujar(estado);
+    return r.mensaje;
+  };
+
   Libre.forzarEvento = function (tipo, arg) {
     const r = sim.forzarEvento(estado, tipo, arg);
     if (r.eventos.length > 0) ui.mostrarEventos(r.eventos);

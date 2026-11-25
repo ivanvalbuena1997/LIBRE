@@ -2666,5 +2666,81 @@ prueba('historia: la introducción sale una vez al principio y el reloj no corre
   assert.strictEqual(globalThis.Libre.guardado.migrar(viejo).historia.introVista, true);
 });
 
+prueba('ÚNICOS: Paconi se ofrece una vez, solo de día, sin topes, con su sinergia, sus tocayos y su ajuste', function () {
+  require('../js/guardado.js');
+  const u = config.conductores.unicos.paconi;
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 21;
+  e.dinero = 1e6;
+  assert.ok(sim.ofrecerUnico(e, 'paconi').ok);
+  assert.strictEqual(sim.ofrecerUnico(e, 'paconi').ok, false, 'no se ofrece dos veces');
+  assert.strictEqual(e.candidatos[0].unico, 'paconi');
+  // Solo de día.
+  assert.ok(/día/.test(sim.contratarConductor(e, e.licencias[0].id, 'noche', 0).mensaje));
+  // En la licencia inicial, el día es tuyo: segunda licencia.
+  assert.ok(sim.comprarLicencia(e).ok);
+  const lic = e.licencias[1];
+  assert.ok(sim.comprarVehiculo(e, lic.id).ok);
+  assert.ok(sim.contratarConductor(e, lic.id, 'dia', 0).ok);
+  const t = lic.turnos.dia;
+  assert.strictEqual(t.unico, 'paconi');
+  assert.strictEqual(t.categoria, u.categoriaBase);
+  assert.ok(sim.unicoEnFlota(e, 'paconi'));
+  assert.strictEqual(sim.ofrecerUnico(e, 'paconi').ok, false, 'ya trabaja para ti');
+  // Sin topes: un factor absurdo no se recorta.
+  assert.strictEqual(sim.topeConductor('espera', 0.01, t), 0.01);
+  // Sinergia con la Planta de Paconi.
+  const sinPlanta = sim.factoresConductor(e, t).propina;
+  t.objetos = ['paconi'];
+  cerca(sim.factoresConductor(e, t).propina / sinPlanta, 1.3 * 1.2, 1e-9);
+  assert.ok(sim.aportesConductor(t).some(function (a) { return a.tipo === 'sinergia'; }));
+  // Tocayos: un Francisco con turno, +5 %; nunca más de +15 %.
+  assert.strictEqual(sim.bonoTocayos(e, t), 0);
+  lic.turnos.noche = Object.assign({}, t, { id: 999, nombre: 'Francisco', unico: null, objetos: [] });
+  cerca(sim.bonoTocayos(e, t), u.tocayos.porCada, 1e-9);
+  // Nunca de incógnito.
+  assert.strictEqual(sim.trabajaIncognito(e, lic, t, e.reloj.minutos), false);
+  // Ajuste de periodos anteriores al cerrar la caja: 8–12 % de lo que facturó.
+  e.caja.hoy.porConductor = {};
+  e.caja.hoy.porConductor[t.id] = 1000;
+  // Justo antes de las 7:00 (Paconi, de día, no trabaja): la caja se cierra.
+  lic.turnos.noche = null;
+  e.reloj.minutos = 420 + 1440 - 0.2;
+  sim.avanzar(e, 0.5);
+  assert.ok(e.cierrePendiente, 'se ha cerrado la caja');
+  const extra = e.caja.ayer.incidencias.ajuste.importe;
+  assert.ok(extra >= 80 - 1e-9 && extra <= 120 + 1e-9, 'ajuste: ' + extra);
+  // Migración 36 → 37: los conductores de antes, sin único.
+  const viejo = JSON.parse(JSON.stringify(e));
+  viejo.version = 36;
+  delete viejo.licencias[1].turnos.dia.unico;   // como un conductor de antes
+  assert.strictEqual(globalThis.Libre.guardado.migrar(viejo).licencias[1].turnos.dia.unico, null);
+});
+
+prueba('ÚNICOS: Paconi no comparte coche con El Pelado y no se le mueve al turno de noche', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e6;
+  sim.comprarLicencia(e);
+  const lic = e.licencias[1];
+  sim.comprarVehiculo(e, lic.id);
+  sim.ofrecerUnico(e, 'paconi');
+  assert.ok(sim.contratarConductor(e, lic.id, 'dia', 0).ok);
+  const paconi = lic.turnos.dia;
+  // Un «Pelado» de mentira en el otro turno: no se puede.
+  const falso = { quien: 'conductor', nombre: 'El Pelado', unico: 'pelado' };
+  config.conductores.unicos.pelado = { nombre: 'El Pelado', categoriaBase: 'L' };
+  try {
+    assert.ok(/no comparte coche/.test(sim.faltaParaTurnoUnico(lic, 'noche', falso)));
+  } finally {
+    delete config.conductores.unicos.pelado;
+  }
+  // Moverlo de noche, no (con el día cerrado).
+  e.cierrePendiente = { dias: 1 };
+  const r = sim.moverConductor(e, lic.id, 'dia', lic.id + '|noche');
+  assert.strictEqual(r.ok, false);
+  assert.ok(/día/.test(r.mensaje));
+  assert.strictEqual(lic.turnos.dia, paconi);
+});
+
 console.log(pasadas + ' pruebas correctas');
 

@@ -659,6 +659,7 @@
 
   /* Cierra la caja del día: cobra los costes fijos y empieza un día nuevo. */
   function cerrarCaja(estado, resumen) {
+    ajustesUnicos(estado, resumen);
     gastar(estado, resumen, 'fijos', costesFijosDiarios(estado));
     apuntarAhorro(estado, 'seguro', vehiculosEnServicio(estado) * cfg().costesFijos.seguroDiarioPorVehiculo * modificadores(estado).seguro);
     apuntarAhorro(estado, 'tasaSociedad', costeSociedadDiario(estado));
@@ -1115,6 +1116,8 @@
     if (lic.turnos[turno]) return fallo('Ese turno ya está cubierto.');
     const candidato = candidatos(estado)[Number(indice) || 0];
     if (!candidato) return fallo('Ese candidato no existe.');
+    const noPuede = faltaParaTurnoUnico(lic, turno, candidato);
+    if (noPuede) return fallo(noPuede);
     const precio = precioCandidato(candidato);
     if (estado.dinero < precio) return fallo('No te llega el dinero: ' + candidato.nombre + ' cuesta ' + Libre.ui_euros(precio) + '.');
 
@@ -1143,7 +1146,9 @@
       cualidad3: null, defecto: candidato.defecto, defecto2: candidato.defecto2 || null,
       // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
       xp: 0, carreras: 0, facturado: 0,
-      objetos: []   // ids de los objetos que lleva equipados
+      objetos: [],   // ids de los objetos que lleva equipados
+      // Si es un ÚNICO, su id (config.conductores.unicos); si no, null.
+      unico: candidato.unico || null
     };
   }
 
@@ -1233,6 +1238,11 @@
     if (b.lic && !b.lic.vehiculo) return fallo('Esa licencia aún no tiene coche.');
     if (b.reserva && !b.t && estado.reserva.length >= cfg().conductores.reserva) return fallo('La reserva está llena.');
     const x = a.t, y = b.t;
+    // Los ÚNICOS: su turno fijo y con quién no comparten coche.
+    const noX = b.lic ? faltaParaTurnoUnico(b.lic, b.turno, x, x) : '';
+    if (noX) return fallo(noX);
+    const noY = y && a.lic ? faltaParaTurnoUnico(a.lic, a.turno, y, y) : '';
+    if (noY) return fallo(noY);
     ponerEnSitio(estado, b, x);
     ponerEnSitio(estado, a, y);
     estado.reserva = estado.reserva.filter(Boolean);
@@ -1300,6 +1310,90 @@
   /* Lo que cuesta contratar a un candidato (según su categoría). */
   function precioCandidato(candidato) {
     return (buscarCategoria(candidato.categoria) || cfg().categorias[0]).contratar;
+  }
+
+  // ------------------------------------------- Conductores ÚNICOS (fase 2)
+
+  /* La ficha de un único (config.conductores.unicos) o null. */
+  function buscarUnico(id) {
+    return (id && cfg().conductores.unicos && cfg().conductores.unicos[id]) || null;
+  }
+  /* El único que es un conductor o candidato (null si es normal). */
+  function unicoDe(t) {
+    return t && t.unico ? buscarUnico(t.unico) : null;
+  }
+  /* ¿Ya está en tu flota (con turno o en la reserva)? */
+  function unicoEnFlota(estado, id) {
+    return todosLosConductores(estado).some(function (x) { return x.t.unico === id; });
+  }
+  /*
+   * Ofrece un único entre los candidatos (lo llamarán los eventos de la
+   * fase 3; de momento, la consola). No sale si ya lo tienes o ya está.
+   */
+  function ofrecerUnico(estado, id) {
+    const u = buscarUnico(id);
+    if (!u) return fallo('Ese conductor no existe.');
+    if (unicoEnFlota(estado, id)) return fallo(u.nombre + ' ya trabaja para ti.');
+    const lista = candidatos(estado);
+    if (lista.some(function (x) { return x.unico === id; })) return fallo(u.nombre + ' ya está entre los candidatos.');
+    lista.unshift({ retrato: id, nombre: u.nombre, categoria: u.categoriaBase, unico: id,
+      cualidad: null, cualidad2: null, defecto: null, defecto2: null });
+    return exito(u.nombre + ' quiere trabajar contigo: lo tienes entre los candidatos.');
+  }
+  /*
+   * Lo que impide poner a un conductor (o candidato) en un turno de una
+   * licencia: su turno fijo o un único incompatible en el otro turno.
+   * '' si puede. `apartar`: un turno que se va de ahí (al intercambiar).
+   */
+  function faltaParaTurnoUnico(lic, turno, t, apartar) {
+    const u = unicoDe(t);
+    if (u && u.soloTurno && u.soloTurno !== turno) {
+      return u.nombre + ' solo trabaja en el turno de ' + cfg().turnos[u.soloTurno].nombre.toLowerCase() + '.';
+    }
+    const otro = lic && lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
+    if (!otro || otro === apartar || otro.quien !== 'conductor') return '';
+    const v = unicoDe(otro);
+    if ((u && v && (u.incompatibles || []).indexOf(otro.unico) !== -1) ||
+      (u && v && (v.incompatibles || []).indexOf(t.unico) !== -1)) {
+      return u.nombre + ' no comparte coche con ' + v.nombre + '.';
+    }
+    return '';
+  }
+  /* Una frase suya al azar (o '' si no es único). */
+  function fraseUnico(estado, t) {
+    const u = unicoDe(t);
+    return u && u.frases && u.frases.length ? u.frases[Math.floor(azar(estado) * u.frases.length)] : '';
+  }
+  /* Extra de sus carreras por sus tocayos con turno (Paconi: Franciscos y Pacos), 0–maximo. */
+  function bonoTocayos(estado, t) {
+    const u = unicoDe(t);
+    if (!u || !u.tocayos) return 0;
+    let n = 0;
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const x = l.turnos[tn];
+        if (x && x !== t && x.quien === 'conductor' && u.tocayos.nombres.indexOf(x.nombre) !== -1) n++;
+      });
+    });
+    return Math.min(u.tocayos.maximo, n * u.tocayos.porCada);
+  }
+  /*
+   * Al cerrar la caja: el «ajuste de periodos anteriores» de cada único que
+   * lo tenga, un extra de lo que facturó en la jornada.
+   */
+  function ajustesUnicos(estado, resumen) {
+    const porConductor = estado.caja.hoy.porConductor || {};
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const t = l.turnos[tn];
+        const u = unicoDe(t);
+        const facturado = t && porConductor[t.id];
+        if (!u || !u.ajuste || !(facturado > 0)) return;
+        const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max);
+        incidencia(estado, resumen, 'ajuste', u.nombre + ' aplica un «ajuste de periodos anteriores»: ' +
+          Libre.ui_euros(extra) + ' más en la caja. ' + fraseUnico(estado, t), extra, 'extras', t);
+      });
+    });
   }
 
   /* Candidatos para el próximo contrato: personajes y cualidades distintos. */
@@ -1945,6 +2039,13 @@
       const o = buscarObjeto(id);
       if (o) lista.push({ tipo: 'objeto', id, nombre: o.nombre, efecto: o.efecto });
     });
+    // Sinergias de un ÚNICO con un objeto equipado (Paconi y su planta).
+    const u = unicoDe(t);
+    ((u && u.sinergias) || []).forEach(function (s) {
+      if ((t.objetos || []).indexOf(s.objeto) === -1) return;
+      const o = buscarObjeto(s.objeto);
+      lista.push({ tipo: 'sinergia', id: s.objeto, nombre: 'Sinergia: ' + (o ? o.nombre : s.objeto), efecto: s.efecto });
+    });
     const nivel = nivelConductor(t);
     lista.push({ tipo: 'nivel', id: 'nivel', nombre: 'Nivel ' + nivel,
       efecto: { espera: 1 - cfg().conductores.niveles.esperaPorNivel * (nivel - 1) } });
@@ -2111,7 +2212,8 @@
         limite: limite('suerte'), fuentes: suerte });
     }
 
-    stats.push(probabilidad('baja', ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
+    const bajaU = unicoDe(t) && unicoDe(t).baja;
+    stats.push(probabilidad('baja', bajaU ? bajaU.prob : ev.baja.probTurno, mejoras.filter(function (x) { return x.efecto.baja; }).map(function (x) {
       return { tipo: 'mejora', nombre: x.nombre, factor: x.efecto.baja };
     })));
     const pinchazo = probabilidad('pinchazo', ev.pinchazo.probTurno, mejoras.filter(function (x) { return x.efecto.pinchazo; }).map(function (x) {
@@ -2171,6 +2273,8 @@
    * conductor (o sin `t`), los de la config tal cual.
    */
   function topesDe(valor, t) {
+    // Los ÚNICOS no tienen topes (Iván, 25-11-2026).
+    if (unicoDe(t)) return [0, Infinity];
     const base = cfg().conductores.topes[valor];
     const a = aperturaTopes(t);
     if (!a) return base;
@@ -2624,6 +2728,8 @@
         }
         const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera, x.turno);
         const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar', fe);
+        // Un ÚNICO con tocayos en la flota cobra algo más (Paconi).
+        carrera.importe *= 1 + bonoTocayos(estado, x.turno);
         // Anfibio: cobra más si el cliente sube con lluvia (al acabar la espera).
         if (lloviendo(estado, carrera.finEspera)) {
           carrera.importe *= topeConductor('importeLluvia', factoresConductor(estado, x.turno).importeLluvia, x.turno);
@@ -2899,6 +3005,7 @@
     if (!turno || !libra(estado, lic, minutos)) return false;
     // Tú, con «Incógnito al volante» (Iván, 20-11-2026).
     if (turno.quien === 'jugador') return modificadoresPersonaje(estado).incognitoTu;
+    if (unicoDe(turno) && unicoDe(turno).sinIncognito) return false;
     return turno.quien === 'conductor' && modificadores(estado).incognito &&
       nivelConductor(turno) >= cfg().conductores.niveles.experiencia.length;
   }
@@ -2965,11 +3072,15 @@
       }
       const f = factoresConductor(estado, t);
       // Bajas: rasgo y objetos del conductor y las mejoras (Deflectores), con tope.
-      if (azar(estado) < ev.baja.probTurno * topeConductor('baja', f.baja * modificadores(estado).baja, t)) {
-        const jornadas = enteroEntre(estado, ev.baja.jornadasMin, ev.baja.jornadasMax);
+      // Un ÚNICO puede tener sus propias bajas (Paconi: más a menudo y más cortas).
+      const bajaU = (unicoDe(t) && unicoDe(t).baja) || null;
+      const baja = bajaU ? { probTurno: bajaU.prob, jornadasMin: bajaU.jornadasMin, jornadasMax: bajaU.jornadasMax } : ev.baja;
+      if (azar(estado) < baja.probTurno * topeConductor('baja', f.baja * modificadores(estado).baja, t)) {
+        const jornadas = enteroEntre(estado, baja.jornadasMin, baja.jornadasMax);
         t.baja = { hasta: jornada + jornadas };
+        const frase = fraseUnico(estado, t);
         incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +
-          (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.', 0, null, t);
+          (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.' + (frase ? ' «' + frase + '»' : ''), 0, null, t);
         return;
       }
       if (azar(estado) < ev.pinchazo.probTurno * topeConductor('pinchazo', f.pinchazo * modificadores(estado).pinchazo, t)) {
@@ -3508,6 +3619,12 @@
     faltaParaMejoraPersonaje,
     costeMejoraPersonaje,
     aplicarArranque,
+    buscarUnico,
+    unicoDe,
+    unicoEnFlota,
+    ofrecerUnico,
+    faltaParaTurnoUnico,
+    bonoTocayos,
     cambiarAspecto,
     renombrarPersonaje,
     nombrePersonaje,

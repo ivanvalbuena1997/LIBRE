@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 36,
+    versionGuardado: 37,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -127,6 +127,8 @@
       // Fin del alquiler de un coche (solo el aviso y la línea del ticket).
       alquiler: { nombre: 'Fin de alquiler' },
       sociedad: { nombre: 'Constitución de la SL' },
+      // El extra de un ÚNICO al cerrar la caja (Paconi).
+      ajuste: { nombre: 'Ajuste de periodos anteriores' },
       rotura: {
         nombre: 'Averías definitivas', kmDesde: 130000, kmMax: 230000, probMax: 0.03,
         chatarra: 50               // € que te dan en el desguace
@@ -749,7 +751,45 @@
         { nombre: 'Daniela', edad: 'joven', piel: 1, cara: 'alargada', pelo: 'largo', colorPelo: 'castano', gafas: 'sol', barba: null, ropa: 3, pendientes: true },
         { nombre: 'Álvaro', edad: 'media', piel: 3, cara: 'cuadrada', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: 'barba', ropa: 6, cuello: 'corbata' },
         { nombre: 'Daniel', edad: 'joven', piel: 4, cara: 'redonda', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: null, ropa: 2, gorra: 1 }
-      ]
+      ],
+      /*
+       * Conductores ÚNICOS (fase 2 de la historia, Iván 25-11-2026): un
+       * rango por encima de LEGENDARIO. Cada uno es un personaje fijo (con
+       * mote) que solo existe una vez en la partida y llega a través de los
+       * eventos de clientes (fase 3). Rinden de base como un LEGENDARIO
+       * (categoriaBase), sin rasgos al azar ni topes de estadísticas. Equilibrio.
+       *   imagen        su retrato (imagenes/, hecho por Iván con IA)
+       *   frases        las suyas: salen en sus avisos
+       *   soloTurno     'dia' o 'noche': no trabaja en el otro
+       *   sinIncognito  nunca trabaja de incógnito, sea del nivel que sea
+       *   incompatibles otros únicos con los que no comparte coche
+       *   baja          su probabilidad de baja al empezar el turno y cuánto dura
+       *   ajuste        al cerrar la caja, un extra de lo que facturó (min–max)
+       *   tocayos       un extra por cada conductor con esos nombres con turno
+       *   sinergias     efecto de más si lleva ese objeto equipado
+       */
+      unicos: {
+        paconi: {
+          nombre: 'Paconi', categoriaBase: 'L', imagen: 'imagenes/unico-paconi.webp',
+          descripcion: 'Venezolano de origen español, 67 años, volvió hace unos años. No es el más eficiente y se pone malo con facilidad, pero nadie sabe cuadrar las cuentas como él.',
+          frases: [
+            '¡No jodah, hermano!',
+            'Es una trampa, muchachos.',
+            'El freno está esponjoso, ¿lo notaron?',
+            'Engañoso.',
+            'Como dirían los yankees, hermano: Sssssshit happens!',
+            'El coche está bailongo, muchachos.',
+            'Ya sabes, hermano, tuve que parar porque salía líquido.'
+          ],
+          soloTurno: 'dia',
+          sinIncognito: true,
+          incompatibles: ['pelado'],
+          baja: { prob: 0.07, jornadasMin: 1, jornadasMax: 2 },
+          ajuste: { min: 0.08, max: 0.12 },
+          tocayos: { nombres: ['Francisco', 'Paco'], porCada: 0.05, maximo: 0.15 },
+          sinergias: [{ objeto: 'paconi', efecto: { propina: 1.2, espera: 0.8, cansancio: 0.8 } }]
+        }
+      }
     },
 
     combustible: {

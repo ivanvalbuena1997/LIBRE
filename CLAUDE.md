@@ -716,6 +716,21 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   envuelven `crearEstadoInicial()` para darla por vista (y el bot llama a
   `terminarIntro()`). Siguen los conductores ÚNICOS y los eventos de
   clientes (DISENO.md, 5.10).
+- Conductores ÚNICOS (fase 2; versión 37 del guardado): `config.conductores.unicos`
+  (id → nombre, `categoriaBase`, imagen, frases, soloTurno, sinIncognito,
+  incompatibles, baja, ajuste, tocayos, sinergias). Un único es un conductor
+  normal de `categoriaBase` con `t.unico = id` (null en los demás; también
+  en los candidatos, con `retrato` = id): todo lo de siempre le vale.
+  `unicoDe(t)`, `buscarUnico()`, `unicoEnFlota()`, `ofrecerUnico()` (lo pone
+  el primero entre los candidatos; lo llamarán los eventos),
+  `faltaParaTurnoUnico(lic, turno, t, apartar)` (turno fijo e incompatibles;
+  la usan `contratarConductor()` y `moverConductor()`), `fraseUnico()`,
+  `bonoTocayos()` (en `empezarCarrerasConductores()`) y `ajustesUnicos()`
+  (al empezar `cerrarCaja()`, incidencia 'ajuste'). Sin topes: `topesDe()`
+  da [0, ∞]. Sinergias: aporte 'sinergia' en `aportesConductor()`. Bajas
+  propias en `sortearInicioDeTurnos()` y en `statsConductor()`.
+  `trabajaIncognito()` respeta `sinIncognito`. Consola:
+  `Libre.forzarUnico('paconi')`.
 - Azar con semilla también en tu turno (25-11-2026): `buscarCliente()` y
   `crearEstadoInicial()` usan `generador(estado)` si no les pasan un
   generador; `Math.random` solo queda para la semilla inicial y la

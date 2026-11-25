@@ -257,6 +257,13 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 36 → 37: conductores ÚNICOS (Iván, 25-11-2026): campo `unico` en cada
+    // conductor (null en los de antes). Nada más que convertir.
+    36: function (estado) {
+      const marcar = function (t) { if (t && t.quien === 'conductor' && t.unico === undefined) t.unico = null; };
+      estado.licencias.forEach(function (l) { marcar(l.turnos.dia); marcar(l.turnos.noche); });
+      (estado.reserva || []).forEach(marcar);
+    },
     // 35 → 36: historia (Iván, 25-11-2026). Las partidas ya empezadas no
     // ven la introducción: solo sale al principio.
     35: function (estado) {
