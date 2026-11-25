@@ -20,7 +20,8 @@ la tapa el texto.
   Octubre; `evento-pelado.webp`: El Pelado en Alcorcón;
   `evento-cena.webp`: las tres de la cena de empresa;
   `evento-rivas.webp`: el de «Rivas por 20 €» en Las Ventas;
-  `evento-boadilla.webp`: el control en Boadilla.
+  `evento-boadilla.webp`: el control en Boadilla;
+  `evento-conseguidor.webp`: el conseguidor.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón
