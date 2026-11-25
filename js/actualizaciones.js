@@ -535,6 +535,10 @@
         {
           "n": 116,
           "texto": "Para guiarte mejor: con una sola licencia, en Mejoras solo puedes comprar la primera mejora de cada rama; el resto se abre con tu 2.ª licencia. Y Racha larga y Reflejos de taxista piden también Fondo físico: sin él, el descanso corta la racha antes de llegar al máximo."
+        },
+        {
+          "n": 117,
+          "texto": "Racha larga va ahora de la mano de Fondo físico: cada nivel de Racha larga pide un nivel más de Fondo físico (I, II y III), porque sin aguantar más carreras seguidas el descanso corta la racha antes de llegar a su tope."
         }
       ]
     }

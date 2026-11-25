@@ -2370,6 +2370,17 @@ prueba('personaje: mejoras por puntos (300 en total), requisitos y efectos', fun
   assert.ok(/Fondo físico/.test(sim.faltaParaMejoraPersonaje(e, 'rachaLarga')));
   e.personaje.mejoras.fondoFisico = 1;
   assert.strictEqual(sim.faltaParaMejoraPersonaje(e, 'rachaLarga'), '');
+  // Y cada nivel de Racha larga, un nivel más de Fondo físico.
+  e.personaje.mejoras.rachaLarga = 1;
+  assert.ok(/Fondo físico II\b/.test(sim.faltaParaMejoraPersonaje(e, 'rachaLarga')));
+  assert.strictEqual(sim.probarComprasPersonaje(Object.assign({}, e, { personaje: Object.assign({}, e.personaje, { xp: 0, puntos: 999 }) }),
+    ['rachaLarga']).ok, false);
+  assert.ok(sim.probarComprasPersonaje(Object.assign({}, e, { personaje: Object.assign({}, e.personaje, { xp: 0, puntos: 999 }) }),
+    ['fondoFisico', 'rachaLarga']).ok, 'con Fondo físico II, Racha larga II');
+  e.personaje.mejoras.fondoFisico = 2;
+  assert.strictEqual(sim.faltaParaMejoraPersonaje(e, 'rachaLarga'), '');
+  delete e.personaje.mejoras.rachaLarga;
+  e.personaje.mejoras.fondoFisico = 1;
   assert.ok(/máximo/.test(sim.faltaParaMejoraPersonaje(e, 'racha')));
   assert.strictEqual(sim.costeMejoraPersonaje(e, 'racha'), null);
   assert.strictEqual(sim.costeMejoraPersonaje(e, 'fondoFisico'), 12, 'ya tiene el nivel 1: el 2 cuesta 12');

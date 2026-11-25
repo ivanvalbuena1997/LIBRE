@@ -1492,6 +1492,17 @@
     if (nivelMejoraPersonaje(estado, id) >= mej.niveles.length) return 'Ya la tienes al máximo.';
     const pide = [].concat(mej.requiere || []).filter(function (id) { return !nivelMejoraPersonaje(estado, id); });
     if (pide.length) return 'Antes necesitas ' + pide.map(function (id) { return buscarMejoraPersonaje(id).nombre; }).join(' y ') + '.';
+    // Lo que pide el siguiente nivel ({ id: nivel }).
+    const sig = mej.niveles[nivelMejoraPersonaje(estado, id)];
+    const porNivel = Object.keys((sig && sig.requiere) || {}).filter(function (otro) {
+      return nivelMejoraPersonaje(estado, otro) < sig.requiere[otro];
+    });
+    if (porNivel.length) {
+      return 'Antes necesitas ' + porNivel.map(function (otro) {
+        const m = buscarMejoraPersonaje(otro);
+        return m.nombre + (m.niveles.length > 1 ? ' ' + ['I', 'II', 'III', 'IV', 'V'][sig.requiere[otro] - 1] : '');
+      }).join(' y ') + '.';
+    }
     return '';
   }
   /* Coste del siguiente nivel de una mejora del personaje (null si ya está al máximo). */

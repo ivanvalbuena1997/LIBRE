@@ -187,3 +187,9 @@ y Reflejos solo se notan con Fondo físico III (unos +4–7 %). Si se quiere
 que valgan más, que el descanso pause la racha en vez de cortarla, o que
 cada nivel de Racha larga pida un nivel más de Fondo físico.
 
+**Decisión de Iván:** cada nivel de Racha larga pide un nivel más de Fondo
+físico (I, II y III). Así solo se compra cuando la racha puede llegar a su
+tope; la combinación más alta posible (Racha, Fondo físico III, Racha larga
+III y Reflejos II) es la de la última fila: +7 % (0,7 s) y +5 % (0,4 s)
+sobre Racha con Fondo físico I.
+

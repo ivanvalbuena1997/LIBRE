@@ -618,7 +618,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   Desde el 24-11-2026 la da la mejora del personaje `racha`
   (`modificadoresPersonaje().racha`); `rachaLarga` y `reflejos` suman a
   `rachaMaximo` y `rachaReaccion`; las dos piden también `fondoFisico`
-  (`requiere` puede ser una lista en las mejoras del personaje). En el taxímetro, delante
+  (`requiere` puede ser una lista en las mejoras del personaje) y cada
+  nivel de Racha larga pide su nivel de Fondo físico (`requiere: { id:
+  nivel }` en el nivel, lo mira `faltaParaMejoraPersonaje()`). En el taxímetro, delante
   de la etiqueta: «RACHA ×1,04 · …» (`rachaActual()`, que da también `nivel`, n / tope,
   y `ventana`, lo que queda de 1 a 0). Recreativa: `.taximetro.racha-viva`
   con `--racha` (brillo de marco y cifras, `--racha-brillo`), `#racha-luces`

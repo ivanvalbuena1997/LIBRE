@@ -463,7 +463,8 @@
        * puntos crecientes por nivel; ver tests/prestigio.js).
        *   grupo     'volante' (tu turno), 'arranque' (cada partida nueva) o
        *             'gamas' (coches que se pueden comprar; sin efecto todavía)
-       *   requiere  otra mejora del personaje, o una lista (basta su nivel 1)
+       *   requiere  otra mejora del personaje, o una lista (basta su nivel 1);
+       *             un nivel puede pedir además { id: nivel } (su requiere)
        *   efecto    racha / incognitoTu: sí o no
        *             rachaMaximo, rachaReaccion (s), dineroInicial (€): se suman
        *             cansancio, espera, experiencia: multiplican (solo tú)
@@ -479,10 +480,12 @@
         // 25-11-2026): sin él, el descanso corta la racha antes del +10 %.
         { id: 'rachaLarga', nombre: 'Racha larga', grupo: 'volante', requiere: ['racha', 'fondoFisico'],
           descripcion: 'Sube el tope de la racha.',
+          // Cada nivel pide un nivel más de Fondo físico (Iván, 25-11-2026):
+          // sin aguantar más carreras seguidas, el tope más alto no se alcanza.
           niveles: [
-            { coste: 6, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 } },
-            { coste: 12, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 } },
-            { coste: 18, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 } }
+            { coste: 6, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 }, requiere: { fondoFisico: 1 } },
+            { coste: 12, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 }, requiere: { fondoFisico: 2 } },
+            { coste: 18, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 }, requiere: { fondoFisico: 3 } }
           ] },
         { id: 'reflejos', nombre: 'Reflejos de taxista', grupo: 'volante', requiere: ['racha', 'fondoFisico'],
           descripcion: 'Más tiempo para encadenar la siguiente carrera.',

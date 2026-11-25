@@ -2629,7 +2629,8 @@
       const actual = n ? m.niveles[n - 1] : null;
       const sig = m.niveles[n];
       const falta = sim.faltaParaMejoraPersonaje(prueba, m.id);
-      const bloqueada = sig && [].concat(m.requiere || []).some(function (id) { return !sim.nivelMejoraPersonaje(prueba, id); });
+      // Le falta otra mejora (o el nivel que pide el siguiente): candado.
+      const bloqueada = !!(sig && falta && !/máximo/.test(falta));
       const puede = compra && sig && !falta && sig.coste <= compra.restantes;
       const estadoCss = n > antes ? 'nueva' : n ? 'tiene' : bloqueada ? 'bloqueada' : puede ? 'disponible' : 'no';
       const rayas = max > 1 ? '<span class="nodo-niveles pj-rayas" aria-label="Nivel ' + n + ' de ' + max + '">' +
