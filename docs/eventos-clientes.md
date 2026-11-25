@@ -1,4 +1,8 @@
-# Eventos de clientes: primera propuesta (25-11-2026)
+# Eventos de clientes (25-11-2026)
+
+**Hechos** (config.historia.eventos), con los importes que Iván dio por
+buenos. Los textos del juego no usan «tú» (así valen también cuando le
+pasa a un conductor); los resultados de aquí abajo los resumen.
 
 Borrador para que Iván lo corrija antes de programarlo. Fase 3 de la
 historia (DISENO.md, 5.10). Cada evento: texto, tres decisiones y su
@@ -97,7 +101,7 @@ estación: **25 €**.
 | «¿Otra vez vosotros?» (bromear) | **50 %**: les hace gracia, 5 min. **50 %**: no les hace ninguna, te revisan el coche entero: 45 min parado. Cobras 25 €. |
 | «Me bajo a ver qué pasa» | Mala idea: te tienen 1 hora y la clienta se va andando (pierdes la carrera). |
 
-### B4. «El conseguidor» (mote, por el Pequeño Nicolás)
+### B4. «Little Nico» (mote, por el Pequeño Nicolás; Iván, 25-11-2026)
 
 Sube un chaval muy joven, traje impecable, hablando por dos móviles a la
 vez, que dice ser asesor de no sé qué ministerio. Carrera: **30 €**.
@@ -108,7 +112,7 @@ vez, que dice ser asesor de no sé qué ministerio. Carrera: **30 €**.
 | «Aceptar su tarjeta» | Cobras 30 €. **50 %**: te consigue un servicio VIP de **150 €**. **50 %**: era humo; te cobra **50 €** «de gestión» por una reunión que nunca existe. |
 | «Por adelantado, por favor» | Cobras 30 € y se baja ofendido. Nada más. |
 
-### B5. «El trapero» (mote, por Lit Killah)
+### B5. «Lit» (mote, por Lit Killah; Iván, 25-11-2026)
 
 Sube un trapero argentino muy famoso, con gafas de sol de noche y dos
 colegas. Carrera: **40 €**.

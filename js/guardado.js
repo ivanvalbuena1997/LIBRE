@@ -257,6 +257,13 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 37 → 38: eventos de clientes (Iván, 25-11-2026): su estado y tu agenda
+    // de ÚNICOS. El primero se programa al correr el reloj.
+    37: function (estado) {
+      const h = estado.historia = estado.historia || { introVista: true };
+      if (!h.eventos) h.eventos = { proximo: null, pendiente: null, resultado: null, vistos: {}, ultimo: null, forzado: null };
+      if (!h.agenda) h.agenda = [];
+    },
     // 36 → 37: conductores ÚNICOS (Iván, 25-11-2026): campo `unico` en cada
     // conductor (null en los de antes). Nada más que convertir.
     36: function (estado) {

@@ -322,7 +322,7 @@
       '</dl>';
   }
 
-  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia', pesetas: 'Multa', descanso: 'Descansando' };
+  const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia', pesetas: 'Multa', descanso: 'Descansando', evento: 'Con un cliente' };
   const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
 
   /*
@@ -734,7 +734,7 @@
   const colaAvisos = [];
   let ultimoAviso = 0;
   // Qué sonido lleva cada evento de la simulación (los demás, ninguno).
-  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia', vigilancia: 'pesetas', nivelPersonaje: 'nivel' };
+  const SONIDO_EVENTO = { propina: 'propina', nivel: 'nivel', hallazgo: 'objeto', averia: 'averia', pinchazo: 'averia', rotura: 'averia', vigilancia: 'pesetas', nivelPersonaje: 'nivel', eventoCliente: 'ticket' };
 
   /* Toca un sonido (js/sonidos.js), si el módulo está cargado. */
   function sonar(nombre, arg) {
@@ -766,6 +766,8 @@
       if (SONIDO_EVENTO[ev.tipo]) sonar(SONIDO_EVENTO[ev.tipo]);
       if (ev.tipo === 'propina') { flotantes.etiqueta = 'propina'; return; }
       if (ev.tipo === 'esterillas' || ev.tipo === 'bolsa') return;
+      // Un evento de clientes sale en su hoja (seccionEvento), sin aviso.
+      if (ev.tipo === 'eventoCliente' || ev.tipo === 'cliente') return;
       if (!avisoVisible(ev)) return;
       if (colaAvisos.length < 3) colaAvisos.push(ev);
     });
@@ -2907,8 +2909,66 @@
     }
   };
 
+  /*
+   * Eventos de clientes (fase 3, Iván 25-11-2026): pantalla completa como la
+   * introducción, con la ilustración del evento, a quién le pasa, el texto y
+   * las tres opciones; al elegir, el resultado y «Seguir». El reloj está
+   * parado mientras tanto (Libre.sim.eventoPendiente()).
+   */
+  const seccionEvento = {
+    id: 'sec-evento',
+    firma: function (estado) {
+      const p = Libre.sim.eventoPendiente(estado);
+      const r = p && estado.historia.eventos.resultado;
+      return 'evento:' + (p ? p.id + '|' + p.quien : '') + ':' + (r ? r.opcion : '-');
+    },
+    html: function (estado) {
+      const p = Libre.sim.eventoPendiente(estado);
+      if (!p) return '';
+      const e = Libre.sim.buscarEventoCliente(p.id);
+      if (!e) return '';
+      const r = estado.historia.eventos.resultado;
+      const lic = Libre.sim.buscarLicencia(estado, p.licenciaId);
+      const placa = lic ? ' · ' + esc(Libre.sim.textoLicencia(lic)) : '';
+      const quien = p.quien === 'tu' ? 'Te pasa a ti' + placa : 'Le pasa a ' + esc(p.nombre) + placa + ' · decides tú';
+      let abajo;
+      if (!r) {
+        abajo = '<div class="evento-opciones">' + e.opciones.map(function (o, i) {
+          return '<button type="button" class="ui-boton ui-boton--secundario" data-evento-opcion="' + i + '">' + esc(o.texto) + '</button>';
+        }).join('') + '</div>';
+      } else {
+        const chips = [];
+        if (Math.abs(r.neto) > 0.005) {
+          chips.push('<span class="ui-chip ' + (r.neto > 0 ? 'evento-gana' : 'evento-pierde') + '">' + (r.neto > 0 ? '+' : '−') + esc(euros(Math.abs(r.neto))) + '</span>');
+        }
+        if (r.parado) chips.push('<span class="ui-chip">' + r.parado + ' min parado</span>');
+        if (r.xp) chips.push('<span class="ui-chip">+' + r.xp + ' de experiencia</span>');
+        if (r.objeto) {
+          const o = Libre.sim.buscarObjeto(r.objeto);
+          chips.push('<span class="ui-chip">' + esc(o ? o.nombre : r.objeto) + ' al almacén</span>');
+        }
+        if (r.unico) {
+          const u = Libre.sim.buscarUnico(e.unico);
+          chips.push('<span class="ui-chip evento-unico">' + esc(u ? u.nombre : e.unico) +
+            (r.unico === 'oferta' ? ': hoy, a mitad de precio' : ': en tu agenda') + '</span>');
+        }
+        abajo = '<p class="evento-resultado"><strong>' + esc(e.opciones[r.opcion].texto) + '.</strong> ' + esc(r.texto) + '</p>' +
+          (chips.length ? '<div class="evento-chips">' + chips.join('') + '</div>' : '') +
+          '<div class="intro-botones"><button type="button" class="ui-boton ui-boton--principal" data-evento-seguir>Seguir</button></div>';
+      }
+      return '<div class="intro evento" role="dialog" aria-modal="true" aria-labelledby="evento-titulo">' +
+        '<div class="intro-ilustracion">' +
+        '<img src="' + esc(e.imagen) + '" alt="" onerror="this.parentNode.classList.add(\'sin-imagen\'); this.remove();">' +
+        '<span class="intro-provisional" aria-hidden="true">' + esc(e.titulo) + '</span></div>' +
+        '<div class="intro-texto"><p class="intro-paso">' + quien + '</p>' +
+        '<h2 id="evento-titulo">' + esc(e.titulo) + '</h2>' +
+        (r ? '' : '<p>' + esc(e.texto) + '</p>') + abajo + '</div></div>';
+    }
+  };
+
   const secciones = [seccionTaximetro, seccionTicket, seccionCaja, seccionZonas, seccionObjetivo, seccionTaxis,
-    seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida, seccionPersonaje, seccionIntro];
+    seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida, seccionPersonaje, seccionIntro,
+    seccionEvento];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -3083,7 +3143,7 @@
     'sec-taximetro': 'calle', 'sec-ticket': 'calle',
     'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
     'sec-conductores': 'conductores', 'sec-almacen': 'almacen', 'sec-mejoras': 'mejoras',
-    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre', 'sec-intro': 'siempre'
+    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre', 'sec-intro': 'siempre', 'sec-evento': 'siempre'
   };
   // Pestañas de antes del rework: Flota se partió y Partida es ahora una hoja.
   const VISTA_ANTIGUA = { flota: 'conductores', partida: 'calle' };
@@ -3454,6 +3514,13 @@
         return;
       }
       if (ev.target.closest('[data-intro-siguiente]')) { introPaso++; opciones.redibujar(); return; }
+      const opcionEvento = ev.target.closest('[data-evento-opcion]');
+      if (opcionEvento) {
+        const r = ejecutar('elegirOpcionEvento', [Number(opcionEvento.dataset.eventoOpcion)]);
+        if (r && r.eventos) mostrarEventos(r.eventos);
+        return;
+      }
+      if (ev.target.closest('[data-evento-seguir]')) { ejecutar('cerrarEventoCliente', []); return; }
       if (ev.target.closest('[data-intro-saltar]') || ev.target.closest('[data-intro-empezar]')) {
         introPaso = 0;
         ejecutar('terminarIntro', []);

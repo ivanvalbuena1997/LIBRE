@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 37,
+    versionGuardado: 38,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -131,6 +131,8 @@
       ajuste: { nombre: 'Ajuste de periodos anteriores' },
       // El plus por km de un ÚNICO al cerrar la caja (El Pelado).
       plusKm: { nombre: 'Plus de kilómetros' },
+      // Lo que dejan (o cuestan) los eventos de clientes (config.historia.eventos).
+      cliente: { nombre: 'Eventos de clientes' },
       rotura: {
         nombre: 'Averías definitivas', kmDesde: 130000, kmMax: 230000, probMax: 0.03,
         chatarra: 50               // € que te dan en el desguace
@@ -1095,7 +1097,137 @@
         { imagen: 'imagenes/intro-3.webp',
           titulo: 'Lunes, 7:00',
           texto: 'Un Corolla con 90.000 km, una licencia y 50 € en la caja. Esta vez el jefe eres tú.' }
-      ]
+      ],
+      /*
+       * Eventos de clientes (fase 3; Iván, 25-11-2026; docs/eventos-clientes.md).
+       * Uno cada `cadaJornadas` jornadas (Equilibrio), en un momento al azar
+       * con alguien trabajando: a ti o a un conductor con turno (decides tú
+       * por él). El juego se para hasta que eliges una de las tres opciones.
+       *   momento   'dia' o 'noche' (turno de la hora); sin él, cualquiera
+       *   unico     trae a ese ÚNICO (solo si no está en tu flota ni en tu agenda)
+       *   opciones  [{ texto, resultados: [{ prob, texto, ...efectos }] }]
+       * Efectos de un resultado (todos opcionales):
+       *   dinero    € que entran (la carrera y lo que dejen); [min, max] al azar
+       *   coste     € que salen; [min, max] al azar
+       *   parado    minutos de juego parado (tu taxi o el del conductor)
+       *   xp        experiencia de tu personaje; a un conductor, × xpConductor
+       *   objeto    id de un objeto o { categoria } (uno al azar): al almacén
+       *   unico     'agenda' (en tu agenda: siempre entre los candidatos hasta
+       *             contratarlo) u 'oferta' (además, a `descuentoOferta` hasta el cierre)
+       * Los importes son fijos (Iván: los viajes, siempre lo mismo): Pinto
+       * 33 € y Aranjuez 82 €, tarifa 1 con km aproximados (Iván los da por buenos).
+       */
+      eventos: {
+        activos: true,
+        cadaJornadas: { min: 5, max: 8 },
+        // Minutos desde las 7:00 de la jornada en que puede salir (8:00 a 6:00).
+        minutoDesde: 60, minutoHasta: 1380,
+        reintentoMinutos: 60,        // si en ese momento no trabaja nadie
+        xpConductor: 0.25,           // tus carreras dan 4 puntos y las suyas 1
+        descuentoOferta: 0.5,
+        lista: [
+          { id: 'paconi', titulo: 'Del 12 de Octubre a Pinto', imagen: 'imagenes/evento-paconi.webp', momento: 'dia', unico: 'paconi',
+            texto: 'En la puerta del Hospital 12 de Octubre suben un señor de 67 años con acento venezolano y su hija, enfermera, que acaba el turno. Van a Pinto, donde vive él. Por el camino cuenta que en su país fue taxista, que ahora está en paro y que le van a desahuciar. «Es una trampa, muchachos.»',
+            opciones: [
+              { texto: '«Lo siento, tengo la flota llena»', resultados: [
+                { texto: 'Carrera cobrada. Se despide con un «Engañoso.» Quizá vuelvas a verlo.', dinero: 33 }] },
+              { texto: '«Toma mi número»', resultados: [
+                { texto: 'Carrera cobrada. Paconi queda en tu agenda: lo tienes el primero entre los candidatos hasta que lo contrates.', dinero: 33, unico: 'agenda' }] },
+              { texto: '«Vente a trabajar conmigo»', resultados: [
+                { texto: 'Carrera cobrada. Paconi se ofrece hoy a mitad de precio: lo tienes el primero entre los candidatos. Si no lo contratas antes del cierre, queda en tu agenda.', dinero: 33, unico: 'oferta' }] }
+            ] },
+          { id: 'pelado', titulo: 'De Alcorcón a La Montaña', imagen: 'imagenes/evento-pelado.webp', momento: 'dia', unico: 'pelado',
+            texto: 'En Alcorcón sube un argentino enorme y calvo que va a La Montaña, el barrio residencial de Aranjuez. Trabaja para la competencia, en Uber, pero no le dejan echar horas extra y con siete hijos no llega a fin de mes. «Siete pibes en casa, hermano: hay que laburar.»',
+            opciones: [
+              { texto: '«Lo siento, tengo la flota llena»', resultados: [
+                { texto: 'Carrera cobrada. «Mucha lechuga suelta, jefe.» Sigue en Uber; quizá vuelvas a verlo.', dinero: 82 }] },
+              { texto: '«Toma mi número»', resultados: [
+                { texto: 'Carrera cobrada. El Pelado queda en tu agenda: lo tienes el primero entre los candidatos hasta que lo contrates.', dinero: 82, unico: 'agenda' }] },
+              { texto: '«Vente a trabajar conmigo»', resultados: [
+                { texto: 'Carrera cobrada. El Pelado se ofrece hoy a mitad de precio y, para celebrarlo, deja un paquete de chicles de menta en el almacén. Si no lo contratas antes del cierre, queda en tu agenda.', dinero: 82, unico: 'oferta', objeto: 'chicles' }] }
+            ] },
+          { id: 'cena', titulo: 'Las tres de la cena de empresa', imagen: 'imagenes/evento-cena.webp', momento: 'noche',
+            texto: 'Tres mujeres de unos cincuenta, con más copas de la cuenta tras una celebración del trabajo. Hay que dejar a cada una en su casa: Pozuelo, Boadilla y Las Rozas. 100 € de carrera. La que va delante está cada vez más pálida.',
+            opciones: [
+              { texto: '«Paramos las veces que haga falta»', resultados: [
+                { texto: 'Seis paradas: una hora perdida. Llegan limpias y dejan 20 € de propina.', dinero: 120, parado: 60 }] },
+              { texto: '«Bolsa, ventanilla abajo y conduzco suave»', resultados: [
+                { prob: 0.5, texto: 'Llegan sin incidentes, con 20 minutos de más.', dinero: 100, parado: 20 },
+                { prob: 0.5, texto: 'No llega a tiempo a la bolsa: limpieza y una hora más parado.', dinero: 100, coste: [50, 90], parado: 80 }] },
+              { texto: '«Esto lleva suplemento por paradas»', resultados: [
+                { prob: 0.7, texto: 'Pagan 30 € de suplemento sin rechistar. Una hora de paradas.', dinero: 130, parado: 60 },
+                { prob: 0.3, texto: 'Pagan el suplemento… y al día siguiente ponen una reclamación: 150 €.', dinero: 130, coste: 150, parado: 60 }] }
+            ] },
+          { id: 'rivas', titulo: 'Rivas por 20 €', imagen: 'imagenes/evento-rivas.webp', momento: 'dia',
+            texto: 'Parada de la plaza de toros de Las Ventas; aún falta un rato para que salga la gente. Un tío muy chulo va preguntando uno por uno a los compañeros de la fila y nadie le quiere llevar. Llega al último: «¿Me llevas a Rivas por 20 €?». Por taxímetro serían unos 35.',
+            opciones: [
+              { texto: '«Venga, sube»', resultados: [
+                { prob: 0.6, texto: '20 € y una buena obra.', dinero: 20, xp: 40 },
+                { prob: 0.4, texto: 'Al llegar, agradecido, redondea a 35 €. Una buena obra.', dinero: 35, xp: 40 }] },
+              { texto: '«Con taxímetro, sí»', resultados: [
+                { prob: 0.5, texto: 'Se lo piensa y acepta: 35 €.', dinero: 35 },
+                { prob: 0.5, texto: 'Se va andando, muy digno. Sigues en la fila.', dinero: 0 }] },
+              { texto: '«Espero a los toros»', resultados: [
+                { texto: 'Media hora de espera y una buena carrera a la salida de los toros: 45 €.', dinero: 45, parado: 30 }] }
+            ] },
+          { id: 'boadilla', titulo: 'Control en Boadilla', imagen: 'imagenes/evento-boadilla.webp', momento: 'noche',
+            texto: 'Saliendo de una urbanización de lujo de Boadilla del Monte, con una clienta camino de la estación. El vigilante abre la verja y, al salir a la calle, se cruzan dos coches de policía de paisano: manos arriba y abrir la ventanilla de atrás. La carrera son 25 €.',
+            opciones: [
+              { texto: '«Manos arriba, sin rechistar»', resultados: [
+                { texto: 'Control rutinario: todo en orden en diez minutos. La clienta, aún temblando, deja 10 € de propina.', dinero: 35, parado: 10 }] },
+              { texto: '«¿Otra vez vosotros?»', resultados: [
+                { prob: 0.5, texto: 'Les hace gracia. Cinco minutos y a seguir.', dinero: 25, parado: 5 },
+                { prob: 0.5, texto: 'No les hace ninguna gracia: revisan el coche entero. 45 minutos.', dinero: 25, parado: 45 }] },
+              { texto: '«Me bajo a ver qué pasa»', resultados: [
+                { texto: 'Mala idea: una hora retenido y la clienta se va andando. Carrera perdida.', dinero: 0, parado: 60 }] }
+            ] },
+          { id: 'conseguidor', titulo: 'Little Nico', imagen: 'imagenes/evento-conseguidor.webp', momento: 'dia',
+            texto: 'Sube un chaval muy joven con un traje impecable, hablando por dos móviles a la vez. Dice que es asesor de no sé qué ministerio y que conoce a todo el mundo. La carrera son 30 €.',
+            opciones: [
+              { texto: '«Escucharle»', resultados: [
+                { texto: 'Qué historias. 30 € y mucha experiencia.', dinero: 30, xp: 100 }] },
+              { texto: '«Aceptar su tarjeta»', resultados: [
+                { prob: 0.5, texto: 'Al día siguiente llama: un servicio VIP de 150 €.', dinero: 180 },
+                { prob: 0.5, texto: 'Era humo: 50 € «de gestión» por una reunión que nunca existió.', dinero: 30, coste: 50 }] },
+              { texto: '«Por adelantado, por favor»', resultados: [
+                { texto: 'Paga y se baja ofendido. 30 €.', dinero: 30 }] }
+            ] },
+          { id: 'trapero', titulo: 'Lit', imagen: 'imagenes/evento-trapero.webp', momento: 'noche',
+            texto: 'Sube un trapero argentino muy famoso, con gafas de sol de noche, y dos colegas grabándolo todo con el móvil. La carrera son 40 €.',
+            opciones: [
+              { texto: '«¿Me firmas una foto?»', resultados: [
+                { prob: 0.6, texto: 'Encantado: foto, firma y 50 € de propina.', dinero: 90 },
+                { prob: 0.4, texto: 'Se agobia un poco. Solo la carrera.', dinero: 40 }] },
+              { texto: '«Le pongo su canción en la radio»', resultados: [
+                { prob: 0.5, texto: 'Se viene arriba y la cantan los tres: 80 € de propina.', dinero: 120 },
+                { prob: 0.5, texto: 'Vergüenza ajena. Solo la carrera.', dinero: 40 }] },
+              { texto: '«Como si no le conociera»', resultados: [
+                { texto: '20 € de propina «por la discreción».', dinero: 60 }] }
+            ] },
+          { id: 'ruso', titulo: 'El ruso y sus dos rubias', imagen: 'imagenes/evento-ruso.webp', momento: 'noche',
+            texto: 'Sube un señor ruso con abrigo largo, dos mujeres rubias y ninguna prisa. La carrera son 60 €.',
+            opciones: [
+              { texto: '«No hacer preguntas»', resultados: [
+                { texto: '200 € en efectivo. «Para el silencio.»', dinero: 200 }] },
+              { texto: '«Darle conversación»', resultados: [
+                { prob: 0.5, texto: 'Le cae bien: 300 € y una de ellas se olvida un reloj en el asiento.', dinero: 300, objeto: { categoria: 'S' } },
+                { prob: 0.5, texto: 'No le gusta nada. 60 € justos, y gracias.', dinero: 60 }] },
+              { texto: '«Rechazar el viaje»', resultados: [
+                { texto: 'Por si acaso.', dinero: 0 }] }
+            ] },
+          { id: 'maletero', titulo: 'Cinco en un coche de cuatro', imagen: 'imagenes/evento-maletero.webp', momento: 'noche',
+            texto: 'Cinco chavales de fiesta y el coche admite cuatro. Piden que uno vaya escondido en el maletero. La carrera son 25 €.',
+            opciones: [
+              { texto: '«Venga, al maletero»', resultados: [
+                { prob: 0.75, texto: 'Llegan sin problemas y dejan 15 € de propina.', dinero: 40 },
+                { prob: 0.25, texto: 'Control de policía: 200 € de multa y media hora parado.', dinero: 40, coste: 200, parado: 30 }] },
+              { texto: '«Cuatro, y el quinto que pida otro»', resultados: [
+                { texto: '25 € y ningún lío.', dinero: 25 }] },
+              { texto: '«Llevo a cuatro y vuelvo a por el quinto»', resultados: [
+                { texto: 'Dos viajes: 45 € y 40 minutos.', dinero: 45, parado: 40 }] }
+            ] }
+        ]
+      }
     },
     /*
      * Para guiar al jugador (Iván, 25-11-2026): con menos licencias que

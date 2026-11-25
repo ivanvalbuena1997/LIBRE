@@ -116,6 +116,14 @@
    * Para probar los conductores ÚNICOS hasta que lleguen con los eventos:
    *   Libre.forzarUnico('paconi')   → sale el primero entre los candidatos
    */
+  /*
+   *   Libre.forzarEventoCliente('paconi')  → sale ese evento de clientes (o uno al azar sin id)
+   */
+  Libre.forzarEventoCliente = function (id) {
+    const r = sim.forzarEventoCliente(estado, id);
+    guardar();
+    return r.mensaje;
+  };
   Libre.forzarUnico = function (id) {
     const r = sim.ofrecerUnico(estado, id);
     guardar();

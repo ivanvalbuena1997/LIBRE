@@ -420,6 +420,16 @@ body:not([data-vista="calle"]) .cabecera {
 .intro-botones { display: flex; gap: var(--esp-3); }
 .intro-botones .ui-boton { flex: 1; min-height: 48px; }
 .intro-botones .ui-boton--principal { flex: 2; }
+/* Eventos de clientes: la misma pantalla que la intro, con tres opciones. */
+.evento .intro-texto { max-height: 62vh; overflow-y: auto; }
+.evento .intro-texto p { margin-bottom: var(--esp-3); }
+.evento-opciones { display: flex; flex-direction: column; gap: var(--esp-2); }
+.evento-opciones .ui-boton { min-height: 48px; text-align: left; justify-content: flex-start; }
+.evento-resultado { font-size: var(--t-cuerpo); }
+.evento-chips { display: flex; flex-wrap: wrap; gap: var(--esp-2); margin: 0 0 var(--esp-4); }
+.evento-gana { background: var(--tinte-verde); color: var(--dinero); font-weight: 800; }
+.evento-pierde { background: var(--tinte-rojo); color: var(--peligro); font-weight: 800; }
+.evento-unico { background: var(--tinte-unico); color: var(--rareza-unico); font-weight: 800; }
 .pj-mejoras { list-style: none; margin: 0 0 var(--esp-5); padding: 0; display: flex; flex-direction: column; gap: var(--esp-3); }
 .pj-mejora { display: flex; gap: var(--esp-4); padding: var(--esp-4); border: 1.5px solid var(--linea); border-radius: var(--r-tarjeta); background: var(--tarjeta); }
 .pj-icono { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px;

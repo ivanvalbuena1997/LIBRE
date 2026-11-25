@@ -73,7 +73,7 @@
       // puntos de prestigio sin gastar y sus mejoras (nivel de cada una).
       personaje: { xp: 0, puntos: 0, mejoras: {}, nombre: null, aspecto: Object.assign({}, c.personaje.aspecto.inicial) },
       // Historia: si ya viste la introducción (sale una vez, al empezar).
-      historia: { introVista: false },
+      historia: { introVista: false, eventos: { proximo: null, pendiente: null, resultado: null, vistos: {}, ultimo: null, forzado: null }, agenda: [] },
       conductoresContratados: 0,
       mejoras: {},
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
@@ -827,6 +827,166 @@
     return exito('');
   }
 
+  // ------------------------------------------ Eventos de clientes (fase 3)
+
+  function cfgEventos() { return cfg().historia.eventos; }
+  /* El estado de los eventos (y la agenda de ÚNICOS), creado si falta. */
+  function estadoEventos(estado) {
+    const h = estado.historia = estado.historia || { introVista: true };
+    if (!h.eventos) h.eventos = { proximo: null, pendiente: null, resultado: null, vistos: {}, ultimo: null, forzado: null };
+    if (!h.agenda) h.agenda = [];
+    return h.eventos;
+  }
+  /* El evento pendiente de decidir ({ id, quien, … }) o null. */
+  function eventoPendiente(estado) {
+    const h = estado.historia;
+    return (h && h.eventos && h.eventos.pendiente) || null;
+  }
+  function buscarEventoCliente(id) {
+    return cfgEventos().lista.find(function (e) { return e.id === id; }) || null;
+  }
+  /* Programa el siguiente: dentro de 5–8 jornadas, a un minuto al azar de esa jornada. */
+  function programarEvento(estado) {
+    const c = cfgEventos();
+    const ev = estadoEventos(estado);
+    const jornada = jornadaDe(estado.reloj.minutos) + enteroEntre(estado, c.cadaJornadas.min, c.cadaJornadas.max);
+    ev.proximo = jornada * MIN_DIA + cfg().reloj.minutoCierreCaja + entre(estado, c.minutoDesde, c.minutoHasta);
+  }
+  /* A quién le puede pasar ahora: tú si conduces y trabajas, y los conductores en su turno. */
+  function quienesParaEvento(estado) {
+    const ahora = estado.reloj.minutos;
+    const turno = turnoDeHora(infoReloj(ahora).hora);
+    const lista = [];
+    const u = ubicacionJugador(estado);
+    if (u && u.turno === turno) {
+      const lic = buscarLicencia(estado, u.licenciaId);
+      if (lic.vehiculo && !motivoSinCoche(estado, lic) && puedeTrabajar(estado, lic, u.datos, ahora) &&
+          !(estado.jugador.paradoHasta > ahora)) lista.push({ quien: 'tu', licenciaId: lic.id, turno });
+    }
+    estado.licencias.forEach(function (lic) {
+      const t = enTurno(lic, turno);
+      if (lic.vehiculo && t && t.quien === 'conductor' && puedeTrabajar(estado, lic, t, ahora)) {
+        lista.push({ quien: t.id, nombre: t.nombre, licenciaId: lic.id, turno });
+      }
+    });
+    return lista;
+  }
+  /* ¿Puede salir este evento ahora? Por el momento del día y, si trae un ÚNICO, si no lo tienes ya. */
+  function eventoPosible(estado, e, turno) {
+    if (e.momento && e.momento !== turno) return false;
+    if (e.unico) {
+      const h = estado.historia;
+      if (unicoEnFlota(estado, e.unico) || (h.agenda || []).indexOf(e.unico) !== -1) return false;
+      if ((estado.candidatos || []).some(function (x) { return x.unico === e.unico; })) return false;
+    }
+    return true;
+  }
+  /* Saca un evento: se para el juego hasta que eliges. Sin nadie trabajando, se reintenta. */
+  function dispararEvento(estado, resumen) {
+    const c = cfgEventos();
+    const ev = estadoEventos(estado);
+    const ahora = estado.reloj.minutos;
+    const turno = turnoDeHora(infoReloj(ahora).hora);
+    const quienes = quienesParaEvento(estado);
+    let lista;
+    if (ev.forzado) lista = [buscarEventoCliente(ev.forzado)].filter(Boolean);
+    else {
+      const posibles = c.lista.filter(function (e) { return eventoPosible(estado, e, turno); });
+      const nuevos = posibles.filter(function (e) { return !ev.vistos[e.id]; });
+      lista = nuevos.length ? nuevos : posibles.filter(function (e) { return e.id !== ev.ultimo; });
+      if (!lista.length) lista = posibles;
+    }
+    if (!quienes.length || !lista.length) { ev.proximo = ahora + c.reintentoMinutos; return; }
+    const e = lista[Math.floor(azar(estado) * lista.length)];
+    const q = quienes[Math.floor(azar(estado) * quienes.length)];
+    ev.forzado = null;
+    ev.pendiente = Object.assign({ id: e.id }, q);
+    ev.resultado = null;
+    ev.vistos[e.id] = (ev.vistos[e.id] || 0) + 1;
+    ev.ultimo = e.id;
+    programarEvento(estado);
+    resumen.eventos.push({ tipo: 'eventoCliente', id: e.id, texto: e.titulo });
+  }
+  /* El turno (o tú) al que le pasa el evento: { t, tu }. */
+  function sujetoEvento(estado, p) {
+    if (p.quien === 'tu') return { t: null, tu: true };
+    const x = todosLosConductores(estado).find(function (y) { return y.t.id === p.quien; });
+    return { t: x ? x.t : null, tu: false };
+  }
+  /* Valor de un efecto: número o [min, max] al azar. */
+  function valorEfecto(estado, v) {
+    return Array.isArray(v) ? entre(estado, v[0], v[1]) : (v || 0);
+  }
+  /* Eliges una opción del evento: se sortea el resultado y se aplica. */
+  function elegirOpcionEvento(estado, indice) {
+    const ev = estadoEventos(estado);
+    const p = ev.pendiente;
+    if (!p) return fallo('No hay ningún evento.');
+    if (ev.resultado) return fallo('Ya has decidido.');
+    const e = buscarEventoCliente(p.id);
+    const o = e && e.opciones[Number(indice)];
+    if (!o) return fallo('Esa opción no existe.');
+    let tirada = azar(estado), r = o.resultados[o.resultados.length - 1];
+    for (const x of o.resultados) {
+      tirada -= x.prob === undefined ? 1 : x.prob;
+      if (tirada < 0) { r = x; break; }
+    }
+    const resumen = resumenVacio();
+    const s = sujetoEvento(estado, p);
+    const neto = valorEfecto(estado, r.dinero) - valorEfecto(estado, r.coste);
+    if (Math.abs(neto) > 1e-9) {
+      incidencia(estado, resumen, 'cliente', e.titulo + ': ' + r.texto, neto, neto > 0 ? 'extras' : 'otros', s.t);
+    }
+    if (r.parado) {
+      const hasta = estado.reloj.minutos + r.parado;
+      const quien = s.tu ? estado.jugador : s.t;
+      if (quien && !((quien.paradoHasta || 0) > hasta)) { quien.paradoHasta = hasta; quien.motivoParada = 'evento'; }
+    }
+    if (r.xp) {
+      if (s.tu) ganarExperienciaPersonaje(estado, resumen, r.xp);
+      else if (s.t) ganarExperiencia(estado, resumen, s.t, Math.max(1, Math.round(r.xp * cfgEventos().xpConductor)));
+    }
+    let objeto = null;
+    if (r.objeto) {
+      const posibles = typeof r.objeto === 'string' ? [buscarObjeto(r.objeto)]
+        : cfg().objetos.lista.filter(function (x) { return x.categoria === r.objeto.categoria; });
+      objeto = posibles[Math.floor(azar(estado) * posibles.length)] || null;
+      if (objeto) guardarObjeto(estado, objeto, s.t ? s.t.nombre : nombrePersonaje(estado));
+    }
+    if (r.unico && e.unico) {
+      const h = estado.historia;
+      if (h.agenda.indexOf(e.unico) === -1) h.agenda.push(e.unico);
+      ofrecerUnico(estado, e.unico);
+      if (r.unico === 'oferta') {
+        const cand = candidatos(estado).find(function (x) { return x.unico === e.unico; });
+        if (cand) cand.descuento = cfgEventos().descuentoOferta;
+      }
+    }
+    ev.resultado = { opcion: Number(indice), texto: r.texto, neto, parado: r.parado || 0,
+      xp: r.xp ? (s.tu ? r.xp : Math.max(1, Math.round(r.xp * cfgEventos().xpConductor))) : 0,
+      objeto: objeto ? objeto.id : null, unico: r.unico && e.unico ? r.unico : null };
+    const r2 = exito('');
+    r2.eventos = resumen.eventos;
+    return r2;
+  }
+  /* Tras leer el resultado: sigue el juego. */
+  function cerrarEventoCliente(estado) {
+    const ev = estadoEventos(estado);
+    if (!ev.pendiente) return fallo('No hay ningún evento.');
+    if (!ev.resultado) return fallo('Elige antes una opción.');
+    ev.pendiente = null;
+    ev.resultado = null;
+    return exito('');
+  }
+  /* Para probar (consola): que salga ya ese evento (o uno al azar). */
+  function forzarEventoCliente(estado, id) {
+    if (id && !buscarEventoCliente(id)) return fallo('Ese evento no existe.');
+    const ev = estadoEventos(estado);
+    ev.forzado = id || null;
+    ev.proximo = estado.reloj.minutos;
+    return exito('El evento sale en cuanto corra el reloj (si hay alguien trabajando).');
+  }
+
   /* El jugador arranca el día siguiente desde el ticket. */
   function arrancarDia(estado) {
     if (!estado.cierrePendiente) return fallo('El día ya está en marcha.');
@@ -1142,6 +1302,10 @@
   /* Un conductor recién contratado a partir de su candidato. */
   function nuevoConductor(estado, candidato, zona) {
     estado.ultimoIdConductor = (estado.ultimoIdConductor || 0) + 1;
+    // Un ÚNICO contratado sale de tu agenda (si lo despides, no vuelve solo).
+    if (candidato.unico && estado.historia && estado.historia.agenda) {
+      estado.historia.agenda = estado.historia.agenda.filter(function (id) { return id !== candidato.unico; });
+    }
     return {
       id: estado.ultimoIdConductor,
       quien: 'conductor', nombre: candidato.nombre, retrato: candidato.retrato, zona,
@@ -1312,7 +1476,8 @@
 
   /* Lo que cuesta contratar a un candidato (según su categoría). */
   function precioCandidato(candidato) {
-    return (buscarCategoria(candidato.categoria) || cfg().categorias[0]).contratar;
+    // Un ÚNICO que se ofrece en un evento puede venir con descuento (hasta el cierre).
+    return (buscarCategoria(candidato.categoria) || cfg().categorias[0]).contratar * (1 - (candidato.descuento || 0));
   }
 
   // ------------------------------------------- Conductores ÚNICOS (fase 2)
@@ -1491,6 +1656,10 @@
         cualidad: r.cualidad, cualidad2: r.cualidad2, defecto: r.defecto, defecto2: r.defecto2
       });
     }
+    // Los ÚNICOS de tu agenda (eventos de clientes) siguen ahí hasta que los contrates.
+    ((estado.historia && estado.historia.agenda) || []).forEach(function (id) {
+      if (buscarUnico(id) && !unicoEnFlota(estado, id)) ofrecerUnico(estado, id);
+    });
     return estado.candidatos;
   }
 
@@ -1892,6 +2061,16 @@
    * una categoría o el id de un objeto). Al almacén o, si está lleno, a la
    * bandeja. Avisa con su retrato; no va al ticket.
    */
+  /* Un objeto al almacén o, si está lleno, a la bandeja. Devuelve si estaba lleno. */
+  function guardarObjeto(estado, objeto, quien) {
+    estado.objetos = estado.objetos || {};
+    estado.bandeja = estado.bandeja || [];
+    const lleno = objetosEnAlmacen(estado) >= capacidadAlmacen(estado);
+    if (lleno) estado.bandeja.push({ id: objeto.id, conductor: quien });
+    else estado.objetos[objeto.id] = (estado.objetos[objeto.id] || 0) + 1;
+    return lleno;
+  }
+
   function hallazgo(estado, resumen, t) {
     if (!t || t.quien !== 'conductor') return;
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
@@ -1909,11 +2088,7 @@
       const posibles = cfg().objetos.lista.filter(function (o) { return o.categoria === categoria; });
       objeto = posibles[Math.floor(azar(estado) * posibles.length)];
     }
-    estado.objetos = estado.objetos || {};
-    estado.bandeja = estado.bandeja || [];
-    const lleno = objetosEnAlmacen(estado) >= capacidadAlmacen(estado);
-    if (lleno) estado.bandeja.push({ id: objeto.id, conductor: t.nombre });
-    else estado.objetos[objeto.id] = (estado.objetos[objeto.id] || 0) + 1;
+    const lleno = guardarObjeto(estado, objeto, t.nombre);
     resumen.eventos.push({
       tipo: 'hallazgo', conductor: t.nombre, retrato: t.retrato, objeto: objeto.id, categoria: objeto.categoria,
       // La interfaz añade la etiqueta de su categoría.
@@ -2544,6 +2719,7 @@
     const c = cfg();
     if (!conduce(estado)) return fallo('Ahora no conduces. Elige un turno libre en Conductores.');
     if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
+    if (eventoPendiente(estado)) return fallo('Antes decide qué hacer con el cliente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
     if (estado.jugador.paradoHasta > estado.reloj.minutos) {
       const vuelta = infoReloj(estado.jugador.paradoHasta);
@@ -3525,6 +3701,10 @@
     if (enPausa(estado) || !(segundos > 0)) return resumen;
     // Mientras lees la introducción, el reloj no corre.
     if (estado.historia && !estado.historia.introVista) return resumen;
+    // Ni mientras decides un evento de clientes.
+    if (eventoPendiente(estado)) return resumen;
+    const eventos = cfgEventos().activos ? estadoEventos(estado) : null;
+    if (eventos && eventos.proximo === null) programarEvento(estado);
     const pararse = estado.ajustes.pararAlCierre;
     let restante = segundos * MIN_DIA / segundosPorDia(estado);
     resumen.minutos = restante;
@@ -3548,6 +3728,7 @@
           estado.lluvia.desde > ahora && estado.lluvia.desde < limite) limite = estado.lluvia.desde;
       // Al escampar, los que estaban parados por la lluvia (Azucarillo) vuelven ya.
       if (estado.lluvia && estado.lluvia.hasta > ahora && estado.lluvia.hasta < limite) limite = estado.lluvia.hasta;
+      if (eventos && eventos.proximo > ahora && eventos.proximo < limite) limite = eventos.proximo;
 
       const llega = restante >= limite - ahora;
       const paso = llega ? limite - ahora : restante;
@@ -3574,6 +3755,11 @@
           estado.cierrePendiente = sumarCierres([estado.caja.ayer]);
           break;
         }
+      }
+      // Un evento de clientes: el juego se para hasta que decides.
+      if (eventos && !eventos.pendiente && estado.reloj.minutos >= eventos.proximo) {
+        dispararEvento(estado, resumen);
+        if (eventos.pendiente) break;
       }
     }
     return resumen;
@@ -3697,6 +3883,12 @@
     bonoTocayos,
     factorImporteUnico,
     enTurno,
+    eventoPendiente,
+    buscarEventoCliente,
+    elegirOpcionEvento,
+    cerrarEventoCliente,
+    forzarEventoCliente,
+    programarEvento,
     cambiarAspecto,
     renombrarPersonaje,
     nombrePersonaje,

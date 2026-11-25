@@ -563,6 +563,10 @@
         {
           "n": 123,
           "texto": "Llega el segundo ÚNICO: El Pelado. Solo en su coche hace el día y la noche del tirón, cobra un plus por cada kilómetro, nadie se le va sin pagar, nunca se pone malo y con los chicles de menta cobra un 20 % más. A cambio gasta más combustible, hace más kilómetros de la cuenta, pincha más y no comparte coche con Paconi."
+        },
+        {
+          "n": 124,
+          "texto": "Llegan los eventos de clientes: cada 5–8 jornadas se sube alguien especial a tu taxi o al de uno de tus conductores, el juego se para y tú decides entre tres opciones. Nueve historias, casi todas reales y con su ilustración, y dos de ellas te traen a Paconi y a El Pelado."
         }
       ]
     }

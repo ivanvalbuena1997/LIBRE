@@ -18,6 +18,7 @@ require('../js/simulacion.js');
 const sim = globalThis.Libre.sim;
 const c = globalThis.Libre.config;
 c.licencias.libranza = false;
+c.historia.eventos.activos = false;
 
 const SEMILLAS = Number(process.argv[2]) || 6;
 const JORNADAS = Number(process.argv[3]) || 40;

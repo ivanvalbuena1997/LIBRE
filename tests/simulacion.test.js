@@ -11,6 +11,7 @@ const sim = globalThis.Libre.sim;
 const config = globalThis.Libre.config;
 // Las pruebas miden ritmos sin días de libranza; las de libranza la encienden.
 config.licencias.libranza = false;
+config.historia.eventos.activos = false;   // los eventos de clientes paran el reloj: los encienden sus pruebas
 // Igual con la regla de una sola licencia (solo la primera mejora de cada
 // rama): la apaga aquí y la prueba suya la enciende.
 const LICENCIAS_RESTO_RAMA = config.licenciasParaRestoDeRama;
@@ -2783,6 +2784,87 @@ prueba('ÚNICOS: El Pelado dobla turno solo en su coche, nunca se pone malo, nad
   assert.ok(km >= 400);
   cerca(e.caja.ayer.incidencias.plusKm.importe, km * (1 + u.kmExtra) * u.plusKm, 1e-6);
   assert.ok(lic.km - kmAntes >= 400 * u.kmExtra - 1e-9);
+});
+
+prueba('Eventos de clientes: cada 5–8 jornadas, paran el reloj y aplican lo que eliges', function () {
+  const ce = config.historia.eventos;
+  ce.activos = true;
+  try {
+    const e = sim.crearEstadoInicial(0);
+    e.azar = 3;
+    e.dinero = 1e6;
+    // Se programa al correr el reloj: entre 5 y 8 jornadas más tarde, de 8:00 a 6:00.
+    sim.avanzar(e, 0.1);
+    const j = sim.jornadaDe(e.historia.eventos.proximo);
+    assert.ok(j >= 5 && j <= 8, 'jornada ' + j);
+    const m = (e.historia.eventos.proximo - config.reloj.minutoCierreCaja) % 1440;
+    assert.ok(m >= ce.minutoDesde && m <= ce.minutoHasta);
+    // Forzado: sale en cuanto corre el reloj, a ti (conduces de día).
+    e.reloj.minutos = 9 * 60;
+    assert.ok(sim.forzarEventoCliente(e, 'rivas').ok);
+    sim.avanzar(e, 0.5);
+    const p = sim.eventoPendiente(e);
+    assert.ok(p, 'hay evento');
+    assert.strictEqual(p.id, 'rivas');
+    assert.strictEqual(p.quien, 'tu');
+    // Parado mientras decides: ni el reloj ni tu taxímetro.
+    const t0 = e.reloj.minutos;
+    sim.avanzar(e, 5);
+    assert.strictEqual(e.reloj.minutos, t0);
+    assert.strictEqual(sim.buscarCliente(e).ok, false);
+    assert.strictEqual(sim.cerrarEventoCliente(e).ok, false, 'antes hay que elegir');
+    // «Espero a los toros»: 45 € y media hora parado.
+    const dinero = e.dinero;
+    assert.ok(sim.elegirOpcionEvento(e, 2).ok);
+    cerca(e.dinero - dinero, 45, 1e-9);
+    assert.strictEqual(e.caja.hoy.incidencias.cliente.importe, 45);
+    assert.strictEqual(e.jugador.paradoHasta, t0 + 30);
+    assert.strictEqual(e.jugador.motivoParada, 'evento');
+    assert.strictEqual(sim.elegirOpcionEvento(e, 0).ok, false, 'solo una vez');
+    assert.ok(sim.cerrarEventoCliente(e).ok);
+    assert.strictEqual(sim.eventoPendiente(e), null);
+    sim.avanzar(e, 1);
+    assert.ok(e.reloj.minutos > t0, 'el reloj vuelve a correr');
+  } finally {
+    ce.activos = false;
+  }
+});
+
+prueba('Eventos de clientes: Paconi a mitad de precio hasta el cierre y luego en tu agenda', function () {
+  const ce = config.historia.eventos;
+  ce.activos = true;
+  try {
+    const e = sim.crearEstadoInicial(0);
+    e.azar = 9;
+    e.dinero = 1e6;
+    e.reloj.minutos = 10 * 60;
+    sim.forzarEventoCliente(e, 'paconi');
+    sim.avanzar(e, 0.5);
+    assert.strictEqual(sim.eventoPendiente(e).id, 'paconi');
+    assert.ok(sim.elegirOpcionEvento(e, 2).ok);
+    sim.cerrarEventoCliente(e);
+    const cand = e.candidatos[0];
+    assert.strictEqual(cand.unico, 'paconi');
+    const precio = config.categorias.find(function (c) { return c.id === 'L'; }).contratar;
+    cerca(sim.precioCandidato(cand), precio * ce.descuentoOferta, 1e-9);
+    assert.deepStrictEqual(e.historia.agenda, ['paconi']);
+    // Al cerrar la caja se sortean otros candidatos: sigue, a precio normal.
+    e.historia.eventos.proximo = 1e9;
+    e.reloj.minutos = 420 + 1440 - 0.2;
+    sim.avanzar(e, 0.5);
+    const otra = e.candidatos.find(function (x) { return x.unico === 'paconi'; });
+    assert.ok(otra, 'sigue en los candidatos');
+    cerca(sim.precioCandidato(otra), precio, 1e-9);
+    // Contratado, sale de la agenda.
+    sim.arrancarDia(e);
+    sim.comprarLicencia(e);
+    const lic = e.licencias[1];
+    sim.comprarVehiculo(e, lic.id);
+    assert.ok(sim.contratarConductor(e, lic.id, 'dia', e.candidatos.indexOf(otra)).ok);
+    assert.deepStrictEqual(e.historia.agenda, []);
+  } finally {
+    ce.activos = false;
+  }
 });
 
 console.log(pasadas + ' pruebas correctas');

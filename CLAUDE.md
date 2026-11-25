@@ -748,6 +748,25 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `--tinte-unico`) y `htmlUnico()` sustituye a los rasgos en ficha y
   candidatos (frase de la jornada, habilidades, debilidades, sinergia). Consola:
   `Libre.forzarUnico('paconi')`.
+- Eventos de clientes (fase 3, Iván 25-11-2026; versión 38 del guardado):
+  `config.historia.eventos` (`activos`, `cadaJornadas`, `lista` de eventos
+  con `momento`, `unico` y `opciones` → `resultados` con `prob` y efectos
+  `dinero`, `coste`, `parado`, `xp`, `objeto`, `unico`). Estado en
+  `estado.historia.eventos` (`proximo` minuto, `pendiente`, `resultado`,
+  `vistos`, `ultimo`, `forzado`) y `estado.historia.agenda` (ÚNICOS que
+  `sortearCandidatos()` vuelve a ofrecer; `nuevoConductor()` los quita).
+  `avanzar()` no hace nada con un evento pendiente (`eventoPendiente()`),
+  para en `proximo` y llama a `dispararEvento()` (tras el cierre de caja;
+  `quienesParaEvento()`, `eventoPosible()`); sin nadie trabajando,
+  reintenta en `reintentoMinutos`. `elegirOpcionEvento(estado, i)` sortea y
+  aplica (incidencia 'cliente', `paradoHasta` con `motivoParada` 'evento',
+  experiencia, `guardarObjeto()`, agenda y `descuento` en el candidato, que
+  lee `precioCandidato()`) y devuelve los eventos de la partida;
+  `cerrarEventoCliente()` sigue. Pantalla: `seccionEvento` (vista
+  'siempre', `data-evento-opcion`, `data-evento-seguir`), la misma hoja que
+  la intro. Consola: `Libre.forzarEventoCliente('paconi')`. Las pruebas los
+  apagan (`activos = false`; las suyas los encienden) y el bot de
+  progresión elige al azar tras `LEER_EVENTO` segundos.
 - Azar con semilla también en tu turno (25-11-2026): `buscarCliente()` y
   `crearEstadoInicial()` usan `generador(estado)` si no les pasan un
   generador; `Math.random` solo queda para la semilla inicial y la

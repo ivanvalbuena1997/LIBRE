@@ -51,6 +51,7 @@ const CORTES = [30, 60, 90, 120, 150].filter(function (m) { return m <= MINUTOS;
 const DT = 0.25;                 // paso de la simulación (s reales)
 const REACCION = Number(process.env.REACCION) || 0.7;   // entre carreras a clic (s); REACCION=0.4 node … para un jugador más atento
 const LEER_TICKET = 3;           // s hasta «Arrancar día siguiente»
+const LEER_EVENTO = 10;          // s en leer un evento de clientes y elegir (al azar)
 const MIRAR_TIENDA = 2;          // cada cuántos s mira qué comprar
 const ORDEN_CAT = c.categorias.map(function (x) { return x.id; });
 const PERFILES = {
@@ -100,7 +101,7 @@ function jugar(semilla, perfil, opciones) {
     e.personaje = JSON.parse(JSON.stringify(opciones.personaje));
     sim.aplicarArranque(e);
   }
-  let t = 0, espera = 0, tienda = 0, ticket = 0;
+  let t = 0, espera = 0, tienda = 0, ticket = 0, leyendo = 0, eventosVistos = 0;
   const hitos = {};
   const hallados = { total: 0 };
   ORDEN_CAT.forEach(function (id) { hallados[id] = 0; });
@@ -319,6 +320,16 @@ function jugar(semilla, perfil, opciones) {
     if (tienda >= MIRAR_TIENDA) { tienda = 0; comprar(); }
 
     const r = sim.avanzar(e, DT);
+    // Un evento de clientes: lo lee, elige una opción al azar y sigue.
+    if (sim.eventoPendiente(e)) {
+      leyendo += DT;
+      if (leyendo >= LEER_EVENTO) {
+        sim.elegirOpcionEvento(e, Math.floor(rng() * 3));
+        sim.cerrarEventoCliente(e);
+        eventosVistos++;
+        leyendo = 0;
+      }
+    }
     (r.eventos || []).forEach(function (ev) {
       if (ev.tipo === 'hallazgo') {
         hallados.total++;
@@ -335,7 +346,7 @@ function jugar(semilla, perfil, opciones) {
     while (corte < CORTES.length && t >= CORTES[corte] * 60) { cortes.push(foto(CORTES[corte])); corte++; }
     if (opciones.hastaNivel && sim.nivelPersonaje(e).nivel >= opciones.hastaNivel && !e.jugador.carrera) break;
   }
-  return { semilla, perfil, cortes, hitos, minutos: t / 60, estado: e };
+  return { semilla, perfil, cortes, hitos, minutos: t / 60, estado: e, eventosVistos };
 }
 
 // ------------------------------------------------------------ resumen
