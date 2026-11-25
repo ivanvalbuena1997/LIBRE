@@ -22,7 +22,8 @@ la tapa el texto.
   `evento-rivas.webp`: el de «Rivas por 20 €» en Las Ventas;
   `evento-boadilla.webp`: el control en Boadilla;
   `evento-conseguidor.webp`: el conseguidor;
-  `evento-trapero.webp`: el trapero.
+  `evento-trapero.webp`: el trapero;
+  `evento-ruso.webp`: el ruso y sus dos rubias.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón
