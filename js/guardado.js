@@ -257,6 +257,11 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 35 → 36: historia (Iván, 25-11-2026). Las partidas ya empezadas no
+    // ven la introducción: solo sale al principio.
+    35: function (estado) {
+      if (!estado.historia) estado.historia = { introVista: true };
+    },
     // 34 → 35: tu cara y tu nombre (Iván, 24-11-2026): los de serie.
     34: function (estado) {
       const p = estado.personaje = estado.personaje || { xp: 0, puntos: 0, mejoras: {} };

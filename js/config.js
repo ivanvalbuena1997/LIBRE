@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 35,
+    versionGuardado: 36,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -1009,6 +1009,25 @@
      * Precios y efectos: Equilibrio. Precios revisados el 16-11-2026 (propuesta C): cada
      * mejora se paga en unas 1–2 h de juego con 6 coches (medido con un bot).
      */
+    /*
+     * Historia (fase 1 de los personajes guía, Iván 25-11-2026): la
+     * introducción que sale una sola vez, al empezar la primera partida.
+     * Cada escena lleva su ilustración (imagenes/, hecha por Iván con IA;
+     * si aún no está, se ve un fondo provisional) y su texto.
+     */
+    historia: {
+      intro: [
+        { imagen: 'imagenes/intro-1.webp',
+          titulo: 'Viernes, 18:00',
+          texto: 'Tu jefe te llama al despacho: «Los números no salen. Recoge tus cosas». Diez años en la empresa y sales con una caja de cartón.' },
+        { imagen: 'imagenes/intro-2.webp',
+          titulo: 'Esa misma noche',
+          texto: 'Vuelves a casa en taxi. El taxista, a punto de jubilarse, te cuenta que vende su licencia y su viejo Corolla. Sacas el finiquito y haces cuentas en una servilleta…' },
+        { imagen: 'imagenes/intro-3.webp',
+          titulo: 'Lunes, 7:00',
+          texto: 'Un Corolla con 90.000 km, una licencia y 50 € en la caja. Esta vez el jefe eres tú.' }
+      ]
+    },
     /*
      * Para guiar al jugador (Iván, 25-11-2026): con menos licencias que
      * esto, de cada rama solo se puede comprar la primera mejora; el resto

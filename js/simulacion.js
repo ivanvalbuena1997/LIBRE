@@ -72,6 +72,8 @@
       // Tu personaje: experiencia de esta partida (el nivel sale de ella),
       // puntos de prestigio sin gastar y sus mejoras (nivel de cada una).
       personaje: { xp: 0, puntos: 0, mejoras: {}, nombre: null, aspecto: Object.assign({}, c.personaje.aspecto.inicial) },
+      // Historia: si ya viste la introducción (sale una vez, al empezar).
+      historia: { introVista: false },
       conductoresContratados: 0,
       mejoras: {},
       // Objetos para conductores en el almacén (sin equipar): { id: unidades }.
@@ -816,6 +818,12 @@
 
   function enPausa(estado) {
     return !!estado.cierrePendiente;
+  }
+
+  /* Terminas (o saltas) la introducción de la historia: empieza el reloj. */
+  function terminarIntro(estado) {
+    estado.historia = Object.assign({}, estado.historia, { introVista: true });
+    return exito('');
   }
 
   /* El jugador arranca el día siguiente desde el ticket. */
@@ -1572,6 +1580,8 @@
       nombre: (estado.personaje && estado.personaje.nombre) || null,
       aspecto: Object.assign({}, nuevo.personaje.aspecto, estado.personaje && estado.personaje.aspecto)
     };
+    // La introducción solo sale al principio de la primera partida.
+    nuevo.historia = Object.assign({}, estado.historia, { introVista: true });
     aplicarArranque(nuevo);
     const r = exito('Empiezas de cero' + (nuevo.personaje.puntos ? '; te guardas ' + nuevo.personaje.puntos +
       ' punto' + (nuevo.personaje.puntos === 1 ? '' : 's') + ' para el próximo reinicio.' : '.'));
@@ -3332,6 +3342,8 @@
   function avanzar(estado, segundos) {
     const resumen = resumenVacio();
     if (enPausa(estado) || !(segundos > 0)) return resumen;
+    // Mientras lees la introducción, el reloj no corre.
+    if (estado.historia && !estado.historia.introVista) return resumen;
     const pararse = estado.ajustes.pararAlCierre;
     let restante = segundos * MIN_DIA / segundosPorDia(estado);
     resumen.minutos = restante;
@@ -3531,6 +3543,7 @@
     importeDeCarrera,
     enPausa,
     arrancarDia,
+    terminarIntro,
     puedeSaltarDia,
     kmCocheUsado,
     factorAveriaKm,

@@ -15,6 +15,14 @@ config.licencias.libranza = false;
 // rama): la apaga aquí y la prueba suya la enciende.
 const LICENCIAS_RESTO_RAMA = config.licenciasParaRestoDeRama;
 config.licenciasParaRestoDeRama = 0;
+// Las partidas nuevas empiezan con la introducción sin ver (el reloj no corre
+// hasta cerrarla): en las pruebas, ya vista. La suya lo comprueba aparte.
+const crearEstadoSinIntro = sim.crearEstadoInicial;
+sim.crearEstadoInicial = function () {
+  const e = crearEstadoSinIntro.apply(null, arguments);
+  e.historia.introVista = true;
+  return e;
+};
 
 let pasadas = 0;
 function prueba(nombre, fn) {
@@ -2635,6 +2643,27 @@ prueba('con una sola licencia, solo la primera mejora de cada rama; el resto, de
   } finally {
     config.licenciasParaRestoDeRama = 0;
   }
+});
+
+prueba('historia: la introducción sale una vez al principio y el reloj no corre hasta cerrarla', function () {
+  require('../js/guardado.js');
+  const e = crearEstadoSinIntro(0);
+  assert.strictEqual(e.historia.introVista, false);
+  assert.ok(config.historia.intro.length >= 1);
+  const antes = e.reloj.minutos;
+  sim.avanzar(e, 5);
+  assert.strictEqual(e.reloj.minutos, antes, 'con la introducción abierta no pasa el tiempo');
+  assert.ok(sim.terminarIntro(e).ok);
+  sim.avanzar(e, 5);
+  assert.ok(e.reloj.minutos > antes);
+  // Al empezar de cero no vuelve a salir.
+  e.personaje.xp = sim.experienciaParaNivel(3);
+  assert.strictEqual(sim.empezarDeCero(e, [], 0).nuevo.historia.introVista, true);
+  // Las partidas ya empezadas (versión 35) no la ven.
+  const viejo = JSON.parse(JSON.stringify(crearEstadoSinIntro(0)));
+  viejo.version = 35;
+  delete viejo.historia;
+  assert.strictEqual(globalThis.Libre.guardado.migrar(viejo).historia.introVista, true);
 });
 
 console.log(pasadas + ' pruebas correctas');

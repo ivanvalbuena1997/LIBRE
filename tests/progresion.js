@@ -95,6 +95,7 @@ function jugar(semilla, perfil, opciones) {
   const rng = generador(semilla * 7919 + 13);
   const e = sim.crearEstadoInicial(0, rng);
   e.azar = semilla * 104729 + 7;
+  sim.terminarIntro(e);   // el bot no lee la introducción
   if (opciones.personaje) {
     e.personaje = JSON.parse(JSON.stringify(opciones.personaje));
     sim.aplicarArranque(e);
