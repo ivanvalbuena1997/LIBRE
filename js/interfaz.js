@@ -1080,7 +1080,7 @@
   }
 
   function htmlCabezaComparar(x) {
-    const cat = Libre.sim.buscarCategoria(x.t.categoria);
+    const cat = rarezaDe(x.t);
     return '<div class="comp-quien"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.t.retrato) + '</span>' +
       htmlCirculos(x.t) + '</span><strong>' + esc(x.t.nombre) + '</strong>' +
       '<span class="comp-categoria">' + (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') +
@@ -1195,14 +1195,14 @@
     const hayHuecoReserva = (estado.reserva || []).length < c.conductores.reserva;
     const tarjetas = Libre.sim.candidatos(estado).map(function (x, i) {
       const precio = Libre.sim.precioCandidato(x);
-      const cat = Libre.sim.buscarCategoria(x.categoria);
+      const cat = rarezaDe(x);
       if (estado.dinero < precio) falta = true;
       return '<div class="candidato ui-tarjeta">' +
         '<div class="candidato-cabecera"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
-        (cat ? '<span class="cara-categoria ' + claseRareza(cat.id) + '" aria-hidden="true">' + esc(cat.id === 'L' ? 'L' : cat.nombre) + '</span>' : '') +
+        (cat ? '<span class="cara-categoria ' + claseRareza(cat.id) + '" aria-hidden="true">' + esc(cat.letra) + '</span>' : '') +
         '</span><div><strong>' + esc(x.nombre) + '</strong>' +
         (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') + '</div></div>' +
-        '<div class="ficha-rasgos">' + htmlFilasRasgos(x) + htmlFuerzaCategoria(x) + '</div>' +
+        (x.unico ? htmlUnico(estado, x) : '<div class="ficha-rasgos">' + htmlFilasRasgos(x) + htmlFuerzaCategoria(x) + '</div>') +
         '<div class="candidato-pie">' +
         (lic ? boton('Contratar · ' + euros(precio), 'contratarConductor', [lic.id, turno, i], 'ui-boton ui-boton--principal', precio) : '') +
         (hayHuecoReserva
@@ -1274,17 +1274,71 @@
   function claseRareza(id) {
     return 'ui-rareza ui-rareza--' + (id === 'S+' ? 'Smas' : id);
   }
+  /*
+   * La rareza que se enseña de un conductor o candidato: la de su categoría
+   * o, si es un ÚNICO, «ÚNICO» (granate). { id, nombre, letra } o null.
+   */
+  function rarezaDe(t) {
+    if (t && t.unico) return { id: 'U', nombre: 'ÚNICO', letra: 'Ú' };
+    const c = t && Libre.sim.buscarCategoria(t.categoria);
+    return c ? { id: c.id, nombre: c.nombre, letra: c.id === 'L' ? 'L' : c.nombre } : null;
+  }
+  const NOMBRE_TURNO = function (id) { return Libre.config.turnos[id].nombre.toLowerCase(); };
+  function pct(f) { return Math.round(f * 100) + ' %'; }
+  /*
+   * Ficha de un ÚNICO (candidato o conductor): quién es, una de sus frases,
+   * sus habilidades (con la sinergia activa o la que le falta) y sus
+   * debilidades. Todo sale de config.conductores.unicos.
+   */
+  function htmlUnico(estado, t) {
+    const u = Libre.sim.unicoDe(t);
+    if (!u) return '';
+    const hab = [];
+    if (u.tocayos) {
+      const ahora = estado ? Libre.sim.bonoTocayos(estado, t) : 0;
+      hab.push('<strong>Tocayos:</strong> +' + pct(u.tocayos.porCada) + ' en sus carreras por cada ' + u.tocayos.nombres.join(' o ') +
+        ' con turno (hasta +' + pct(u.tocayos.maximo) + ').' + (ahora > 0 ? ' <em>Ahora: +' + pct(ahora) + '.</em>' : ''));
+    }
+    (u.sinergias || []).forEach(function (s) {
+      const o = Libre.sim.buscarObjeto(s.objeto);
+      const activa = (t.objetos || []).indexOf(s.objeto) !== -1;
+      hab.push('<strong>Con ' + esc(o ? o.nombre : s.objeto) + ':</strong> ' + esc(textoEfecto(s.efecto)) + '. ' +
+        (activa ? '<span class="ui-chip unico-activa">Sinergia activa</span>' : '<em>Te falta equipársela.</em>'));
+    });
+    if (u.ajuste) {
+      hab.push('<strong>Ajuste de periodos anteriores:</strong> al cerrar la caja, un ' + pct(u.ajuste.min) + '–' + pct(u.ajuste.max) +
+        ' más de lo que facturó.');
+    }
+    hab.push('<strong>Sin topes</strong> en sus estadísticas.');
+    const deb = [];
+    if (u.soloTurno) deb.push('Solo trabaja en el turno de ' + NOMBRE_TURNO(u.soloTurno) + '.');
+    if (u.baja) deb.push('Se pone malo en el ' + pct(u.baja.prob) + ' de sus turnos (bajas de ' + u.baja.jornadasMin + '–' + u.baja.jornadasMax + ' jornadas).');
+    if (u.sinIncognito) deb.push('Nunca trabaja de incógnito.');
+    (u.incompatibles || []).forEach(function (i) {
+      const v = Libre.sim.buscarUnico(i.id || i);
+      deb.push('No comparte coche con ' + esc(v ? v.nombre : i.nombre || i.id || i) + '.');
+    });
+    // Una frase suya, la misma durante la jornada (sin parpadear al redibujar).
+    const jornada = estado ? Libre.sim.jornadaDe(estado.reloj.minutos) : 0;
+    const frase = u.frases && u.frases.length ? u.frases[jornada % u.frases.length] : '';
+    return '<div class="unico">' +
+      (u.descripcion ? '<p class="unico-quien">' + esc(u.descripcion) + '</p>' : '') +
+      (frase ? '<p class="unico-frase">«' + esc(frase) + '»</p>' : '') +
+      '<p class="unico-titulo">Habilidades</p><ul class="unico-lista unico-hab">' + hab.map(function (h) { return '<li>' + h + '</li>'; }).join('') + '</ul>' +
+      '<p class="unico-titulo">Debilidades</p><ul class="unico-lista unico-deb">' + deb.map(function (d) { return '<li>' + d + '</li>'; }).join('') + '</ul>' +
+      '</div>';
+  }
 
   function htmlCirculos(t) {
-    const cat = Libre.sim.buscarCategoria(t.categoria);
-    const letra = cat ? (cat.id === 'L' ? 'L' : cat.nombre) : '';
+    const cat = rarezaDe(t);
+    const letra = cat ? cat.letra : '';
     return (cat ? '<span class="cara-categoria ' + claseRareza(cat.id) + '" aria-hidden="true">' + esc(letra) + '</span>' : '') +
       '<span class="cara-nivel" aria-hidden="true">' + Libre.sim.nivelConductor(t) + '</span>';
   }
 
   function htmlCara(estado, clave, t, lic) {
     const aviso = textoEstadoTurno(estado, lic, t);
-    const cat = Libre.sim.buscarCategoria(t.categoria);
+    const cat = rarezaDe(t);
     const mover = Libre.sim.enPausa(estado) ? ' data-arrastrable data-destino="' + clave + '"' : '';
     return '<button type="button" class="cara' + (aviso ? ' con-aviso' : '') + '" data-ficha-conductor="' + clave + '"' + mover +
       ' title="' + esc(t.nombre + (aviso ? ' · ' + aviso : '')) + '"' +
@@ -1580,7 +1634,7 @@
       return ((estado.objetos || {})[o.id] || 0) > 0 && llevados.indexOf(o.id) === -1;
     });
     const tabla = c.conductores.niveles.huecos;
-    const cat = Libre.sim.buscarCategoria(t.categoria);
+    const cat = rarezaDe(t);
 
     // Mosaico de 3 huecos: objetos puestos, «Equipar» y los que llegan con el nivel.
     const casillas = llevados.map(function (id) {
@@ -1624,7 +1678,7 @@
       '<span class="ui-barra-relleno" style="width:' + (p.avance * 100).toFixed(0) + '%"></span></span>' +
       '<small id="ficha-xp">' + textoXpCorto(p) + '</small></div>' +
       (x.enReserva ? '' : htmlEnergia(estado, t)) +
-      '<div class="ficha-rasgos">' + htmlFilasRasgos(t) + htmlFuerzaCategoria(t) + '</div>' +
+      (t.unico ? htmlUnico(estado, t) : '<div class="ficha-rasgos">' + htmlFilasRasgos(t) + htmlFuerzaCategoria(t) + '</div>') +
       '<div class="ficha-objetos-bloque"><strong>Objetos <span>· ' + llevados.length + ' de ' + huecos +
       (huecos === 1 ? ' hueco' : ' huecos') + '</span></strong>' +
       '<div class="ficha-objetos">' + casillas.join('') + '</div></div>' +
@@ -1710,7 +1764,7 @@
     importeLluvia: 'Cobra con lluvia', cansancio: 'Cansancio', descanso: 'Descanso'
   };
   const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true, importeLluvia: true };
-  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '', coche: '' };
+  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '', coche: '', sinergia: '' };
 
   /* Porcentaje legible con las cifras justas: «18 %», «0,8 %», «0,08 %». */
   function porcentaje(p) {

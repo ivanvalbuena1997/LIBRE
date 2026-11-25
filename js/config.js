@@ -762,7 +762,7 @@
        *   frases        las suyas: salen en sus avisos
        *   soloTurno     'dia' o 'noche': no trabaja en el otro
        *   sinIncognito  nunca trabaja de incógnito, sea del nivel que sea
-       *   incompatibles otros únicos con los que no comparte coche
+       *   incompatibles otros únicos con los que no comparte coche ({ id, nombre })
        *   baja          su probabilidad de baja al empezar el turno y cuánto dura
        *   ajuste        al cerrar la caja, un extra de lo que facturó (min–max)
        *   tocayos       un extra por cada conductor con esos nombres con turno
@@ -783,7 +783,7 @@
           ],
           soloTurno: 'dia',
           sinIncognito: true,
-          incompatibles: ['pelado'],
+          incompatibles: [{ id: 'pelado', nombre: 'El Pelado' }],
           baja: { prob: 0.07, jornadasMin: 1, jornadasMax: 2 },
           ajuste: { min: 0.08, max: 0.12 },
           tocayos: { nombres: ['Francisco', 'Paco'], porCada: 0.05, maximo: 0.15 },

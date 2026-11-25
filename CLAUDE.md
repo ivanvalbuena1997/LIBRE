@@ -729,7 +729,12 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (al empezar `cerrarCaja()`, incidencia 'ajuste'). Sin topes: `topesDe()`
   da [0, ∞]. Sinergias: aporte 'sinergia' en `aportesConductor()`. Bajas
   propias en `sortearInicioDeTurnos()` y en `statsConductor()`.
-  `trabajaIncognito()` respeta `sinIncognito`. Consola:
+  `trabajaIncognito()` respeta `sinIncognito`. `incompatibles` son
+  `{ id, nombre }` (el nombre, para el texto aunque aún no exista). En
+  pantalla: `Libre.retratos.svg(id)` da su imagen con marco granate
+  (`.retrato-unico`); `rarezaDe(t)` da la insignia 'U' (`--rareza-unico`,
+  `--tinte-unico`) y `htmlUnico()` sustituye a los rasgos en ficha y
+  candidatos (frase de la jornada, habilidades, debilidades, sinergia). Consola:
   `Libre.forzarUnico('paconi')`.
 - Azar con semilla también en tu turno (25-11-2026): `buscarCliente()` y
   `crearEstadoInicial()` usan `generador(estado)` si no les pasan un

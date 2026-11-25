@@ -547,6 +547,10 @@
         {
           "n": 119,
           "texto": "La introducción ya tiene sus tres ilustraciones: el despido, la noche en el taxi del taxista que se jubila y tu primer amanecer al volante."
+        },
+        {
+          "n": 120,
+          "texto": "Llegan los conductores ÚNICOS, un rango por encima de LEGENDARIO con marco granate, retrato propio, habilidades y debilidades fijas y sin topes. El primero es Paconi: tocayos, sinergia con su planta, «ajuste de periodos anteriores» al cerrar la caja… y sus frases. De momento llegarán con los eventos de clientes, que vienen pronto."
         }
       ]
     }

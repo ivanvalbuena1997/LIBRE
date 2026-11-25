@@ -65,6 +65,12 @@
    * índice no existe (partidas antiguas), devuelve una silueta neutra.
    */
   function svg(indice, clase) {
+    // Un conductor ÚNICO (Iván, 25-11-2026): su retrato es una ilustración
+    // (imagenes/), con el marco granate de su rango.
+    const unicos = Libre.config.conductores.unicos || {};
+    if (typeof indice === 'string' && unicos[indice]) {
+      return '<img class="retrato-svg retrato-unico ' + (clase || '') + '" src="' + unicos[indice].imagen + '" alt="">';
+    }
     const p = (indice && typeof indice === 'object' ? indice : null) || Libre.config.conductores.personajes[indice] ||
       { piel: 2, cara: 'redonda', pelo: 'corto', colorPelo: 'gris', gafas: null, barba: null, ropa: 6, edad: 'media' };
     const pelo = 'r-pelo-' + p.colorPelo;

@@ -1353,8 +1353,8 @@
     const otro = lic && lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
     if (!otro || otro === apartar || otro.quien !== 'conductor') return '';
     const v = unicoDe(otro);
-    if ((u && v && (u.incompatibles || []).indexOf(otro.unico) !== -1) ||
-      (u && v && (v.incompatibles || []).indexOf(t.unico) !== -1)) {
+    const ids = function (x) { return (x.incompatibles || []).map(function (i) { return i.id || i; }); };
+    if (u && v && (ids(u).indexOf(otro.unico) !== -1 || ids(v).indexOf(t.unico) !== -1)) {
       return u.nombre + ' no comparte coche con ' + v.nombre + '.';
     }
     return '';

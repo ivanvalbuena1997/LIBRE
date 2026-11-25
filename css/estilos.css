@@ -191,6 +191,8 @@
   --rareza-s: #2554d6;
   --rareza-smas: #6b3fb5;
   --rareza-l: #ffc83d;         /* LEGENDARIO: texto en --tinta */
+  --rareza-unico: #8c1d3a;     /* ÚNICO: granate (Iván, 25-11-2026) */
+  --tinte-unico: #f6e1e6;
   /* Medallas de la clasificación (Estadísticas) */
   --medalla-oro: #ffc83d;
   --medalla-plata: #cfd4dc;
@@ -2496,6 +2498,17 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .ui-rareza--S { background: var(--rareza-s); }
 .ui-rareza--Smas { background: var(--rareza-smas); }
 .ui-rareza--L { background: var(--rareza-l); color: var(--tinta); }
+.ui-rareza--U { background: var(--rareza-unico); color: var(--sobre-color); }
+/* ÚNICOS: retrato ilustrado con el marco granate de su rango. */
+.retrato-unico { display: block; object-fit: cover; box-sizing: border-box; border: 2.5px solid var(--rareza-unico); background: var(--rareza-unico); }
+.unico { margin: var(--esp-3) 0; padding: var(--esp-4); border-radius: var(--r-tarjeta); background: var(--tinte-unico); font-size: var(--t-pequeno); }
+.unico p { margin: 0 0 var(--esp-2); }
+.unico-quien { color: var(--tinta-suave); }
+.unico-frase { font-style: italic; font-weight: 800; color: var(--rareza-unico); }
+.unico-titulo { margin-top: var(--esp-3) !important; font-weight: 800; text-transform: uppercase; font-size: var(--t-mini); letter-spacing: 0.5px; color: var(--rareza-unico); }
+.unico-lista { margin: 0; padding-left: 1.1em; }
+.unico-lista li { margin: 2px 0; }
+.unico-activa { margin-left: 2px; background: var(--tinte-verde); color: var(--dinero); }
 
 /*
  * Pestaña Estadísticas (Iván, 18-11-2026): tres cifras, el gráfico de
