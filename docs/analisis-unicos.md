@@ -37,4 +37,4 @@ Neto de la flota con un B: 308 € (pronto) y 403 € (tarde) por jornada.
 planta, +97 / +92 (ya por encima del LEGENDARIO con planta en los dos
 momentos); con 3 Pacos, +132 / +130.
 
-Pendiente de la decisión de Iván.
+**Decisión de Iván (25-11-2026):** el ajuste pasa al 12–18 %.

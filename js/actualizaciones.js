@@ -555,6 +555,10 @@
         {
           "n": 121,
           "texto": "En la ficha de un ÚNICO, sus estadísticas dicen «ÚNICO» en vez de «Categoría LEGENDARIO»."
+        },
+        {
+          "n": 122,
+          "texto": "Paconi cuadra mejor las cuentas: su «ajuste de periodos anteriores» deja ahora un 12–18 % de lo que factura (antes, un 8–12 %)."
         }
       ]
     }

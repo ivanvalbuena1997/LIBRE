@@ -785,7 +785,7 @@
           sinIncognito: true,
           incompatibles: [{ id: 'pelado', nombre: 'El Pelado' }],
           baja: { prob: 0.07, jornadasMin: 1, jornadasMax: 2 },
-          ajuste: { min: 0.08, max: 0.12 },
+          ajuste: { min: 0.12, max: 0.18 },
           tocayos: { nombres: ['Francisco', 'Paco'], porCada: 0.05, maximo: 0.15 },
           sinergias: [{ objeto: 'paconi', efecto: { propina: 1.2, espera: 0.8, cansancio: 0.8 } }]
         }

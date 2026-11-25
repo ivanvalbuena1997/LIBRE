@@ -2709,7 +2709,7 @@ prueba('ÚNICOS: Paconi se ofrece una vez, solo de día, sin topes, con su siner
   sim.avanzar(e, 0.5);
   assert.ok(e.cierrePendiente, 'se ha cerrado la caja');
   const extra = e.caja.ayer.incidencias.ajuste.importe;
-  assert.ok(extra >= 80 - 1e-9 && extra <= 120 + 1e-9, 'ajuste: ' + extra);
+  assert.ok(extra >= 120 - 1e-9 && extra <= 180 + 1e-9, 'ajuste: ' + extra);
   // Migración 36 → 37: los conductores de antes, sin único.
   const viejo = JSON.parse(JSON.stringify(e));
   viejo.version = 36;
