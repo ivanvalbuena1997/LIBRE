@@ -2802,8 +2802,39 @@
     }
   };
 
+  /*
+   * Introducción de la historia (Iván, 25-11-2026): pantalla completa, una
+   * vez al empezar la primera partida. Una escena por paso (ilustración y
+   * texto); «Siguiente ›» y, en la última, «Empezar». Sin ver todavía la
+   * ilustración (imagenes/), un fondo provisional con el número de escena.
+   */
+  let introPaso = 0;
+  const seccionIntro = {
+    id: 'sec-intro',
+    firma: function (estado) {
+      return 'intro:' + !!(estado.historia && !estado.historia.introVista) + ':' + introPaso;
+    },
+    html: function (estado) {
+      if (!estado.historia || estado.historia.introVista) return '';
+      const escenas = Libre.config.historia.intro;
+      const i = Math.min(introPaso, escenas.length - 1);
+      const e = escenas[i];
+      const ultima = i === escenas.length - 1;
+      return '<div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-titulo">' +
+        '<div class="intro-ilustracion" data-escena="' + (i + 1) + '">' +
+        '<img src="' + esc(e.imagen) + '" alt="" onerror="this.parentNode.classList.add(\'sin-imagen\'); this.remove();">' +
+        '<span class="intro-provisional" aria-hidden="true">Ilustración ' + (i + 1) + '</span></div>' +
+        '<div class="intro-texto"><p class="intro-paso">' + (i + 1) + ' de ' + escenas.length + '</p>' +
+        '<h2 id="intro-titulo">' + esc(e.titulo) + '</h2><p>' + esc(e.texto) + '</p>' +
+        '<div class="intro-botones">' +
+        (ultima ? '' : '<button type="button" class="ui-boton ui-boton--secundario" data-intro-saltar>Saltar</button>') +
+        '<button type="button" class="ui-boton ui-boton--principal" data-intro-' + (ultima ? 'empezar' : 'siguiente') + '>' +
+        (ultima ? 'Empezar' : 'Siguiente ›') + '</button></div></div></div>';
+    }
+  };
+
   const secciones = [seccionTaximetro, seccionTicket, seccionCaja, seccionZonas, seccionObjetivo, seccionTaxis,
-    seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida, seccionPersonaje];
+    seccionConductores, seccionAlmacen, seccionMejoras, seccionEstadisticas, seccionPartida, seccionPersonaje, seccionIntro];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -2978,7 +3009,7 @@
     'sec-taximetro': 'calle', 'sec-ticket': 'calle',
     'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
     'sec-conductores': 'conductores', 'sec-almacen': 'almacen', 'sec-mejoras': 'mejoras',
-    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre'
+    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre', 'sec-intro': 'siempre'
   };
   // Pestañas de antes del rework: Flota se partió y Partida es ahora una hoja.
   const VISTA_ANTIGUA = { flota: 'conductores', partida: 'calle' };
@@ -3346,6 +3377,12 @@
       }
       if (ev.target.closest('[data-cerrar-personaje]')) {
         abrirPersonaje(false);
+        return;
+      }
+      if (ev.target.closest('[data-intro-siguiente]')) { introPaso++; opciones.redibujar(); return; }
+      if (ev.target.closest('[data-intro-saltar]') || ev.target.closest('[data-intro-empezar]')) {
+        introPaso = 0;
+        ejecutar('terminarIntro', []);
         return;
       }
       const pjGrupoBoton = ev.target.closest('[data-pj-grupo]');

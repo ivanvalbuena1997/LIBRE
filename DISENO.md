@@ -465,6 +465,14 @@ Cinco ramas, y cada una es una cadena (Iván, 18-11-2026): solo la primera no pi
 
 ---
 
+### 5.10 Historia y personajes guía (Iván, 25-11-2026; en construcción)
+
+Tres fases: introducción, conductores ÚNICOS y eventos de clientes con tres decisiones. Mezcla de experiencias reales de Iván y otras inventadas; las ilustraciones las hace Iván con IA a partir de un prompt que describe cada escena (estilo: ilustración plana editorial con textura de grano, paleta limitada de rojos cálidos, verdes azulados, crema y marrón).
+
+- **Introducción** (fase 1, hecha): al empezar la primera partida, tres escenas a pantalla completa (ilustración arriba, texto abajo, «Siguiente ›», «Saltar» y «Empezar»). El reloj no corre hasta cerrarla. Solo sale una vez: ni al empezar de cero ni en las partidas que ya estaban empezadas. Historia: tu jefe te despide por bajo rendimiento («Viernes, 18:00»); esa noche, el taxista que te lleva a casa se jubila y vende su licencia y su Corolla («Esa misma noche»); y el lunes a las 7:00 empiezas con un Corolla de 90.000 km, una licencia y 50 € («Esta vez el jefe eres tú»). Sin ilustración todavía, un fondo azul provisional.
+- **Conductores ÚNICOS** (fase 2, por hacer): un rango por encima de LEGENDARIO; cada uno, un personaje con mote, retrato propio, rasgos y habilidad especial, y sinergias con objetos y con otros conductores. Llegan a través de los eventos de clientes; si no lo contratas, puede volver con otro evento; al empezar de cero vuelven a aparecer.
+- **Eventos de clientes** (fase 3, por hacer): uno al azar cada 5–8 jornadas; el juego se pausa; tres decisiones, con resultados fijos o con azar según el evento; también de tus conductores (decides tú por ellos). Cada uno con su ilustración.
+
 ## 6. Progresión a largo plazo
 
 El juego completo tiene cinco etapas; cada una añade un tipo de vehículo y una mecánica nueva, sin quitar las anteriores. **Hoy solo existen las etapas 1 y 2.**

@@ -539,6 +539,10 @@
         {
           "n": 117,
           "texto": "Racha larga va ahora de la mano de Fondo físico: cada nivel de Racha larga pide un nivel más de Fondo físico (I, II y III), porque sin aguantar más carreras seguidas el descanso corta la racha antes de llegar a su tope."
+        },
+        {
+          "n": 118,
+          "texto": "Nueva introducción: al empezar una partida nueva, la historia de cómo acabas de taxista (te despiden, conoces a un taxista que se jubila y te lanzas con su licencia y su Corolla). Las ilustraciones llegarán pronto."
         }
       ]
     }

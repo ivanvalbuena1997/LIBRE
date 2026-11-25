@@ -401,6 +401,23 @@ body:not([data-vista="calle"]) .cabecera {
 .pj-pestana small { font-weight: 700; opacity: 0.8; }
 .pj-pestana.activa { background: var(--tarjeta); color: var(--tinta); box-shadow: 0 1px 4px var(--sombra-placa); }
 /* Tarjetas de mejora: icono en un círculo del color de su estado. */
+/* Introducción de la historia: pantalla completa, por encima de todo. */
+.intro { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; background: var(--papel); }
+.intro-ilustracion { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: var(--marca); }
+.intro-ilustracion img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.intro-provisional { display: none; }
+.intro-ilustracion.sin-imagen { display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--marca), var(--tinta)); }
+.intro-ilustracion.sin-imagen .intro-provisional { display: block; color: var(--sobre-color); font-family: var(--letra-titulo);
+  font-weight: 800; font-size: 18px; opacity: 0.7; }
+.intro-texto { flex: none; padding: var(--esp-5) 18px calc(18px + env(safe-area-inset-bottom)); background: var(--tarjeta);
+  border-radius: var(--r-hoja) var(--r-hoja) 0 0; margin-top: calc(-1 * var(--r-hoja)); position: relative; }
+.intro-texto h2 { margin: 0 0 var(--esp-2); }
+.intro-texto p { margin: 0 0 var(--esp-4); font-size: var(--t-cuerpo); line-height: 1.45; }
+.intro-texto .intro-paso { margin: 0 0 var(--esp-2); font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); }
+.intro-botones { display: flex; gap: var(--esp-3); }
+.intro-botones .ui-boton { flex: 1; min-height: 48px; }
+.intro-botones .ui-boton--principal { flex: 2; }
 .pj-mejoras { list-style: none; margin: 0 0 var(--esp-5); padding: 0; display: flex; flex-direction: column; gap: var(--esp-3); }
 .pj-mejora { display: flex; gap: var(--esp-4); padding: var(--esp-4); border: 1.5px solid var(--linea); border-radius: var(--r-tarjeta); background: var(--tarjeta); }
 .pj-icono { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px;

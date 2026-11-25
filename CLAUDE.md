@@ -25,6 +25,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   - `Libre.actualizaciones` → `js/actualizaciones.js` (historial de
     actualizaciones para el panel de Ajustes; solo interfaz)
   - `Libre.ui` → `js/interfaz.js`
+- Ilustraciones (hechas por Iván con IA) en `imagenes/`, sin pasar por la
+  lista de `index.html`: se piden con `<img>`.
 - El orden de los `<script>` en `index.html` importa: config, simulación,
   fflate, guardado, ambiente, retratos, sonidos, actualizaciones, interfaz, main.
   `js/fflate.js` es la única librería de terceros (fflate 0.8.2, MIT, copiada
@@ -704,6 +706,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   no recupere el tiempo al volver. Se borró el código que lo hacía
   (`progresoSinConexion()`, el modo `agregado` y `sinPausa` de `avanzar()`,
   `config.sinConexion` y `estado.pesetasFuera`; versión 32 del guardado).
+- Historia (Iván, 25-11-2026; versión 36 del guardado): `config.historia.intro`
+  (escenas con `imagen`, `titulo` y `texto`; ilustraciones de Iván en
+  `imagenes/`, ver su LEEME). `estado.historia.introVista`: mientras sea
+  false, `avanzar()` no hace nada; `terminarIntro()` la cierra. Solo en la
+  primera partida (`empezarDeCero()` la deja vista; la migración también).
+  Pantalla: `seccionIntro` (`introPaso`, `data-intro-siguiente`/`saltar`/
+  `empezar`; sin imagen, `.sin-imagen` con «Ilustración N»). Las pruebas
+  envuelven `crearEstadoInicial()` para darla por vista (y el bot llama a
+  `terminarIntro()`). Siguen los conductores ÚNICOS y los eventos de
+  clientes (DISENO.md, 5.10).
 - Azar con semilla también en tu turno (25-11-2026): `buscarCliente()` y
   `crearEstadoInicial()` usan `generador(estado)` si no les pasan un
   generador; `Math.random` solo queda para la semilla inicial y la
