@@ -23,7 +23,8 @@ la tapa el texto.
   `evento-boadilla.webp`: el control en Boadilla;
   `evento-conseguidor.webp`: el conseguidor;
   `evento-trapero.webp`: el trapero;
-  `evento-ruso.webp`: el ruso y sus dos rubias.
+  `evento-ruso.webp`: el ruso y sus dos rubias;
+  `evento-maletero.webp`: cinco en un coche de cuatro.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón

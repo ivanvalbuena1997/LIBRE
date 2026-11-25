@@ -176,4 +176,4 @@ y añade la línea del evento:
 - **B4 El conseguidor:** Daytime. In the back seat, a very young man with a slick suit and side-parted hair, talking on two mobile phones at once, very self-important. Generic character, not a real person.
 - **B5 El trapero:** Night. In the back seat, a young rapper with sunglasses at night, gold chains and a puffer jacket, with two friends filming with their phones. Generic character, not a real person.
 - **B6 El ruso:** Night. In the back seat, a heavy older man in a long dark coat and fur hat, serious, between two blonde women in elegant dresses. A thick envelope of cash on the seat.
-- **B7 Cinco en un coche de cuatro:** Night. Four young people squeezed in the car laughing, and through the rear window the open boot with a fifth young person giving a thumbs up. The driver looks doubtful.
+- **B7 Cinco en un coche de cuatro:** (hecha con otro prompt: el del maletero no le salía a la IA) Late night, party street. Young people in the car looking at the driver with a finger on their lips («shhh»), guilty smiles; behind the back seat only one sneaker of someone hidden in the boot. The driver looks suspicious.
