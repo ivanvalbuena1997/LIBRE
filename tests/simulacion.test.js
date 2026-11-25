@@ -2581,5 +2581,18 @@ prueba('tu aspecto y tu nombre: se cambian con las opciones de la config y se co
   assert.strictEqual(m.personaje.nombre, null);
 });
 
+prueba('tu carrera sale del azar con semilla: misma partida, misma carrera', function () {
+  function partida() {
+    const e = sim.crearEstadoInicial(0, azarFijo(0.3));
+    e.reloj.minutos = 8 * 60;
+    return e;
+  }
+  const a = partida(), b = partida();
+  assert.ok(sim.buscarCliente(a).ok);
+  assert.ok(sim.buscarCliente(b).ok);
+  assert.deepStrictEqual(a.jugador.carrera, b.jugador.carrera);
+  assert.strictEqual(a.licencias[0].numero, b.licencias[0].numero);
+});
+
 console.log(pasadas + ' pruebas correctas');
 

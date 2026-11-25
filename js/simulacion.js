@@ -110,8 +110,9 @@
       eventosForzados: [],
       ultimaMarca: ahoraMs || 0
     };
-    estado.licencias[0].numero = sortearNumeroLicencia(estado, rng);
-    estado.licencias[0].km = kmCocheUsado(rng);
+    // Sin generador, el azar con semilla de la partida (nunca Math.random).
+    estado.licencias[0].numero = sortearNumeroLicencia(estado, rng || generador(estado));
+    estado.licencias[0].km = kmCocheUsado(rng || generador(estado));
     // Los tres candidatos que verás al contratar.
     sortearCandidatos(estado);
     return estado;
@@ -2345,9 +2346,11 @@
    * demanda: con poca demanda tardas más en encontrar a alguien.
    */
   function buscarCliente(estado, rng) {
-    const rnd = rng || Math.random;
+    // Tu carrera también sale del azar con semilla de la partida (CLAUDE.md:
+    // nada de Math.random en la flota); las pruebas pueden pasar el suyo.
+    const rnd = rng || generador(estado);
     const c = cfg();
-    if (!conduce(estado)) return fallo('Ahora no conduces. Elige un turno libre en Flota.');
+    if (!conduce(estado)) return fallo('Ahora no conduces. Elige un turno libre en Conductores.');
     if (enPausa(estado)) return fallo('El día está cerrado. Arranca el día siguiente.');
     if (estado.jugador.carrera) return fallo('Ya estás en una carrera.');
     if (estado.jugador.paradoHasta > estado.reloj.minutos) {
