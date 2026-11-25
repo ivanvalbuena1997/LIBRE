@@ -6,5 +6,11 @@ mucho. Lo importante, en el centro y la mitad de arriba: la parte de abajo
 la tapa el texto.
 
 - `intro-1.webp`, `intro-2.webp`, `intro-3.webp`: las tres escenas de la
-  introducción (`config.historia.intro`). Si falta una, el juego enseña un
-  fondo azul provisional con «Ilustración N».
+  introducción (`config.historia.intro`), 848 × 1264, de 41 a 63 KB. Si
+  falta una, el juego enseña un fondo azul provisional con «Ilustración N».
+- Protagonista de referencia (para que salga igual en todas): hombre de
+  unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
+  americana verde azulado oscuro sobre camisa blanca, pantalón marrón
+  oscuro. Estilo: ilustración plana editorial vectorial, formas limpias,
+  sombras planas, poco grano; paleta verde azulado, naranja tostado, crema
+  y marrón oscuro.

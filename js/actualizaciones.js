@@ -543,6 +543,10 @@
         {
           "n": 118,
           "texto": "Nueva introducción: al empezar una partida nueva, la historia de cómo acabas de taxista (te despiden, conoces a un taxista que se jubila y te lanzas con su licencia y su Corolla). Las ilustraciones llegarán pronto."
+        },
+        {
+          "n": 119,
+          "texto": "La introducción ya tiene sus tres ilustraciones: el despido, la noche en el taxi del taxista que se jubila y tu primer amanecer al volante."
         }
       ]
     }
