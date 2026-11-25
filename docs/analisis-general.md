@@ -156,3 +156,34 @@ probar»:
 **4. Calle con 5 taxis (comprobado).** Con una partida real del bot (5
 licencias con coche), sin scroll en 390 × 844 y en 375 × 800, sin errores.
 
+## 8. Los dos cambios de Iván, medidos (25-11-2026)
+
+**Con una sola licencia, solo la primera mejora de cada rama.** Bot, 6
+partidas por perfil, 150 min:
+
+| Perfil | 2.ª licencia | Licencias a los 150 | Neto por jornada a los 150 |
+| --- | --- | --- | --- |
+| Equilibrado | minuto 142 → **80** | 1,8 → 2 | 379 € → **592 €** |
+| Gestor | — → **80** | 1 → 2 | 316 € → **433 €** |
+| Siguiente, Flota, Zonas | sin cambios (ya crecían antes de gastar en mejoras) | | |
+
+En la primera hora el Equilibrado deja algo menos (242 → 198 € por
+jornada a los 60 min, porque no puede comprar mejoras), pero a la larga
+gana mucho. Tras la 2.ª licencia vuelve a gastar en mejoras y se queda en
+2 licencias a los 150 min: la regla le empuja una vez, no del todo.
+
+**Racha larga y Reflejos piden Fondo físico.** Tu facturación por jornada
+(bot Flota, 4 partidas de 90 min):
+
+| Tu personaje | 0,7 s | 0,4 s |
+| --- | --- | --- |
+| Racha | 251 € | 272 € |
+| Racha + Fondo físico I | 249 € | 288 € |
+| Racha + FF I + Racha larga III + Reflejos II | 243 € | 288 € |
+| Racha + FF III + Racha larga III + Reflejos II | 267 € | 301 € |
+
+Con Fondo físico I la racha sigue cortándose antes del +10 %: Racha larga
+y Reflejos solo se notan con Fondo físico III (unos +4–7 %). Si se quiere
+que valgan más, que el descanso pause la racha en vez de cortarla, o que
+cada nivel de Racha larga pida un nivel más de Fondo físico.
+

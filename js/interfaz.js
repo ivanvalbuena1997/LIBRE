@@ -2356,6 +2356,7 @@
     const falta = Libre.sim.faltaParaMejora(estado, m);
     if (falta) {
       pie = '<p class="nodo-requisito">' + (falta.sociedad ? 'Antes tienes que montar una SL (en Conductores, al comprar la 4.ª licencia).'
+        : falta.licencias ? 'Se abre con tu ' + falta.licencias + '.ª licencia: con una sola, de cada rama solo la primera mejora.'
         : 'Antes necesitas «' + esc(nombreMejora(falta.mejora)) + '».') + '</p>';
     } else if (!siguiente) {
       pie = '<p class="nodo-completa">Comprada' + (m.niveles ? ' entera: los ' + m.niveles.length + ' niveles' : '') + '.</p>';
@@ -2628,7 +2629,7 @@
       const actual = n ? m.niveles[n - 1] : null;
       const sig = m.niveles[n];
       const falta = sim.faltaParaMejoraPersonaje(prueba, m.id);
-      const bloqueada = sig && m.requiere && !sim.nivelMejoraPersonaje(prueba, m.requiere);
+      const bloqueada = sig && [].concat(m.requiere || []).some(function (id) { return !sim.nivelMejoraPersonaje(prueba, id); });
       const puede = compra && sig && !falta && sig.coste <= compra.restantes;
       const estadoCss = n > antes ? 'nueva' : n ? 'tiene' : bloqueada ? 'bloqueada' : puede ? 'disponible' : 'no';
       const rayas = max > 1 ? '<span class="nodo-niveles pj-rayas" aria-label="Nivel ' + n + ' de ' + max + '">' +

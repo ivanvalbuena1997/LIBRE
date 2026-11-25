@@ -463,7 +463,7 @@
        * puntos crecientes por nivel; ver tests/prestigio.js).
        *   grupo     'volante' (tu turno), 'arranque' (cada partida nueva) o
        *             'gamas' (coches que se pueden comprar; sin efecto todavía)
-       *   requiere  otra mejora del personaje (basta su nivel 1)
+       *   requiere  otra mejora del personaje, o una lista (basta su nivel 1)
        *   efecto    racha / incognitoTu: sí o no
        *             rachaMaximo, rachaReaccion (s), dineroInicial (€): se suman
        *             cansancio, espera, experiencia: multiplican (solo tú)
@@ -475,14 +475,16 @@
         { id: 'racha', nombre: 'Racha', grupo: 'volante',
           descripcion: 'Encadena carreras sin despistarte y cada una cobra un 1 % más, hasta un 10 %.',
           niveles: [{ coste: 9, efecto: { racha: true } }] },
-        { id: 'rachaLarga', nombre: 'Racha larga', grupo: 'volante', requiere: 'racha',
+        // Racha larga y Reflejos piden también Fondo físico (Iván,
+        // 25-11-2026): sin él, el descanso corta la racha antes del +10 %.
+        { id: 'rachaLarga', nombre: 'Racha larga', grupo: 'volante', requiere: ['racha', 'fondoFisico'],
           descripcion: 'Sube el tope de la racha.',
           niveles: [
             { coste: 6, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 } },
             { coste: 12, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 } },
             { coste: 18, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 } }
           ] },
-        { id: 'reflejos', nombre: 'Reflejos de taxista', grupo: 'volante', requiere: 'racha',
+        { id: 'reflejos', nombre: 'Reflejos de taxista', grupo: 'volante', requiere: ['racha', 'fondoFisico'],
           descripcion: 'Más tiempo para encadenar la siguiente carrera.',
           niveles: [
             { coste: 9, descripcion: '0,15 s más.', efecto: { rachaReaccion: 0.15 } },
@@ -1004,6 +1006,14 @@
      * Precios y efectos: Equilibrio. Precios revisados el 16-11-2026 (propuesta C): cada
      * mejora se paga en unas 1–2 h de juego con 6 coches (medido con un bot).
      */
+    /*
+     * Para guiar al jugador (Iván, 25-11-2026): con menos licencias que
+     * esto, de cada rama solo se puede comprar la primera mejora; el resto
+     * espera a la 2.ª licencia (quien compraba mejoras «por probar» no
+     * llegaba a la 2.ª licencia hasta el minuto 142; con la tarjeta
+     * Siguiente, en el 27). Equilibrio.
+     */
+    licenciasParaRestoDeRama: 2,
     /*
      * Ramas del árbol de mejoras, en el orden de las pestañas.
      */

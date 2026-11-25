@@ -11,6 +11,10 @@ const sim = globalThis.Libre.sim;
 const config = globalThis.Libre.config;
 // Las pruebas miden ritmos sin días de libranza; las de libranza la encienden.
 config.licencias.libranza = false;
+// Igual con la regla de una sola licencia (solo la primera mejora de cada
+// rama): la apaga aquí y la prueba suya la enciende.
+const LICENCIAS_RESTO_RAMA = config.licenciasParaRestoDeRama;
+config.licenciasParaRestoDeRama = 0;
 
 let pasadas = 0;
 function prueba(nombre, fn) {
@@ -2362,10 +2366,13 @@ prueba('personaje: mejoras por puntos (300 en total), requisitos y efectos', fun
   assert.ok(/Racha/.test(sim.faltaParaMejoraPersonaje(e, 'rachaLarga')));
   assert.strictEqual(sim.costeMejoraPersonaje(e, 'racha'), 9);
   e.personaje.mejoras.racha = 1;
+  // Racha larga pide también Fondo físico (Iván, 25-11-2026).
+  assert.ok(/Fondo físico/.test(sim.faltaParaMejoraPersonaje(e, 'rachaLarga')));
+  e.personaje.mejoras.fondoFisico = 1;
   assert.strictEqual(sim.faltaParaMejoraPersonaje(e, 'rachaLarga'), '');
   assert.ok(/máximo/.test(sim.faltaParaMejoraPersonaje(e, 'racha')));
   assert.strictEqual(sim.costeMejoraPersonaje(e, 'racha'), null);
-  assert.strictEqual(sim.costeMejoraPersonaje(e, 'fondoFisico'), 6);
+  assert.strictEqual(sim.costeMejoraPersonaje(e, 'fondoFisico'), 12, 'ya tiene el nivel 1: el 2 cuesta 12');
   // Racha larga III: tope +25 %; Reflejos II: +0,3 s de ventana.
   const antes = sim.segundosVentana(e, 0);
   e.personaje.mejoras.rachaLarga = 3;
@@ -2592,6 +2599,31 @@ prueba('tu carrera sale del azar con semilla: misma partida, misma carrera', fun
   assert.ok(sim.buscarCliente(b).ok);
   assert.deepStrictEqual(a.jugador.carrera, b.jugador.carrera);
   assert.strictEqual(a.licencias[0].numero, b.licencias[0].numero);
+});
+
+prueba('con una sola licencia, solo la primera mejora de cada rama; el resto, desde la 2.ª licencia', function () {
+  config.licenciasParaRestoDeRama = LICENCIAS_RESTO_RAMA;
+  try {
+    const e = sim.crearEstadoInicial(0);
+    e.dinero = 1e6;
+    config.ramasMejoras.forEach(function (r) {
+      const lista = config.mejoras.filter(function (m) { return m.rama === r.id; });
+      assert.ok(!lista[0].requiere, 'la primera de ' + r.id + ' no pide nada');
+      assert.strictEqual(sim.faltaParaMejora(e, lista[0]), null);
+      assert.ok(sim.comprarMejora(e, lista[0].id).ok, lista[0].id);
+      if (lista[1]) {
+        const falta = sim.faltaParaMejora(e, lista[1]);
+        assert.ok(falta && falta.licencias === LICENCIAS_RESTO_RAMA, lista[1].id + ' espera a la 2.ª licencia');
+        assert.strictEqual(sim.comprarMejora(e, lista[1].id).ok, false);
+      }
+    });
+    assert.ok(sim.comprarLicencia(e).ok);
+    const segunda = config.mejoras.filter(function (m) { return m.rama === config.ramasMejoras[0].id; })[1];
+    assert.strictEqual(sim.faltaParaMejora(e, segunda), null);
+    assert.ok(sim.comprarMejora(e, segunda.id).ok);
+  } finally {
+    config.licenciasParaRestoDeRama = 0;
+  }
 });
 
 console.log(pasadas + ' pruebas correctas');

@@ -392,6 +392,11 @@
     if (mejora.requiere && !nivelMejora(estado, mejora.requiere)) {
       return { mejora: mejora.requiere, texto: buscarMejora(mejora.requiere).nombre };
     }
+    // Con una sola licencia, solo la primera de cada rama (Iván, 25-11-2026).
+    const minimo = cfg().licenciasParaRestoDeRama || 0;
+    if (mejora.requiere && estado.licencias.length < minimo) {
+      return { licencias: minimo, texto: 'tener ' + minimo + ' licencias' };
+    }
     if (mejora.requiereSociedad && !estado.empresa) return { sociedad: true, texto: 'montar una SL' };
     return null;
   }
@@ -1485,7 +1490,8 @@
     const mej = buscarMejoraPersonaje(id);
     if (!mej) return 'Esa mejora no existe.';
     if (nivelMejoraPersonaje(estado, id) >= mej.niveles.length) return 'Ya la tienes al máximo.';
-    if (mej.requiere && !nivelMejoraPersonaje(estado, mej.requiere)) return 'Antes necesitas ' + buscarMejoraPersonaje(mej.requiere).nombre + '.';
+    const pide = [].concat(mej.requiere || []).filter(function (id) { return !nivelMejoraPersonaje(estado, id); });
+    if (pide.length) return 'Antes necesitas ' + pide.map(function (id) { return buscarMejoraPersonaje(id).nombre; }).join(' y ') + '.';
     return '';
   }
   /* Coste del siguiente nivel de una mejora del personaje (null si ya está al máximo). */

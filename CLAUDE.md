@@ -312,6 +312,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   en la config es el de la rama. Cada rama es una cadena (Iván, 18-11-2026):
   solo la primera no tiene `requiere` y cada una pide la de antes, con el
   precio subiendo (hay una prueba). La interfaz no inventa requisitos: los lee.
+  Con menos de `config.licenciasParaRestoDeRama` (2) licencias, solo la
+  primera de cada rama: `faltaParaMejora()` devuelve `{ licencias }` para
+  las demás (Iván, 25-11-2026; las pruebas la apagan y la suya la enciende).
   «Publicidad en el taxi» cobra al cerrar la caja por cada carrera del día
   (incidencia «Publicidad»); «Enchufe en los hoteles» baja la búsqueda en el
   Centro. «Neumáticos de alta gama» (Vehículo, tras los de bajo consumo;
@@ -614,7 +617,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   del personaje: `rachaMaximo` y `rachaReaccion` en `modificadores()`.
   Desde el 24-11-2026 la da la mejora del personaje `racha`
   (`modificadoresPersonaje().racha`); `rachaLarga` y `reflejos` suman a
-  `rachaMaximo` y `rachaReaccion`. En el taxímetro, delante
+  `rachaMaximo` y `rachaReaccion`; las dos piden también `fondoFisico`
+  (`requiere` puede ser una lista en las mejoras del personaje). En el taxímetro, delante
   de la etiqueta: «RACHA ×1,04 · …» (`rachaActual()`, que da también `nivel`, n / tope,
   y `ventana`, lo que queda de 1 a 0). Recreativa: `.taximetro.racha-viva`
   con `--racha` (brillo de marco y cifras, `--racha-brillo`), `#racha-luces`
