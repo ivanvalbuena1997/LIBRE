@@ -18,7 +18,8 @@ la tapa el texto.
 - `evento-<id>.webp`: la ilustración de cada evento (848 × 1264), hecha a
   partir de la base. `evento-paconi.webp`: Paconi y su hija en el 12 de
   Octubre; `evento-pelado.webp`: El Pelado en Alcorcón;
-  `evento-cena.webp`: las tres de la cena de empresa.
+  `evento-cena.webp`: las tres de la cena de empresa;
+  `evento-rivas.webp`: el de «Rivas por 20 €» en Las Ventas.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón
