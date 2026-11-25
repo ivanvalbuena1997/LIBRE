@@ -145,3 +145,7 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 112. Gamas de coche: si las desbloqueas con las mejoras de tu personaje, al comprar coche eliges entre el Toyota Corolla (1.500 €), el Tesla Model 3 (3.500 €: eléctrico, la carga cuesta mucho menos, se avería mucho menos y cansa un 20 % menos) y el Mercedes Clase S (5.000 €: muchas más propinas, la mitad de impagos y más clientes en el Centro y el Aeropuerto, pero gasta más y sus reparaciones cuestan más). Híbridos y GLP ya solo afectan a los coches de gasolina.
 113. El Mercedes Clase S, un 10 % mejor: aún más propinas (2,2 veces más a menudo y un 65 % mayores), menos clientes que se van sin pagar y algo más de clientes en el Centro y el Aeropuerto.
 114. Tu personaje, rediseñado: tu cara en el botón de la cabecera y en grande en su hoja, con un lápiz para cambiarla (piel, cara, edad, pelo y su color, barba, gafas, ropa, cuello, gorra y pendientes) y ponerte nombre. Las mejoras van en pestañas (Al volante, Al empezar, Coches), cada una en una tarjeta con su icono y el color de su estado. Tu cara y tu nombre salen también en Tus taxis hoy, en Conductores y en Estadísticas, y se conservan al empezar de cero.
+
+## 25 de noviembre de 2026 · Arreglos
+
+115. Arreglos: tus carreras siguen el azar guardado en la partida (como las de tus conductores) y el aviso de cuando no conduces ya manda a Conductores (antes decía Flota, una pestaña que ya no existe).

@@ -49,7 +49,7 @@ const MINUTOS = Number(process.argv[3]) || 150;
 const JSON_BRUTO = process.argv[4] === 'json';
 const CORTES = [30, 60, 90, 120, 150].filter(function (m) { return m <= MINUTOS; });
 const DT = 0.25;                 // paso de la simulación (s reales)
-const REACCION = 0.7;            // entre carreras a clic
+const REACCION = Number(process.env.REACCION) || 0.7;   // entre carreras a clic (s); REACCION=0.4 node … para un jugador más atento
 const LEER_TICKET = 3;           // s hasta «Arrancar día siguiente»
 const MIRAR_TIENDA = 2;          // cada cuántos s mira qué comprar
 const ORDEN_CAT = c.categorias.map(function (x) { return x.id; });

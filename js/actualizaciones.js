@@ -523,6 +523,16 @@
           "texto": "Tu personaje, rediseñado: tu cara en el botón de la cabecera y en grande en su hoja, con un lápiz para cambiarla (piel, cara, edad, pelo y su color, barba, gafas, ropa, cuello, gorra y pendientes) y ponerte nombre. Las mejoras van en pestañas (Al volante, Al empezar, Coches), cada una en una tarjeta con su icono y el color de su estado. Tu cara y tu nombre salen también en Tus taxis hoy, en Conductores y en Estadísticas, y se conservan al empezar de cero."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-25",
+      "titulo": "Arreglos",
+      "cambios": [
+        {
+          "n": 115,
+          "texto": "Arreglos: tus carreras siguen el azar guardado en la partida (como las de tus conductores) y el aviso de cuando no conduces ya manda a Conductores (antes decía Flota, una pestaña que ya no existe)."
+        }
+      ]
     }
   ];
 })(globalThis);

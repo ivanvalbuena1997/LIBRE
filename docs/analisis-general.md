@@ -107,3 +107,52 @@ partidas); primer conductor de nivel 10 en el 86; primer LEGENDARIO en el
 3. Mirar el arranque para quien gasta en mejoras (perfil Equilibrado).
 4. Comprobar Calle con 5 taxis en 375 × 800.
 5. Seguir con la fase 2: personajes guía (13 y 15) y café a voluntad (B2).
+
+## 7. Pasos 1 a 4 (25-11-2026, después del análisis)
+
+**1. Arreglos del código (hecho).** Tu carrera, el número de la primera
+licencia y los km del coche inicial salen ya del azar con semilla de la
+partida (`generador(estado)`), no de `Math.random`; solo quedan la semilla
+inicial y la migración de partidas muy antiguas. El aviso de no conducir
+dice «Conductores». Prueba nueva: misma partida, misma carrera.
+
+**2. Racha e Incansable, medidos.** Bot «Flota» (conduce), 4 partidas de
+90 min, con 0,7 s de reacción (jugador normal) y 0,4 s (muy atento); tu
+facturación por jornada:
+
+| Tu personaje | 0,7 s | 0,4 s |
+| --- | --- | --- |
+| Sin mejoras | 232 € | 245 € |
+| Racha | 251 € (+8 %) | 272 € (+11 %) |
+| Racha + Racha larga III + Reflejos II | 247 € (igual) | 272 € (igual) |
+| Incansable (Fondo físico V) | 255 € (+10 %) | 300 € (+22 %) |
+| Todo lo de tu turno (Racha, Larga III, Reflejos II, Fondo físico V, Callejero II) | 304 € (+31 %) | 344 € (+40 %) |
+
+- **Racha larga y Reflejos no hacen nada solas:** el descanso corta la
+  racha cada 8–10 carreras, antes de pasar del +10 %. Solo valen con Fondo
+  físico (en «todo», juntas, dan +50 € más que Incansable sola). Hay que
+  decidir: que pidan Fondo físico, que el descanso pause la racha en vez de
+  cortarla, o avisarlo en su descripción.
+- **Incansable** es fuerte (+10–22 % de tu turno) pero cuesta 90 puntos en
+  total (los cinco niveles de Fondo físico): razonable como meta larga.
+- Con todo, la partida crece algo más rápido (3,8–4 licencias a los 90 min
+  frente a 3).
+
+**3. El arranque de quien gasta en mejoras (revisado, sin cambiar números).**
+El perfil «Equilibrado» (compra toda mejora que cueste hasta el 30 % de
+crecer) compra en la primera hora Mecánico, Deflectores, Callejero,
+Esterillas, Jornada larga, Limpieza, Taquillas, Seguridad vial, Conducción
+eficiente y Publicidad, y no llega a la **2.ª licencia hasta el minuto 142**
+(siguiendo «Siguiente», en el 27). El umbral sube con el precio de crecer,
+así que siempre hay otra mejora que comprar antes. Varias de esas mejoras
+apenas dejan nada con una sola licencia (Taquillas, Seguridad vial,
+Publicidad). Opciones para que no se atasque quien compra mejoras «por
+probar»:
+  a) Que la hoja de cada mejora diga en cuánto se paga con tu flota de hoy
+     (las que se pueden contar) o avise «con 1 licencia casi no se nota».
+  b) Que la 2.ª licencia sea más barata (hoy 2.500 €).
+  c) Que algunas mejoras de flota pidan tener 2 licencias.
+
+**4. Calle con 5 taxis (comprobado).** Con una partida real del bot (5
+licencias con coche), sin scroll en 390 × 844 y en 375 × 800, sin errores.
+

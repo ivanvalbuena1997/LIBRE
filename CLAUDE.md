@@ -698,6 +698,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   no recupere el tiempo al volver. Se borró el código que lo hacía
   (`progresoSinConexion()`, el modo `agregado` y `sinPausa` de `avanzar()`,
   `config.sinConexion` y `estado.pesetasFuera`; versión 32 del guardado).
+- Azar con semilla también en tu turno (25-11-2026): `buscarCliente()` y
+  `crearEstadoInicial()` usan `generador(estado)` si no les pasan un
+  generador; `Math.random` solo queda para la semilla inicial y la
+  migración 24 (km del coche de partidas antiguas).
 
 ## Valores PROVISIONALES (falta el dato real)
 
@@ -716,7 +720,8 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
   antes de cada commit.
 - Probar en el navegador abriendo `index.html`, o con un servidor local
   cualquiera sobre la carpeta (mismo resultado).
-- `node tests/progresion.js [semillas] [minutos]` no es una prueba: un bot
+- `node tests/progresion.js [semillas] [minutos]` (con `REACCION=0.4` delante,
+  un jugador más atento que los 0,7 s de serie) no es una prueba: un bot
   juega varias partidas con cuatro perfiles de compra y da cómo va a los
   30/60/90/120/150 minutos y cuándo llega cada hito (unos 25 s). Sirve para
   medir cambios de equilibrio; el último informe está en
