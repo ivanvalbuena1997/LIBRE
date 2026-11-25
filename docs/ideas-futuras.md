@@ -1,7 +1,7 @@
 # Ideas para futuras actualizaciones
 
-Tareas pendientes apuntadas por Iván (18, 19, 22 y 23-11-2026), numeradas y por
-secciones. **Nada de esto está hecho ni se desarrolla todavía:** antes de
+Tareas pendientes apuntadas por Iván (18, 19, 22, 23 y 24-11-2026), numeradas y por
+secciones; las hechas, tachadas. **Las pendientes no se desarrollan todavía:** antes de
 empezar cualquiera hay que verla con Iván y, si cambia el alcance, actualizar
 DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 «Hechas».
@@ -10,7 +10,7 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 ### 🏢 Empresa y expansión
 
-1. [x] **Nombre de la empresa.** Hecho el 20-11-2026 (ver «Hechas»).
+1. [x] ~~**Nombre de la empresa.**~~ Hecho el 20-11-2026 (ver «Hechas»).
 2. [ ] **Sedes en otras ciudades y países.** Abrir sedes en distintas
    ciudades y países. Ojo: DISENO.md deja «otras ciudades» fuera del alcance
    actual, así que habría que cambiarlo allí.
@@ -19,93 +19,48 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 ### 🚗 Vehículos y personalización
 
-4. [ ] **Tiers de vehículos.** Varios modelos de coche con cualidades
-   distintas (consumo, demanda, averías…) en lugar de uno solo. Ojo: hoy
-   DISENO.md deja «otros vehículos» fuera del alcance, así que habría que
-   cambiarlo allí.
-5. [x] **Alquilar coche.** Hecho el 20-11-2026 (ver «Hechas»).
-6. [x] **Kilometraje de cada coche.** Hecho el 19-11-2026 (ver «Hechas»).
-7. [x] **Avería definitiva.** Hecho el 19-11-2026 (ver «Hechas»).
+4. [x] ~~**Tiers de vehículos.**~~ Hecho el 24-11-2026 como las gamas de
+   coche (idea 23, ver «Hechas»).
+5. [x] ~~**Alquilar coche.**~~ Hecho el 20-11-2026 (ver «Hechas»).
+6. [x] ~~**Kilometraje de cada coche.**~~ Hecho el 19-11-2026 (ver «Hechas»).
+7. [x] ~~**Avería definitiva.**~~ Hecho el 19-11-2026 (ver «Hechas»).
 8. [ ] **Skin del coche.** Más adelante en la partida, personalizar el aspecto
    del coche si conduces tú.
 
 ### 👨‍✈️ Conductores y contrataciones
 
-9. [x] **Más variedad de conductores.** Hecho el 20-11-2026 (ver «Hechas»).
+9. [x] ~~**Más variedad de conductores.**~~ Hecho el 20-11-2026 (ver «Hechas»).
 10. [ ] **Conductores de ETT.** Contratar a un conductor temporal por un
     precio reducido que solo trabaja unas jornadas, para no tener el coche
     parado mientras encuentras a uno fijo.
-11. [x] **Pagar por más candidatos.** Hecho el 22-11-2026 (ver «Hechas»).
+11. [x] ~~**Pagar por más candidatos.**~~ Hecho el 22-11-2026 (ver «Hechas»).
 
 ### 📈 Progresión y estadísticas
 
-12. [ ] **Nivel de cuenta.** Un nivel del jugador que refleje cómo avanza la
-    partida. Ojo: si llevara reinicios con premio, se parecería al
-    «prestigio», que DISENO.md deja fuera del alcance actual. Iván
-    (23-11-2026): crece con objetivos de la flota, desbloquea las habilidades
-    de tu personaje y más adelante podría servir para reiniciar la partida
-    (eso sí sería prestigio: decidir antes si entra en el alcance).
-    **En marcha desde el 24-11-2026** (Iván: entra en el alcance). Nivel de
-    cuenta = nivel de tu personaje: 4 puntos por carrera tuya, 1 por carrera
-    de conductor, 1 por legendario vendido; cada nivel, 1 punto de
-    prestigio; reinicio desde el nivel 3, eligiendo mejoras del personaje
-    (las únicas que quedan; el nivel vuelve a 0). Hecho el paso 1
-    (experiencia y nivel), el 2 (hoja del personaje) y el 3 (mejoras por
-    puntos, 300 en total) y el 4 (empezar de cero). Hechos también las gamas de coche (idea 23) y la medida del ritmo de
-    reinicios (docs/analisis-prestigio.md).
+12. [x] ~~**Nivel de cuenta.**~~ Hecho el 24-11-2026 como el nivel de tu
+    personaje con su prestigio (ver «Hechas»).
 
-16. [x] **Lo que te ha hecho ganar cada mejora.** Hecho el 22-11-2026, solo
+16. [x] ~~**Lo que te ha hecho ganar cada mejora.**~~ Hecho el 22-11-2026, solo
     las fáciles (ver «Hechas»).
 
-20. [ ] **Revisar tu personaje para que sea más entretenido.** Hacer tu
-    turno más interactivo (apunte de Iván, 23-11-2026, al diseñar el
-    cansancio: de momento sin «parar a tomar un café» a voluntad ni mandar a
-    descansar a un conductor). Plan de la fase 2 (Iván, 23-11-2026; el
-    jugador está deseando dejar el volante porque su personaje se queda muy
-    por debajo de los conductores con nivel y objetos):
-    - 21 · Racha (B1) y, después, una rama de mejoras de tu personaje.
-    - 12 · Nivel de cuenta: crece con objetivos de la flota y desbloquea tus
-      habilidades (no se compran).
-    - 13 y 15 · Personajes guía con su historia que te entregan tus objetos
-      (no se compran) y guían el juego.
-    - Pendiente, para probar antes solo la racha: café a voluntad (B2).
+20. [ ] **Revisar tu personaje para que sea más entretenido.** Plan de la
+    fase 2 (Iván, 23-11-2026: el jugador está deseando dejar el volante
+    porque su personaje se queda muy por debajo de los conductores):
+    - [x] 21 · Racha (B1) y la rama de mejoras de tu personaje (24-11-2026).
+    - [x] 12 · Nivel de cuenta con prestigio (24-11-2026).
+    - [x] Tu cara y tu nombre, editables, y la hoja del personaje
+      rediseñada (24-11-2026).
+    - [ ] 13 y 15 · Personajes guía con su historia que te entregan tus
+      objetos (no se compran) y guían el juego.
+    - [ ] Café a voluntad (B2): parar a tomar un café cuando quieras (y,
+      quizá, mandar a descansar a un conductor).
 
-21. [ ] **Racha.** Encadenar carreras sin despistarte sube el importe
-    poco a poco; se corta si te despistas o si descansas (así el cansancio
-    también cuenta y en el late game se llega a rachas mejores). Más
-    adelante, una rama de mejoras de tu personaje. **A prueba desde el
-    23-11-2026** (+1 % por carrera hasta +10 %, 1 s de reacción, solo dentro
-    del turno). Falta: decidir cómo se consigue (mejora o reinicio) y las
-    mejoras y objetos que suban el tope y la reacción.
+21. [x] ~~**Racha.**~~ Hecha el 23 y 24-11-2026 (ver «Hechas»).
 22. [ ] ~~Decisiones durante la carrera.~~ Descartada (Iván, 23-11-2026: no
     la quiere; el «sí» anterior fue una errata). Tampoco las ofertas de la
     emisora.
 
-23. [x] **Gamas de coche** (hechas el 24-11-2026: Tesla 3.500 € y Mercedes 5.000 €, con los efectos de abajo reforzados en el Tesla; ver DISENO.md) (Iván, 24-11-2026; se desbloquean con las
-    mejoras del personaje, paso 3 o 4 del prestigio). Tres gamas:
-    - **Turismo: Toyota Corolla.** El de ahora (el más usado por los
-      taxistas). Sin cambios.
-    - **Tesla Model 3.** Más caro, eléctrico: el «combustible» cuesta
-      menos. Cuenta orientativa, por verificar: el Corolla gasta 6 l/100 km
-      × 1,55 € = unos 9,3 €/100 km; un Model 3, unos 15 kWh/100 km a
-      0,20–0,25 €/kWh (cargando en la cochera) = unos 3–3,75 €/100 km, un
-      35–40 % del Corolla. Propuestas de Claude, por decidir: menos averías
-      (motor eléctrico, sin aceite ni embrague: −40 %) y el piloto
-      automático en atascos (te cansas un 10 % menos). Híbridos y GLP no
-      le afectan (Iván, 24-11-2026); Conducción eficiente y Neumáticos de
-      bajo consumo, sí. Efecto (cuentas de Claude): las cuatro mejoras de
-      consumo dejan el Corolla en 9,3 × 0,9 × 0,92 × 0,65 × 0,7 = unos
-      3,5 €/100 km; el Tesla, con las dos que le valen, en unos 2,5–3,1
-      €/100 km. Su ventaja en combustible pasa de un 60–65 % sin mejoras a
-      un 10–30 % con todas, así que al final de la partida lo que lo
-      distingue son sus otros beneficios.
-    - **Mercedes Clase S.** La más alta y cara: más propinas (Iván).
-      Propuestas de Claude, por decidir: clientes de más nivel que casi
-      nunca se van sin pagar (−50 %) y más demanda en el Centro y el
-      Aeropuerto (ejecutivos y hoteles). Como contrapartida, gasta más
-      combustible y sus averías y pinchazos cuestan más. La tarifa del taxi
-      es la misma en cualquier coche (está regulada), así que no se cobra
-      más por la carrera.
+23. [x] ~~**Gamas de coche.**~~ Hecho el 24-11-2026 (ver «Hechas»).
 
 ### ⭐️ Clientes y eventos
 
@@ -119,15 +74,38 @@ DISENO.md («Alcance de la versión actual»). Al terminar una, pasa abajo a
 
 ### 🌳 Mejoras nuevas
 
-17. [x] **Modo incógnito.** Hecho el 20-11-2026 (ver «Hechas»).
-18. [x] **Rebajar la tasa de la SL.** Hecho el 22-11-2026 (ver «Hechas»).
-19. [x] **Revisar la Oficina de gestión.** Cerrada el 23-11-2026 sin cambios (ver «Hechas»).
+17. [x] ~~**Modo incógnito.**~~ Hecho el 20-11-2026 (ver «Hechas»).
+18. [x] ~~**Rebajar la tasa de la SL.**~~ Hecho el 22-11-2026 (ver «Hechas»).
+19. [x] ~~**Revisar la Oficina de gestión.**~~ Cerrada el 23-11-2026 sin cambios (ver «Hechas»).
 
 ### 🖥️ Interfaz y experiencia de usuario
 
 Ninguna pendiente.
 
 ## Hechas
+
+- [x] **12. Nivel de cuenta y prestigio** (📈, 24-11-2026). Tu personaje
+  sube de nivel con experiencia (4 por carrera tuya, 1 por carrera de un
+  conductor, 1 por legendario vendido); el nivel N da N puntos de
+  prestigio. Desde el nivel 3, «Empezar de cero»: gastas los puntos en
+  mejoras del personaje (300 puntos entre todas), las únicas que se
+  conservan, con tu cara y tu nombre. Medido con el bot: unos 11 reinicios
+  de 4–6 h llegando al nivel 7 ([analisis-prestigio.md](analisis-prestigio.md)).
+  Prestigio dentro del alcance por decisión de Iván (DISENO.md).
+
+- [x] **4 y 23. Gamas de coche** (🚗, 24-11-2026). Toyota Corolla
+  (1.500 €), Tesla Model 3 (3.500 €: eléctrico, −60 % de averías, −20 % de
+  cansancio; Híbridos y GLP no le afectan) y Mercedes Clase S (5.000 €:
+  propinas 2,2 veces más a menudo y un 65 % mayores, −55 % de impagos y
+  ≈ +16,5 % de clientes en Centro y Aeropuerto; gasta un 30 % más y sus
+  reparaciones cuestan un 50 % más). Se desbloquean con las mejoras del
+  personaje y se eligen al comprar coche. Detalle y medidas en DISENO.md.
+
+- [x] **21. Racha** (📈, 23 y 24-11-2026). Encadenar tus carreras sube el
+  importe un 1 % cada una, hasta +10 %; la ventana para encadenar se
+  estrecha de 1 s a 0,5 s; taxímetro de recreativa (luces, brillo y
+  sonidos). Se consigue como mejora del personaje (Racha, con Racha larga y
+  Reflejos de taxista).
 
 - [x] **19. Revisar la Oficina de gestión** (🌳, 23-11-2026). Medido: la
   Oficina en sí rinde mucho; lo que cuesta un 15–20 % es dejar el volante.
