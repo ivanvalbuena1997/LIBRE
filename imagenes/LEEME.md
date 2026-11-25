@@ -15,6 +15,9 @@ la tapa el texto.
   el interior del Corolla visto desde el salpicadero, el protagonista al
   volante a la derecha y el copiloto vacío a la izquierda. Cada evento se
   genera a partir de ella (prompts en `docs/eventos-clientes.md`).
+- `evento-<id>.webp`: la ilustración de cada evento (848 × 1264), hecha a
+  partir de la base. `evento-paconi.webp`: Paconi y su hija en el 12 de
+  Octubre.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón
