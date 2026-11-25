@@ -337,7 +337,8 @@
     const jornada = Libre.sim.jornadaDe(ahora);
     const pausa = Libre.sim.enPausa(estado);
     return estado.licencias.filter(function (l) { return l.vehiculo; }).map(function (lic) {
-      const t = lic.turnos[turno];
+      // El Pelado, solo en su coche, también sale en el turno vacío.
+      const t = Libre.sim.enTurno(lic, turno);
       const carrera = !t ? null : t.quien === 'jugador' ? estado.jugador.carrera : t.carrera;
       const enCurso = Libre.sim.importeDeCarrera(estado, carrera);
       let icono = null;
@@ -1299,10 +1300,20 @@
       hab.push('<strong>Tocayos:</strong> +' + pct(u.tocayos.porCada) + ' en sus carreras por cada ' + u.tocayos.nombres.join(' o ') +
         ' con turno (hasta +' + pct(u.tocayos.maximo) + ').' + (ahora > 0 ? ' <em>Ahora: +' + pct(ahora) + '.</em>' : ''));
     }
+    if (u.dobleTurno) hab.push('<strong>Doble turno:</strong> si va solo en su coche, hace el día y la noche del tirón.');
+    if (u.plusKm) hab.push('<strong>Plus de kilómetros:</strong> ' + euros(u.plusKm) + ' por cada km de su jornada, al cerrar la caja.');
+    if (u.efecto && u.efecto.sinImpagos) hab.push('<strong>Nadie se le va sin pagar.</strong>');
+    if (u.baja && !u.baja.prob) hab.push('<strong>Nunca se pone malo.</strong>');
     (u.sinergias || []).forEach(function (s) {
       const o = Libre.sim.buscarObjeto(s.objeto);
       const activa = (t.objetos || []).indexOf(s.objeto) !== -1;
-      hab.push('<strong>Con ' + esc(o ? o.nombre : s.objeto) + ':</strong> ' + esc(textoEfecto(s.efecto)) + '. ' +
+      // 'importe' no es un factor de los de siempre: lo que cobra por carrera.
+      const resto = Object.assign({}, s.efecto);
+      delete resto.importe;
+      const partes = [];
+      if (s.efecto.importe) partes.push('+' + pct(s.efecto.importe - 1) + ' en lo que cobra por carrera');
+      if (Object.keys(resto).length) partes.push(textoEfecto(resto));
+      hab.push('<strong>Con ' + esc(o ? o.nombre : s.objeto) + ':</strong> ' + esc(partes.join(', ')) + '. ' +
         (activa ? '<span class="ui-chip unico-activa">Sinergia activa</span>' : '<em>Te falta equipársela.</em>'));
     });
     if (u.ajuste) {
@@ -1312,7 +1323,10 @@
     hab.push('<strong>Sin topes</strong> en sus estadísticas.');
     const deb = [];
     if (u.soloTurno) deb.push('Solo trabaja en el turno de ' + NOMBRE_TURNO(u.soloTurno) + '.');
-    if (u.baja) deb.push('Se pone malo en el ' + pct(u.baja.prob) + ' de sus turnos (bajas de ' + u.baja.jornadasMin + '–' + u.baja.jornadasMax + ' jornadas).');
+    if (u.combustible > 1) deb.push('Gasta un ' + pct(u.combustible - 1) + ' más de combustible: le gusta ir rápido.');
+    if (u.kmExtra) deb.push('Hace un ' + pct(u.kmExtra) + ' más de km: vuelve en vacío de los viajes largos y usa el coche para lo suyo.');
+    if (u.efecto && u.efecto.pinchazo > 1) deb.push('Sufre un ' + pct(u.efecto.pinchazo - 1) + ' más de pinchazos.');
+    if (u.baja && u.baja.prob) deb.push('Se pone malo en el ' + pct(u.baja.prob) + ' de sus turnos (bajas de ' + u.baja.jornadasMin + '–' + u.baja.jornadasMax + ' jornadas).');
     if (u.sinIncognito) deb.push('Nunca trabaja de incógnito.');
     (u.incompatibles || []).forEach(function (i) {
       const v = Libre.sim.buscarUnico(i.id || i);
@@ -1506,10 +1520,16 @@
     let cara;
     if (!t) {
       const abierto = eligiendoConductor === clave;
-      cara = '<button type="button" class="cara cara-vacia" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
+      // Turno vacío que cubre un ÚNICO con doble turno (El Pelado): sigue
+      // libre para contratar, pero se ve que lo hace él.
+      const dobla = Libre.sim.enTurno(lic, turno);
+      cara = '<button type="button" class="cara cara-vacia' + (dobla ? ' cara-doble' : '') + '" data-elegir-conductor="' + clave + '" aria-expanded="' + abierto + '"' +
         (pausa ? ' data-destino="' + clave + '"' : '') + ' data-precio="' + precioMasBarato(estado) + '"' +
-        ' aria-label="Turno de ' + esc(c.turnos[turno].nombre.toLowerCase()) + ' libre: contratar">' +
-        '<span class="cara-foto"><span class="retrato retrato-texto">' + ICONO_MAS + '</span></span><span class="cara-nombre">Libre</span></button>';
+        ' aria-label="Turno de ' + esc(c.turnos[turno].nombre.toLowerCase()) + ' libre' +
+        (dobla ? ' (lo dobla ' + esc(dobla.nombre) + ')' : '') + ': contratar">' +
+        (dobla
+          ? '<span class="cara-foto"><span class="retrato atenuado">' + Libre.retratos.svg(dobla.retrato) + '</span></span><span class="cara-nombre">Doble</span></button>'
+          : '<span class="cara-foto"><span class="retrato retrato-texto">' + ICONO_MAS + '</span></span><span class="cara-nombre">Libre</span></button>');
     } else if (t.quien === 'jugador') {
       cara = '<button type="button" class="cara" data-panel-tu="' + clave + '" aria-expanded="' + (panelTu === clave) + '"' +
         ' aria-label="Tu turno: zona y opciones">' +
@@ -1764,7 +1784,7 @@
     importeLluvia: 'Cobra con lluvia', cansancio: 'Cansancio', descanso: 'Descanso'
   };
   const MAS_ES_MEJOR = { propina: true, objeto: true, hallazgo: true, suerte: true, importeLluvia: true };
-  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '', coche: '', sinergia: '' };
+  const NOMBRE_TIPO_FUENTE = { cualidad: 'Cualidad', defecto: 'Defecto', objeto: 'Objeto', nivel: '', mejora: 'Mejora', categoria: '', coche: '', sinergia: '', unico: '' };
 
   /* Porcentaje legible con las cifras justas: «18 %», «0,8 %», «0,08 %». */
   function porcentaje(p) {

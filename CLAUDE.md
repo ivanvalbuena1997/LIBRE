@@ -729,7 +729,19 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (al empezar `cerrarCaja()`, incidencia 'ajuste'). Sin topes: `topesDe()`
   da [0, ∞]. Sinergias: aporte 'sinergia' en `aportesConductor()`. Bajas
   propias en `sortearInicioDeTurnos()` y en `statsConductor()`.
-  `trabajaIncognito()` respeta `sinIncognito`. `incompatibles` son
+  `trabajaIncognito()` respeta `sinIncognito`. El Pelado (#02): `efecto`
+  de serie (aporte tipo 'unico': pinchazo, sinImpagos; el que intenta irse
+  sin pagar paga y sale el evento 'unicoFrena'), `factorImporteUnico()`
+  (tocayos y sinergias con `importe`), `combustible` (factor en
+  `terminarCarreraConductor()`), `caja.hoy.kmPorConductor`
+  (`apuntarKmConductor()`) y, al cerrar, `plusKmUnico()` (suma `kmExtra`
+  en vacío con su combustible y paga `plusKm` por km; incidencia
+  'plusKm'). `dobleTurno`: `enTurno(lic, turno)` da quién conduce ese turno
+  (el suyo o, si está vacío, el ÚNICO del otro); lo usan
+  `cochesPorZona()`, `asignarZonasConductores()`,
+  `sortearInicioDeTurnos()`, `monedasFinDeTurno()` y `taxisDeLaFlota()`;
+  en Conductores, el hueco vacío enseña su cara atenuada («Doble») y sigue
+  abierto para contratar. `incompatibles` son
   `{ id, nombre }` (el nombre, para el texto aunque aún no exista). En
   pantalla: `Libre.retratos.svg(id)` da su imagen con marco granate
   (`.retrato-unico`); `rarezaDe(t)` da la insignia 'U' (`--rareza-unico`,
@@ -773,7 +785,8 @@ fijados por Iván, no precios reales. Si aparece un valor sin fuente, se marca
   cuánto deja cada objeto por conductor y jornada (sin mejoras y con
   propinas y otras mejoras). Informe en `docs/analisis-objetos.md`.
 - `node tests/unicos.js [semillas] [jornadas]` tampoco: compara a Paconi
-  (con y sin su planta y tocayos) con un LEGENDARIO en la misma flota.
+  (con y sin su planta y tocayos) y a El Pelado (con y sin chicles, con y
+  sin doble turno) con un LEGENDARIO en la misma flota (16 × 80: 4 min).
   Informe en `docs/analisis-unicos.md`.
 
 ## Forma de trabajar

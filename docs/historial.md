@@ -156,3 +156,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 120. Llegan los conductores ÚNICOS, un rango por encima de LEGENDARIO con marco granate, retrato propio, habilidades y debilidades fijas y sin topes. El primero es Paconi: tocayos, sinergia con su planta, «ajuste de periodos anteriores» al cerrar la caja… y sus frases. De momento llegarán con los eventos de clientes, que vienen pronto.
 121. En la ficha de un ÚNICO, sus estadísticas dicen «ÚNICO» en vez de «Categoría LEGENDARIO».
 122. Paconi cuadra mejor las cuentas: su «ajuste de periodos anteriores» deja ahora un 12–18 % de lo que factura (antes, un 8–12 %).
+123. Llega el segundo ÚNICO: El Pelado. Solo en su coche hace el día y la noche del tirón, cobra un plus por cada kilómetro, nadie se le va sin pagar, nunca se pone malo y con los chicles de menta cobra un 20 % más. A cambio gasta más combustible, hace más kilómetros de la cuenta, pincha más y no comparte coche con Paconi.

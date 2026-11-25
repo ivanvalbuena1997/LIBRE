@@ -129,6 +129,8 @@
       sociedad: { nombre: 'Constitución de la SL' },
       // El extra de un ÚNICO al cerrar la caja (Paconi).
       ajuste: { nombre: 'Ajuste de periodos anteriores' },
+      // El plus por km de un ÚNICO al cerrar la caja (El Pelado).
+      plusKm: { nombre: 'Plus de kilómetros' },
       rotura: {
         nombre: 'Averías definitivas', kmDesde: 130000, kmMax: 230000, probMax: 0.03,
         chatarra: 50               // € que te dan en el desguace
@@ -766,7 +768,13 @@
        *   baja          su probabilidad de baja al empezar el turno y cuánto dura
        *   ajuste        al cerrar la caja, un extra de lo que facturó (min–max)
        *   tocayos       un extra por cada conductor con esos nombres con turno
-       *   sinergias     efecto de más si lleva ese objeto equipado
+       *   sinergias     efecto de más si lleva ese objeto equipado ('importe':
+       *                 multiplica lo que cobra por carrera)
+       *   dobleTurno    si el otro turno de su licencia está vacío, hace los dos
+       *   plusKm        € por km de su jornada, al cerrar la caja
+       *   kmExtra       km de más en vacío (fracción de los suyos), al cerrar la caja
+       *   combustible   factor sobre su combustible
+       *   efecto        efectos de serie, como los de un objeto (pinchazo, sinImpagos…)
        */
       unicos: {
         paconi: {
@@ -788,6 +796,27 @@
           ajuste: { min: 0.12, max: 0.18 },
           tocayos: { nombres: ['Francisco', 'Paco'], porCada: 0.05, maximo: 0.15 },
           sinergias: [{ objeto: 'paconi', efecto: { propina: 1.2, espera: 0.8, cansancio: 0.8 } }]
+        },
+        // #02 (Iván, 25-11-2026). Todo Equilibrio.
+        pelado: {
+          nombre: 'El Pelado', categoriaBase: 'L', imagen: 'imagenes/unico-pelado.webp',
+          descripcion: 'Una bestia de origen argentino: trabaja para dar de comer a sus siete hijos. Una vez se le intentaron ir sin pagar unos dominicanos y acabaron en pelotas. Le encanta hacer kilómetros.',
+          frases: [
+            'Che, acá no se baja nadie sin pagar.',
+            'Siete pibes en casa, hermano: hay que laburar.',
+            'Un kilometrito más no le hace mal a nadie.',
+            'Mucha lechuga suelta, jefe.',
+            '¿Dominicanos? Se fueron en calzoncillos, nada más te digo.'
+          ],
+          sinIncognito: true,
+          dobleTurno: true,               // solo en su coche, hace los dos turnos
+          incompatibles: [{ id: 'paconi', nombre: 'Paconi' }],
+          baja: { prob: 0, jornadasMin: 1, jornadasMax: 1 },   // nunca se pone malo
+          plusKm: 0.20,                   // € por km de su jornada, al cerrar la caja
+          kmExtra: 0.25,                  // km de más (en vacío), al cerrar la caja
+          combustible: 1.15,              // gasta un 15 % más (va rápido)
+          efecto: { pinchazo: 1.1, sinImpagos: true },
+          sinergias: [{ objeto: 'chicles', efecto: { importe: 1.2 } }]
         }
       }
     },

@@ -2726,20 +2726,63 @@ prueba('ÚNICOS: Paconi no comparte coche con El Pelado y no se le mueve al turn
   sim.ofrecerUnico(e, 'paconi');
   assert.ok(sim.contratarConductor(e, lic.id, 'dia', 0).ok);
   const paconi = lic.turnos.dia;
-  // Un «Pelado» de mentira en el otro turno: no se puede.
-  const falso = { quien: 'conductor', nombre: 'El Pelado', unico: 'pelado' };
-  config.conductores.unicos.pelado = { nombre: 'El Pelado', categoriaBase: 'L' };
-  try {
-    assert.ok(/no comparte coche/.test(sim.faltaParaTurnoUnico(lic, 'noche', falso)));
-  } finally {
-    delete config.conductores.unicos.pelado;
-  }
+  // El Pelado en el otro turno: no se puede.
+  const pelado = { quien: 'conductor', nombre: 'El Pelado', unico: 'pelado' };
+  assert.ok(/no comparte coche/.test(sim.faltaParaTurnoUnico(lic, 'noche', pelado)));
   // Moverlo de noche, no (con el día cerrado).
   e.cierrePendiente = { dias: 1 };
   const r = sim.moverConductor(e, lic.id, 'dia', lic.id + '|noche');
   assert.strictEqual(r.ok, false);
   assert.ok(/día/.test(r.mensaje));
   assert.strictEqual(lic.turnos.dia, paconi);
+});
+
+prueba('ÚNICOS: El Pelado dobla turno solo en su coche, nunca se pone malo, nadie se le va y cobra plus por km', function () {
+  const u = config.conductores.unicos.pelado;
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 5;
+  e.dinero = 1e6;
+  sim.comprarLicencia(e);
+  const lic = e.licencias[1];
+  sim.comprarVehiculo(e, lic.id);
+  assert.ok(sim.ofrecerUnico(e, 'pelado').ok);
+  assert.ok(sim.contratarConductor(e, lic.id, 'noche', 0).ok);
+  const t = lic.turnos.noche;
+  assert.strictEqual(t.unico, 'pelado');
+  // Doble turno: el día vacío también es suyo.
+  assert.strictEqual(sim.enTurno(lic, 'dia'), t);
+  assert.strictEqual(sim.enTurno(lic, 'noche'), t);
+  // Y trabaja de día: de 9:00 a 13:00 hace carreras.
+  e.reloj.minutos = 9 * 60;
+  for (let i = 0; i < 200; i++) sim.avanzar(e, 0.25);
+  assert.ok(t.carreras > 0, 'carreras de día: ' + t.carreras);
+  // Lo de serie: más pinchazos, nadie se va sin pagar, nunca de baja ni de incógnito.
+  cerca(sim.factoresConductor(e, t).pinchazo, 1.1, 1e-9);
+  assert.strictEqual(sim.conEfecto(t, 'sinImpagos').tipo, 'unico');
+  const st = sim.statsConductor(e, t, 'noche');
+  assert.strictEqual(st.find(function (x) { return x.clave === 'baja'; }).valor, 0);
+  assert.strictEqual(st.find(function (x) { return x.clave === 'sinPagar'; }).valor, 0);
+  assert.strictEqual(sim.trabajaIncognito(e, lic, t, e.reloj.minutos), false);
+  // Chicles de menta: +20 % por carrera.
+  assert.strictEqual(sim.factorImporteUnico(e, t), 1);
+  t.objetos = ['chicles'];
+  cerca(sim.factorImporteUnico(e, t), 1.2, 1e-9);
+  // Con alguien de día, deja de doblar.
+  const otro = Object.assign({}, t, { id: 998, nombre: 'Laura', unico: null, objetos: [] });
+  lic.turnos.dia = otro;
+  assert.strictEqual(sim.enTurno(lic, 'dia'), otro);
+  lic.turnos.dia = null;
+  // Al cerrar la caja: +25 % de km en vacío y 0,20 € por cada km, también esos.
+  e.caja.hoy.kmPorConductor = {};
+  e.caja.hoy.kmPorConductor[t.id] = 400;
+  const kmAntes = lic.km;
+  e.reloj.minutos = 420 + 1440 - 0.2;
+  sim.avanzar(e, 0.5);
+  assert.ok(e.cierrePendiente, 'se ha cerrado la caja');
+  const km = e.caja.ayer.kmPorConductor[t.id];
+  assert.ok(km >= 400);
+  cerca(e.caja.ayer.incidencias.plusKm.importe, km * (1 + u.kmExtra) * u.plusKm, 1e-6);
+  assert.ok(lic.km - kmAntes >= 400 * u.kmExtra - 1e-9);
 });
 
 console.log(pasadas + ' pruebas correctas');

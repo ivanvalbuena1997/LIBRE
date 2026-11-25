@@ -10,7 +10,7 @@ la tapa el texto.
   falta una, el juego enseña un fondo azul provisional con «Ilustración N».
 - `unico-<id>.webp`: retrato de cada conductor ÚNICO
   (`config.conductores.unicos.<id>.imagen`), cuadrado, 256 × 256 (se ve en
-  círculos de 36 a 88 px). `unico-paconi.webp`: Paconi.
+  círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón

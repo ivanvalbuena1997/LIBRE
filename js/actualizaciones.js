@@ -559,6 +559,10 @@
         {
           "n": 122,
           "texto": "Paconi cuadra mejor las cuentas: su «ajuste de periodos anteriores» deja ahora un 12–18 % de lo que factura (antes, un 8–12 %)."
+        },
+        {
+          "n": 123,
+          "texto": "Llega el segundo ÚNICO: El Pelado. Solo en su coche hace el día y la noche del tirón, cobra un plus por cada kilómetro, nadie se le va sin pagar, nunca se pone malo y con los chicles de menta cobra un 20 % más. A cambio gasta más combustible, hace más kilómetros de la cuenta, pincha más y no comparte coche con Paconi."
         }
       ]
     }

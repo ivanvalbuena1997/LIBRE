@@ -1133,7 +1133,10 @@
       return exito(nombre + ' se encarga del turno de ' + c.turnos[turno].nombre.toLowerCase() +
         ': ahora tu taxi también trabaja cuando tú no conduces.');
     }
-    return exito(nombre + ' empieza en el turno de ' + c.turnos[turno].nombre.toLowerCase() + '.');
+    // Un ÚNICO con doble turno, solo en su coche, hace también el otro.
+    const doble = !otro && unicoDe(lic.turnos[turno]) && unicoDe(lic.turnos[turno]).dobleTurno;
+    return exito(nombre + ' empieza en el turno de ' + c.turnos[turno].nombre.toLowerCase() +
+      (doble ? ' y, mientras vaya solo en su coche, también hace el de ' + c.turnos[turno === 'dia' ? 'noche' : 'dia'].nombre.toLowerCase() : '') + '.');
   }
 
   /* Un conductor recién contratado a partir de su candidato. */
@@ -1377,6 +1380,35 @@
     });
     return Math.min(u.tocayos.maximo, n * u.tocayos.porCada);
   }
+  /* Lo que multiplica el importe de las carreras de un ÚNICO: tocayos y sinergias con 'importe'. */
+  function factorImporteUnico(estado, t) {
+    const u = unicoDe(t);
+    if (!u) return 1;
+    let f = 1 + bonoTocayos(estado, t);
+    (u.sinergias || []).forEach(function (s) {
+      if (s.efecto.importe && (t.objetos || []).indexOf(s.objeto) !== -1) f *= s.efecto.importe;
+    });
+    return f;
+  }
+  /*
+   * Quién conduce el coche de una licencia en un turno: el de ese turno o,
+   * si está vacío, un ÚNICO con doble turno del otro (El Pelado, solo en
+   * su coche, hace el día y la noche del tirón).
+   */
+  function enTurno(lic, turno) {
+    const t = lic && lic.turnos[turno];
+    if (t) return t;
+    const otro = lic && lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
+    const u = unicoDe(otro);
+    return u && u.dobleTurno ? otro : null;
+  }
+  /* Km que lleva un conductor en la jornada (para el plus por km). */
+  function apuntarKmConductor(estado, t, km) {
+    const hoy = estado.caja.hoy;
+    hoy.kmPorConductor = hoy.kmPorConductor || {};
+    hoy.kmPorConductor[t.id] = (hoy.kmPorConductor[t.id] || 0) + km;
+  }
+
   /*
    * Al cerrar la caja: el «ajuste de periodos anteriores» de cada único que
    * lo tenga, un extra de lo que facturó en la jornada.
@@ -1387,6 +1419,7 @@
       TURNOS.forEach(function (tn) {
         const t = l.turnos[tn];
         const u = unicoDe(t);
+        if (u && u.plusKm) plusKmUnico(estado, resumen, l, t, u);
         const facturado = t && porConductor[t.id];
         if (!u || !u.ajuste || !(facturado > 0)) return;
         const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max);
@@ -1394,6 +1427,26 @@
           Libre.ui_euros(extra) + ' más en la caja. ' + fraseUnico(estado, t), extra, 'extras', t);
       });
     });
+  }
+
+  /*
+   * El Pelado al cerrar la caja: los km de más de la jornada (vuelve en
+   * vacío de los viajes largos y usa el coche para lo suyo: `kmExtra` de lo
+   * que hizo, con su combustible) y el plus por cada km, también esos.
+   */
+  function plusKmUnico(estado, resumen, lic, t, u) {
+    const km = (estado.caja.hoy.kmPorConductor || {})[t.id] || 0;
+    if (!(km > 0)) return;
+    const extra = km * (u.kmExtra || 0);
+    if (extra > 0) {
+      gastar(estado, resumen, 'combustible', extra * costePorKm(estado, lic.vehiculo) * (u.combustible || 1), lic.vehiculo);
+      estado.caja.hoy.km += extra;
+      sumarKm(estado, lic, extra);
+    }
+    const plus = (km + extra) * u.plusKm;
+    incidencia(estado, resumen, 'plusKm', u.nombre + ' hace ' + Math.round(km + extra) + ' km en la jornada' +
+      (extra > 0 ? ' (' + Math.round(extra) + ' de vuelta en vacío y para lo suyo)' : '') + ': ' +
+      Libre.ui_euros(plus) + ' de plus. «' + fraseUnico(estado, t) + '»', plus, 'extras', t);
   }
 
   /* Candidatos para el próximo contrato: personajes y cualidades distintos. */
@@ -2052,6 +2105,8 @@
       const o = buscarObjeto(s.objeto);
       lista.push({ tipo: 'sinergia', id: s.objeto, nombre: 'Sinergia: ' + (o ? o.nombre : s.objeto), efecto: s.efecto });
     });
+    // Lo suyo de serie (El Pelado: más pinchazos y nadie se le va sin pagar).
+    if (u && u.efecto) lista.push({ tipo: 'unico', id: t.unico, nombre: u.nombre, efecto: u.efecto });
     const nivel = nivelConductor(t);
     lista.push({ tipo: 'nivel', id: 'nivel', nombre: 'Nivel ' + nivel,
       efecto: { espera: 1 - cfg().conductores.niveles.esperaPorNivel * (nivel - 1) } });
@@ -2379,7 +2434,7 @@
     const conClientes = zonas.filter(function (z) { return demandaZona(estado, z, info) >= umbral; });
     const conductores = [];
     estado.licencias.forEach(function (lic) {
-      const t = lic.turnos[turnoActual];
+      const t = enTurno(lic, turnoActual);
       if (lic.vehiculo && t && t.quien === 'conductor' && puedeTrabajar(estado, lic, t, ahora)) conductores.push({ lic, t });
     });
     if (modificadores(estado).gestionZonas) {
@@ -2670,7 +2725,7 @@
     const turnoActual = turnoDeHora(info.hora);
     const grupos = {};
     estado.licencias.forEach(function (lic) {
-      const t = lic.turnos[turnoActual];
+      const t = enTurno(lic, turnoActual);
       if (!lic.vehiculo || !t) return;
       if (t.quien === 'jugador') return;   // tu turno siempre es a clic
       if (!puedeTrabajar(estado, lic, t, info.dia * MIN_DIA + info.minutoDelDia)) return;
@@ -2734,8 +2789,9 @@
         }
         const fe = topeConductor('espera', factoresConductor(estado, x.turno).espera, x.turno);
         const carrera = planearCarrera(estado, zonaId, x.licencia.vehiculo, porCoche, rnd, 'azar', fe);
-        // Un ÚNICO con tocayos en la flota cobra algo más (Paconi).
-        carrera.importe *= 1 + bonoTocayos(estado, x.turno);
+        // Un ÚNICO cobra algo más con tocayos en la flota (Paconi) o con su
+        // objeto de sinergia (El Pelado y sus chicles).
+        carrera.importe *= factorImporteUnico(estado, x.turno);
         // Anfibio: cobra más si el cliente sube con lluvia (al acabar la espera).
         if (lloviendo(estado, carrera.finEspera)) {
           carrera.importe *= topeConductor('importeLluvia', factoresConductor(estado, x.turno).importeLluvia, x.turno);
@@ -2825,8 +2881,10 @@
     const carrera = turno.carrera;
     turno.carrera = null;
     cansarse(estado, turno, carrera);
-    gastar(estado, resumen, 'combustible', carrera.combustible, carrera.vehiculo);
+    const u = unicoDe(turno);
+    gastar(estado, resumen, 'combustible', carrera.combustible * ((u && u.combustible) || 1), carrera.vehiculo);
     estado.caja.hoy.km += carrera.km + carrera.kmVacio;
+    apuntarKmConductor(estado, turno, carrera.km + carrera.kmVacio);
     sumarKm(estado, licenciaDelTurno(estado, turno), carrera.km + carrera.kmVacio);
     if (carrera.vacio) return;
     const antes = estado.totales.ingresos;
@@ -2895,7 +2953,13 @@
     const coche = efectoCocheDe(estado, quien);
     const baseProp = ev.propina.probCarrera;
     const probPropina = baseProp * topeConductor('propina', (baseProp + m.propinaProb) / baseProp * f.propina, quien) * (coche.propinaProb || 1);
-    if (!conEfecto(quien, 'sinImpagos') && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien) * (coche.sinPagar || 1))) {
+    const frena = conEfecto(quien, 'sinImpagos');
+    // El Pelado: el que lo intenta no se va (ni vestido). Solo un aviso.
+    if (frena && frena.tipo === 'unico' && toca(estado, 'sinPagar', ev.sinPagar.probCarrera)) {
+      resumen.eventos.push({ tipo: 'unicoFrena', conductor: quien.nombre, retrato: quien.retrato,
+        texto: 'Un cliente intenta irse sin pagar a ' + quien.nombre + '. Paga. «' + fraseUnico(estado, quien) + '»' });
+    }
+    if (!frena && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien) * (coche.sinPagar || 1))) {
       consumirForzado(estado, 'sinPagar');
       incidencia(estado, resumen, 'sinPagar',
         (esConductor ? 'A ' + sujeto + ' se le' : 'Se te') + ' va un cliente sin pagar: ' +
@@ -3053,7 +3117,7 @@
     const fin = finDeTurno(ahora, turnoActual);
 
     estado.licencias.forEach(function (lic) {
-      const t = lic.turnos[turnoActual];
+      const t = enTurno(lic, turnoActual);
       if (!lic.vehiculo || !t || t.sorteado === clave) return;
       t.sorteado = clave;
       if (t.quien === 'jugador') {
@@ -3311,7 +3375,7 @@
     const ahora = estado.reloj.minutos;
     const terminado = turnoDeHora(infoReloj(ahora - 1).hora);
     estado.licencias.forEach(function (lic) {
-      const t = lic.turnos[terminado];
+      const t = enTurno(lic, terminado);
       if (!lic.vehiculo || !t || t.quien !== 'conductor') return;
       if (!puedeTrabajar(estado, lic, Object.assign({}, t, { paradoHasta: 0 }), ahora - 1)) return;
       const monedas = entre(estado, m.monedasMin, m.monedasMax);
@@ -3631,6 +3695,8 @@
     ofrecerUnico,
     faltaParaTurnoUnico,
     bonoTocayos,
+    factorImporteUnico,
+    enTurno,
     cambiarAspecto,
     renombrarPersonaje,
     nombrePersonaje,

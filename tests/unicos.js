@@ -4,7 +4,8 @@
  *
  * Flota de 3 licencias: tu turno vacío y 4 conductores B de nivel 5 sin
  * rasgos; en el turno de día de la 2.ª licencia, el que se mide (nivel 5,
- * dos huecos de objeto). Da el neto de la flota por jornada frente a tener
+ * dos huecos de objeto; El Pelado, también solo en su coche, haciendo los
+ * dos turnos). Da el neto de la flota por jornada frente a tener
  * ahí un B más. Dos momentos, como tests/objetos.js: «pronto» (sin
  * mejoras) y «tarde» (Callejero, Taxi impecable, Propinas 3, Pago con
  * tarjeta, Mecánico 3 y Deflectores). Sin libranza.
@@ -35,13 +36,21 @@ const ESCENARIOS = {
 };
 const LEG = { categoria: 'L', cualidad: 'simpatico', cualidad2: 'conoceCiudad' };
 const PAC = { categoria: 'L', unico: 'paconi' };
+const PEL = { categoria: 'L', unico: 'pelado' };
+// `t`: el que se mide, en el día de la 2.ª licencia. Con `noche`, el de la
+// noche (y `t` en el día; null = día vacío: El Pelado lo dobla).
 const PRUEBAS = [
   { id: 'base', nombre: 'Un B sin rasgos (referencia)', t: { categoria: 'B' } },
   { id: 'leg', nombre: 'LEGENDARIO (Simpático + Conoce la ciudad)', t: LEG },
   { id: 'legPlanta', nombre: 'LEGENDARIO + Planta de Paconi', t: LEG, objetos: ['paconi'] },
   { id: 'pac', nombre: 'Paconi, sin objetos', t: PAC },
   { id: 'pacPlanta', nombre: 'Paconi + su planta', t: PAC, objetos: ['paconi'] },
-  { id: 'pacPacos', nombre: 'Paconi + su planta + 3 Pacos en la flota (+15 %)', t: PAC, objetos: ['paconi'], pacos: 3 }
+  { id: 'pacPacos', nombre: 'Paconi + su planta + 3 Pacos en la flota (+15 %)', t: PAC, objetos: ['paconi'], pacos: 3 },
+  { id: 'legChicles', nombre: 'LEGENDARIO + Chicles de menta', t: LEG, objetos: ['chicles'] },
+  { id: 'pel', nombre: 'El Pelado de día, con un B de noche', t: PEL },
+  { id: 'pelChicles', nombre: 'El Pelado de día + chicles, con un B de noche', t: PEL, objetos: ['chicles'] },
+  { id: 'pelDoble', nombre: 'El Pelado solo en su coche (doble turno), sin el B de noche', t: null, noche: PEL },
+  { id: 'pelDobleChicles', nombre: 'El Pelado solo (doble turno) + chicles, sin el B de noche', t: null, noche: PEL, objetos: ['chicles'] }
 ];
 
 function partida(semilla, escenario, prueba) {
@@ -62,10 +71,12 @@ function partida(semilla, escenario, prueba) {
     ['dia', 'noche'].forEach(function (tn) {
       const t = l.turnos[tn];
       if (!t || t.quien !== 'conductor') return;
-      const sujeto = i === 1 && tn === 'dia';
       Object.assign(t, { categoria: 'B', cualidad: null, cualidad2: null, cualidad3: null, defecto: null, defecto2: null,
         unico: null, xp: XP5, objetos: [], nombre: 'Laura' });
-      if (sujeto) Object.assign(t, prueba.t, { objetos: (prueba.objetos || []).slice(), nombre: prueba.t.unico ? 'Paconi' : 'Laura' });
+      const sujeto = i === 1 && (tn === 'dia' ? prueba.t !== undefined : !!prueba.noche);
+      const datos = tn === 'dia' ? prueba.t : prueba.noche;
+      if (sujeto && datos === null) { l.turnos[tn] = null; return; }
+      if (sujeto) Object.assign(t, datos, { objetos: (prueba.objetos || []).slice(), nombre: datos.unico ? c.conductores.unicos[datos.unico].nombre : 'Laura' });
       else if (pacos > 0) { t.nombre = 'Paco'; pacos--; }
       conductores.push(t);
     });
