@@ -65,4 +65,4 @@ El Pelado (el turno de día vacío, que hace él) en vez de dos conductores B.
   un 25 % de km de más hace unos 900 km por jornada, así que llega antes a
   las averías y a la avería definitiva), y que te ahorras contratar a otro.
 
-Pendiente de la decisión de Iván.
+**Decisión de Iván (25-11-2026):** se queda así, como un ÚNICO muy por encima de los demás y difícil de conseguir.
