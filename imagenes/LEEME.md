@@ -7,7 +7,8 @@ la tapa el texto.
 
 - `intro-1.webp`, `intro-2.webp`, `intro-3.webp`: las tres escenas de la
   introducción (`config.historia.intro`), 848 × 1264, de 41 a 63 KB. Si
-  falta una, el juego enseña un fondo azul provisional con «Ilustración N».
+  falta una, el juego enseña un fondo azul provisional con «Ilustración N». La 3.ª se
+  rehízo el 26-11-2026 con el Corolla (antes salía un coche antiguo).
 - `unico-<id>.webp`: retrato de cada conductor ÚNICO
   (`config.conductores.unicos.<id>.imagen`), cuadrado, 256 × 256 (se ve en
   círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado;

@@ -685,6 +685,10 @@
         {
           "n": 152,
           "texto": "Más fotos en el grupo de la flota: la planta de Paconi, el bocadillo de El Pelado y el dibujo de Daniela. Ya están todas."
+        },
+        {
+          "n": 153,
+          "texto": "La última escena de la introducción ya enseña el Corolla, como dice el texto (antes salía un coche antiguo)."
         }
       ]
     }
