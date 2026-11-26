@@ -194,3 +194,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 155. El botón del grupo de la flota tiene un icono nuevo: dos bocadillos de conversación.
 156. La ficha de los conductores ÚNICOS ya no enseña una de sus frases bajo la descripción; sus frases siguen saliendo en sus avisos y en el grupo de la flota.
 157. El Saco de 10 kg de colines estrena dibujo: un saco con los colines asomando, más claro en las casillas.
+158. Los 41 objetos estrenan dibujo: ilustraciones nuevas, más grandes y con color, en el Almacén, en las fichas y en los avisos.

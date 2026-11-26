@@ -111,13 +111,12 @@ nombra sin decir en qué archivo están: búscalas con grep.
   y barba, `gafas: 'sol'`, `gorra` (color de ropa 1–6), `cuello`
   ('pajarita' o 'corbata', que pone camisa y corbata) y `pendientes`;
   colores en `--retrato-*`.
-- Iconos de objetos: dibujos SVG en `iconos/` (del paquete de
-  diseño, con sus propios colores), con `<img>` desde `icono()`. Se llaman
-  como el objeto salvo los de `ARCHIVO_ICONO` (escaner → radio, paconi →
-  planta, alfombrillas → alfombrilla, bolsaVomito → bolsa; con extensión,
-  una imagen: colines → `colines.webp`, hecho con IA y recortado del verde,
-  192 px). Los
-  de turnos y rasgos siguen siendo trazos en `ICONOS`.
+- Iconos de objetos: ilustraciones hechas con IA (Iván, 26-11-2026) en
+  `iconos/<id>.webp` (192 px, fondo transparente), con `<img>` desde
+  `icono()`; salen de cinco hojas en cuadrícula sobre verde (prompts en el
+  historial de la conversación con Claude; estilo: icono plano de juego,
+  contorno azul marino grueso). Hasta el 26-11-2026, SVG del paquete de
+  diseño. Los de turnos y rasgos siguen siendo trazos en `ICONOS`.
 - Experiencia (`turno.xp`): cada carrera terminada de un conductor da
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la
   tabla `niveles.experiencia` (10 niveles) y cada nivel acorta la espera.

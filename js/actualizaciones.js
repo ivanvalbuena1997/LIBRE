@@ -705,6 +705,10 @@
         {
           "n": 157,
           "texto": "El Saco de 10 kg de colines estrena dibujo: un saco con los colines asomando, más claro en las casillas."
+        },
+        {
+          "n": 158,
+          "texto": "Los 41 objetos estrenan dibujo: ilustraciones nuevas, más grandes y con color, en el Almacén, en las fichas y en los avisos."
         }
       ]
     }

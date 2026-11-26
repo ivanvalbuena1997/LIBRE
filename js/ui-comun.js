@@ -151,7 +151,7 @@
    */
 
   /* Iconos de trazo (24 × 24): turnos y rasgos. Los de objetos son
-     dibujos aparte en iconos/ (ARCHIVO_ICONO). */
+     ilustraciones aparte en iconos/<id>.webp. */
   const ICONOS = {
     dia: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     noche: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
@@ -197,20 +197,18 @@
   }
 
   /*
-   * Iconos de objetos (iconos/*.svg, del paquete de diseño): se
-   * llaman como el objeto salvo estos. Los dibujos traen sus propios colores.
+   * Iconos de objetos (Iván, 26-11-2026): ilustraciones hechas con IA,
+   * recortadas del verde, en iconos/<id del objeto>.webp (192 px). Antes,
+   * dibujos SVG del paquete de diseño.
    */
-  // Con extensión, una imagen (el saco de colines, hecho con IA; Iván, 26-11-2026).
-  const ARCHIVO_ICONO = { escaner: 'radio', paconi: 'planta', alfombrillas: 'alfombrilla', bolsaVomito: 'bolsa', colines: 'colines.webp' };
   function archivoIcono(nombre) {
-    if (ARCHIVO_ICONO[nombre]) return ARCHIVO_ICONO[nombre];
-    return Libre.sim.buscarObjeto(nombre) ? nombre : null;
+    return Libre.sim.buscarObjeto(nombre) ? nombre + '.webp' : null;
   }
 
   function icono(nombre, clase) {
     const archivo = archivoIcono(nombre);
     if (archivo) {
-      return '<img class="icono icono-dibujo ' + (clase || '') + '" src="iconos/' + archivo + (archivo.indexOf('.') === -1 ? '.svg' : '') + '" alt="" width="48" height="48" draggable="false">';
+      return '<img class="icono icono-dibujo ' + (clase || '') + '" src="iconos/' + archivo + '" alt="" width="48" height="48" draggable="false">';
     }
     return '<svg class="icono ' + (clase || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
   }
