@@ -783,7 +783,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 @keyframes bici-vuelve { from { left: 100%; } to { left: -50px; } }
 .esc-bici-2.an-bici { animation: bici-vuelve 13s linear infinite; animation-delay: -9s; }
 /* El autobús, hacia la izquierda y más despacio que el taxi. */
-@keyframes bus-vuelve { from { left: 100%; } to { left: -240px; } }
+@keyframes bus-vuelve { from { left: 100%; } to { left: -275px; } }
 .an-bus { animation: bus-vuelve 22s linear infinite; animation-delay: -6s; }
 .an-bici .an-pedal { animation: pedalear 0.6s linear infinite; }
 /* Ruedas que giran (Iván, 21-11-2026): una vuelta por cada 2πr px

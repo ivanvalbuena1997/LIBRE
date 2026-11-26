@@ -330,7 +330,8 @@
    * El autobús articulado de la EMT (Iván, 26-11-2026): ilustración hecha con
    * IA (imagenes/autobus.webp, 800 × 189), con sus tres llantas recortadas
    * encima para que giren y los letreros LED de la línea 34 dibujados aquí
-   * (la imagen no lleva texto). Medidas en las unidades del svg de antes.
+   * (la imagen no lleva texto). Medidas en las unidades del svg de antes; se
+   * ve un 15 % más grande (267 × 69 px; Iván, 26-11-2026).
    */
   const BUS = { x: 0, ancho: 246, suelo: 65.5, aspecto: 800 / 189 };
   const RUEDAS_BUS = [[0.15025, 0.73122, 0.05125, 0.21693], [0.42975, 0.73122, 0.05125, 0.21693], [0.78912, 0.73122, 0.05125, 0.21693]];
@@ -344,7 +345,7 @@
       return '<g class="an-rueda"><image href="imagenes/autobus-rueda-' + (i + 1) + '.webp" x="' + (BUS.x + c[0] * BUS.ancho).toFixed(2) +
         '" y="' + (y0 + c[1] * alto).toFixed(2) + '" width="' + (c[2] * BUS.ancho).toFixed(2) + '" height="' + (c[3] * alto).toFixed(2) + '"/></g>';
     }).join('');
-    return '<svg class="esc-bus an-bus" width="232" height="60" viewBox="-4 0 254 66" aria-hidden="true" focusable="false">' +
+    return '<svg class="esc-bus an-bus" width="267" height="69" viewBox="-4 0 254 66" aria-hidden="true" focusable="false">' +
       '<ellipse class="esc-sombra-coche" cx="122" cy="65" rx="124" ry="1.8"/>' +
       '<image class="esc-bus-img" href="imagenes/autobus.webp" x="' + BUS.x + '" y="' + y0.toFixed(2) + '" width="' + BUS.ancho +
       '" height="' + alto.toFixed(2) + '"/>' +
