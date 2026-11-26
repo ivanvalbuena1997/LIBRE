@@ -927,18 +927,30 @@
         turismo: {
           nombre: 'Toyota Corolla',
           imagen: 'imagenes/coche-turismo.webp',   // ilustraciones de Iván (26-11-2026)
+          aspecto: 2.7673,                 // ancho / alto del dibujo
+          // Ruedas recortadas del dibujo para que giren en la cabecera: caja en
+          // fracciones del dibujo (x, y, ancho, alto), trasera y delantera.
+          ruedas: [{ imagen: 'imagenes/coche-turismo-rueda-1.webp', caja: [0.1386,  0.6101,  0.1409,  0.3899] }, { imagen: 'imagenes/coche-turismo-rueda-2.webp', caja: [0.7409,  0.6101,  0.1409,  0.3899] }],
           precio: 1500,              // Iván (valor de juego): precio del coche.
           consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
         },
         tesla: {
           nombre: 'Tesla Model 3', descripcion: 'Eléctrico: la carga cuesta mucho menos que la gasolina, se avería mucho menos y el piloto automático cansa menos.',
           imagen: 'imagenes/coche-tesla.webp',
+          aspecto: 3.0345,                 // ancho / alto del dibujo
+          // Ruedas recortadas del dibujo para que giren en la cabecera: caja en
+          // fracciones del dibujo (x, y, ancho, alto), trasera y delantera.
+          ruedas: [{ imagen: 'imagenes/coche-tesla-rueda-1.webp', caja: [0.1136,  0.5379,  0.1545,  0.469] }, { imagen: 'imagenes/coche-tesla-rueda-2.webp', caja: [0.7455,  0.531,  0.1545,  0.469] }],
           precio: 3500, electrico: true,
           kwh100Km: 15,              // PROVISIONAL (estimación de Claude, sin fuente)
           efecto: { averia: 0.4, cansancio: 0.8 }
         },
         mercedes: {
           imagen: 'imagenes/coche-mercedes.webp',
+          aspecto: 3.2117,                 // ancho / alto del dibujo
+          // Ruedas recortadas del dibujo para que giren en la cabecera: caja en
+          // fracciones del dibujo (x, y, ancho, alto), trasera y delantera.
+          ruedas: [{ imagen: 'imagenes/coche-mercedes-rueda-1.webp', caja: [0.1386,  0.5328,  0.1455,  0.4672] }, { imagen: 'imagenes/coche-mercedes-rueda-2.webp', caja: [0.7545,  0.5328,  0.1455,  0.4672] }],
           nombre: 'Mercedes Clase S', descripcion: 'La gama más alta: muchas más propinas, clientes que pagan y más carreras en el Centro y el Aeropuerto; gasta más y sus reparaciones son más caras.',
           precio: 5000,
           consumoLitros100Km: 7.8,   // un 30 % más que el Corolla (Equilibrio)

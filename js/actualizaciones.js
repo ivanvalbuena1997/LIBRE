@@ -617,6 +617,10 @@
         {
           "n": 135,
           "texto": "El Corolla y el Tesla estrenan llantas de aleación, con más detalle (el Tesla, con la pinza de freno roja)."
+        },
+        {
+          "n": 136,
+          "texto": "Las ruedas del taxi que cruza la calle de arriba vuelven a girar, ahora con las llantas de cada coche: Corolla, Tesla y Mercedes."
         }
       ]
     }

@@ -558,9 +558,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
   autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
   un taxi que pasa (desde el 26-11-2026, ilustración con IA,
-  `.esc-taxi-img`, sin ruedas que giren; en cada pasada, el `imagen` de
-  uno de los modelos de tu flota: `ponerModeloTaxi()` en
-  `animationiteration`; de noche, `.esc-brillo`: haz del faro
+  `.esc-taxi-img`; en cada pasada, uno de los modelos de tu flota:
+  `ponerModeloTaxi()` en `animationiteration`, que llama a `vestirTaxi()`:
+  pone su `imagen` y encima sus `ruedas` (recortes `coche-<id>-rueda-N.webp`
+  con su `caja` en fracciones del dibujo y el `aspecto` del modelo) dentro
+  de `.an-rueda`, para que giren; de noche, `.esc-brillo`: haz del faro
   con degradado lineal que sale del dibujo, `.esc-taxi` con
   `overflow: visible`) y lluvia. Carriles (se circula por la
   derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;

@@ -162,6 +162,31 @@
    * Iván, 20-11-2026: una berlina con las formas de un Toyota Corolla (foto
    * de referencia, en espejo: circula hacia la derecha), sin marcas.
    */
+  // Caja del dibujo del taxi en las unidades de su svg (la del Corolla de antes).
+  const CAJA_TAXI = { x: 0, y: -8.9, w: 104, h: 37.5 };
+  /* Pone en el taxi el dibujo de un modelo y coloca sus ruedas encima (para que giren). */
+  function vestirTaxi(contenedor, modeloId) {
+    const m = Libre.config.vehiculos.modelos[modeloId];
+    const img = contenedor.querySelector('.esc-taxi-img');
+    if (!m || !m.imagen || !img) return;
+    if (img.getAttribute('href') !== m.imagen) img.setAttribute('href', m.imagen);
+    // Dónde queda el dibujo dentro de la caja (meet, pegado abajo y centrado).
+    const asp = m.aspecto || 2.77;
+    let dw = CAJA_TAXI.w, dh = CAJA_TAXI.w / asp;
+    if (dh > CAJA_TAXI.h) { dh = CAJA_TAXI.h; dw = dh * asp; }
+    const dx = CAJA_TAXI.x + (CAJA_TAXI.w - dw) / 2, dy = CAJA_TAXI.y + CAJA_TAXI.h - dh;
+    const ruedas = contenedor.querySelectorAll('.esc-taxi-rueda');
+    ruedas.forEach(function (r, i) {
+      const def = (m.ruedas || [])[i];
+      if (!def) { r.setAttribute('href', ''); return; }
+      r.setAttribute('href', def.imagen);
+      r.setAttribute('x', dx + def.caja[0] * dw);
+      r.setAttribute('y', dy + def.caja[1] * dh);
+      r.setAttribute('width', def.caja[2] * dw);
+      r.setAttribute('height', def.caja[3] * dh);
+    });
+  }
+
   function taxi() {
     // 15 % más grande que el dibujo (Iván, 20-11-2026): 150 × 58 en vez de 130 × 50.
     return '<svg class="esc-taxi an-taxi" width="150" height="58" viewBox="0 -20 130 50" aria-hidden="true" focusable="false">' +
@@ -177,8 +202,12 @@
       // Sombra en el suelo y el coche: ilustración hecha con IA (Iván,
       // 26-11-2026; imagenes/taxi.webp), sin ruedas que giren.
       '<ellipse class="esc-sombra-coche" cx="52" cy="28.4" rx="52" ry="2"/>' +
-      // El modelo cambia en cada pasada: uno de los coches de tu flota (ponerModeloTaxi()).
-      '<image class="esc-taxi-img" href="imagenes/coche-turismo.webp" x="0" y="-8.9" width="104" height="37.5" preserveAspectRatio="xMidYMax meet"/>' +
+      // El modelo cambia en cada pasada: uno de los coches de tu flota
+      // (ponerModeloTaxi()); sus ruedas, recortadas del dibujo, giran encima.
+      '<image class="esc-taxi-img" href="" x="' + CAJA_TAXI.x + '" y="' + CAJA_TAXI.y + '" width="' + CAJA_TAXI.w +
+      '" height="' + CAJA_TAXI.h + '" preserveAspectRatio="xMidYMax meet"/>' +
+      '<g class="an-rueda"><image class="esc-taxi-rueda" href="" x="0" y="0" width="0" height="0"/></g>' +
+      '<g class="an-rueda"><image class="esc-taxi-rueda" href="" x="0" y="0" width="0" height="0"/></g>' +
       '</svg>';
   }
 
@@ -436,10 +465,8 @@
    */
   let modelosFlota = [];
   function ponerModeloTaxi(contenedor) {
-    const img = contenedor.querySelector('.esc-taxi-img');
-    if (!img || !modelosFlota.length) return;
-    const src = modelosFlota[Math.floor(Math.random() * modelosFlota.length)];
-    if (img.getAttribute('href') !== src) img.setAttribute('href', src);
+    if (!modelosFlota.length) return;
+    vestirTaxi(contenedor, modelosFlota[Math.floor(Math.random() * modelosFlota.length)]);
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
@@ -448,8 +475,8 @@
     if (!dibujo) return;
     const modelos = Libre.config.vehiculos.modelos;
     const lista = estado.licencias.filter(function (l) { return l.vehiculo && modelos[l.vehiculo] && modelos[l.vehiculo].imagen; })
-      .map(function (l) { return modelos[l.vehiculo].imagen; });
-    const nueva = lista.length ? lista : [modelos[Libre.config.vehiculos.modeloInicial].imagen];
+      .map(function (l) { return l.vehiculo; });
+    const nueva = lista.length ? lista : [Libre.config.vehiculos.modeloInicial];
     if (nueva.join('|') !== modelosFlota.join('|')) {
       const antes = modelosFlota.length;
       modelosFlota = nueva;
