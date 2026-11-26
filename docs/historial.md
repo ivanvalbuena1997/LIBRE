@@ -171,3 +171,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 132. El taxi que cruza la calle de arriba es ahora una ilustración, como los edificios: el Corolla blanco con su franja roja y la luz verde.
 133. Los coches tienen dibujo: el Corolla y el Tesla salen ilustrados al elegir coche y en miniatura junto a los kilómetros de cada licencia, y el taxi que cruza la calle de arriba es, en cada pasada, uno de los coches de tu flota.
 134. El Mercedes Clase S también tiene su dibujo: al elegir coche, junto a los kilómetros y cruzando la calle de arriba si tienes uno.
+135. El Corolla y el Tesla estrenan llantas de aleación, con más detalle (el Tesla, con la pinza de freno roja).

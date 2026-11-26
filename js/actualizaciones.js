@@ -613,6 +613,10 @@
         {
           "n": 134,
           "texto": "El Mercedes Clase S también tiene su dibujo: al elegir coche, junto a los kilómetros y cruzando la calle de arriba si tienes uno."
+        },
+        {
+          "n": 135,
+          "texto": "El Corolla y el Tesla estrenan llantas de aleación, con más detalle (el Tesla, con la pinza de freno roja)."
         }
       ]
     }
