@@ -555,8 +555,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   suelo, `--esc-farola-*`; Iván, 22-11-2026), gente paseando (`personas()`, colores de
   los retratos; Iván, 20-11-2026; una con perro, `--esc-perro-*`, con
   patas que giran desde la cadera: `transform-origin` propio de cada par), repartidores en bici (`REPARTIDORES`,
-  `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en
-  sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
+  `repartidor()`, `BICI`: desde el 26-11-2026, ilustración con IA, la misma
+  bici con mochila naranja o verde recoloreada, `imagenes/bici-*.webp`, sus
+  ruedas recortadas girando por debajo y el nombre dibujado encima; Uber Eats
+  verde y Just Eat naranja, en sentidos contrarios; el que vuelve va en
+  espejo salvo el texto), un
   autobús articulado de la EMT (`autobus()`: desde el 26-11-2026, ilustración
   con IA, `imagenes/autobus.webp`, `BUS`, con sus tres llantas recortadas
   girando, `RUEDAS_BUS`, y los letreros LED de la línea 34 dibujados encima,

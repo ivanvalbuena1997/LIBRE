@@ -633,6 +633,10 @@
         {
           "n": 139,
           "texto": "El autobús de la EMT de la calle de arriba también es una ilustración, con sus ruedas girando y su letrero de la línea 34 «Las Águilas»."
+        },
+        {
+          "n": 140,
+          "texto": "Los repartidores en bici de la calle de arriba también son ilustraciones, con las ruedas girando y Uber Eats y Just Eat en sus mochilas. El autobús es ahora algo más grande."
         }
       ]
     }

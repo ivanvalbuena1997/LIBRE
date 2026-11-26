@@ -265,54 +265,34 @@
    * gente; las bielas giran. Bici con radios, cadena, sillín, guardabarros y
    * manillar.
    */
-  function rueda(x, y) {
-    // Iván, 21-11-2026: el giro no se veía (radios de medio píxel y
-    // simétricos). Ahora gira todo un grupo con un reflectante naranja en
-    // los radios; el círculo invisible (esc-eje) centra el giro.
-    return '<circle class="esc-bici-cubierta" cx="' + x + '" cy="' + y + '" r="7.4"/>' +
-      '<circle class="esc-bici-llanta" cx="' + x + '" cy="' + y + '" r="6"/>' +
-      '<g class="an-rueda"><circle class="esc-eje" cx="' + x + '" cy="' + y + '" r="6"/>' +
-      '<path class="esc-bici-radios" d="M' + (x - 6) + ' ' + y + 'h12M' + x + ' ' + (y - 6) + 'v12M' + (x - 4.2) + ' ' + (y - 4.2) +
-      'l8.4 8.4M' + (x + 4.2) + ' ' + (y - 4.2) + 'l-8.4 8.4"/>' +
-      '<rect class="esc-reflectante" x="' + (x - 1) + '" y="' + (y - 5.4) + '" width="2" height="3" rx="0.6"/></g>' +
-      '<circle class="esc-bici-buje" cx="' + x + '" cy="' + y + '" r="1.1"/>';
-  }
-  // Repartidores: mochila y sentido (Iván, 20-11-2026: uno de cada).
+  /*
+   * Repartidores en bici (Iván, 26-11-2026): ilustración hecha con IA, la misma
+   * bici con la mochila naranja (Just Eat) o verde (Uber Eats, recoloreada),
+   * sus dos ruedas recortadas girando y el nombre dibujado encima de la
+   * mochila. El que va hacia la izquierda, en espejo salvo el texto.
+   */
   const REPARTIDORES = [
-    { clase: 'uber', texto: ['Uber', 'Eats'], ropa: 1, piel: 3 },
-    { clase: 'justeat', texto: ['Just', 'Eat'], ropa: 5, piel: 1, vuelve: true }
+    { clase: 'uber', texto: ['Uber', 'Eats'], imagen: 'imagenes/bici-verde.webp' },
+    { clase: 'justeat', texto: ['Just', 'Eat'], imagen: 'imagenes/bici-naranja.webp', vuelve: true }
   ];
+  // Medidas en unidades del svg (40 de alto): dibujo, ruedas y mochila.
+  const BICI = { ancho: 43.74, alto: 40, ruedas: [[0.25, 23.33, 16.8], [27.05, 23.32, 16.8]], mochila: [12.7, 7.4, 21] };
   function repartidor(r, i) {
-    // El que va hacia la izquierda se dibuja en espejo, salvo el texto de la mochila.
-    const espejo = r.vuelve ? ' transform="translate(48 0) scale(-1 1)"' : '';
-    const giro = r.vuelve ? 'rotate(16 32 9)' : 'rotate(-16 16 9)';
-    const cx = r.vuelve ? 31.9 : 16.1;
-    return '<svg class="esc-bici esc-bici-' + (i + 1) + (r.vuelve ? ' vuelve' : '') + ' an-bici" width="48" height="40" viewBox="0 0 48 40" aria-hidden="true" focusable="false">' +
-      '<g' + espejo + '>' +
-      rueda(10, 31) + rueda(38, 31) +
-      // Guardabarros, cadena y cuadro.
-      '<path class="esc-bici-guarda" d="M2.6 29.4a8 8 0 0 1 12.2-5.8"/>' +
-      '<path class="esc-bici-cadena" d="M10 29.6L21 28.2M10 32.4L21 33.2"/>' +
-      '<g class="esc-bici-cuadro"><path d="M10 31L21 31L18 19L10 31M18 19L31.4 18.4L21 31M31.4 18.4L32.4 21.6L38 31"/>' +
-      '<path d="M31.4 18.4L31 15.2M29.6 15.2h3.6l1.4 1.2"/></g>' +
-      '<path class="esc-bici-sillin" d="M15.4 18.2h5.2l-.6 1.2h-4z"/>' +
-      '<circle class="esc-bici-plato" cx="21" cy="31" r="2.6"/>' +
-      // Pierna de detrás, bielas que giran y pierna de delante.
-      '<path class="esc-bici-pierna" d="M18.4 17.4L22.6 22.8L20.4 28.6"/>' +
-      '<g class="an-pedal"><path class="esc-bici-biela" d="M21 27.4V34.6M19.4 27.4h3.2M19.4 34.6h3.2"/></g>' +
-      '<path class="esc-bici-pierna" d="M18.4 17.4L24 21.6L21.8 33"/>' +
-      // Cuerpo inclinado, brazo al manillar y cabeza con casco.
-      '<path class="r-ropa-' + r.ropa + '" d="M16.4 18.6c-.4-5 2.4-9.6 7-10.4l2.6 2c-2.6 2.2-4 5.2-4.4 8.4z"/>' +
-      '<path class="esc-bici-brazo r-trazo-' + r.ropa + '" d="M23.4 10.6L29 13.8L32.6 15.2"/>' +
-      '<circle class="r-piel-' + r.piel + '" cx="27.2" cy="6.6" r="2.8"/>' +
-      '<path class="esc-casco" d="M24.2 6.4c0-2.8 1.8-4.4 3.8-4.4s3.6 1.4 3.8 3.6z"/>' +
-      '</g>' +
-      // Mochila de reparto con su nombre (sin espejo, para que se lea).
+    const espejo = r.vuelve ? ' transform="translate(' + BICI.ancho + ' 0) scale(-1 1)"' : '';
+    const ruedas = BICI.ruedas.map(function (c, k) {
+      return '<g class="an-rueda"><image href="imagenes/bici-rueda-' + (k + 1) + '.webp" x="' + c[0] + '" y="' + c[1] +
+        '" width="' + c[2] + '" height="' + c[2] + '"/></g>';
+    }).join('');
+    const mx = r.vuelve ? BICI.ancho - BICI.mochila[0] : BICI.mochila[0];
+    const giro = 'rotate(' + (r.vuelve ? -BICI.mochila[2] : BICI.mochila[2]) + ' ' + mx + ' ' + BICI.mochila[1] + ')';
+    return '<svg class="esc-bici esc-bici-' + (i + 1) + (r.vuelve ? ' vuelve' : '') + ' an-bici" width="44" height="40" viewBox="0 0 ' +
+      BICI.ancho + ' ' + BICI.alto + '" aria-hidden="true" focusable="false">' +
+      '<g' + espejo + '>' + ruedas +
+      '<image class="esc-bici-img" href="' + r.imagen + '" x="0" y="0" width="' + BICI.ancho + '" height="' + BICI.alto + '"/></g>' +
+      // El nombre de la mochila, sin espejo para que se lea.
       '<g class="esc-mochila-' + r.clase + '" transform="' + giro + '">' +
-      '<rect class="esc-mochila" x="' + (cx - 6.7) + '" y="2.6" width="13.4" height="12.4" rx="1.6"/>' +
-      '<rect class="esc-mochila-franja" x="' + (cx - 6.7) + '" y="2.6" width="13.4" height="2.4" rx="1.2"/>' +
-      '<text class="esc-mochila-texto" x="' + cx + '" y="9.4" text-anchor="middle">' + r.texto[0] + '</text>' +
-      '<text class="esc-mochila-texto" x="' + cx + '" y="13.2" text-anchor="middle">' + r.texto[1] + '</text>' +
+      '<text class="esc-mochila-texto" x="' + mx + '" y="' + (BICI.mochila[1] - 0.4) + '" text-anchor="middle">' + r.texto[0] + '</text>' +
+      '<text class="esc-mochila-texto" x="' + mx + '" y="' + (BICI.mochila[1] + 2.6) + '" text-anchor="middle">' + r.texto[1] + '</text>' +
       '</g></svg>';
   }
 

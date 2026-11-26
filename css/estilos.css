@@ -625,7 +625,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-mochila-justeat .esc-mochila-franja { fill: var(--esc-mochila-naranja-franja); }
 .esc-bici-brazo.r-trazo-5 { stroke: var(--ropa-5); }
 .esc-bici-2 { left: 70%; }
-.esc-mochila-texto { fill: var(--esc-casco); font-family: var(--letra-titulo); font-weight: 800; font-size: 4.2px; }
+.esc-mochila-texto { fill: var(--esc-casco); font-family: var(--letra-titulo); font-weight: 800; font-size: 2.6px; }
 .noche .esc-bici { filter: brightness(0.6); }
 /* Autobús de la EMT: carril de detrás, hacia la izquierda. */
 .esc-bus { position: absolute; bottom: 19px; left: 50%; }
