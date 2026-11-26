@@ -159,6 +159,18 @@ Las que cambian cuántas carreras se hacen (demanda, búsqueda, zonas, propinas,
 Pestaña nueva del 18-11-2026 (Iván). De arriba abajo:
 
 - **Cuatro cifras de la partida:** lo facturado, las carreras, el mejor día (con su fecha) y los km recorridos por tu flota (sin contar los que traía el coche de segunda mano; no se pierden aunque cambie un coche). Desde el 26-11-2026 (Iván), cuatro más de toda la flota: **vómitos** (también los que acaban en la bolsa; debajo, lo gastado en limpiezas), **sin pagar** (los euros perdidos con los que se van, en rojo), **objetos encontrados** por tus conductores y **objetos devueltos** (debajo, lo ganado en recompensas). Estas ocho cifras **no se borran al empezar de cero** (Iván, 26-11-2026): son de toda tu carrera.
+  - **Rangos** (Iván, 26-11-2026): cada cifra sube de rango al llegar a ciertas cantidades: **Bronce, Plata, Oro, Platino, Esmeralda y Diamante**. La tarjeta toma el color del rango (marco y fondo suave), lleva su nombre en una insignia y una barra fina con lo que falta para el siguiente; el Diamante tiene además un brillo que la cruza. Al subir, un aviso en Calle («¡Nuevo rango en Estadísticas! Facturado: Oro.») con el sonido de subir de nivel. Medido con el bot: Bronce a la media hora, Plata a las 2 h, Oro a las 4 h, Platino a las 12 h, Esmeralda a las 25–30 h y Diamante hacia las 50 h (cuando ya tienes todas las mejoras del personaje).
+
+    | Cifra | Bronce | Plata | Oro | Platino | Esmeralda | Diamante |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | Facturado | 10.000 € | 50.000 € | 250.000 € | 1 M€ | 2,5 M€ | 5 M€ |
+    | Carreras | 1.000 | 4.000 | 20.000 | 80.000 | 200.000 | 400.000 |
+    | Mejor día | 500 € | 2.000 € | 5.000 € | 15.000 € | 30.000 € | 50.000 € |
+    | Km recorridos | 10.000 | 50.000 | 250.000 | 1 M | 2,5 M | 5 M |
+    | Vómitos | 5 | 25 | 125 | 500 | 1.250 | 2.500 |
+    | Sin pagar | 150 € | 800 € | 4.000 € | 16.000 € | 40.000 € | 80.000 € |
+    | Objetos encontrados | 5 | 35 | 175 | 700 | 1.750 | 3.500 |
+    | Objetos devueltos | 10 | 40 | 200 | 850 | 2.000 | 4.000 |
 - **Facturación por día:** una barra verde por cada uno de los últimos 30 días, con una raya para el neto (roja si ese día se perdió dinero; entonces baja del cero). Tocar una barra enseña debajo su día, lo facturado, el neto y las carreras; al entrar está elegido el último.
 - **Media diaria:** tú (barra azul, arriba) y cada conductor que tiene turno ahora (barras verdes, de mayor a menor), con lo que facturó de media por jornada en los últimos 30 días, contando solo las jornadas que estuvo en la flota (los días de libranza de su licencia no cuentan, para no bajarle la media; los de baja o avería, sí; la reserva no entra). Al lado, cuántas jornadas lleva la cuenta.
 - **Mejores conductores:** los diez que más han facturado en la partida, con medalla de oro, plata y bronce para los tres primeros. Entran también los despedidos (atenuados, con el chip «Despedido»). Tocar a uno que sigue contigo abre su ficha en Conductores.

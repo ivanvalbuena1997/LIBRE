@@ -257,6 +257,16 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 43 → 44: rangos de Estadísticas (Iván, 26-11-2026): los que ya tiene
+    // la partida se dan por vistos, para no soltar todos los avisos de golpe.
+    43: function (estado) {
+      if (!estado.rangosVistos) {
+        estado.rangosVistos = {};
+        Object.keys(Libre.config.estadisticas.rangos.umbrales).forEach(function (clave) {
+          estado.rangosVistos[clave] = Libre.sim.rangoEstadistica(estado, clave).nivel;
+        });
+      }
+    },
     // 42 → 43: lo gastado en limpiezas y lo ganado con objetos devueltos (desde 0).
     42: function (estado) {
       const t = estado.totales = estado.totales || {};

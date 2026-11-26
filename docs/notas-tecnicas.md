@@ -427,7 +427,12 @@ nombra sin decir en qué archivo están: búscalas con grep.
   26-11-2026, versión 42, también `vomitos`, `sinPagar`, `hallazgos` y
   `devueltos`, que suma `incidencia()` según su tipo y `hallazgo()`; versión
   43, `vomitosEuros` y `devueltosEuros`; `empezarDeCero()` conserva
-  `totales` y `mejorDia`), facturación por día (barras en
+  `totales`, `mejorDia` y `rangosVistos`). Rangos (versión 44):
+  `config.estadisticas.rangos` (nombres, umbrales y etiquetas por clave),
+  `rangoEstadistica(estado, clave)` (solo lectura) y `comprobarRangos()` al
+  final de `avanzar()`, que avisa (evento 'rango') al pasar del de
+  `estado.rangosVistos`; la migración 43 → 44 da por vistos los que ya
+  tenías. En pantalla, clases `rango-<id>` y `--rango-*`, facturación por día (barras en
   HTML, raya del neto; tocar una la elige: `diaEstadistica`), media diaria
   (`Libre.sim.mediasDiarias()`: tú y los conductores con turno, entre las
   jornadas que estuvieron en la flota; las de libranza de su licencia no se

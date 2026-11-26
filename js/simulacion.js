@@ -99,6 +99,7 @@
       historial: [],
       mejorDia: null,
       chat: null,         // el grupo de la flota: se crea al montar la SL
+      rangosVistos: {},   // rango ya avisado de cada cifra de Estadísticas (versión 44)
       exConductores: [],
       // Cada conductor contratado lleva un id fijo (para el historial).
       ultimoIdConductor: 0,
@@ -2168,6 +2169,7 @@
     // son de toda tu carrera, no de una partida.
     nuevo.totales = JSON.parse(JSON.stringify(estado.totales || nuevo.totales));
     nuevo.mejorDia = estado.mejorDia ? Object.assign({}, estado.mejorDia) : null;
+    nuevo.rangosVistos = Object.assign({}, estado.rangosVistos);
     aplicarArranque(nuevo);
     const r = exito('Empiezas de cero' + (nuevo.personaje.puntos ? '; te guardas ' + nuevo.personaje.puntos +
       ' punto' + (nuevo.personaje.puntos === 1 ? '' : 's') + ' para el próximo reinicio.' : '.'));
@@ -4135,7 +4137,52 @@
         if (eventos.pendiente) break;
       }
     }
+    comprobarRangos(estado, resumen);
     return resumen;
+  }
+
+  // ---------------------------------------------- Rangos de Estadísticas
+
+  /* El valor de una cifra de Estadísticas (las claves de estadisticas.rangos.umbrales). */
+  function valorEstadistica(estado, clave) {
+    if (clave === 'mejorDia') return estado.mejorDia ? estado.mejorDia.ingresos : 0;
+    return (estado.totales && estado.totales[clave]) || 0;
+  }
+
+  /*
+   * Rango de una cifra (Iván, 26-11-2026), solo lectura: { nivel (−1 sin
+   * rango, 0 Bronce … 5 Diamante), id, nombre, valor, siguiente (umbral del
+   * siguiente o null), progreso hacia él (0–1) }.
+   */
+  function rangoEstadistica(estado, clave) {
+    const r = cfg().estadisticas.rangos;
+    const umbrales = r.umbrales[clave] || [];
+    const valor = valorEstadistica(estado, clave);
+    let nivel = -1;
+    umbrales.forEach(function (u, i) { if (valor >= u) nivel = i; });
+    const desde = nivel >= 0 ? umbrales[nivel] : 0;
+    const siguiente = nivel + 1 < umbrales.length ? umbrales[nivel + 1] : null;
+    return {
+      nivel, valor, siguiente,
+      id: nivel >= 0 ? r.nombres[nivel].id : null,
+      nombre: nivel >= 0 ? r.nombres[nivel].nombre : null,
+      progreso: siguiente === null ? 1 : Math.max(0, Math.min(1, (valor - desde) / (siguiente - desde)))
+    };
+  }
+
+  /* Al subir una cifra de rango, un aviso (evento 'rango') y se apunta como visto. */
+  function comprobarRangos(estado, resumen) {
+    const r = cfg().estadisticas.rangos;
+    const vistos = estado.rangosVistos = estado.rangosVistos || {};
+    Object.keys(r.umbrales).forEach(function (clave) {
+      const x = rangoEstadistica(estado, clave);
+      const antes = vistos[clave] === undefined ? -1 : vistos[clave];
+      if (x.nivel > antes) {
+        vistos[clave] = x.nivel;
+        resumen.eventos.push({ tipo: 'rango', clave, rango: x.id,
+          texto: '¡Nuevo rango en Estadísticas! ' + r.etiquetas[clave] + ': ' + x.nombre + '.' });
+      }
+    });
   }
 
   /*
@@ -4251,6 +4298,9 @@
     aplicarArranque,
     buscarUnico,
     unicoDe,
+    rangoEstadistica,
+    valorEstadistica,
+    comprobarRangos,
     enviarPrimerMensaje,
     primerMensajeChat,
     leerChat,

@@ -3092,5 +3092,37 @@ prueba('Estadísticas: cuentan vómitos, lo perdido sin pagar, objetos encontrad
     { carreras: 1, ingresos: 2, km: 3, vomitos: 0, sinPagar: 0, hallazgos: 0, devueltos: 0, vomitosEuros: 0, devueltosEuros: 0 });
 });
 
+prueba('Rangos de Estadísticas: de Bronce a Diamante, aviso al subir y vistos al migrar', function () {
+  const e = sim.crearEstadoInicial(0);
+  const u = config.estadisticas.rangos.umbrales;
+  assert.strictEqual(sim.rangoEstadistica(e, 'ingresos').nivel, -1);
+  e.totales.ingresos = u.ingresos[0];
+  let r = sim.rangoEstadistica(e, 'ingresos');
+  assert.strictEqual(r.id, 'bronce');
+  assert.strictEqual(r.siguiente, u.ingresos[1]);
+  e.totales.ingresos = u.ingresos[5] * 2;
+  r = sim.rangoEstadistica(e, 'ingresos');
+  assert.strictEqual(r.id, 'diamante');
+  assert.strictEqual(r.siguiente, null);
+  assert.strictEqual(r.progreso, 1);
+  e.mejorDia = { dia: 3, ingresos: u.mejorDia[2] };
+  assert.strictEqual(sim.rangoEstadistica(e, 'mejorDia').id, 'oro');
+  // Aviso una vez por subida.
+  const resumen = { eventos: [] };
+  sim.comprobarRangos(e, resumen);
+  assert.deepStrictEqual(resumen.eventos.map(function (x) { return x.clave + ':' + x.rango; }).sort(), ['ingresos:diamante', 'mejorDia:oro']);
+  const otro = { eventos: [] };
+  sim.comprobarRangos(e, otro);
+  assert.strictEqual(otro.eventos.length, 0, 'no se repite');
+  // Al empezar de cero se conservan, y migrar no avisa de lo que ya tenías.
+  require('../js/guardado.js');
+  const viejo = JSON.parse(JSON.stringify(e));
+  delete viejo.rangosVistos;
+  viejo.version = 43;
+  const m = globalThis.Libre.guardado.migrar(viejo);
+  assert.strictEqual(m.rangosVistos.ingresos, 5);
+  assert.strictEqual(m.rangosVistos.carreras, -1);
+});
+
 console.log(pasadas + ' pruebas correctas');
 

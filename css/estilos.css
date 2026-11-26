@@ -176,6 +176,14 @@
   --tinte-ambar: #fbebc8;
   --tinte-rojo: #f9dedb;
   --tinte-neutro: #ece9e1;
+  /* Rangos de Estadísticas (Iván, 26-11-2026): marco, insignia y tinte. */
+  --rango-bronce: #b26e3c;    --rango-bronce-tinte: #f6e6d8;
+  --rango-plata: #8c96a3;     --rango-plata-tinte: #eef0f3;
+  --rango-oro: #d4a017;       --rango-oro-tinte: #fbf1d2;
+  --rango-platino: #5f8fa0;   --rango-platino-tinte: #e3eef2;
+  --rango-esmeralda: #1d9a62; --rango-esmeralda-tinte: #dcf3e7;
+  --rango-diamante: #3fa9e0;  --rango-diamante-tinte: #e1f2fb;
+  --rango-brillo: rgba(255, 255, 255, 0.75);
   --fondo-chat: #efe9dc;        /* fondo del grupo de la flota */
   --burbuja-tuya: #d8f0dc;      /* tus mensajes en el grupo */
   --tinte-morado: #eadff7;
@@ -2576,6 +2584,32 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .estad-cifra > span { font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); }
 .estad-cifra > strong { font-size: var(--t-seccion); line-height: 1.2; color: var(--dinero); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .estad-cifra--cuenta > strong { color: var(--tinta); }
+/* Rangos: marco de 2 px del color, insignia con el nombre y barra hacia el siguiente. */
+.estad-cifra { position: relative; overflow: hidden; border: 2px solid var(--linea); }
+.estad-cifra > span:first-child { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-1); }
+.estad-rango { flex: none; padding: 1px 7px; border-radius: var(--r-pastilla); font-style: normal; font-size: var(--t-micro); font-weight: 800; color: var(--sobre-color); }
+.estad-rango-barra { display: block; height: 4px; margin-top: 6px; border-radius: 2px; background: var(--tinte-neutro); overflow: hidden; }
+.estad-rango-barra > span { display: block; height: 100%; background: var(--tinta-suave); }
+.rango-bronce { border-color: var(--rango-bronce); background: var(--rango-bronce-tinte); }
+.rango-plata { border-color: var(--rango-plata); background: var(--rango-plata-tinte); }
+.rango-oro { border-color: var(--rango-oro); background: var(--rango-oro-tinte); }
+.rango-platino { border-color: var(--rango-platino); background: var(--rango-platino-tinte); }
+.rango-esmeralda { border-color: var(--rango-esmeralda); background: var(--rango-esmeralda-tinte); }
+.rango-diamante { border-color: var(--rango-diamante); background: var(--rango-diamante-tinte); }
+.rango-bronce .estad-rango, .rango-bronce .estad-rango-barra > span { background: var(--rango-bronce); }
+.rango-plata .estad-rango, .rango-plata .estad-rango-barra > span { background: var(--rango-plata); }
+.rango-oro .estad-rango, .rango-oro .estad-rango-barra > span { background: var(--rango-oro); }
+.rango-platino .estad-rango, .rango-platino .estad-rango-barra > span { background: var(--rango-platino); }
+.rango-esmeralda .estad-rango, .rango-esmeralda .estad-rango-barra > span { background: var(--rango-esmeralda); }
+.rango-diamante .estad-rango, .rango-diamante .estad-rango-barra > span { background: var(--rango-diamante); }
+/* Diamante: un brillo que cruza la tarjeta (fuera con reducir movimiento). */
+.rango-diamante::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, var(--rango-brillo), transparent);
+  animation: rango-brillo 3.5s ease-in-out infinite;
+}
+@keyframes rango-brillo { 0% { left: -60%; } 60%, 100% { left: 130%; } }
+@media (prefers-reduced-motion: reduce) { .rango-diamante::after { display: none; } }
 .estad-cifra--perdido > strong { color: var(--peligro); }
 .estad-cifra > small { font-size: var(--t-micro); color: var(--tinta-suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .estad-bloque { padding: var(--esp-5) var(--esp-6); margin-bottom: var(--esp-4); }

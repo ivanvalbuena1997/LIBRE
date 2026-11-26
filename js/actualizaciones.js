@@ -717,6 +717,10 @@
         {
           "n": 160,
           "texto": "Estadísticas: debajo de los vómitos sale lo gastado en limpiezas y debajo de los objetos devueltos, lo ganado en recompensas. Y las cifras de arriba ya no se borran al empezar de cero: son de toda tu carrera."
+        },
+        {
+          "n": 161,
+          "texto": "Las cifras de Estadísticas tienen rangos: Bronce, Plata, Oro, Platino, Esmeralda y Diamante. Cada tarjeta toma el color de su rango, con una barra de lo que falta para el siguiente, y al subir sale un aviso."
         }
       ]
     }

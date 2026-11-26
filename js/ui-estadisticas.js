@@ -23,23 +23,38 @@
     return dias[dia % 7] + ' · día ' + (dia + 1);
   }
 
+  /*
+   * Las ocho cifras de arriba. Cada una con su rango (Iván, 26-11-2026;
+   * config.estadisticas.rangos): el marco del color del rango, su nombre en
+   * una insignia y una barra fina con lo que falta para el siguiente.
+   */
   function htmlCifrasPartida(estado) {
     const mejor = estado.mejorDia;
     const t = estado.totales;
-    const cifra = function (etiqueta, valor, pie, clase) {
-      return '<div class="ui-tarjeta estad-cifra' + (clase ? ' ' + clase : '') + '"><span>' + etiqueta + '</span><strong class="ui-dinero">' + valor + '</strong>' +
-        (pie ? '<small>' + ui.esc(pie) + '</small>' : '') + '</div>';
+    const formato = function (clave, n) {
+      return clave === 'ingresos' || clave === 'mejorDia' || clave === 'sinPagar' ? ui.eurosCorto(n) : ui.numero(Math.floor(n));
+    };
+    const cifra = function (clave, etiqueta, valor, pie, clase) {
+      const r = Libre.sim.rangoEstadistica(estado, clave);
+      const insignia = r.id ? '<em class="estad-rango">' + ui.esc(r.nombre) + '</em>' : '';
+      const falta = r.siguiente === null ? 'Rango máximo'
+        : 'Siguiente: ' + formato(clave, r.siguiente) + (clave === 'km' ? ' km' : '');
+      return '<div class="ui-tarjeta estad-cifra' + (clase ? ' ' + clase : '') + (r.id ? ' rango-' + r.id : '') + '">' +
+        '<span>' + etiqueta + insignia + '</span><strong class="ui-dinero">' + valor + '</strong>' +
+        (pie ? '<small>' + ui.esc(pie) + '</small>' : '') +
+        '<span class="estad-rango-barra" title="' + ui.esc(falta) + '" aria-label="' + ui.esc(falta) + '"><span style="width:' +
+        (r.progreso * 100).toFixed(1) + '%"></span></span></div>';
     };
     return '<div class="estad-cifras">' +
-      cifra('Facturado', ui.eurosCorto(estado.totales.ingresos), 'desde el principio') +
-      cifra('Carreras', ui.numero(Math.floor(estado.totales.carreras)), 'desde el principio') +
-      cifra('Mejor día', mejor ? ui.eurosCorto(mejor.ingresos) : '—', mejor ? nombreDia(mejor.dia) : 'sin cerrar') +
-      cifra('Km recorridos', ui.numero(Math.floor(estado.totales.km || 0)) + ' km', 'por tu flota') +
+      cifra('ingresos', 'Facturado', ui.eurosCorto(t.ingresos), 'desde el principio') +
+      cifra('carreras', 'Carreras', ui.numero(Math.floor(t.carreras)), 'desde el principio') +
+      cifra('mejorDia', 'Mejor día', mejor ? ui.eurosCorto(mejor.ingresos) : '—', mejor ? nombreDia(mejor.dia) : 'sin cerrar') +
+      cifra('km', 'Km recorridos', ui.numero(Math.floor(t.km || 0)) + ' km', 'por tu flota') +
       // Iván, 26-11-2026: lo que ha pasado en los taxis de toda la flota.
-      cifra('Vómitos', ui.numero(t.vomitos || 0), ui.euros(t.vomitosEuros || 0) + ' en limpiezas', 'estad-cifra--cuenta') +
-      cifra('Sin pagar', ui.eurosCorto(t.sinPagar || 0), 'perdidos con los que se van', 'estad-cifra--perdido') +
-      cifra('Objetos encontrados', ui.numero(t.hallazgos || 0), 'por tus conductores', 'estad-cifra--cuenta') +
-      cifra('Objetos devueltos', ui.numero(t.devueltos || 0), ui.euros(t.devueltosEuros || 0) + ' de recompensas', 'estad-cifra--cuenta') +
+      cifra('vomitos', 'Vómitos', ui.numero(t.vomitos || 0), ui.euros(t.vomitosEuros || 0) + ' en limpiezas', 'estad-cifra--cuenta') +
+      cifra('sinPagar', 'Sin pagar', ui.eurosCorto(t.sinPagar || 0), 'perdidos con los que se van', 'estad-cifra--perdido') +
+      cifra('hallazgos', 'Objetos encontrados', ui.numero(t.hallazgos || 0), 'por tus conductores', 'estad-cifra--cuenta') +
+      cifra('devueltos', 'Objetos devueltos', ui.numero(t.devueltos || 0), ui.euros(t.devueltosEuros || 0) + ' de recompensas', 'estad-cifra--cuenta') +
       '</div>';
   }
 

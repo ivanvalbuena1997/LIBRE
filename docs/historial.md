@@ -197,3 +197,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 158. Los 41 objetos estrenan dibujo: ilustraciones nuevas, más grandes y con color, en el Almacén, en las fichas y en los avisos.
 159. El aviso del «ajuste de periodos anteriores» de Paconi ya no lleva una de sus frases: solo dice cuánto entra en la caja.
 160. Estadísticas: debajo de los vómitos sale lo gastado en limpiezas y debajo de los objetos devueltos, lo ganado en recompensas. Y las cifras de arriba ya no se borran al empezar de cero: son de toda tu carrera.
+161. Las cifras de Estadísticas tienen rangos: Bronce, Plata, Oro, Platino, Esmeralda y Diamante. Cada tarjeta toma el color de su rango, con una barra de lo que falta para el siguiente, y al subir sale un aviso.

@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 43,
+    versionGuardado: 44,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -378,7 +378,38 @@
      *         gráficos de facturación por día y de medias)
      *   top:  conductores en la clasificación histórica
      */
-    estadisticas: { dias: 30, top: 10 },
+    estadisticas: {
+      dias: 30, top: 10,
+      /*
+       * Rangos de las cifras de arriba de Estadísticas (Iván, 26-11-2026):
+       * el marco se pone del color del rango alcanzado. Equilibrio: medido
+       * con el bot (perfil «Siguiente») y contando que las cifras se suman
+       * entre partidas: Bronce ~30 min, Plata ~2 h, Oro ~4 h, Platino ~12 h,
+       * Esmeralda ~25–30 h y Diamante ~50 h (todas las mejoras del personaje).
+       * Cada clave es una cifra de estado.totales (mejorDia: estado.mejorDia.ingresos).
+       */
+      rangos: {
+        nombres: [
+          { id: 'bronce', nombre: 'Bronce' }, { id: 'plata', nombre: 'Plata' }, { id: 'oro', nombre: 'Oro' },
+          { id: 'platino', nombre: 'Platino' }, { id: 'esmeralda', nombre: 'Esmeralda' }, { id: 'diamante', nombre: 'Diamante' }
+        ],
+        umbrales: {
+          ingresos: [10000, 50000, 250000, 1000000, 2500000, 5000000],
+          carreras: [1000, 4000, 20000, 80000, 200000, 400000],
+          mejorDia: [500, 2000, 5000, 15000, 30000, 50000],
+          km: [10000, 50000, 250000, 1000000, 2500000, 5000000],
+          vomitos: [5, 25, 125, 500, 1250, 2500],
+          sinPagar: [150, 800, 4000, 16000, 40000, 80000],
+          hallazgos: [5, 35, 175, 700, 1750, 3500],
+          devueltos: [10, 40, 200, 850, 2000, 4000]
+        },
+        // Cómo se llama cada cifra en el aviso de subir de rango.
+        etiquetas: {
+          ingresos: 'Facturado', carreras: 'Carreras', mejorDia: 'Mejor día', km: 'Km recorridos', vomitos: 'Vómitos',
+          sinPagar: 'Sin pagar', hallazgos: 'Objetos encontrados', devueltos: 'Objetos devueltos'
+        }
+      }
+    },
 
     economia: {
       dineroInicial: 50,          // Equilibrio: caja con la que empiezas.
