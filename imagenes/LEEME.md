@@ -11,6 +11,10 @@ la tapa el texto.
 - `unico-<id>.webp`: retrato de cada conductor ÚNICO
   (`config.conductores.unicos.<id>.imagen`), cuadrado, 256 × 256 (se ve en
   círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado.
+- `caras/`: retratos ilustrados de los conductores normales (256 × 256),
+  recortados de hojas de 3 × 3 que genera Iván: `h01`… hombres, `m01`…
+  mujeres. Aún sin usar en el juego (se cambiarán por las caras dibujadas
+  cuando estén todas).
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
   Estadísticas.
