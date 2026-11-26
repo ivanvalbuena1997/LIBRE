@@ -18,8 +18,9 @@
   ui.chatAbierto = false;
   ui.borradorChat = null;   // el texto de tu primer mensaje mientras lo cambias
 
-  function htmlFoto(clave) {
-    const src = (Libre.config.chat.fotos || {})[clave];
+  function htmlFoto(clave, coche) {
+    const ruta = (Libre.config.chat.fotos || {})[clave];
+    const src = ruta && ruta.replace('{coche}', coche || Libre.config.vehiculos.modeloInicial);
     if (!src) return '';
     return '<span class="chat-foto"><img src="' + ui.esc(src) + '" alt="Foto" loading="lazy"' +
       ' onerror="this.parentNode.classList.add(\'chat-foto--falta\'); this.remove();"></span>';
@@ -32,7 +33,7 @@
     const cara = tuyo ? '' : '<span class="chat-cara retrato">' + (seguido ? '' : Libre.retratos.svg(m.cara)) + '</span>';
     return '<li class="chat-mensaje' + (tuyo ? ' chat-mensaje--tuyo' : '') + (seguido ? ' chat-mensaje--seguido' : '') + '">' + cara +
       '<span class="chat-burbuja">' + (!tuyo && !seguido ? '<span class="chat-nombre">' + ui.esc(m.nombre) + '</span>' : '') +
-      (m.foto ? htmlFoto(m.foto) : '') + '<span class="chat-texto">' + ui.esc(m.texto) + '</span></span></li>';
+      (m.foto ? htmlFoto(m.foto, m.coche) : '') + '<span class="chat-texto">' + ui.esc(m.texto) + '</span></span></li>';
   }
 
   function htmlMensajes(estado) {

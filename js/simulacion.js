@@ -733,13 +733,19 @@
     if (quien === 'tu') return { de: 'tu', nombre: nombrePersonaje(estado), cara: null };
     if (quien === 'c1' || quien === 'c2') {
       const t = papeles[quien];
-      return t ? { de: t.id, nombre: t.nombre, cara: caraDe(t) } : null;
+      return t ? { de: t.id, nombre: t.nombre, cara: caraDe(t), t } : null;
     }
     let u = null;
     estado.licencias.forEach(function (l) {
       TURNOS.forEach(function (tn) { const t = l.turnos[tn]; if (t && t.unico === quien) u = t; });
     });
-    return u ? { de: quien, nombre: u.nombre, cara: caraDe(u) } : null;
+    return u ? { de: quien, nombre: u.nombre, cara: caraDe(u), t: u } : null;
+  }
+
+  /* Modelo del coche de la licencia de un conductor (para las fotos de su coche). */
+  function cocheDe(estado, t) {
+    const lic = t && estado.licencias.find(function (l) { return l.turnos.dia === t || l.turnos.noche === t; });
+    return (lic && lic.vehiculo) || cfg().vehiculos.modeloInicial;
   }
 
   function textoChat(estado, texto, papeles) {
@@ -778,9 +784,13 @@
     if (autores.some(function (a) { return !a; })) return false;
     const chat = estado.chat;
     conv.lineas.forEach(function (l, i) {
-      const m = Object.assign({ dia, texto: textoChat(estado, l[1], papeles) }, autores[i]);
-      // La foto va con el primer mensaje.
-      if (i === 0 && conv.foto) m.foto = conv.foto;
+      const a = autores[i];
+      const m = { dia, texto: textoChat(estado, l[1], papeles), de: a.de, nombre: a.nombre, cara: a.cara };
+      // La foto va con el primer mensaje; si es de su coche, el modelo.
+      if (i === 0 && conv.foto) {
+        m.foto = conv.foto;
+        if ((cfg().chat.fotos[conv.foto] || '').indexOf('{coche}') !== -1) m.coche = cocheDe(estado, a.t);
+      }
       chat.mensajes.push(m);
       if (autores[i].de !== 'tu') chat.noLeidos++;
     });

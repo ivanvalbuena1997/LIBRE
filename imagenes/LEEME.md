@@ -58,13 +58,14 @@ la tapa el texto.
   `evento-maletero.webp`: cinco en un coche de cuatro;
   `evento-novia.webp`: la novia a la fuga; `evento-turista.webp`: el
   turista de Barajas; `evento-daniela.webp`: de Parla a Almería.
-  Pendientes (prompts en `docs/propuesta-novedades.md`, 5):
-  `evento-parto.webp`, `evento-maletin.webp` y `evento-final.webp`.
-  Mientras falten, la hoja del evento sale con el fondo provisional.
+  `evento-parto.webp`: ¡Que viene!; `evento-maletin.webp`: el maletín;
+  `evento-final.webp`: noche de final.
 - `chat-<foto>.webp`: fotos del grupo de la flota, cuadradas (pendientes;
-  prompts en `docs/propuesta-novedades.md`, 6): `chat-rueda.webp`,
-  `chat-amanecer.webp`, `chat-planta.webp`, `chat-bocadillo.webp` y
-  `chat-dibujo.webp`. Mientras falten, la burbuja enseña un hueco «Foto».
+  prompts en `docs/propuesta-novedades.md`, 6): `chat-rueda-<modelo>.webp`
+  y `chat-arbol-<modelo>.webp` (una por modelo de coche: `turismo`, `tesla`
+  y `mercedes`; sale la del coche de quien la manda), `chat-amanecer.webp`,
+  `chat-planta.webp`, `chat-bocadillo.webp` y `chat-dibujo.webp`. Mientras
+  falten, la burbuja enseña un hueco «Foto».
 - `nube-1.webp`, `nube-2.webp` y `nube-3.webp`: las nubes de la calle de
   arriba (Iván, 26-11-2026), recortadas del verde de una sola imagen con
   las tres, a doble densidad (152, 220 y 140 px de ancho).

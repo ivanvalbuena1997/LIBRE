@@ -782,4 +782,6 @@ nombra sin decir en qué archivo están: búscalas con grep.
   ni c2 (`conductoresDelChat()`): habla con sus frases. Pantalla:
   `ui-chat.js` (`seccionChat`, `chatAbierto`, `borradorChat`,
   `dibujarBotonChat()`); botón `#abrir-chat` con `#chat-sin-leer`, y la
-  cabecera `.con-chat` deja sitio a tres botones.
+  cabecera `.con-chat` deja sitio a tres botones. Una foto cuya ruta lleva
+  `{coche}` guarda en el mensaje `coche` (el modelo de la licencia de quien
+  la manda, `cocheDe()`) y la interfaz lo pone en la ruta.

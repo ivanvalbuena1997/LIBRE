@@ -410,16 +410,33 @@ Prompt:
 
 Fotos tipo móvil, mismo estilo, formato cuadrado:
 
-- **Rueda pinchada (4):** «Square illustration, flat editorial vector style,
-  subtle grain, same palette. Close-up of a flat tyre on a white Madrid
-  taxi parked on an elegant avenue, a spare wheel leaning against the car.
-  No text, no logos, no numbers.»
+- **Rueda pinchada (4) y coche contra un árbol (39): una por modelo**
+  (Iván, 26-11-2026: tiene que salir el coche de quien la manda). Con el
+  dibujo del coche adjunto (`imagenes/coche-turismo.webp`,
+  `coche-tesla.webp` o `coche-mercedes.webp`), dos fotos por modelo:
+  `chat-rueda-<modelo>.webp` y `chat-arbol-<modelo>.webp` (modelo:
+  `turismo`, `tesla` o `mercedes`).
+  - Rueda: «Square illustration, flat editorial vector style, subtle grain,
+    limited palette of deep teal, toasted orange, cream and dark brown.
+    Use the attached car exactly as it is (same model, colours, red stripe
+    and green roof light). Phone-photo view from the pavement, close to
+    the front wheel: the tyre is completely flat, the car leaning a little,
+    a spare wheel and a jack on the ground, an elegant Madrid avenue behind.
+    No text, no logos, no numbers.»
+  - Árbol: «Square illustration, same style and palette. Use the attached
+    car exactly as it is. Phone-photo view: the car has gently bumped its
+    front into a big tree trunk on a quiet Madrid street, the bonnet a bit
+    crumpled, a small cloud of steam, leaves falling. Funny, not dramatic,
+    nobody hurt, nobody in the picture. No text, no logos, no numbers.»
 - **Amanecer desde el taxi (32):** «Square illustration, same style.
   View through a taxi windscreen at dawn: an empty Madrid avenue, orange
   sky, the Metrópolis dome far away. Dashboard edge visible. No text.»
-- **La planta en el salpicadero (38):** «Square illustration, same style.
-  A potted green plant with big leaves sitting on a taxi dashboard, a
-  pair of sunglasses next to it, morning light. No text.»
+- **La planta en el salpicadero (38):** la hace Paconi desde el asiento
+  del conductor. «Square illustration, same style. Phone photo taken from
+  the driver's seat of a taxi: the steering wheel at the bottom edge and,
+  on the dashboard in front, a potted green plant with big leaves, a pair
+  of sunglasses next to it, morning light through the windscreen. No
+  people. No text.»
 - **Bocadillo de El Pelado (45):** «Square illustration, same style. A
   giant baguette sandwich wrapped in foil on a taxi dashboard next to a
   thermos and a mate cup. No text.»

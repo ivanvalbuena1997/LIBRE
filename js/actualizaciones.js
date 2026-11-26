@@ -673,6 +673,10 @@
         {
           "n": 149,
           "texto": "Daniela manda más: los conductores esperan un 15 % menos y se quedan 6 puntos menos de cada carrera (antes, un 6 % y 3 puntos). Además estrena retrato, y la novia a la fuga, el turista de Barajas y el viaje de Parla a Almería ya tienen su ilustración. Las nubes de la calle de arriba también son ilustraciones, y ahora son tres."
+        },
+        {
+          "n": 150,
+          "texto": "Los eventos «¡Que viene!», «El maletín» y «Noche de final» ya tienen su ilustración. En el grupo de la flota, Paconi estrena mensajes (pide que le rieguen la planta, se pega con un árbol «bien engañoso», pide un adelanto del sueldo y nota el coche bailongo), y las fotos del pinchazo y del árbol serán del coche de quien las manda."
         }
       ]
     }
