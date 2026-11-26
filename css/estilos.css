@@ -426,7 +426,13 @@ body:not([data-vista="calle"]) .cabecera-marca { flex-direction: row; align-item
 /* Tarjetas de mejora: icono en un círculo del color de su estado. */
 /* Introducción de la historia: pantalla completa, por encima de todo. */
 .intro { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; background: var(--papel); }
-.intro-ilustracion { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: var(--marca); }
+/* Mientras carga, el crema de la parte de abajo de las ilustraciones (antes azul:
+   se veía un fogonazo antes de la imagen; Iván, 26-11-2026). El azul queda
+   solo para cuando falta la imagen (.sin-imagen). */
+.intro-ilustracion { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; background: var(--papel); }
+.intro-ilustracion img { opacity: 0; transition: opacity 0.25s ease; }
+.intro-ilustracion img.cargada { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .intro-ilustracion img { transition: none; } }
 .intro-ilustracion img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 /* En pantallas anchas (PC), una columna como la del juego sobre un velo:
    a todo el ancho la ilustración vertical se recortaba muchísimo. */
@@ -2570,6 +2576,8 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .estad-cifra { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: var(--esp-3) var(--esp-4); }
 .estad-cifra > span { font-size: var(--t-mini); font-weight: 800; color: var(--tinta-suave); }
 .estad-cifra > strong { font-size: var(--t-seccion); line-height: 1.2; color: var(--dinero); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.estad-cifra--cuenta > strong { color: var(--tinta); }
+.estad-cifra--perdido > strong { color: var(--peligro); }
 .estad-cifra > small { font-size: var(--t-micro); color: var(--tinta-suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .estad-bloque { padding: var(--esp-5) var(--esp-6); margin-bottom: var(--esp-4); }
 .estad-cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: var(--esp-3); margin-bottom: var(--esp-4); }
@@ -2673,7 +2681,7 @@ button.estad-fila:focus-visible { outline: 3px solid var(--marca); outline-offse
 .chat-mensaje { display: flex; align-items: flex-end; gap: var(--esp-2); max-width: 86%; margin-top: 6px; }
 .chat-mensaje--seguido { margin-top: 0; }
 .chat-mensaje--tuyo { align-self: flex-end; }
-.chat-cara { flex: none; width: 32px; height: 32px; }
+.chat-cara { flex: none; width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 1px 4px var(--sombra-placa), 0 0 0 2px var(--tarjeta); }
 .chat-burbuja {
   display: flex; flex-direction: column; gap: 2px; min-width: 0;
   padding: 7px 11px; border-radius: 14px 14px 14px 4px;

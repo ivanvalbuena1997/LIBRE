@@ -16,12 +16,17 @@
     html: function (estado) {
       if (!estado.historia || estado.historia.introVista) return '';
       const escenas = Libre.config.historia.intro;
+      // Las tres escenas, cargadas de antemano: así no se ve el fondo al pasar.
+      if (!ui.introPrecargada) {
+        ui.introPrecargada = true;
+        escenas.forEach(function (x) { const im = new raiz.Image(); im.src = x.imagen; });
+      }
       const i = Math.min(ui.introPaso, escenas.length - 1);
       const e = escenas[i];
       const ultima = i === escenas.length - 1;
       return '<div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-titulo">' +
         '<div class="intro-ilustracion" data-escena="' + (i + 1) + '">' +
-        '<img src="' + ui.esc(e.imagen) + '" alt="" onerror="this.parentNode.classList.add(\'sin-imagen\'); this.remove();">' +
+        '<img src="' + ui.esc(e.imagen) + '" alt="" onload="this.classList.add(\'cargada\')" onerror="this.parentNode.classList.add(\'sin-imagen\'); this.remove();">' +
         '<span class="intro-provisional" aria-hidden="true">Ilustración ' + (i + 1) + '</span></div>' +
         '<div class="intro-texto"><p class="intro-paso">' + (i + 1) + ' de ' + escenas.length + '</p>' +
         '<h2 id="intro-titulo">' + ui.esc(e.titulo) + '</h2><p>' + ui.esc(e.texto) + '</p>' +
@@ -81,7 +86,7 @@
       }
       return '<div class="intro evento" role="dialog" aria-modal="true" aria-labelledby="evento-titulo">' +
         '<div class="intro-ilustracion">' +
-        '<img src="' + ui.esc(e.imagen) + '" alt="" onerror="this.parentNode.classList.add(\'sin-imagen\'); this.remove();">' +
+        '<img src="' + ui.esc(e.imagen) + '" alt="" onload="this.classList.add(\'cargada\')" onerror="this.parentNode.classList.add(\'sin-imagen\'); this.remove();">' +
         '<span class="intro-provisional" aria-hidden="true">' + ui.esc(e.titulo) + '</span></div>' +
         '<div class="intro-texto"><p class="intro-paso">' + quien + '</p>' +
         '<h2 id="evento-titulo">' + ui.esc(e.titulo) + '</h2>' +

@@ -25,8 +25,9 @@
 
   function htmlCifrasPartida(estado) {
     const mejor = estado.mejorDia;
-    const cifra = function (etiqueta, valor, pie) {
-      return '<div class="ui-tarjeta estad-cifra"><span>' + etiqueta + '</span><strong class="ui-dinero">' + valor + '</strong>' +
+    const t = estado.totales;
+    const cifra = function (etiqueta, valor, pie, clase) {
+      return '<div class="ui-tarjeta estad-cifra' + (clase ? ' ' + clase : '') + '"><span>' + etiqueta + '</span><strong class="ui-dinero">' + valor + '</strong>' +
         (pie ? '<small>' + ui.esc(pie) + '</small>' : '') + '</div>';
     };
     return '<div class="estad-cifras">' +
@@ -34,6 +35,11 @@
       cifra('Carreras', ui.numero(Math.floor(estado.totales.carreras)), 'en la partida') +
       cifra('Mejor día', mejor ? ui.eurosCorto(mejor.ingresos) : '—', mejor ? nombreDia(mejor.dia) : 'sin cerrar') +
       cifra('Km recorridos', ui.numero(Math.floor(estado.totales.km || 0)) + ' km', 'por tu flota') +
+      // Iván, 26-11-2026: lo que ha pasado en los taxis de toda la flota.
+      cifra('Vómitos', ui.numero(t.vomitos || 0), 'en toda la flota', 'estad-cifra--cuenta') +
+      cifra('Sin pagar', ui.eurosCorto(t.sinPagar || 0), 'perdidos con los que se van', 'estad-cifra--perdido') +
+      cifra('Objetos encontrados', ui.numero(t.hallazgos || 0), 'por tus conductores', 'estad-cifra--cuenta') +
+      cifra('Objetos devueltos', ui.numero(t.devueltos || 0), 'olvidos de clientes', 'estad-cifra--cuenta') +
       '</div>';
   }
 
@@ -132,6 +138,7 @@
       // Se redibuja al cerrar un día, al cambiar la flota o cada 20 € facturados.
       return JSON.stringify([h.length, h.length ? h[h.length - 1].dia : -1, ui.diaEstadistica,
         Math.floor(estado.totales.ingresos / 20), Math.floor((estado.totales.km || 0) / 100), (estado.exConductores || []).length,
+        estado.totales.vomitos, estado.totales.sinPagar, estado.totales.hallazgos, estado.totales.devueltos,
         Libre.sim.todosLosConductores(estado).map(function (x) { return x.t.id + '@' + x.licenciaId + x.turno; })]);
     },
     html: function (estado) {

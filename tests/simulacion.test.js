@@ -3069,5 +3069,24 @@ prueba('El grupo de la flota: se abre con la SL, tu primer mensaje y 1–3 conve
   assert.ok(nuevo.chat && nuevo.chat.iniciado === false);
 });
 
+prueba('Estadísticas: cuentan vómitos, lo perdido sin pagar, objetos encontrados y devueltos', function () {
+  const e = flotaDe(1);
+  const t = e.licencias[0].turnos.noche;
+  t.cualidad = 'honrado'; t.defecto = 'guarro';
+  ['hallazgo', 'objeto', 'vomito', 'sinPagar'].forEach(function (tipo) { sim.forzarEvento(e, tipo, tipo === 'hallazgo' ? 'B' : undefined); });
+  const antes = Object.assign({}, e.totales);
+  for (let i = 0; i < 5000 && (e.eventosForzados || []).length; i++) sim.avanzar(e, 0.1);
+  assert.strictEqual(e.totales.hallazgos - (antes.hallazgos || 0), 1);
+  assert.strictEqual(e.totales.devueltos - (antes.devueltos || 0), 1);
+  assert.strictEqual(e.totales.vomitos - (antes.vomitos || 0), 1);
+  assert.ok(e.totales.sinPagar - (antes.sinPagar || 0) > 0, 'euros perdidos');
+  require('../js/guardado.js');
+  const viejo = JSON.parse(JSON.stringify(e));
+  viejo.totales = { carreras: 1, ingresos: 2, km: 3 };
+  viejo.version = 41;
+  assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).totales,
+    { carreras: 1, ingresos: 2, km: 3, vomitos: 0, sinPagar: 0, hallazgos: 0, devueltos: 0 });
+});
+
 console.log(pasadas + ' pruebas correctas');
 

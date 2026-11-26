@@ -421,8 +421,10 @@ nombra sin decir en qué archivo están: búscalas con grep.
   posibles (Conductores, Mejoras), de la bandeja (Almacén) o de un ticket esperando (Calle). La pestaña elegida se recuerda
   en `localStorage` (`libre-vista`), aparte de la partida; las antiguas
   `flota` y `partida` se traducen a `conductores` y `calle`.
-- Estadísticas (`seccionEstadisticas`, Iván 18-11-2026): cuatro cifras
-  (`estado.totales`, con `totales.km`, y `estado.mejorDia`), facturación por día (barras en
+- Estadísticas (`seccionEstadisticas`, Iván 18-11-2026): ocho cifras
+  (`estado.totales`, con `totales.km`, y `estado.mejorDia`; desde el
+  26-11-2026, versión 42, también `vomitos`, `sinPagar`, `hallazgos` y
+  `devueltos`, que suma `incidencia()` según su tipo y `hallazgo()`), facturación por día (barras en
   HTML, raya del neto; tocar una la elige: `diaEstadistica`), media diaria
   (`Libre.sim.mediasDiarias()`: tú y los conductores con turno, entre las
   jornadas que estuvieron en la flota; las de libranza de su licencia no se

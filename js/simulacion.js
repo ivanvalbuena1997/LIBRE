@@ -83,7 +83,9 @@
       // Conductores contratados que no trabajan: esperan a que les des un turno.
       reserva: [],
       caja: { hoy: cajaVacia(0), ayer: null },
-      totales: { carreras: 0, ingresos: 0, km: 0 },
+      // Contadores de la partida (Estadísticas). vomitos, sinPagar (€ perdidos),
+      // hallazgos y devueltos: Iván, 26-11-2026 (versión 42 del guardado).
+      totales: { carreras: 0, ingresos: 0, km: 0, vomitos: 0, sinPagar: 0, hallazgos: 0, devueltos: 0 },
       // Tu sociedad limitada: { nombre, jornada } desde que la montas (idea 1).
       empresa: null,
       // Lo que te ha hecho ganar o ahorrar cada mejora (idea 16): { id: euros }.
@@ -2352,6 +2354,7 @@
       objeto = posibles[Math.floor(azar(estado) * posibles.length)];
     }
     const lleno = guardarObjeto(estado, objeto, t.nombre);
+    estado.totales.hallazgos = (estado.totales.hallazgos || 0) + 1;
     if (objeto.categoria === cfg().categorias[cfg().categorias.length - 1].id) pistaChat(estado, 'legendario', t);
     resumen.eventos.push({
       tipo: 'hallazgo', conductor: t.nombre, retrato: caraDe(t), objeto: objeto.id, categoria: objeto.categoria,
@@ -3443,6 +3446,12 @@
     if (cuenta === 'extras') { estado.dinero += importe; caja.extras += importe; }
     if (cuenta === 'otros') { estado.dinero += importe; caja.otros -= importe; }
     const ev = { tipo, texto, importe };
+    // Contadores de toda la partida (Estadísticas): vómitos (también los de
+    // la bolsa), lo perdido con los que se van sin pagar y objetos devueltos.
+    const tot = estado.totales;
+    if (tipo === 'vomito' || tipo === 'bolsa') tot.vomitos = (tot.vomitos || 0) + 1;
+    if (tipo === 'sinPagar') tot.sinPagar = (tot.sinPagar || 0) - importe;
+    if (tipo === 'objeto') tot.devueltos = (tot.devueltos || 0) + 1;
     if (turno && turno.quien === 'conductor') { ev.conductor = turno.nombre; ev.retrato = caraDe(turno); }
     resumen.eventos.push(ev);
     pistaChat(estado, tipo === 'lluvia' && estado.lluvia && estado.lluvia.tipo === 'tormenta' ? 'tormenta' : tipo, turno);

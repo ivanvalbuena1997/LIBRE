@@ -257,6 +257,11 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 41 → 42: contadores nuevos de Estadísticas (Iván, 26-11-2026): desde 0.
+    41: function (estado) {
+      const t = estado.totales = estado.totales || { carreras: 0, ingresos: 0, km: 0 };
+      ['vomitos', 'sinPagar', 'hallazgos', 'devueltos'].forEach(function (k) { if (t[k] === undefined) t[k] = 0; });
+    },
     // 40 → 41: el grupo de la flota (Iván, 26-11-2026): con la SL ya
     // montada, el grupo existe y espera tu primer mensaje.
     40: function (estado) {

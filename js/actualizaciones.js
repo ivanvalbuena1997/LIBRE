@@ -689,6 +689,10 @@
         {
           "n": 153,
           "texto": "La última escena de la introducción ya enseña el Corolla, como dice el texto (antes salía un coche antiguo)."
+        },
+        {
+          "n": 154,
+          "texto": "Estadísticas con cuatro contadores nuevos de toda la flota: vómitos, euros perdidos con los que se van sin pagar, objetos encontrados y objetos devueltos. Las caras del grupo de la flota llevan un borde y una sombra para que se distingan del fondo, y la introducción ya no enseña un fondo azul antes de cada ilustración."
         }
       ]
     }
