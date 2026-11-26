@@ -267,8 +267,9 @@
    */
   /*
    * Repartidores en bici (Iván, 26-11-2026): ilustración hecha con IA, la misma
-   * bici con la mochila naranja (Just Eat) o verde (Uber Eats, recoloreada),
-   * sus dos ruedas recortadas girando y el nombre dibujado encima de la
+   * bici con la mochila naranja (Just Eat) o verde (Uber Eats, recoloreada).
+   * Los radios se quitaron del dibujo y se dibujan aquí, detrás, girando (Iván:
+   * el neumático es liso y no se nota que no gira). El nombre, encima de la
    * mochila. El que va hacia la izquierda, en espejo salvo el texto.
    */
   const REPARTIDORES = [
@@ -276,12 +277,20 @@
     { clase: 'justeat', texto: ['Just', 'Eat'], imagen: 'imagenes/bici-naranja.webp', vuelve: true }
   ];
   // Medidas en unidades del svg (40 de alto): dibujo, ruedas y mochila.
-  const BICI = { ancho: 43.74, alto: 40, ruedas: [[0.25, 23.33, 16.8], [27.05, 23.32, 16.8]], mochila: [12.7, 7.4, 21] };
+  // Ruedas: centro y radio de los radios (el neumático sigue en el dibujo;
+  // los radios se quitaron de él y se dibujan aquí, detrás, para que giren).
+  const BICI = { ancho: 43.74, alto: 40, ruedas: [[8.653, 31.734], [35.448, 31.721]], radio: 7.04, mochila: [12.7, 7.4, 21] };
+  const RADIOS_BICI = 12;
   function repartidor(r, i) {
     const espejo = r.vuelve ? ' transform="translate(' + BICI.ancho + ' 0) scale(-1 1)"' : '';
-    const ruedas = BICI.ruedas.map(function (c, k) {
-      return '<g class="an-rueda"><image href="imagenes/bici-rueda-' + (k + 1) + '.webp" x="' + c[0] + '" y="' + c[1] +
-        '" width="' + c[2] + '" height="' + c[2] + '"/></g>';
+    const ruedas = BICI.ruedas.map(function (c) {
+      let d = '';
+      for (let k = 0; k < RADIOS_BICI; k++) {
+        const ang = k * 2 * Math.PI / RADIOS_BICI;
+        d += 'M' + c[0] + ' ' + c[1] + 'L' + (c[0] + BICI.radio * Math.cos(ang)).toFixed(2) + ' ' + (c[1] + BICI.radio * Math.sin(ang)).toFixed(2);
+      }
+      return '<g class="an-rueda"><circle class="esc-eje" cx="' + c[0] + '" cy="' + c[1] + '" r="' + BICI.radio + '"/>' +
+        '<path class="esc-bici-radios-img" d="' + d + '"/></g>';
     }).join('');
     const mx = r.vuelve ? BICI.ancho - BICI.mochila[0] : BICI.mochila[0];
     const giro = 'rotate(' + (r.vuelve ? -BICI.mochila[2] : BICI.mochila[2]) + ' ' + mx + ' ' + BICI.mochila[1] + ')';

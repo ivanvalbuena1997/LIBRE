@@ -606,6 +606,8 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-bici-cubierta { fill: none; stroke: var(--tinta); stroke-width: 2; }
 .esc-bici-llanta { fill: none; stroke: var(--coche-radios); stroke-width: 0.6; }
 .esc-bici-radios { fill: none; stroke: var(--coche-radios); stroke-width: 0.7; }
+/* Radios de las bicis ilustradas: finos, detrás del dibujo. */
+.esc-bici-radios-img { fill: none; stroke: var(--tinta); stroke-width: 0.16; }
 .esc-reflectante { fill: var(--esc-reflectante); }
 /* Círculo invisible que da a cada rueda que gira su centro (transform-box: fill-box). */
 .esc-eje { fill: none; stroke: none; }

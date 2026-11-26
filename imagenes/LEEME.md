@@ -31,11 +31,10 @@ la tapa el texto.
 - `autobus.webp` (800 × 189) y `autobus-rueda-1..3.webp`: el autobús
   articulado de la EMT de la cabecera, recortado del fondo verde, y sus
   tres llantas para que giren. Los letreros los pone `js/ambiente.js`.
-- `bici-naranja.webp`, `bici-verde.webp` (230 px de ancho) y
-  `bici-rueda-1..2.webp`: el repartidor de la cabecera, recortado de una
-  ilustración de Iván. La verde es la misma con la mochila recoloreada; a
-  las dos se les quitaron los radios y la cubierta, que van en las ruedas
-  aparte para que giren. El nombre de la mochila lo pone `js/ambiente.js`.
+- `bici-naranja.webp`, `bici-verde.webp` (230 px de ancho) : el repartidor de la
+  cabecera, recortado de una ilustración de Iván. La verde es la misma con
+  la mochila recoloreada; a las dos se les quitaron los radios, que dibuja
+  `js/ambiente.js` detrás, girando (el neumático se queda). El nombre de la mochila lo pone `js/ambiente.js`.
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
   Estadísticas.
