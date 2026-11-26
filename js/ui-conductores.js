@@ -296,7 +296,7 @@
   const NOMBRE_TURNO = function (id) { return Libre.config.turnos[id].nombre.toLowerCase(); };
   function pct(f) { return Math.round(f * 100) + ' %'; }
   /*
-   * Ficha de un ÚNICO (candidato o conductor): quién es, una de sus frases,
+   * Ficha de un ÚNICO (candidato o conductor): quién es,
    * sus habilidades (con la sinergia activa o la que le falta) y sus
    * debilidades. Todo sale de config.conductores.unicos.
    */
@@ -356,12 +356,9 @@
       const v = Libre.sim.buscarUnico(i.id || i);
       deb.push('No comparte coche con ' + ui.esc(v ? v.nombre : i.nombre || i.id || i) + '.');
     });
-    // Una frase suya, la misma durante la jornada (sin parpadear al redibujar).
-    const jornada = estado ? Libre.sim.jornadaDe(estado.reloj.minutos) : 0;
-    const frase = u.frases && u.frases.length ? u.frases[jornada % u.frases.length] : '';
+    // Sin su frase (Iván, 26-11-2026): las frases salen en sus avisos y en el grupo.
     return '<div class="unico">' +
       (u.descripcion ? '<p class="unico-quien">' + ui.esc(u.descripcion) + '</p>' : '') +
-      (frase ? '<p class="unico-frase">«' + ui.esc(frase) + '»</p>' : '') +
       '<p class="unico-titulo">Habilidades</p><ul class="unico-lista unico-hab">' + hab.map(function (h) { return '<li>' + h + '</li>'; }).join('') + '</ul>' +
       '<p class="unico-titulo">Debilidades</p><ul class="unico-lista unico-deb">' + deb.map(function (d) { return '<li>' + d + '</li>'; }).join('') + '</ul>' +
       '</div>';

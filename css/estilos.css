@@ -2559,7 +2559,6 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .unico { margin: var(--esp-3) 0; padding: var(--esp-4); border-radius: var(--r-tarjeta); background: var(--tinte-unico); font-size: var(--t-pequeno); }
 .unico p { margin: 0 0 var(--esp-2); }
 .unico-quien { color: var(--tinta-suave); }
-.unico-frase { font-style: italic; font-weight: 800; color: var(--rareza-unico); }
 .unico-titulo { margin-top: var(--esp-3) !important; font-weight: 800; text-transform: uppercase; font-size: var(--t-mini); letter-spacing: 0.5px; color: var(--rareza-unico); }
 .unico-lista { margin: 0; padding-left: 1.1em; }
 .unico-lista li { margin: 2px 0; }

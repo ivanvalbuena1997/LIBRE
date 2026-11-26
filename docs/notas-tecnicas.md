@@ -741,7 +741,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
   pantalla: `Libre.retratos.svg(id)` da su imagen con marco granate
   (`.retrato-unico`); `rarezaDe(t)` da la insignia 'U' (`--rareza-unico`,
   `--tinte-unico`) y `htmlUnico()` sustituye a los rasgos en ficha y
-  candidatos (frase de la jornada, habilidades, debilidades, sinergia). Consola:
+  candidatos (descripción, habilidades, debilidades y sinergias; sin frase desde el 26-11-2026). Consola:
   `Libre.forzarUnico('paconi')`.
 - Eventos de clientes (fase 3, Iván 25-11-2026; versión 38 del guardado):
   `config.historia.eventos` (`activos`, `cadaJornadas`, `lista` de eventos

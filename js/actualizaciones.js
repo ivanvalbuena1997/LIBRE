@@ -697,6 +697,10 @@
         {
           "n": 155,
           "texto": "El botón del grupo de la flota tiene un icono nuevo: dos bocadillos de conversación."
+        },
+        {
+          "n": 156,
+          "texto": "La ficha de los conductores ÚNICOS ya no enseña una de sus frases bajo la descripción; sus frases siguen saliendo en sus avisos y en el grupo de la flota."
         }
       ]
     }
