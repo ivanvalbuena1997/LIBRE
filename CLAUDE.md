@@ -206,7 +206,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   También se guardan `carreras` y `facturado` desde que lo contrataste.
   Subir de nivel avisa con su retrato (evento 'nivel', no va al ticket).
   Para probar:
-  `Libre.darExperiencia('Laura', 100)` en la consola.
+  `Libre.darExperiencia('Laura', 100)` en la consola (y dinero:
+  `Libre.darDinero(50000)`).
 - Objetos de conductor (`config.objetos`, 40 con categoría de
   `config.categorias`: B, A, S, S+ y LEGENDARIO). No se compran: un
   conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;

@@ -86,6 +86,20 @@
    *   Libre.forzarEvento('lluvia', 2)     (horas de lluvia; bajas: jornadas)
    */
   /*
+   * Para probar desde la consola: suma dinero a la caja (no pasa por el
+   * ticket ni por las estadísticas).
+   *   Libre.darDinero(50000)
+   */
+  Libre.darDinero = function (euros) {
+    const n = Number(euros);
+    if (!isFinite(n)) return 'Pon una cantidad, por ejemplo Libre.darDinero(50000)';
+    estado.dinero += n;
+    guardar();
+    ui.dibujar(estado);
+    return 'Caja: ' + ui.euros(estado.dinero);
+  };
+
+  /*
    * Para probar los niveles desde la consola:
    *   Libre.darExperiencia('Laura', 100)
    */
