@@ -19,8 +19,11 @@ la tapa el texto.
   (3900 × 260, se ven a 1950 × 130), recortados de dos ilustraciones de
   Iván con el cielo verde (se quita el verde) y alargados a los lados
   repitiendo sus casas; el Metrópolis y Cibeles, en el centro.
-- `taxi.webp`: el taxi de la cabecera (440 × 159), recortado del fondo
-  verde de la imagen de Iván (la luz verde del techo se respeta a mano).
+- `coche-turismo.webp`, `coche-tesla.webp`: los coches de cada gama, de
+  lado y mirando a la derecha (440 px de ancho), recortados del fondo verde
+  de las imágenes de Iván (la luz verde del techo se respeta a mano). Los
+  usan la cabecera, la miniatura de los km y la hoja de elegir coche
+  (`config.vehiculos.modelos.<id>.imagen`). Falta el Mercedes.
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
   Estadísticas.

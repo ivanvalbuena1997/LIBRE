@@ -605,6 +605,10 @@
         {
           "n": 132,
           "texto": "El taxi que cruza la calle de arriba es ahora una ilustración, como los edificios: el Corolla blanco con su franja roja y la luz verde."
+        },
+        {
+          "n": 133,
+          "texto": "Los coches tienen dibujo: el Corolla y el Tesla salen ilustrados al elegir coche y en miniatura junto a los kilómetros de cada licencia, y el taxi que cruza la calle de arriba es, en cada pasada, uno de los coches de tu flota."
         }
       ]
     }

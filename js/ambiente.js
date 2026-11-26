@@ -177,7 +177,8 @@
       // Sombra en el suelo y el coche: ilustración hecha con IA (Iván,
       // 26-11-2026; imagenes/taxi.webp), sin ruedas que giren.
       '<ellipse class="esc-sombra-coche" cx="52" cy="28.4" rx="52" ry="2"/>' +
-      '<image class="esc-taxi-img" href="imagenes/taxi.webp" x="0" y="-8.9" width="104" height="37.5" preserveAspectRatio="xMidYMid meet"/>' +
+      // El modelo cambia en cada pasada: uno de los coches de tu flota (ponerModeloTaxi()).
+      '<image class="esc-taxi-img" href="imagenes/coche-turismo.webp" x="0" y="-8.9" width="104" height="37.5" preserveAspectRatio="xMidYMax meet"/>' +
       '</svg>';
   }
 
@@ -428,10 +429,37 @@
       repartidor(REPARTIDORES[0], 0) + hojas();
   }
 
+  /*
+   * El taxi que pasa es de uno de los modelos de tu flota (Iván, 26-11-2026):
+   * si tienes un Tesla o un Mercedes, a veces pasa ese. Se elige al empezar
+   * cada pasada (animationiteration). Es adorno: Math.random vale aquí.
+   */
+  let modelosFlota = [];
+  function ponerModeloTaxi(contenedor) {
+    const img = contenedor.querySelector('.esc-taxi-img');
+    if (!img || !modelosFlota.length) return;
+    const src = modelosFlota[Math.floor(Math.random() * modelosFlota.length)];
+    if (img.getAttribute('href') !== src) img.setAttribute('href', src);
+  }
+
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
   function dibujar(contenedor, estado) {
     const dibujo = contenedor.querySelector('svg.esc-calle');
     if (!dibujo) return;
+    const modelos = Libre.config.vehiculos.modelos;
+    const lista = estado.licencias.filter(function (l) { return l.vehiculo && modelos[l.vehiculo] && modelos[l.vehiculo].imagen; })
+      .map(function (l) { return modelos[l.vehiculo].imagen; });
+    const nueva = lista.length ? lista : [modelos[Libre.config.vehiculos.modeloInicial].imagen];
+    if (nueva.join('|') !== modelosFlota.join('|')) {
+      const antes = modelosFlota.length;
+      modelosFlota = nueva;
+      if (!antes) ponerModeloTaxi(contenedor);
+    }
+    const taxi = contenedor.querySelector('.esc-taxi');
+    if (taxi && !taxi.dataset.escucha) {
+      taxi.dataset.escucha = '1';
+      taxi.addEventListener('animationiteration', function () { ponerModeloTaxi(contenedor); });
+    }
     if (!paleta) leerPaleta();
     const minutos = estado.reloj.minutos;
     const hora = Libre.sim.infoReloj(minutos).minutoDelDia / 60;

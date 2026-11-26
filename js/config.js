@@ -926,11 +926,13 @@
       modelos: {
         turismo: {
           nombre: 'Toyota Corolla',
+          imagen: 'imagenes/coche-turismo.webp',   // ilustraciones de Iván (26-11-2026)
           precio: 1500,              // Iván (valor de juego): precio del coche.
           consumoLitros100Km: 6      // Dato de Iván: consumo medio en ciudad.
         },
         tesla: {
           nombre: 'Tesla Model 3', descripcion: 'Eléctrico: la carga cuesta mucho menos que la gasolina, se avería mucho menos y el piloto automático cansa menos.',
+          imagen: 'imagenes/coche-tesla.webp',
           precio: 3500, electrico: true,
           kwh100Km: 15,              // PROVISIONAL (estimación de Claude, sin fuente)
           efecto: { averia: 0.4, cansancio: 0.8 }

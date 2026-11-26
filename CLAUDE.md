@@ -558,7 +558,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
   autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
   un taxi que pasa (desde el 26-11-2026, ilustración con IA,
-  `imagenes/taxi.webp`, `.esc-taxi-img`, sin ruedas que giren; de noche, `.esc-brillo`: haz del faro
+  `.esc-taxi-img`, sin ruedas que giren; en cada pasada, el `imagen` de
+  uno de los modelos de tu flota: `ponerModeloTaxi()` en
+  `animationiteration`; de noche, `.esc-brillo`: haz del faro
   con degradado lineal que sale del dibujo, `.esc-taxi` con
   `overflow: visible`) y lluvia. Carriles (se circula por la
   derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;
@@ -705,6 +707,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   (Corolla + las de `modificadoresPersonaje().gamas`), `comprarVehiculo(estado,
   licenciaId, modeloId)`, `precioCoche(estado, sustituye, modeloId)`,
   `modeloCoche()`, `efectoCoche(lic)` y `efectoCocheDe(estado, quien)`.
+  Cada modelo puede llevar `imagen` (ilustración de lado, `imagenes/coche-<id>.webp`):
+  la usan la cabecera, la miniatura junto a los km (`htmlCocheMini()`) y
+  la hoja de elegir coche; sin ella, el icono de trazo.
   Híbridos y GLP usan `consumoCombustion` (no en eléctricos; `gastar()` lo
   apunta aparte). `carrera.vehiculo` guarda el modelo. En `statsConductor()`,
   fuente 'coche'. En Conductores, `botonComprarCoche()` y, con más de una

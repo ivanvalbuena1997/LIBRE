@@ -2104,7 +2104,7 @@
       // Pastilla del color de su estado con el coche, los km y «›» (Iván, 19-11-2026).
       (lic.vehiculo ? '<button type="button" class="licencia-km coche--' + Libre.sim.estadoCoche(estado, lic).nivel +
         '" data-coche="' + lic.id + '" aria-label="Ver el coche de la licencia ' + esc(Libre.sim.textoLicencia(lic)) + '">' +
-        '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + ICONO_COCHE + '</svg>' +
+        htmlCocheMini(lic) +
         (lic.alquiler
           // Corto para que quepa: «Alquiler · 3 días» (la hoja lo explica).
           ? '<span class="licencia-km-texto">Alquiler · ' + Libre.sim.jornadasAlquiler(estado, lic) +
@@ -2129,6 +2129,12 @@
    * «Renovar» (con el día cerrado).
    */
   // Trazo de un coche (el mismo que el de la mejora Leasing).
+  /* El coche de una licencia en miniatura (su ilustración) o, sin ella, el icono. */
+  function htmlCocheMini(lic) {
+    const m = Libre.sim.modeloCoche(lic.vehiculo);
+    return m.imagen ? '<img class="coche-mini" src="' + esc(m.imagen) + '" alt="">'
+      : '<svg class="icono" viewBox="0 0 24 24" aria-hidden="true">' + ICONO_COCHE + '</svg>';
+  }
   const ICONO_COCHE = '<path d="M4 15l1.5-5h13L20 15v3H4z"/><path d="M7 10l1.5-3h7l1.5 3M7 18v2M17 18v2"/><path d="M9 14h6"/>';
   const NIVEL_COCHE = { nuevo: 'Nuevo', rodado: 'Rodado', gastado: 'Gastado', limite: 'Al límite', alquilado: 'Alquilado' };
   /* «queda 1 jornada», «quedan 3 jornadas». */
@@ -2173,6 +2179,7 @@
       const precio = sim.precioCoche(estado, false, id);
       const coste = sim.costePorKm(estado, id) * 100;
       return '<div class="ui-tarjeta gama">' +
+        (m.imagen ? '<img class="gama-imagen" src="' + esc(m.imagen) + '" alt="">' : '') +
         '<div class="gama-titulo"><strong>' + esc(m.nombre) + '</strong>' +
         (m.electrico ? '<span class="ui-chip">Eléctrico</span>' : '') + '</div>' +
         (m.descripcion ? '<p>' + esc(m.descripcion) + '</p>' : '<p>El de siempre: el coche más usado por los taxistas.</p>') +
