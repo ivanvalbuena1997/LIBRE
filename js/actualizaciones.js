@@ -621,6 +621,10 @@
         {
           "n": 136,
           "texto": "Las ruedas del taxi que cruza la calle de arriba vuelven a girar, ahora con las llantas de cada coche: Corolla, Tesla y Mercedes."
+        },
+        {
+          "n": 137,
+          "texto": "Arreglo: el taxi de la calle de arriba ya no cambia de modelo a mitad de camino. Cada pasada es entera con el mismo coche y, si tienes varios modelos, la siguiente es otro distinto."
         }
       ]
     }

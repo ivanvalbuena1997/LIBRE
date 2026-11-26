@@ -560,7 +560,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
   un taxi que pasa (desde el 26-11-2026, ilustración con IA,
   `.esc-taxi-img`; en cada pasada, uno de los modelos de tu flota:
-  `ponerModeloTaxi()` en `animationiteration`, que llama a `vestirTaxi()`:
+  `ponerModeloTaxi()` en `animationiteration` del propio taxi (`ev.target`:
+  las ruedas también lo lanzan y sube), otro modelo que el de antes si hay,
+  que llama a `vestirTaxi()`:
   pone su `imagen` y encima sus `ruedas` (recortes `coche-<id>-rueda-N.webp`
   con su `caja` en fracciones del dibujo y el `aspecto` del modelo) dentro
   de `.an-rueda`, para que giren; de noche, `.esc-brillo`: haz del faro

@@ -169,6 +169,7 @@
     const m = Libre.config.vehiculos.modelos[modeloId];
     const img = contenedor.querySelector('.esc-taxi-img');
     if (!m || !m.imagen || !img) return;
+    modeloTaxi = modeloId;
     if (img.getAttribute('href') !== m.imagen) img.setAttribute('href', m.imagen);
     // Dónde queda el dibujo dentro de la caja (meet, pegado abajo y centrado).
     const asp = m.aspecto || 2.77;
@@ -464,9 +465,13 @@
    * cada pasada (animationiteration). Es adorno: Math.random vale aquí.
    */
   let modelosFlota = [];
+  let modeloTaxi = null;   // el de la pasada en curso
   function ponerModeloTaxi(contenedor) {
     if (!modelosFlota.length) return;
-    vestirTaxi(contenedor, modelosFlota[Math.floor(Math.random() * modelosFlota.length)]);
+    // Otro coche que el de la pasada anterior, si tu flota tiene más de un modelo.
+    const otros = modelosFlota.filter(function (id) { return id !== modeloTaxi; });
+    const lista = otros.length ? otros : modelosFlota;
+    vestirTaxi(contenedor, lista[Math.floor(Math.random() * lista.length)]);
   }
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
@@ -485,7 +490,11 @@
     const taxi = contenedor.querySelector('.esc-taxi');
     if (taxi && !taxi.dataset.escucha) {
       taxi.dataset.escucha = '1';
-      taxi.addEventListener('animationiteration', function () { ponerModeloTaxi(contenedor); });
+      // Solo al acabar la pasada del taxi: las ruedas también lanzan
+      // animationiteration (cada vuelta) y el evento sube hasta aquí.
+      taxi.addEventListener('animationiteration', function (ev) {
+        if (ev.target === taxi) ponerModeloTaxi(contenedor);
+      });
     }
     if (!paleta) leerPaleta();
     const minutos = estado.reloj.minutos;

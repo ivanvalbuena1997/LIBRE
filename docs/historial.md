@@ -173,3 +173,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 134. El Mercedes Clase S también tiene su dibujo: al elegir coche, junto a los kilómetros y cruzando la calle de arriba si tienes uno.
 135. El Corolla y el Tesla estrenan llantas de aleación, con más detalle (el Tesla, con la pinza de freno roja).
 136. Las ruedas del taxi que cruza la calle de arriba vuelven a girar, ahora con las llantas de cada coche: Corolla, Tesla y Mercedes.
+137. Arreglo: el taxi de la calle de arriba ya no cambia de modelo a mitad de camino. Cada pasada es entera con el mismo coche y, si tienes varios modelos, la siguiente es otro distinto.
