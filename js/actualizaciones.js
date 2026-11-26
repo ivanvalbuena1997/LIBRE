@@ -681,6 +681,10 @@
         {
           "n": 151,
           "texto": "El grupo de la flota estrena fotos: el pinchazo, el coche de Paconi contra el árbol y un amanecer desde el taxi. Y Paconi pide que le rieguen la planta a todos: «muchachos»."
+        },
+        {
+          "n": 152,
+          "texto": "Más fotos en el grupo de la flota: la planta de Paconi, el bocadillo de El Pelado y el dibujo de Daniela. Ya están todas."
         }
       ]
     }

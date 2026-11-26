@@ -410,7 +410,7 @@ Prompt:
 
 Fotos tipo móvil, mismo estilo, formato cuadrado:
 
-Hechas (26-11-2026): pinchazo, árbol y amanecer. Una sola foto de cada
+Hechas (26-11-2026): las seis. Una sola foto de cada
 (Iván: no hace falta una por modelo de coche).
 
 **Pendientes.** Cada prompt lleva el bloque de estilo completo, porque la

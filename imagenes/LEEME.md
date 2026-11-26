@@ -62,10 +62,11 @@ la tapa el texto.
   `evento-final.webp`: noche de final.
 - `chat-<foto>.webp`: fotos del grupo de la flota, cuadradas (512 px):
   `chat-rueda.webp` (pinchazo, un Corolla), `chat-arbol.webp` (Paconi
-  contra un árbol, un Mercedes) y `chat-amanecer.webp`. Pendientes
-  (prompts en `docs/propuesta-novedades.md`, 6): `chat-planta.webp`,
-  `chat-bocadillo.webp` y `chat-dibujo.webp`. Mientras falten, la burbuja
-  enseña un hueco «Foto».
+  contra un árbol, un Mercedes), `chat-amanecer.webp`, `chat-planta.webp`
+  (la de Paconi, desde su asiento), `chat-bocadillo.webp` (El Pelado) y
+  `chat-dibujo.webp` (el de Daniela). Prompts en
+  `docs/propuesta-novedades.md`, 6. Si falta una, la burbuja enseña un
+  hueco «Foto».
 - `nube-1.webp`, `nube-2.webp` y `nube-3.webp`: las nubes de la calle de
   arriba (Iván, 26-11-2026), recortadas del verde de una sola imagen con
   las tres, a doble densidad (152, 220 y 140 px de ancho).
