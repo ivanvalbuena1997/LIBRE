@@ -2933,7 +2933,7 @@ prueba('Combinar solo hasta una categoría: repetidos primero y sin tocar las si
   const i = e.candidatos.findIndex(function (c) { return c.unico === 'pelado'; });
   e.dinero = 1e7;
   assert.ok(sim.contratarAReserva(e, i).ok);
-  assert.deepStrictEqual(sim.objetosProtegidos(e), ['chicles']);
+  assert.deepStrictEqual(sim.objetosProtegidos(e), ['chicles', 'colines']);
   sim.combinarAutomatico(e);
   assert.strictEqual(e.objetos.chicles, 4, 'los chicles de El Pelado no se combinan');
   assert.ok(sim.cambiarCombinarHasta(e, '').ok);
@@ -2945,6 +2945,24 @@ prueba('Combinar solo hasta una categoría: repetidos primero y sin tocar las si
   delete viejo.ajustes.combinarHasta;
   viejo.version = 39;
   assert.strictEqual(globalThis.Libre.guardado.migrar(viejo).ajustes.combinarHasta, null);
+});
+
+prueba('Saco de colines: solo no hace nada; con Paconi o El Pelado, un 40 % menos de cansancio', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e7;
+  const normal = { quien: 'conductor', nombre: 'Ana', retrato: 0, categoria: 'B', cualidad: null, defecto: null, xp: 0, objetos: [] };
+  const antes = sim.factoresConductor(e, normal).cansancio;
+  normal.objetos = ['colines'];
+  assert.strictEqual(sim.factoresConductor(e, normal).cansancio, antes, 'a un conductor normal no le hace nada');
+  ['paconi', 'pelado'].forEach(function (id) {
+    sim.ofrecerUnico(e, id);
+    const i = e.candidatos.findIndex(function (c) { return c.unico === id; });
+    assert.ok(sim.contratarAReserva(e, i).ok);
+    const t = e.reserva[e.reserva.length - 1];
+    const sin = sim.factoresConductor(e, t).cansancio;
+    t.objetos = ['colines'];
+    assert.ok(Math.abs(sim.factoresConductor(e, t).cansancio / sin - 0.6) < 1e-9, id + ': −40 %');
+  });
 });
 
 console.log(pasadas + ' pruebas correctas');

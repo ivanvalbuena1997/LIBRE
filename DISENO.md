@@ -360,6 +360,7 @@ Tres objetos no son un factor y no tienen tope: la **Cámara de seguridad** deja
 | S | Kit de herramientas | −35 % de averías, −20 % de pinchazos | Llave del 13, cinta americana y fe. |
 | S | Cargador para clientes | +30 % de propinas, +20 % de objetos devueltos | Tiene todos los cables del mundo. Menos el tuyo. |
 | S | Botiquín | −45 % de bajas | Tiritas, ibuprofeno y una aspirina de 2009. |
+| S | Saco de 10 kg de colines | Solo, nada. Con Paconi o El Pelado, −40 % de cansancio (Iván, 26-11-2026; no se combina solo si los tienes) | Diez kilos. Por si acaso. Nadie sabe de qué caso. |
 | S | Datáfono portátil | −50 % de clientes sin pagar | «¿Aceptas tarjeta?» Siempre. Se acabaron las excusas. |
 | S | Calcetines de la suerte (sin lavar) | −13 % de espera, −15 % de propinas | No se lavan desde que empezaron a funcionar. No vamos a arriesgarnos ahora. |
 | S | Bufanda mitad y mitad | +35 % de propinas, −4 % de espera de día | Media de cada equipo: nadie se baja enfadado del taxi. |
@@ -586,7 +587,7 @@ Las convenciones de código están en `CLAUDE.md`.
   - Cabecera con la calle animada de día y de noche y la placa «Caja total» siempre visible; alta en Calle (180 px en pantallas bajas, para que Calle quepa sin desplazar) y compacta en el resto.
   - Taxímetro con LED DSEG7; ficha del conductor sin desplazar, con «Cambiar de sitio» desactivado durante la jornada; candidatos y selector de objetos en hojas.
   - El almacén enseña los objetos sin nombre, solo dibujo, cantidad y rareza (Iván).
-  - Dibujos propios para los 24 objetos y los 2 consumibles de entonces (hoy, 40 objetos y ningún consumible).
+  - Dibujos propios para los 24 objetos y los 2 consumibles de entonces (hoy, 41 objetos y ningún consumible).
   - Sonidos sintetizados desde cero (cobro, propina, nivel, objeto, avería, ticket y tic), mudos hasta el primer toque, con sonido y volumen en Ajustes.
   - Sin cambios en la simulación ni en el formato de guardado.
 

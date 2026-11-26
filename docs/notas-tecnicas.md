@@ -124,7 +124,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
   Para probar:
   `Libre.darExperiencia('Laura', 100)` en la consola (y dinero:
   `Libre.darDinero(50000)`).
-- Objetos de conductor (`config.objetos`, 40 con categoría de
+- Objetos de conductor (`config.objetos`, 41 con categoría de
   `config.categorias`: B, A, S, S+ y LEGENDARIO). No se compran: un
   conductor puede encontrar uno al terminar cada carrera (`hallazgo()`;
   categoría por pesos y objeto al azar dentro de ella), con aviso y sin ir

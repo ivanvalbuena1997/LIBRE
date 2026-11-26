@@ -297,6 +297,11 @@
         { id: 'botiquin', nombre: 'Botiquín', categoria: 'S', efecto: { baja: 0.55 },
           descripcion: 'Lo que pilla, lo cura a tiempo: un 45 % menos de bajas.',
           frase: 'Tiritas, ibuprofeno y una aspirina de 2009.' },
+        // Iván, 26-11-2026: solo no hace nada; con Paconi o El Pelado
+        // (sinergias de los ÚNICOS), un 40 % menos de cansancio. Equilibrio.
+        { id: 'colines', nombre: 'Saco de 10 kg de colines', categoria: 'S', efecto: {},
+          descripcion: 'No hace nada… salvo para quien sabe apreciarlos: con Paconi o El Pelado, un 40 % menos de cansancio.',
+          frase: 'Diez kilos. Por si acaso. Nadie sabe de qué caso.' },
         { id: 'datafono', nombre: 'Datáfono portátil', categoria: 'S', efecto: { sinPagar: 0.5 },
           descripcion: 'Nadie se escapa con la excusa de la tarjeta: la mitad de clientes sin pagar.',
           frase: '«¿Aceptas tarjeta?» Siempre. Se acabaron las excusas.' },
@@ -818,7 +823,7 @@
           baja: { prob: 0.07, jornadasMin: 1, jornadasMax: 2 },
           ajuste: { min: 0.12, max: 0.18 },
           tocayos: { nombres: ['Francisco', 'Paco'], porCada: 0.05, maximo: 0.15 },
-          sinergias: [{ objeto: 'paconi', efecto: { propina: 1.2, espera: 0.8, cansancio: 0.8 } }]
+          sinergias: [{ objeto: 'paconi', efecto: { propina: 1.2, espera: 0.8, cansancio: 0.8 } }, { objeto: 'colines', efecto: { cansancio: 0.6 } }]
         },
         // #02 (Iván, 25-11-2026). Todo Equilibrio.
         pelado: {
@@ -839,7 +844,7 @@
           kmExtra: 0.25,                  // km de más (en vacío), al cerrar la caja
           combustible: 1.15,              // gasta un 15 % más (va rápido)
           efecto: { pinchazo: 1.1, sinImpagos: true },
-          sinergias: [{ objeto: 'chicles', efecto: { importe: 1.2 } }]
+          sinergias: [{ objeto: 'chicles', efecto: { importe: 1.2 } }, { objeto: 'colines', efecto: { cansancio: 0.6 } }]
         }
       }
     },

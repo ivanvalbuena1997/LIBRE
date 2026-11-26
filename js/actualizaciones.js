@@ -653,6 +653,10 @@
         {
           "n": 144,
           "texto": "Combinar solo: al pie del Almacén eliges hasta qué categoría se combinan los objetos por su cuenta (por ejemplo, «hasta S»). Cada vez que entra uno, se combinan los de debajo, primero los repetidos, y nunca la Planta de Paconi ni los Chicles de El Pelado si los tienes."
+        },
+        {
+          "n": 145,
+          "texto": "Objeto nuevo, el Saco de 10 kg de colines (categoría S): solo no hace nada, pero equipado a Paconi o a El Pelado se cansan un 40 % menos."
         }
       ]
     }
