@@ -742,12 +742,6 @@
     return u ? { de: quien, nombre: u.nombre, cara: caraDe(u), t: u } : null;
   }
 
-  /* Modelo del coche de la licencia de un conductor (para las fotos de su coche). */
-  function cocheDe(estado, t) {
-    const lic = t && estado.licencias.find(function (l) { return l.turnos.dia === t || l.turnos.noche === t; });
-    return (lic && lic.vehiculo) || cfg().vehiculos.modeloInicial;
-  }
-
   function textoChat(estado, texto, papeles) {
     const zonas = zonasDisponibles(estado);
     const zona = (papeles.c1 && papeles.c1.zona && cfg().zonas[papeles.c1.zona]) ? cfg().zonas[papeles.c1.zona].nombre
@@ -786,11 +780,8 @@
     conv.lineas.forEach(function (l, i) {
       const a = autores[i];
       const m = { dia, texto: textoChat(estado, l[1], papeles), de: a.de, nombre: a.nombre, cara: a.cara };
-      // La foto va con el primer mensaje; si es de su coche, el modelo.
-      if (i === 0 && conv.foto) {
-        m.foto = conv.foto;
-        if ((cfg().chat.fotos[conv.foto] || '').indexOf('{coche}') !== -1) m.coche = cocheDe(estado, a.t);
-      }
+      // La foto va con el primer mensaje.
+      if (i === 0 && conv.foto) m.foto = conv.foto;
       chat.mensajes.push(m);
       if (autores[i].de !== 'tu') chat.noLeidos++;
     });

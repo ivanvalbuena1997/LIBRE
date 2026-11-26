@@ -410,39 +410,62 @@ Prompt:
 
 Fotos tipo móvil, mismo estilo, formato cuadrado:
 
-- **Rueda pinchada (4) y coche contra un árbol (39): una por modelo**
-  (Iván, 26-11-2026: tiene que salir el coche de quien la manda). Con el
-  dibujo del coche adjunto (`imagenes/coche-turismo.webp`,
-  `coche-tesla.webp` o `coche-mercedes.webp`), dos fotos por modelo:
-  `chat-rueda-<modelo>.webp` y `chat-arbol-<modelo>.webp` (modelo:
-  `turismo`, `tesla` o `mercedes`).
-  - Rueda: «Square illustration, flat editorial vector style, subtle grain,
-    limited palette of deep teal, toasted orange, cream and dark brown.
-    Use the attached car exactly as it is (same model, colours, red stripe
-    and green roof light). Phone-photo view from the pavement, close to
-    the front wheel: the tyre is completely flat, the car leaning a little,
-    a spare wheel and a jack on the ground, an elegant Madrid avenue behind.
-    No text, no logos, no numbers.»
-  - Árbol: «Square illustration, same style and palette. Use the attached
-    car exactly as it is. Phone-photo view: the car has gently bumped its
-    front into a big tree trunk on a quiet Madrid street, the bonnet a bit
-    crumpled, a small cloud of steam, leaves falling. Funny, not dramatic,
-    nobody hurt, nobody in the picture. No text, no logos, no numbers.»
-- **Amanecer desde el taxi (32):** «Square illustration, same style.
-  View through a taxi windscreen at dawn: an empty Madrid avenue, orange
-  sky, the Metrópolis dome far away. Dashboard edge visible. No text.»
-- **La planta en el salpicadero (38):** la hace Paconi desde el asiento
-  del conductor. «Square illustration, same style. Phone photo taken from
-  the driver's seat of a taxi: the steering wheel at the bottom edge and,
-  on the dashboard in front, a potted green plant with big leaves, a pair
-  of sunglasses next to it, morning light through the windscreen. No
-  people. No text.»
-- **Bocadillo de El Pelado (45):** «Square illustration, same style. A
-  giant baguette sandwich wrapped in foil on a taxi dashboard next to a
-  thermos and a mate cup. No text.»
-- **El dibujo de Daniela (50):** «Square illustration, same style. A
-  child's crayon drawing on a sheet of paper: a bar chart going up with a
-  smiling sun and a little yellow taxi. No numbers, no letters.»
+Hechas (26-11-2026): pinchazo, árbol y amanecer. Una sola foto de cada
+(Iván: no hace falta una por modelo de coche).
+
+**Pendientes.** Cada prompt lleva el bloque de estilo completo, porque la
+IA se salía del estilo con «same style».
+
+- **La planta de Paconi (38)**, foto hecha por él desde su asiento:
+
+  > Square 1:1 illustration in a flat editorial vector style, like a
+  > modern magazine illustration: clean geometric shapes, bold simple
+  > silhouettes, flat colour fills with one or two flat shadow tones per
+  > object, no gradients, no 3D, no photorealism, no outlines thicker than
+  > a hairline, and a fine paper grain texture over everything. Limited
+  > palette only: deep teal, toasted orange, warm cream, dark brown and a
+  > leafy green for the plant; soft warm morning light.
+  > Scene: a phone photo taken from the driver's seat of a white Madrid
+  > taxi. At the bottom edge, the top of a dark steering wheel. On the
+  > dashboard in the centre, a big potted plant with broad glossy green
+  > leaves in a terracotta pot, slightly too big for the dashboard, with a
+  > pair of dark sunglasses resting next to it. Through the windscreen, a
+  > blurred Madrid street with brick buildings and a tree, morning sun.
+  > Nobody in the picture. Absolutely no text, letters, numbers, logos or
+  > signs anywhere.
+
+- **El bocadillo de El Pelado (45)**:
+
+  > Square 1:1 illustration in a flat editorial vector style, like a
+  > modern magazine illustration: clean geometric shapes, bold simple
+  > silhouettes, flat colour fills with one or two flat shadow tones per
+  > object, no gradients, no 3D, no photorealism, no outlines thicker than
+  > a hairline, and a fine paper grain texture over everything. Limited
+  > palette only: deep teal, toasted orange, warm cream and dark brown.
+  > Scene: a phone photo of a taxi dashboard seen from the driver's seat,
+  > early morning. On the dashboard, a gigantic baguette sandwich half
+  > unwrapped from aluminium foil, as long as the dashboard, stuffed with
+  > ham and cheese; next to it a steel thermos and a dried-gourd mate cup
+  > with a metal straw (bombilla). The top of the steering wheel at the
+  > bottom edge; through the windscreen, a quiet Madrid street at dawn.
+  > Funny and appetising. Nobody in the picture. Absolutely no text,
+  > letters, numbers, logos or signs anywhere.
+
+- **El dibujo de Daniela (50)**, un dibujo de niña hecho con ceras:
+
+  > Square 1:1 illustration in a flat editorial vector style with a fine
+  > paper grain texture, limited palette of deep teal, toasted orange,
+  > warm cream and dark brown. Scene: a phone photo, seen from above, of a
+  > sheet of white paper lying on a dark brown table. On the paper, a
+  > child's wax crayon drawing made by a six-year-old: wobbly hand-drawn
+  > lines, uneven colouring that goes outside the lines, visible crayon
+  > texture. The drawing shows a simple bar chart of four bars going up
+  > from left to right, an arrow climbing over them, a smiling sun in the
+  > corner and a little yellow-and-white taxi with a green light on its
+  > roof at the bottom. A couple of crayons (orange and teal) lying next to
+  > the paper. Only the drawing on the paper looks childish; the table and
+  > crayons are in the flat editorial style. Absolutely no numbers,
+  > letters or text anywhere, not even in the drawing.
 
 ---
 

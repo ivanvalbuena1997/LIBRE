@@ -1383,9 +1383,7 @@
      *   cuando   lo que tiene que haber pasado en la jornada (sin él, charla)
      *   requiere ÚNICOS que tienen que estar en la flota (con turno), o
      *            'tocayo' (un Paco o un Francisco con turno)
-     *   foto     clave de `fotos` (imagenes/; sin ella, un hueco «Foto»). Si la
-     *            ruta lleva {coche}, es la del modelo del coche de quien la
-     *            manda (Iván, 26-11-2026: su coche, no uno cualquiera)
+     *   foto     clave de `fotos` (imagenes/; sin ella, un hueco «Foto»)
      *   lineas   [quién, texto]: 'c1' y 'c2' (conductores de tu flota; en
      *            las de `cuando`, c1 es el que lo vivió), 'tu' o un ÚNICO.
      *            En el texto, {c1}, {c2}, {tu}, {zona} y {empresa}.
@@ -1401,7 +1399,7 @@
         lineas: [['c1', '¡Enhorabuena, jefe!'], ['c2', '¿Eso significa subida de sueldo?']]
       },
       fotos: {
-        rueda: 'imagenes/chat-rueda-{coche}.webp', arbol: 'imagenes/chat-arbol-{coche}.webp', amanecer: 'imagenes/chat-amanecer.webp', planta: 'imagenes/chat-planta.webp',
+        rueda: 'imagenes/chat-rueda.webp', arbol: 'imagenes/chat-arbol.webp', amanecer: 'imagenes/chat-amanecer.webp', planta: 'imagenes/chat-planta.webp',
         bocadillo: 'imagenes/chat-bocadillo.webp', dibujo: 'imagenes/chat-dibujo.webp'
       },
       conversaciones: [
@@ -1446,7 +1444,7 @@
         { id: 'paconiAnfibio', requiere: ['paconi'], lineas: [['paconi', 'Buen día, grupo. ¿Saben si el coche es anfibio?… Tuve un pequeño problema, jefe.']] },
         { id: 'paconiFreno', requiere: ['paconi'], lineas: [['paconi', 'El freno está esponjoso, ¿lo notaron?'], ['c1', 'Paconi, es tu pie.']] },
         // Cambiadas por Iván (26-11-2026). «Sheet» mal escrito a propósito.
-        { id: 'paconiPlanta', requiere: ['paconi'], foto: 'planta', lineas: [['paconi', 'Espero que me la rieguen, muchacho, no me hagan enfadar.']] },
+        { id: 'paconiPlanta', requiere: ['paconi'], foto: 'planta', lineas: [['paconi', 'Espero que me la rieguen, muchachos, no me hagan enfadar.']] },
         { id: 'paconiShit', requiere: ['paconi'], foto: 'arbol', lineas: [['paconi', 'Como dirían los yankees: sheet happens.'], ['c2', '¿Qué ha pasado?'], ['paconi', 'El árbol lo colocaron bien engañoso.']] },
         { id: 'paconiTocayo', requiere: ['paconi', 'tocayo'], lineas: [['paconi', 'Jefe, creo que debería adelantarnos el sueldo de este mes… vamos bien jodidos.'], ['c1', '¡Ese es nuestro Paconi!'], ['c2', '¡Paconi boss!']] },
         { id: 'paconiBailongo', requiere: ['paconi'], lineas: [['paconi', 'Noto el coche algo bailongo, ¿ustedes también?'], ['c1', 'No sé de qué hablas…']] },
