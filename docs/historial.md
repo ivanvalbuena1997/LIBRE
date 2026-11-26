@@ -182,3 +182,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 143. El Almacén tiene filtros: chips por categoría (B, A, S, S+, LEGENDARIO) y un desplegable con lo que mejora cada objeto (menos espera, más propinas, menos bajas…). Se pueden juntar y se recuerdan al volver.
 144. Combinar solo: al pie del Almacén eliges hasta qué categoría se combinan los objetos por su cuenta (por ejemplo, «hasta S»). Cada vez que entra uno, se combinan los de debajo, primero los repetidos, y nunca la Planta de Paconi ni los Chicles de El Pelado si los tienes.
 145. Objeto nuevo, el Saco de 10 kg de colines (categoría S): solo no hace nada, pero equipado a Paconi o a El Pelado se cansan un 40 % menos.
+146. Cinco eventos de clientes nuevos: una novia a la fuga, un turista en Barajas, un parto en el asiento de atrás, un maletín olvidado y una noche de final de Champions. De momento salen sin dibujo; las ilustraciones llegarán pronto.

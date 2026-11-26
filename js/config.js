@@ -1269,6 +1269,59 @@
                 { texto: '25 € y ningún lío.', dinero: 25 }] },
               { texto: '«Llevo a cuatro y vuelvo a por el quinto»', resultados: [
                 { texto: 'Dos viajes: 45 € y 40 minutos.', dinero: 45, parado: 40 }] }
+            ] },
+          // Cinco más (Iván, 26-11-2026; docs/propuesta-novedades.md, 5). Sin
+          // ilustración todavía: la hoja sale con el fondo provisional.
+          { id: 'novia', titulo: 'La novia a la fuga', imagen: 'imagenes/evento-novia.webp', momento: 'dia',
+            texto: 'A la puerta de una iglesia de Chamberí, una novia con el vestido recogido en los brazos abre la puerta de atrás y se tira dentro: «¡Arranque, por lo que más quiera!». Por el retrovisor, el novio corre hacia el taxi.',
+            opciones: [
+              { texto: '«Arrancar»', resultados: [
+                { prob: 0.7, texto: 'La deja en casa de una amiga: 25 € y 50 € de propina «para que no cuente nada».', dinero: 75 },
+                { prob: 0.3, texto: 'El novio los alcanza en un semáforo, se sube y se reconcilian dentro. 25 € y media hora parado.', dinero: 25, parado: 30 }] },
+              { texto: '«Esperar al novio»', resultados: [
+                { prob: 0.5, texto: 'Suben los dos y piden ir al banquete: 40 €.', dinero: 40 },
+                { prob: 0.5, texto: 'Discuten en la acera y se van andando, cada uno por su lado. Nada.', dinero: 0 }] },
+              { texto: '«¿Está usted segura?»', resultados: [
+                { texto: 'Se lo piensa y vuelve a la iglesia. Al salir, el padrino deja 60 € «por salvar la boda».', dinero: 60, xp: 60 }] }
+            ] },
+          { id: 'turista', titulo: 'El turista de Barajas', imagen: 'imagenes/evento-turista.webp', momento: 'dia',
+            texto: 'Sale de la T4 un turista despistado, con una mochila enorme, que pide «the centre, please». Con tarifa fija son 33 €. Un compañero de la fila guiña un ojo: «Dale una vuelta por la M-40…».',
+            opciones: [
+              { texto: '«Tarifa fija, como debe ser»', resultados: [
+                { texto: '33 € y una reseña de cinco estrellas.', dinero: 33, xp: 40 }] },
+              { texto: '«La M-40 es muy bonita»', resultados: [
+                { prob: 0.6, texto: 'Ni se entera: 78 €.', dinero: 78 },
+                { prob: 0.4, texto: 'Llevaba el GPS en el móvil y pone una denuncia: 78 € y 400 € de multa.', dinero: 78, coste: 400 }] }
+            ] },
+          { id: 'parto', titulo: '¡Que viene!', imagen: 'imagenes/evento-parto.webp',
+            texto: 'Sube una pareja: ella acaba de romper aguas. El hospital está a quince minutos… si no se pilla ningún semáforo.',
+            opciones: [
+              { texto: '«¡A toda pastilla!»', resultados: [
+                { prob: 0.7, texto: 'Llegan a tiempo: 20 € y 100 € de propina. Qué nervios.', dinero: 120, xp: 100 },
+                { prob: 0.3, texto: 'Salta un radar: 200 € de multa. Pero llegan a tiempo y dejan 120 €.', dinero: 120, coste: 200, xp: 100 }] },
+              { texto: '«Llamar al 112 y esperar la ambulancia»', resultados: [
+                { texto: 'La ambulancia tarda veinte minutos. Todo sale bien, pero ni un euro.', dinero: 0, parado: 20, xp: 30 }] }
+            ] },
+          { id: 'maletin', titulo: 'El maletín', imagen: 'imagenes/evento-maletin.webp', momento: 'dia',
+            texto: 'Acaba de bajarse un ejecutivo en AZCA y en el asiento de atrás hay un maletín de cuero. Pesa bastante.',
+            opciones: [
+              { texto: '«Llevárselo a su oficina»', resultados: [
+                { texto: 'Media hora buscando su despacho. Lo agradece con 150 € de propina.', dinero: 150, parado: 30, xp: 40 }] },
+              { texto: '«Dejarlo en objetos perdidos»', resultados: [
+                { prob: 0.3, texto: 'Un cuarto de hora. Al día siguiente llama para dar las gracias: 100 € de recompensa.', dinero: 100, parado: 15 },
+                { prob: 0.7, texto: 'Un cuarto de hora de trámites y nunca más se supo.', dinero: 0, parado: 15 }] },
+              { texto: '«Abrirlo, por si acaso»', resultados: [
+                { prob: 0.5, texto: 'Papeles aburridos… y un bolígrafo de oro que nadie va a echar de menos. Un objeto de categoría A.', dinero: 0, objeto: { categoria: 'A' } },
+                { prob: 0.5, texto: 'Vuelve justo en ese momento: «¿Qué hace?». 100 € de reclamación.', dinero: 0, coste: 100 }] }
+            ] },
+          { id: 'final', titulo: 'Noche de final', imagen: 'imagenes/evento-final.webp', momento: 'noche',
+            texto: 'Noche de final de Champions. Cuatro aficionados con bufandas y la cara pintada, afónicos y felices, quieren ir a la fuente a celebrarlo.',
+            opciones: [
+              { texto: '«¡A la fuente!»', resultados: [
+                { prob: 0.6, texto: '45 € y 40 € de propina de campeones.', dinero: 85 },
+                { prob: 0.4, texto: 'Se ponen a botar y arrancan el retrovisor: 45 €, 120 € de taller y media hora parado.', dinero: 45, coste: 120, parado: 30 }] },
+              { texto: '«Hoy me voy a casa»', resultados: [
+                { texto: 'Luz verde apagada. Otro día será.', dinero: 0 }] }
             ] }
         ]
       }

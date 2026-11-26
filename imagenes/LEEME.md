@@ -55,6 +55,10 @@ la tapa el texto.
   `evento-trapero.webp`: el trapero;
   `evento-ruso.webp`: el ruso y sus dos rubias;
   `evento-maletero.webp`: cinco en un coche de cuatro.
+  Pendientes (26-11-2026; prompts en `docs/propuesta-novedades.md`, 5):
+  `evento-novia.webp`, `evento-turista.webp`, `evento-parto.webp`,
+  `evento-maletin.webp` y `evento-final.webp`. Mientras falten, la hoja
+  del evento sale con el fondo provisional.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón
