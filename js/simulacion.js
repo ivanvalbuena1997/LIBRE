@@ -1834,7 +1834,7 @@
           }, 1);
           const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max) * recorte;
           incidencia(estado, resumen, 'ajuste', u.nombre + ' aplica un «ajuste de periodos anteriores»: ' +
-            Libre.ui_euros(extra) + ' más en la caja. ' + fraseUnico(estado, t), extra, 'extras', t);
+            Libre.ui_euros(extra) + ' más en la caja.', extra, 'extras', t);   // sin frase (Iván, 26-11-2026)
           sumarAFacturado(estado, t, extra);
         }
         // Después del ajuste, para que el ajuste no cuente el plus.

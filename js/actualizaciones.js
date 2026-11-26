@@ -709,6 +709,10 @@
         {
           "n": 158,
           "texto": "Los 41 objetos estrenan dibujo: ilustraciones nuevas, más grandes y con color, en el Almacén, en las fichas y en los avisos."
+        },
+        {
+          "n": 159,
+          "texto": "El aviso del «ajuste de periodos anteriores» de Paconi ya no lleva una de sus frases: solo dice cuánto entra en la caja."
         }
       ]
     }
