@@ -2903,5 +2903,49 @@ prueba('Caras ilustradas: del sexo de su nombre, sin repetir en la flota; las pa
   assert.strictEqual(sim.caraDe({ unico: 'paconi', retrato: 'paconi', cara: 'h01' }), 'paconi');
 });
 
+prueba('Combinar solo hasta una categoría: repetidos primero y sin tocar las sinergias de tus ÚNICOS', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 5;
+  e.mejoras.taquillas = 3;
+  // Apagado: nada se combina.
+  e.objetos = { perrito: 3, ambientador: 1, cojin: 1 };
+  assert.deepStrictEqual(sim.combinarAutomatico(e), []);
+  // Hasta A: 5 B → un A (se gastan los perritos repetidos) y quedan 2 B.
+  const r = sim.cambiarCombinarHasta(e, 'A');
+  assert.ok(r.ok, r.mensaje);
+  const cuenta = function (cat) {
+    return config.objetos.lista.filter(function (o) { return o.categoria === cat; })
+      .reduce(function (s, o) { return s + (e.objetos[o.id] || 0); }, 0);
+  };
+  assert.strictEqual(cuenta('B'), 2);
+  assert.strictEqual(cuenta('A'), 1);
+  assert.strictEqual(e.objetos.perrito, 0, 'primero los repetidos');
+  assert.strictEqual(e.objetos.ambientador + e.objetos.cojin, 2, 'se guarda uno de cada');
+  // No pasa de A aunque haya 4 A.
+  e.objetos.linterna = 4;
+  sim.combinarAutomatico(e);
+  assert.strictEqual(cuenta('S'), 0);
+  // Con Paconi en la flota, su planta (L) no cuenta; los chicles (A) de El Pelado sí, si no está.
+  assert.ok(sim.cambiarCombinarHasta(e, 'S').ok);
+  assert.strictEqual(cuenta('A'), 1, '5 A → 1 S y queda 1');
+  e.objetos = { chicles: 4 };
+  sim.ofrecerUnico(e, 'pelado');
+  const i = e.candidatos.findIndex(function (c) { return c.unico === 'pelado'; });
+  e.dinero = 1e7;
+  assert.ok(sim.contratarAReserva(e, i).ok);
+  assert.deepStrictEqual(sim.objetosProtegidos(e), ['chicles']);
+  sim.combinarAutomatico(e);
+  assert.strictEqual(e.objetos.chicles, 4, 'los chicles de El Pelado no se combinan');
+  assert.ok(sim.cambiarCombinarHasta(e, '').ok);
+  assert.strictEqual(e.ajustes.combinarHasta, null);
+  assert.ok(!sim.cambiarCombinarHasta(e, 'B').ok, 'hasta B no tiene sentido');
+  // Migración 39 → 40.
+  require('../js/guardado.js');
+  const viejo = JSON.parse(JSON.stringify(e));
+  delete viejo.ajustes.combinarHasta;
+  viejo.version = 39;
+  assert.strictEqual(globalThis.Libre.guardado.migrar(viejo).ajustes.combinarHasta, null);
+});
+
 console.log(pasadas + ' pruebas correctas');
 

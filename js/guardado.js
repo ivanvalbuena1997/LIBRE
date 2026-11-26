@@ -257,6 +257,11 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 39 → 40: combinar automáticamente (Iván, 26-11-2026): apagado.
+    39: function (estado) {
+      estado.ajustes = estado.ajustes || { pararAlCierre: true };
+      if (estado.ajustes.combinarHasta === undefined) estado.ajustes.combinarHasta = null;
+    },
     // 38 → 39: caras ilustradas (Iván, 26-11-2026): cada conductor (y los
     // candidatos y despedidos) recibe una cara de su sexo, sin repetir.
     38: function (estado) {

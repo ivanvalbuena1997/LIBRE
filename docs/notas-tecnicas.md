@@ -173,6 +173,18 @@ nombra sin decir en qué archivo están: búscalas con grep.
   `rueda` y `bolsa` → la suya) con `ui.MAS_ES_MEJOR`; `TEXTO_FILTRO` da el
   texto y el orden del desplegable (solo las que mejora algún objeto).
   Chips `data-filtro-categoria`, desplegable `data-filtro-stat`.
+- Combinar solo (Iván, 26-11-2026; versión 40 del guardado):
+  `estado.ajustes.combinarHasta` (null o la categoría más alta que se
+  fabrica sola; en `ajustes`, así `empezarDeCero()` lo conserva).
+  `combinarAutomatico(estado, resumen)` lo hace con `combinarObjetos()` y
+  `elegidos` (uno cada vez del que más copias tiene), de la categoría más
+  baja a la más alta, sin tocar `objetosProtegidos()` (las `sinergias` de
+  los ÚNICOS en la flota o la reserva); deja eventos 'combinado' (aviso con
+  la etiqueta de su categoría). Se llama tras el `guardarObjeto()` de
+  `hallazgo()` y de los eventos de clientes, y desde
+  `cambiarCombinarHasta()` (acción del desplegable `#combinar-hasta`, al pie
+  del Almacén, `htmlCombinarSolo()`). Quitar un objeto a un conductor o
+  despedirlo no lo dispara.
 - Pestañas Almacén y Conductores (antes, juntas en Flota). Almacén
   (`seccionAlmacen`, maqueta almacen.html): título con lo que vale
   (`valorAlmacen()`: venta de almacén y bandeja) y «Objetos N de M»;

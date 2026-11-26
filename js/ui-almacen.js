@@ -220,6 +220,29 @@
       '<select class="almacen-stat" data-filtro-stat aria-label="Filtrar por lo que mejora">' + opciones + '</select></div>';
   }
 
+  /*
+   * «Combinar solo hasta…» (Iván, 26-11-2026): la categoría más alta que se
+   * fabrica sola al entrar objetos (Libre.sim.cambiarCombinarHasta()).
+   */
+  function htmlCombinarSolo(estado) {
+    const actual = estado.ajustes.combinarHasta || '';
+    const opciones = '<option value=""' + (actual ? '' : ' selected') + '>No</option>' +
+      Libre.config.categorias.slice(1).map(function (c) {
+        return '<option value="' + c.id + '"' + (actual === c.id ? ' selected' : '') + '>' + ui.esc(c.nombre) + '</option>';
+      }).join('');
+    // Solo los que se combinarían si no estuvieran protegidos (de debajo de la elegida).
+    const cats = Libre.config.categorias.map(function (c) { return c.id; });
+    const protegidos = Libre.sim.objetosProtegidos(estado).map(function (id) { return Libre.sim.buscarObjeto(id); })
+      .filter(function (o) { return cats.indexOf(o.categoria) < cats.indexOf(actual); })
+      .map(function (o) { return o.nombre; });
+    return '<div class="almacen-auto ui-tarjeta"><label for="combinar-hasta">Combinar solo hasta</label>' +
+      '<select id="combinar-hasta" data-cambio="cambiarCombinarHasta">' + opciones + '</select>' +
+      '<p class="almacen-panel-nota">' + (actual
+        ? 'Al entrar un objeto, se combinan solos los de debajo, primero los repetidos.' +
+          (protegidos.length ? ' No se tocan: ' + ui.esc(protegidos.join(', ')) + '.' : '')
+        : 'Elige una categoría y los objetos se combinarán solos hasta ella.') + '</p></div>';
+  }
+
   function htmlInventario(estado) {
     // Solo los objetos que tienes sin equipar, de mejor a peor, con los filtros.
     const todos = objetosDelAlmacen(estado);
@@ -228,14 +251,14 @@
     if (objetos) cuerpo = '<div class="almacen-objetos">' + objetos + '</div>';
     else if (todos.length) cuerpo = '<p class="ayuda">Ningún objeto de tu almacén cumple estos filtros.</p>';
     else cuerpo = '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>';
-    return htmlBandeja(estado) + (todos.length ? htmlFiltros(estado) : '') + cuerpo + htmlPanelInventario(estado);
+    return htmlBandeja(estado) + (todos.length ? htmlFiltros(estado) : '') + cuerpo + htmlPanelInventario(estado) + htmlCombinarSolo(estado);
   }
 
   /* «Libra los lunes · fin de semana: días impares» (según letra y paridad). */
 
   const seccionAlmacen = {
     id: 'sec-almacen',
-    firma: function (estado) { return ui.firmaFlota(estado) + '|' + ui.filtroCategoria + '|' + ui.filtroStat; },
+    firma: function (estado) { return ui.firmaFlota(estado) + '|' + ui.filtroCategoria + '|' + ui.filtroStat + '|' + estado.ajustes.combinarHasta; },
     html: function (estado) {
       return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Almacén</h2>' +
         // Lo que vale todo lo guardado (venta de almacén y bandeja).

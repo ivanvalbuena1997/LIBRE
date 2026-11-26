@@ -101,7 +101,7 @@
       // Pausa al cierre del día: mientras no sea null el reloj está parado y
       // guarda el ticket por enseñar (los días que cubre y sus sumas).
       cierrePendiente: null,
-      ajustes: { pararAlCierre: true },
+      ajustes: { pararAlCierre: true, combinarHasta: null },
       // Semilla del azar de la flota (carreras de conductores y eventos).
       // Vive en el estado: al recargar, la partida sigue igual.
       azar: semillaInicial(rng),
@@ -951,7 +951,10 @@
       const posibles = typeof r.objeto === 'string' ? [buscarObjeto(r.objeto)]
         : cfg().objetos.lista.filter(function (x) { return x.categoria === r.objeto.categoria; });
       objeto = posibles[Math.floor(azar(estado) * posibles.length)] || null;
-      if (objeto) guardarObjeto(estado, objeto, s.t ? s.t.nombre : nombrePersonaje(estado));
+      if (objeto) {
+        guardarObjeto(estado, objeto, s.t ? s.t.nombre : nombrePersonaje(estado));
+        combinarAutomatico(estado, resumen);
+      }
     }
     if (r.unico && e.unico) {
       const h = estado.historia;
@@ -2137,6 +2140,7 @@
       // La interfaz añade la etiqueta de su categoría.
       texto: t.nombre + ' encuentra ' + objeto.nombre + (lleno ? '. El almacén está lleno: vende algo para guardarlo.' : '')
     });
+    combinarAutomatico(estado, resumen);
   }
 
   /*
@@ -2251,6 +2255,78 @@
       ' y sale ' + nuevo.nombre + ' (' + siguiente.nombre + ').');
     r.objeto = nuevo.id;
     return r;
+  }
+
+  /*
+   * Combinar automáticamente (Iván, 26-11-2026; versión 40 del guardado):
+   * `estado.ajustes.combinarHasta` es la categoría más alta que se fabrica
+   * sola (null: nunca). Cada vez que entra un objeto (hallazgo o evento) se
+   * combinan los sin equipar de las categorías de debajo mientras haya
+   * bastantes, de la más baja a la más alta. Se gastan antes los repetidos
+   * (uno cada vez del que más copias tiene), así se guarda uno de cada. Los
+   * objetos de sinergia de los ÚNICOS que tienes (objetosProtegidos()) no se
+   * tocan. Devuelve los mensajes de lo combinado, en orden.
+   */
+  function objetosProtegidos(estado) {
+    const lista = [];
+    Object.keys(cfg().conductores.unicos || {}).forEach(function (id) {
+      if (!unicoEnFlota(estado, id)) return;
+      (cfg().conductores.unicos[id].sinergias || []).forEach(function (s) {
+        if (s.objeto && lista.indexOf(s.objeto) === -1) lista.push(s.objeto);
+      });
+    });
+    return lista;
+  }
+
+  function combinarAutomatico(estado, resumen) {
+    const hasta = estado.ajustes && estado.ajustes.combinarHasta;
+    const cats = cfg().categorias.map(function (c) { return c.id; });
+    const tope = cats.indexOf(hasta);
+    const mensajes = [];
+    if (tope <= 0) return mensajes;
+    const protegidos = objetosProtegidos(estado);
+    for (let i = 0; i < tope; i++) {
+      const cat = cats[i];
+      const n = cuantosParaCombinar(cat);
+      if (!n) continue;
+      for (;;) {
+        const cuenta = {};
+        cfg().objetos.lista.forEach(function (o) {
+          const hay = (estado.objetos || {})[o.id] || 0;
+          if (o.categoria === cat && hay > 0 && protegidos.indexOf(o.id) === -1) cuenta[o.id] = hay;
+        });
+        const total = Object.keys(cuenta).reduce(function (s, id) { return s + cuenta[id]; }, 0);
+        if (total < n) break;
+        const elegidos = [];
+        while (elegidos.length < n) {
+          // El que más copias le quedan (a igualdad, el primero de la lista).
+          let mejor = null;
+          Object.keys(cuenta).forEach(function (id) { if (cuenta[id] > 0 && (!mejor || cuenta[id] > cuenta[mejor])) mejor = id; });
+          elegidos.push(mejor);
+          cuenta[mejor]--;
+        }
+        const r = combinarObjetos(estado, elegidos[0], elegidos);
+        if (!r.ok) break;
+        mensajes.push(r.mensaje);
+        if (resumen) {
+          const nuevo = buscarObjeto(r.objeto);
+          resumen.eventos.push({ tipo: 'combinado', objeto: nuevo.id, categoria: nuevo.categoria, texto: 'Combinado solo: ' + r.mensaje.charAt(0).toLowerCase() + r.mensaje.slice(1) });
+        }
+      }
+    }
+    return mensajes;
+  }
+
+  /* Cambia hasta qué categoría se combina solo ('' o null: nunca) y combina ya lo que toque. */
+  function cambiarCombinarHasta(estado, categoria) {
+    const valor = categoria === '' || categoria === null || categoria === undefined || categoria === 'no' ? null : String(categoria);
+    const cats = cfg().categorias.map(function (c) { return c.id; });
+    if (valor !== null && cats.indexOf(valor) <= 0) return fallo('No se puede combinar hasta esa categoría.');
+    estado.ajustes.combinarHasta = valor;
+    if (valor === null) return exito('Ya no se combina nada solo.');
+    const hechos = combinarAutomatico(estado);
+    const nombre = buscarCategoria(valor).nombre;
+    return exito('Se combina solo hasta ' + nombre + '.' + (hechos.length ? ' ' + hechos.join(' ') : ''));
   }
 
   /* Del almacén a un conductor: hueco libre y sin repetir objeto. */
@@ -4024,6 +4100,9 @@
     categoriaSiguiente,
     objetosParaCombinar,
     combinarObjetos,
+    combinarAutomatico,
+    cambiarCombinarHasta,
+    objetosProtegidos,
     valorAlmacen,
     cuantosParaCombinar,
     equiparObjeto,

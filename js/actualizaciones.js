@@ -649,6 +649,10 @@
         {
           "n": 143,
           "texto": "El Almacén tiene filtros: chips por categoría (B, A, S, S+, LEGENDARIO) y un desplegable con lo que mejora cada objeto (menos espera, más propinas, menos bajas…). Se pueden juntar y se recuerdan al volver."
+        },
+        {
+          "n": 144,
+          "texto": "Combinar solo: al pie del Almacén eliges hasta qué categoría se combinan los objetos por su cuenta (por ejemplo, «hasta S»). Cada vez que entra uno, se combinan los de debajo, primero los repetidos, y nunca la Planta de Paconi ni los Chicles de El Pelado si los tienes."
         }
       ]
     }

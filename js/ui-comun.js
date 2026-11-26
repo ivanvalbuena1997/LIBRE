@@ -134,7 +134,7 @@
     const ev = colaAvisos.shift();
     // Si cambiaste de pestaña mientras esperaba, ya no toca enseñarlo.
     if (!avisoVisible(ev)) { ui.ultimoAviso = 0; soltarAviso(); return; }
-    ui.mostrarMensaje(ev.texto, ev.retrato, ev.tipo === 'hallazgo' ? ev.categoria : null);
+    ui.mostrarMensaje(ev.texto, ev.retrato, ev.tipo === 'hallazgo' || ev.tipo === 'combinado' ? ev.categoria : null);
   }
 
   /*
