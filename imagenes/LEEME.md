@@ -21,7 +21,8 @@ la tapa el texto.
   repitiendo sus casas; el Metrópolis y Cibeles, en el centro.
 - `coche-turismo.webp`, `coche-tesla.webp`, `coche-mercedes.webp`: los coches de cada gama, de
   lado y mirando a la derecha (440 px de ancho), recortados del fondo verde
-  de las imágenes de Iván (la luz verde del techo se respeta a mano). Los
+  de las imágenes de Iván (la luz verde del techo se respeta a mano; el
+  Tesla, volteado: su imagen miraba a la izquierda). Los
   usan la cabecera, la miniatura de los km y la hoja de elegir coche
   (`config.vehiculos.modelos.<id>.imagen`).
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
