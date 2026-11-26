@@ -257,6 +257,10 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 44 → 45: pedir otras placas (Iván, 26-11-2026): la cuenta del día, a cero.
+    44: function (estado) {
+      if (estado.otrasPlacasHoy === undefined) estado.otrasPlacasHoy = 0;
+    },
     // 43 → 44: rangos de Estadísticas (Iván, 26-11-2026): los que ya tiene
     // la partida se dan por vistos, para no soltar todos los avisos de golpe.
     43: function (estado) {

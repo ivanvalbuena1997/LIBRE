@@ -3124,5 +3124,29 @@ prueba('Rangos de Estadísticas: de Bronce a Diamante, aviso al subir y vistos a
   assert.strictEqual(m.rangosVistos.carreras, -1);
 });
 
+prueba('Otras placas: pagar para que salgan otras, cada vez el doble, y a cero al cerrar la caja', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1000;
+  const antes = sim.placasEnVenta(e).slice();
+  const p1 = sim.precioOtrasPlacas(e);
+  assert.strictEqual(p1, config.licencias.otrasPlacas.precioBase);
+  assert.ok(sim.cambiarPlacas(e).ok);
+  assert.strictEqual(e.dinero, 1000 - p1);
+  const nuevas = sim.placasEnVenta(e);
+  assert.strictEqual(nuevas.length, config.licencias.placasAElegir);
+  assert.ok(!nuevas.some(function (n) { return antes.indexOf(n) !== -1; }), 'otras distintas');
+  assert.strictEqual(sim.precioOtrasPlacas(e), p1 * config.licencias.otrasPlacas.factor);
+  e.dinero = 0;
+  assert.ok(!sim.cambiarPlacas(e).ok, 'sin dinero no');
+  e.ajustes.pararAlCierre = false;
+  sim.avanzar(e, config.reloj.segundosPorDia + 1);
+  assert.strictEqual(sim.precioOtrasPlacas(e), p1, 'al cerrar la caja vuelve al precio de base');
+  // El ranking guarda que es un ÚNICO.
+  sim.ofrecerUnico(e, 'paconi');
+  e.dinero = 1e7;
+  assert.ok(sim.contratarAReserva(e, e.candidatos.findIndex(function (c) { return c.unico === 'paconi'; })).ok);
+  assert.ok(sim.clasificacionConductores(e).some(function (x) { return x.unico === 'paconi'; }));
+});
+
 console.log(pasadas + ' pruebas correctas');
 

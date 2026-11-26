@@ -316,7 +316,11 @@ nombra sin decir en qué archivo están: búscalas con grep.
   y se muestra como `15288-L` con `textoLicencia()`, siempre con
   `config.licencias.digitosPlaca` (5) cifras rellenando con ceros (`00607-L`, Iván). Al comprar eliges entre
   las placas de `placasEnVenta()` (letras distintas; se guardan hasta que
-  compras).
+  compras). `cambiarPlacas()` (Iván, 26-11-2026; versión 45) cobra
+  `precioOtrasPlacas()` (`licencias.otrasPlacas`: base × factor^
+  `estado.otrasPlacasHoy`) y saca otras; `cerrarCaja()` pone la cuenta a 0.
+  `resumenConductor()` guarda `unico` (el top 10 enseña la «Ú»; los
+  despedidos de antes se reconocen por su `retrato`).
 - Kilometraje (Iván, 19-11-2026; versión 25 del guardado): `lic.km` son
   los km del coche de esa licencia y `estado.totales.km` los de toda la
   partida. Solo se suman con `sumarKm()`, en los mismos sitios que

@@ -721,6 +721,10 @@
         {
           "n": 161,
           "texto": "Las cifras de Estadísticas tienen rangos: Bronce, Plata, Oro, Platino, Esmeralda y Diamante. Cada tarjeta toma el color de su rango, con una barra de lo que falta para el siguiente, y al subir sale un aviso."
+        },
+        {
+          "n": 162,
+          "texto": "Al comprar licencia puedes pagar por «Otras placas» si no te gustan las que salen: 100 € la primera vez del día y el doble cada vez. Y arreglo: Paconi y los demás ÚNICOS salen con su «Ú» en la clasificación de Estadísticas (antes, con la «L» de LEGENDARIO)."
         }
       ]
     }

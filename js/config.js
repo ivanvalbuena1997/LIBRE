@@ -17,7 +17,7 @@
   Libre.config = {
     // Sube este número cuando cambie la forma del estado guardado y añade
     // una migración en guardado.js.
-    versionGuardado: 44,
+    versionGuardado: 45,
 
     reloj: {
       // Decisión de diseño: un día de juego dura 2 minutos reales al principio.
@@ -945,7 +945,10 @@
       // mes: una licencia par trabaja los días pares y libra los impares; una
       // impar, al revés. En el juego, el día del mes es el «Día N» de la jornada.
       // Al comprar una licencia eliges entre estas placas (números al azar).
-      placasAElegir: 2
+      placasAElegir: 2,
+      // Pagar por otras placas (Iván, 26-11-2026), como el cazatalentos:
+      // cada vez del día, factor veces la anterior. Equilibrio.
+      otrasPlacas: { precioBase: 100, factor: 2 }
     },
 
     /*

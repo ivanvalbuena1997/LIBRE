@@ -93,6 +93,7 @@
       ganadoMejoras: {},
       // Búsquedas de candidatos pagadas hoy (Cazatalentos, idea 11).
       rebuscasHoy: 0,
+      otrasPlacasHoy: 0,   // veces que has pedido otras placas hoy (versión 45)
       mejorasAntesDeCuenta: [],
       // Estadísticas: las últimas jornadas cerradas (registroDelDia()), el
       // mejor día de la partida y los despedidos que entran en el top.
@@ -689,6 +690,7 @@
     // búsquedas del Cazatalentos vuelven a su precio de partida.
     sortearCandidatos(estado);
     estado.rebuscasHoy = 0;
+    estado.otrasPlacasHoy = 0;
     resumen.cierres.push(cerrada);
   }
 
@@ -949,6 +951,7 @@
   function resumenConductor(t) {
     return {
       id: t.id || null, nombre: t.nombre, retrato: t.retrato, cara: t.cara || null, categoria: t.categoria, xp: t.xp || 0,
+      unico: t.unico || null,
       carreras: t.carreras || 0, facturado: t.facturado || 0
     };
   }
@@ -1888,6 +1891,33 @@
     const r = cfg().conductores.rebuscar;
     return r.precioBase * Math.pow(r.factor, estado.rebuscasHoy || 0);
   }
+  /*
+   * Otras placas (Iván, 26-11-2026): pagar para que salgan otras al
+   * comprar licencia, como el cazatalentos con los candidatos: cada vez del
+   * día cuesta `factor` veces la anterior (licencias.otrasPlacas);
+   * cerrarCaja() pone la cuenta a cero. No hace falta ninguna mejora.
+   */
+  function precioOtrasPlacas(estado) {
+    const r = cfg().licencias.otrasPlacas;
+    return r.precioBase * Math.pow(r.factor, estado.otrasPlacasHoy || 0);
+  }
+  function cambiarPlacas(estado) {
+    const precio = precioOtrasPlacas(estado);
+    if (estado.dinero < precio) return fallo('No te llega el dinero: otras placas cuestan ' + Libre.ui_euros(precio) + '.');
+    estado.dinero -= precio;
+    estado.otrasPlacasHoy = (estado.otrasPlacasHoy || 0) + 1;
+    const antes = (estado.placasEnVenta || []).slice();
+    estado.placasEnVenta = null;
+    // Que no repita ninguna de las de antes (si se puede).
+    for (let i = 0; i < 20; i++) {
+      const nuevas = placasEnVenta(estado);
+      if (!nuevas.some(function (n) { return antes.indexOf(n) !== -1; })) break;
+      estado.placasEnVenta = null;
+    }
+    placasEnVenta(estado);
+    return exito('Te enseñan otras placas. Las siguientes de hoy cuestan ' + Libre.ui_euros(precioOtrasPlacas(estado)) + '.');
+  }
+
   function rebuscarCandidatos(estado) {
     if (!modificadores(estado).rebuscar) return fallo('Para buscar otros candidatos necesitas el «Cazatalentos».');
     const precio = precioRebuscar(estado);
@@ -4298,6 +4328,8 @@
     aplicarArranque,
     buscarUnico,
     unicoDe,
+    precioOtrasPlacas,
+    cambiarPlacas,
     rangoEstadistica,
     valorEstadistica,
     comprobarRangos,

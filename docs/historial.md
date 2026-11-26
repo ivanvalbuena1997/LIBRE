@@ -198,3 +198,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 159. El aviso del «ajuste de periodos anteriores» de Paconi ya no lleva una de sus frases: solo dice cuánto entra en la caja.
 160. Estadísticas: debajo de los vómitos sale lo gastado en limpiezas y debajo de los objetos devueltos, lo ganado en recompensas. Y las cifras de arriba ya no se borran al empezar de cero: son de toda tu carrera.
 161. Las cifras de Estadísticas tienen rangos: Bronce, Plata, Oro, Platino, Esmeralda y Diamante. Cada tarjeta toma el color de su rango, con una barra de lo que falta para el siguiente, y al subir sale un aviso.
+162. Al comprar licencia puedes pagar por «Otras placas» si no te gustan las que salen: 100 € la primera vez del día y el doble cada vez. Y arreglo: Paconi y los demás ÚNICOS salen con su «Ú» en la clasificación de Estadísticas (antes, con la «L» de LEGENDARIO).

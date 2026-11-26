@@ -289,7 +289,10 @@
    * o, si es un ÚNICO, «ÚNICO» (granate). { id, nombre, letra } o null.
    */
   function rarezaDe(t) {
-    if (t && t.unico) return { id: 'U', nombre: 'ÚNICO', letra: 'Ú' };
+    // Los despedidos de antes no guardaban `unico`: su retrato es el id del ÚNICO.
+    if (t && (t.unico || (typeof t.retrato === 'string' && Libre.config.conductores.unicos[t.retrato]))) {
+      return { id: 'U', nombre: 'ÚNICO', letra: 'Ú' };
+    }
     const c = t && Libre.sim.buscarCategoria(t.categoria);
     return c ? { id: c.id, nombre: c.nombre, letra: c.id === 'L' ? 'L' : c.nombre } : null;
   }
@@ -800,7 +803,10 @@
         return '<div class="placa-opcion"><span class="placa">' + ui.esc(Libre.sim.textoLicencia({ numero })) + '</span>' +
           '<small>' + ui.esc(textoLibranza(numero)) + '</small>' +
           ui.boton('Comprar · ' + ui.euros(precio), 'comprarLicencia', ['', i], '', precio) + '</div>';
-      }).join('') + '</div>';
+      }).join('') +
+      // Pagar para que salgan otras (Iván, 26-11-2026).
+      ui.boton('Otras placas · ' + ui.euros(Libre.sim.precioOtrasPlacas(estado)), 'cambiarPlacas', [],
+        'ui-boton ui-boton--secundario ui-boton--ancho placas-otras', Libre.sim.precioOtrasPlacas(estado)) + '</div>';
   }
 
   /*
