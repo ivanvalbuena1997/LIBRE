@@ -2791,13 +2791,11 @@
   function htmlBloquePrestigio(estado) {
     const falta = Libre.sim.faltaParaReiniciar(estado);
     const puntos = Libre.sim.puntosPrestigio(estado);
-    const guardados = estado.personaje.puntos || 0;
+    // Solo lo que te dan si haces prestigio (Iván, 26-11-2026: sin explicar de dónde salen).
     return '<div class="pj-prestigio">' +
-      '<p><strong>Puntos de prestigio: ' + puntos + '</strong>' +
-      (guardados ? ' (' + textoPuntos(guardados) + ' guardados de antes)' : '') + '</p>' +
-      (falta ? '<p class="ayuda">' + esc(falta) + ' Cada nivel da tantos puntos como su número (el 3, 3; el 4, 4…); al empezar de cero los gastas en mejoras de tu personaje, las únicas que se conservan.</p>'
-        : '<p class="ayuda">Empieza una partida nueva y gasta los puntos en mejoras de tu personaje, las únicas que se conservan.</p>' +
-          '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-pj-prestigio>Empezar de cero</button>') +
+      '<p><strong>Si haces prestigio: ' + textoPuntos(puntos) + '</strong></p>' +
+      (falta ? '<p class="ayuda">' + esc(falta) + '</p>'
+        : '<button type="button" class="ui-boton ui-boton--principal ui-boton--ancho" data-pj-prestigio>Empezar de cero</button>') +
       '</div>';
   }
 

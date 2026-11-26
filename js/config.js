@@ -429,7 +429,7 @@
      * nivelPrestigio para reiniciar (pasos siguientes).
      */
     personaje: {
-      experiencia: { tuCarrera: 4, carreraConductor: 1, legendarioVendido: 1 },
+      experiencia: { tuCarrera: 4, carreraConductor: 1, legendarioVendido: 25 },   // legendario: 25 desde el 26-11-2026 (Iván)
       niveles: { base: 1000, factor: 1.6 },
       nivelPrestigio: 3,
       // Puntos de prestigio (Iván, 24-11-2026, tras medir con el bot): el

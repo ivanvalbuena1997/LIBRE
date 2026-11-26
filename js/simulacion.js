@@ -1584,12 +1584,16 @@
       TURNOS.forEach(function (tn) {
         const t = l.turnos[tn];
         const u = unicoDe(t);
-        if (u && u.plusKm) plusKmUnico(estado, resumen, l, t, u);
-        const facturado = t && porConductor[t.id];
-        if (!u || !u.ajuste || !(facturado > 0)) return;
-        const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max);
-        incidencia(estado, resumen, 'ajuste', u.nombre + ' aplica un «ajuste de periodos anteriores»: ' +
-          Libre.ui_euros(extra) + ' más en la caja. ' + fraseUnico(estado, t), extra, 'extras', t);
+        if (!u) return;
+        const facturado = porConductor[t.id];
+        if (u.ajuste && facturado > 0) {
+          const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max);
+          incidencia(estado, resumen, 'ajuste', u.nombre + ' aplica un «ajuste de periodos anteriores»: ' +
+            Libre.ui_euros(extra) + ' más en la caja. ' + fraseUnico(estado, t), extra, 'extras', t);
+          sumarAFacturado(estado, t, extra);
+        }
+        // Después del ajuste, para que el ajuste no cuente el plus.
+        if (u.plusKm) plusKmUnico(estado, resumen, l, t, u);
       });
     });
   }
@@ -1612,6 +1616,17 @@
     incidencia(estado, resumen, 'plusKm', u.nombre + ' hace ' + Math.round(km + extra) + ' km en la jornada' +
       (extra > 0 ? ' (' + Math.round(extra) + ' de vuelta en vacío y para lo suyo)' : '') + ': ' +
       Libre.ui_euros(plus) + ' de plus. «' + fraseUnico(estado, t) + '»', plus, 'extras', t);
+    sumarAFacturado(estado, t, plus);
+  }
+  /*
+   * Lo que un ÚNICO deja al cerrar la caja (ajuste, plus por km) cuenta como
+   * facturado suyo (Iván, 26-11-2026), para que sus estadísticas no salgan
+   * por debajo; en el ticket sigue en incidencias.
+   */
+  function sumarAFacturado(estado, t, importe) {
+    if (!(importe > 0)) return;
+    t.facturado = (t.facturado || 0) + importe;
+    apuntarFacturado(estado, t, importe);
   }
 
   /* Candidatos para el próximo contrato: personajes y cualidades distintos. */

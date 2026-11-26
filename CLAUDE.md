@@ -633,7 +633,7 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `estado.personaje = { xp }`. `ganarExperienciaPersonaje(estado, resumen,
   puntos)` suma `config.personaje.experiencia` (tuCarrera 4 en
   `terminarCarrera()`, carreraConductor 1 en `terminarCarreraConductor()`,
-  legendarioVendido 1 en `venderObjeto()`) y, al subir, deja el evento
+  legendarioVendido 25 en `venderObjeto()`; 1 hasta el 26-11-2026) y, al subir, deja el evento
   'nivelPersonaje' (aviso y sonido 'nivel'). `nivelPersonaje()` (solo
   lectura: nivel, xp, desde, hasta, progreso) con la curva de
   `experienciaParaNivel(n)` = base × (factor^n − 1) / (factor − 1). Hoja
@@ -726,7 +726,9 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `faltaParaTurnoUnico(lic, turno, t, apartar)` (turno fijo e incompatibles;
   la usan `contratarConductor()` y `moverConductor()`), `fraseUnico()`,
   `bonoTocayos()` (en `empezarCarrerasConductores()`) y `ajustesUnicos()`
-  (al empezar `cerrarCaja()`, incidencia 'ajuste'). Sin topes: `topesDe()`
+  (al empezar `cerrarCaja()`, incidencia 'ajuste'). El ajuste y el plus por km
+  cuentan como facturado del ÚNICO (`sumarAFacturado()`: `t.facturado` y
+  `caja.hoy.porConductor`), para las estadísticas. Sin topes: `topesDe()`
   da [0, ∞]. Sinergias: aporte 'sinergia' en `aportesConductor()`. Bajas
   propias en `sortearInicioDeTurnos()` y en `statsConductor()`.
   `trabajaIncognito()` respeta `sinIncognito`. El Pelado (#02): `efecto`

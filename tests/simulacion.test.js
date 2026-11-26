@@ -2711,6 +2711,8 @@ prueba('ÚNICOS: Paconi se ofrece una vez, solo de día, sin topes, con su siner
   assert.ok(e.cierrePendiente, 'se ha cerrado la caja');
   const extra = e.caja.ayer.incidencias.ajuste.importe;
   assert.ok(extra >= 120 - 1e-9 && extra <= 180 + 1e-9, 'ajuste: ' + extra);
+  // Cuenta como facturado suyo (estadísticas), aunque en el ticket vaya en incidencias.
+  cerca(e.caja.ayer.porConductor[t.id], 1000 + extra, 1e-6);
   // Migración 36 → 37: los conductores de antes, sin único.
   const viejo = JSON.parse(JSON.stringify(e));
   viejo.version = 36;
@@ -2783,6 +2785,7 @@ prueba('ÚNICOS: El Pelado dobla turno solo en su coche, nunca se pone malo, nad
   const km = e.caja.ayer.kmPorConductor[t.id];
   assert.ok(km >= 400);
   cerca(e.caja.ayer.incidencias.plusKm.importe, km * (1 + u.kmExtra) * u.plusKm, 1e-6);
+  assert.ok(e.caja.ayer.porConductor[t.id] >= e.caja.ayer.incidencias.plusKm.importe, 'el plus cuenta como facturado suyo');
   assert.ok(lic.km - kmAntes >= 400 * u.kmExtra - 1e-9);
 });
 

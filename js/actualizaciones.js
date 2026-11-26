@@ -581,6 +581,10 @@
         {
           "n": 126,
           "texto": "En el ordenador, la introducción y los eventos se ven en una columna en el centro, con la ilustración entera, en vez de estirarse a todo el ancho y recortarse."
+        },
+        {
+          "n": 127,
+          "texto": "Vender un objeto LEGENDARIO da ahora 25 puntos de experiencia a tu personaje (antes, 1). En la hoja de tu personaje solo sale cuántos puntos de prestigio te dan si empiezas de cero. Y el ajuste de Paconi y el plus por km de El Pelado cuentan ya como lo que facturan en Estadísticas."
         }
       ]
     }
