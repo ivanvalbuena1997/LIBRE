@@ -92,5 +92,6 @@ que ahorra. Probando otros (5 × 25, mucho ruido):
 | −15 % / 6 puntos | −85 / −99 | +21 / +45 |
 
 Con −15 % y 6 puntos, con 6 licencias se acerca a un LEGENDARIO y con
-más licencias lo pasaría (cuantos más conductores, más rinde). Pendiente
-de que Iván decida; de momento, los aprobados.
+más licencias lo pasaría (cuantos más conductores, más rinde).
+
+**Decisión de Iván (26-11-2026):** −15 % de espera y 6 puntos.

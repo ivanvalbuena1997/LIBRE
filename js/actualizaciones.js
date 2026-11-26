@@ -669,6 +669,10 @@
         {
           "n": 148,
           "texto": "El grupo de la flota: al montar tu SL aparece un chat en la cabecera con tus conductores. Estrénalo con tu primer mensaje (ya escrito, pero lo puedes cambiar) y, cada vez que cierras la caja, comentan lo que ha pasado: pinchazos, impagos, propinas, la lluvia… Paconi, El Pelado y Daniela también escriben si trabajan para ti."
+        },
+        {
+          "n": 149,
+          "texto": "Daniela manda más: los conductores esperan un 15 % menos y se quedan 6 puntos menos de cada carrera (antes, un 6 % y 3 puntos). Además estrena retrato, y la novia a la fuga, el turista de Barajas y el viaje de Parla a Almería ya tienen su ilustración. Las nubes de la calle de arriba también son ilustraciones, y ahora son tres."
         }
       ]
     }

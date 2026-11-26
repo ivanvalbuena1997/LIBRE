@@ -11,7 +11,7 @@ la tapa el texto.
 - `unico-<id>.webp`: retrato de cada conductor ÚNICO
   (`config.conductores.unicos.<id>.imagen`), cuadrado, 256 × 256 (se ve en
   círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado;
-  `unico-daniela.webp`: Daniela (pendiente: mientras falte, sale solo el marco).
+  `unico-daniela.webp`: Daniela.
 - `caras/`: retratos ilustrados de los conductores normales (256 × 256),
   recortados de hojas de 3 × 3 que genera Iván: `h01`… hombres, `m01`…
   mujeres (`config.conductores.caras`). Para añadir más: recortarlas y
@@ -55,16 +55,19 @@ la tapa el texto.
   `evento-conseguidor.webp`: el conseguidor;
   `evento-trapero.webp`: el trapero;
   `evento-ruso.webp`: el ruso y sus dos rubias;
-  `evento-maletero.webp`: cinco en un coche de cuatro.
-  Pendientes (26-11-2026; prompts en `docs/propuesta-novedades.md`, 5):
-  `evento-novia.webp`, `evento-turista.webp`, `evento-parto.webp`,
-  `evento-maletin.webp`, `evento-final.webp` y `evento-daniela.webp`
-  (De Parla a Almería, prompt en el apartado 4).
+  `evento-maletero.webp`: cinco en un coche de cuatro;
+  `evento-novia.webp`: la novia a la fuga; `evento-turista.webp`: el
+  turista de Barajas; `evento-daniela.webp`: de Parla a Almería.
+  Pendientes (prompts en `docs/propuesta-novedades.md`, 5):
+  `evento-parto.webp`, `evento-maletin.webp` y `evento-final.webp`.
+  Mientras falten, la hoja del evento sale con el fondo provisional.
 - `chat-<foto>.webp`: fotos del grupo de la flota, cuadradas (pendientes;
   prompts en `docs/propuesta-novedades.md`, 6): `chat-rueda.webp`,
   `chat-amanecer.webp`, `chat-planta.webp`, `chat-bocadillo.webp` y
-  `chat-dibujo.webp`. Mientras falten, la burbuja enseña un hueco «Foto». Mientras falten, la hoja
-  del evento sale con el fondo provisional.
+  `chat-dibujo.webp`. Mientras falten, la burbuja enseña un hueco «Foto».
+- `nube-1.webp`, `nube-2.webp` y `nube-3.webp`: las nubes de la calle de
+  arriba (Iván, 26-11-2026), recortadas del verde de una sola imagen con
+  las tres, a doble densidad (152, 220 y 140 px de ancho).
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
   americana verde azulado oscuro sobre camisa blanca, pantalón marrón

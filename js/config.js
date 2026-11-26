@@ -855,7 +855,9 @@
           efecto: { pinchazo: 1.1, sinImpagos: true },
           sinergias: [{ objeto: 'chicles', efecto: { importe: 1.2 } }, { objeto: 'colines', efecto: { cansancio: 0.6 } }]
         },
-        // Iván, 26-11-2026 (docs/propuesta-novedades.md, 4). Equilibrio.
+        // Iván, 26-11-2026 (docs/propuesta-novedades.md, 4). Equilibrio: tras
+        // medirla con el bot, −15 % de espera y 6 puntos (antes −6 % y 3;
+        // docs/analisis-unicos.md).
         daniela: {
           nombre: 'Daniela', categoriaBase: 'L', imagen: 'imagenes/unico-daniela.webp',
           descripcion: 'Seis años y las cosas muy claras. Su padre, Daniel, es su representante; lleva las cuentas de casa, negocia su propia paga y tiene tarjetas de visita. Le tiene manía a Paconi.',
@@ -870,8 +872,8 @@
           sinIncognito: true,
           noConduce: true,
           dirige: {
-            efecto: { espera: 0.94, baja: 0.7 },
-            porcentaje: 0.03,
+            efecto: { espera: 0.85, baja: 0.7 },
+            porcentaje: 0.06,
             sobre: { paconi: { baja: 0.5, ajuste: 0.5 } }
           },
           paga: 25,

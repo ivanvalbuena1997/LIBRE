@@ -80,7 +80,6 @@
   --cielo-dia-bajo: #f1ead6;
   --cielo-ocaso-alto: #4f5a78;
   --cielo-ocaso-bajo: #e0894f;
-  --esc-nube: #fbf4e4;
   --esc-lejos: #b7cde8;
   --esc-medio: #d9a07a;
   --esc-cerca: #a9654f;
@@ -140,7 +139,6 @@
   --esc-tormenta-cielo: #1d2440;   /* tormenta: el cielo se oscurece */
   --esc-relampago: #eef3ff;        /* el destello que lo ilumina */
   --esc-rayo: #fff4bf;
-  --esc-nube-tormenta: #8b93a7;
   --esc-viento: #ffffff;
   --esc-hoja: #c98a3a;
   --esc-hoja-b: #7f9a3e;
@@ -687,7 +685,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-rayo { fill: var(--esc-rayo); opacity: 0; }
 .esc-gota-fuerte { stroke-width: 1.4; }
 .esc-viento { fill: none; stroke: var(--esc-viento); stroke-width: 1.5; stroke-linecap: round; opacity: 0; }
-.tormenta .esc-nube { display: block; fill: var(--esc-nube-tormenta); opacity: 0.95; }
+.tormenta .esc-nube { display: block; filter: grayscale(0.7) brightness(0.62); opacity: 0.95; }
 .esc-hoja { position: absolute; left: -30px; display: none; fill: var(--esc-hoja); stroke: var(--esc-hoja); stroke-width: 0.8; }
 .esc-hoja-b { fill: var(--esc-hoja-b); stroke: var(--esc-hoja-b); }
 .tormenta .esc-hoja { display: block; }
@@ -697,9 +695,10 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-hoja-4 { bottom: 128px; } .esc-hoja-5 { bottom: 24px; } .esc-hoja-6 { bottom: 104px; }
 @media (prefers-reduced-motion: reduce) { .esc-hoja { display: none !important; } }
 
-.esc-nube { position: absolute; left: -80px; fill: var(--esc-nube); opacity: 0.9; }
-.esc-nube-1 { bottom: 199px; }
-.esc-nube-2 { bottom: 162px; left: 35%; opacity: 0.8; }
+.esc-nube { position: absolute; left: -120px; opacity: 0.95; }
+.esc-nube-1 { bottom: 190px; }
+.esc-nube-2 { bottom: 156px; left: 35%; opacity: 0.9; }
+.esc-nube-3 { bottom: 176px; left: 70%; opacity: 0.85; }
 .noche .esc-nube { display: none; }
 
 /* El taxi va a la altura de la acera (y = 196 de la maqueta). */
@@ -732,7 +731,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 /* Animaciones de la escena (todas fuera con prefers-reduced-motion). Las
    ventanas solo parpadean de noche. */
 @keyframes taxi-pasa { from { left: -150px; } to { left: 100%; } }
-@keyframes nube-pasa { from { left: -80px; } to { left: 100%; } }
+@keyframes nube-pasa { from { left: -120px; } to { left: 100%; } }
 @keyframes sol-late { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.8; } }
 @keyframes ventana { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 @keyframes llover { to { transform: translateY(40px); } }
@@ -750,6 +749,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .an-taxi { animation: taxi-pasa 16s linear infinite; }
 .an-nube { animation: nube-pasa 40s linear infinite; }
 .an-nube2 { animation: nube-pasa 55s linear infinite; animation-delay: -20s; }
+.an-nube3 { animation: nube-pasa 70s linear infinite; animation-delay: -45s; }
 .an-sol { opacity: 0.6; animation: sol-late 5s ease-in-out infinite; }
 .noche .an-v1 { animation: ventana 4s ease-in-out infinite; }
 .noche .an-v2 { animation: ventana 6s ease-in-out infinite; animation-delay: -2s; }

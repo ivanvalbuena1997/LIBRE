@@ -341,11 +341,21 @@
   }
 
   /* Dos nubes que cruzan despacio (solo de día). */
+  /*
+   * Nubes ilustradas (Iván, 26-11-2026; hechas con IA y recortadas del verde,
+   * a doble densidad): tres, a distintas velocidades. Antes, elipses. Con
+   * tormenta se oscurecen con un filtro (.tormenta .esc-nube).
+   */
+  const NUBES = [
+    { archivo: 'imagenes/nube-1.webp', ancho: 76, alto: 36 },
+    { archivo: 'imagenes/nube-2.webp', ancho: 110, alto: 50 },
+    { archivo: 'imagenes/nube-3.webp', ancho: 70, alto: 36 }
+  ];
   function nubes() {
-    return '<svg class="esc-nube esc-nube-1 an-nube" width="76" height="27" viewBox="28 24 76 27" aria-hidden="true" focusable="false">' +
-      '<ellipse cx="60" cy="40" rx="30" ry="9"/><ellipse cx="82" cy="34" rx="20" ry="8"/></svg>' +
-      '<svg class="esc-nube esc-nube-2 an-nube2" width="66" height="25" viewBox="122 63 66 25" aria-hidden="true" focusable="false">' +
-      '<ellipse cx="150" cy="78" rx="26" ry="8"/><ellipse cx="170" cy="72" rx="16" ry="7"/></svg>';
+    return NUBES.map(function (n, i) {
+      return '<img class="esc-nube esc-nube-' + (i + 1) + ' an-nube' + (i ? i + 1 : '') + '" src="' + n.archivo + '" width="' + n.ancho +
+        '" height="' + n.alto + '" alt="" aria-hidden="true">';
+    }).join('');
   }
 
   // ------------------------------------------------------------- Cielo

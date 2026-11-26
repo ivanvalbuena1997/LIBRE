@@ -2989,12 +2989,13 @@ prueba('Daniela: no conduce, dirige (espera, porcentaje, bajas, Paconi), cobra s
   const daniela = contratarUnico('daniela', 'dia');
   assert.ok(sim.noConduce(daniela));
   assert.strictEqual(sim.enTurno(lic, 'dia'), null, 'el coche se queda parado');
-  assert.ok(Math.abs(sim.porcentajeConductor(e) - (config.conductores.porcentaje - 0.03)) < 1e-9);
-  // Paconi (en la reserva) ya nota que manda: −6 % de espera y bajas ×0,7 × 0,5.
+  const dirige = config.conductores.unicos.daniela.dirige;
+  assert.ok(Math.abs(sim.porcentajeConductor(e) - (config.conductores.porcentaje - dirige.porcentaje)) < 1e-9);
+  // Paconi (en la reserva) ya nota que manda: menos espera y bajas × su factor × 0,5.
   const conElla = sim.factoresConductor(e, paconi);
-  assert.ok(Math.abs(conElla.espera / sinElla.espera - 0.94) < 1e-9);
-  assert.ok(Math.abs(conElla.baja / sinElla.baja - 0.35) < 1e-9);
-  assert.ok(Math.abs(sim.factoresConductor(e, Object.assign({}, daniela, { id: 'otra' })).espera / sim.factoresConductor(e, daniela).espera - 0.94) < 1e-9,
+  assert.ok(Math.abs(conElla.espera / sinElla.espera - dirige.efecto.espera) < 1e-9);
+  assert.ok(Math.abs(conElla.baja / sinElla.baja - dirige.efecto.baja * dirige.sobre.paconi.baja) < 1e-9);
+  assert.ok(Math.abs(sim.factoresConductor(e, Object.assign({}, daniela, { id: 'otra' })).espera / sim.factoresConductor(e, daniela).espera - dirige.efecto.espera) < 1e-9,
     'a sí misma no se dirige');
   // Cuidando de Álvaro no dirige.
   daniela.baja = { hasta: sim.jornadaDe(e.reloj.minutos) + 1 };

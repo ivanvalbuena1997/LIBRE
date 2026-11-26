@@ -504,7 +504,8 @@ nombra sin decir en qué archivo están: búscalas con grep.
   autobús articulado de la EMT (`autobus()`: desde el 26-11-2026, ilustración
   con IA, `imagenes/autobus.webp`, `BUS`, con sus tres llantas recortadas
   girando, `RUEDAS_BUS`, y los letreros LED de la línea 34 dibujados encima,
-  `--bus-letrero`/`--bus-led`), nubes,
+  `--bus-letrero`/`--bus-led`), nubes (`NUBES`, tres `<img>`
+  `imagenes/nube-N.webp` desde el 26-11-2026; con tormenta, `filter`),
   un taxi que pasa (desde el 26-11-2026, ilustración con IA,
   `.esc-taxi-img`; en cada pasada, uno de los modelos de tu flota:
   `ponerModeloTaxi()` en `animationiteration` del propio taxi (`ev.target`:
@@ -526,7 +527,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
   `montar(contenedor)` y `dibujar(contenedor, estado)`, que deja
   `contenedor.dataset.momento` ('dia' o 'noche'); para cambiarla por otra
   vista (un mapa) basta otro módulo con esas dos funciones. No enseña datos
-  de la partida. Animaciones solo CSS (taxi 16 s, nubes 40/55 s, sol 5 s,
+  de la partida. Animaciones solo CSS (taxi 16 s, nubes 40/55/70 s, sol 5 s,
   ventanas 4/6 s; ruedas `.an-rueda`, grupos que giran sobre su centro con
   `transform-box: fill-box` (un círculo invisible `.esc-eje` del tamaño
   de la llanta centra la caja) a la velocidad de su vehículo; dibujo
