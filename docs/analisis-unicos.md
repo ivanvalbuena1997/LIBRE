@@ -66,3 +66,31 @@ El Pelado (el turno de día vacío, que hace él) en vez de dos conductores B.
   las averías y a la avería definitiva), y que te ahorras contratar a otro.
 
 **Decisión de Iván (25-11-2026):** se queda así, como un ÚNICO muy por encima de los demás y difícil de conseguir.
+
+## Daniela (26-11-2026)
+
+Misma flota que arriba (tu turno vacío, conductores B de nivel 5 sin
+rasgos), con Daniela en el turno de día de la 2.ª licencia: ese coche se
+queda parado de día. Frente a un B en ese hueco, con la misma flota de 3 o
+de 6 licencias (`SOLO=dan,leg6,dan6,dan6Pac node tests/unicos.js 6 30`,
+6 semillas × 30 jornadas; pocas, así que hay bastante ruido):
+
+| En el turno de día | Pronto (±) | Tarde (±) |
+| --- | --- | --- |
+| Daniela (3 licencias) | −98,6 (11,2) | −123,1 (11,1) |
+| LEGENDARIO (6 licencias) | +31,7 (22,2) | +58,9 (23,2) |
+| Daniela (6 licencias) | −65,3 (13,6) | −77,2 (19,7) |
+| Daniela (6 licencias) con Paconi de día en la 3.ª | −59,7 (20,5) | −91,1 (5,9) |
+
+Con los números aprobados (−6 % de espera, 3 puntos menos, −30 % de
+bajas), **deja menos que un B**: el turno de día parado pesa más que lo
+que ahorra. Probando otros (5 × 25, mucho ruido):
+
+| Espera / puntos | 3 licencias (pronto / tarde) | 6 licencias (pronto / tarde) |
+| --- | --- | --- |
+| −10 % / 5 puntos | −64 / −105 | −16 / +5 |
+| −15 % / 6 puntos | −85 / −99 | +21 / +45 |
+
+Con −15 % y 6 puntos, con 6 licencias se acerca a un LEGENDARIO y con
+más licencias lo pasaría (cuantos más conductores, más rinde). Pendiente
+de que Iván decida; de momento, los aprobados.

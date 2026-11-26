@@ -69,7 +69,9 @@
     // (imagenes/), con el marco granate de su rango.
     const unicos = Libre.config.conductores.unicos || {};
     if (typeof indice === 'string' && unicos[indice]) {
-      return '<img class="retrato-svg retrato-unico ' + (clase || '') + '" src="' + unicos[indice].imagen + '" alt="">';
+      // Sin su retrato todavía (Daniela, hasta que Iván lo haga), solo el marco.
+      return '<img class="retrato-svg retrato-unico ' + (clase || '') + '" src="' + unicos[indice].imagen + '" alt=""' +
+        ' onerror="this.style.visibility=\'hidden\'">';
     }
     // Una cara ilustrada del banco (Iván, 26-11-2026): 'h05', 'm12'…
     const caras = Libre.config.conductores.caras;

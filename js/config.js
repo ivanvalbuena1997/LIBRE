@@ -131,6 +131,8 @@
       ajuste: { nombre: 'Ajuste de periodos anteriores' },
       // El plus por km de un ÚNICO al cerrar la caja (El Pelado).
       plusKm: { nombre: 'Plus de kilómetros' },
+      // Lo que cobra un ÚNICO que no conduce al cerrar la caja (Daniela).
+      paga: { nombre: 'Paga y chuches' },
       // Lo que dejan (o cuestan) los eventos de clientes (config.historia.eventos).
       cliente: { nombre: 'Eventos de clientes' },
       rotura: {
@@ -803,6 +805,13 @@
        *   kmExtra       km de más en vacío (fracción de los suyos), al cerrar la caja
        *   combustible   factor sobre su combustible
        *   efecto        efectos de serie, como los de un objeto (pinchazo, sinImpagos…)
+       *   noConduce     ocupa un turno pero no conduce: ese turno el coche se queda parado
+       *   dirige        mientras está en un turno y no está de baja: `efecto` a
+       *                 los demás conductores (aporte en sus factores),
+       *                 `porcentaje` (puntos que bajan lo que se quedan) y
+       *                 `sobre` (efectos sobre otro ÚNICO: baja y ajuste)
+       *   paga          € al cerrar cada jornada en que tiene turno
+       *   baja.texto    lo que dice el aviso de su baja (si no es por enfermedad)
        */
       unicos: {
         paconi: {
@@ -845,6 +854,29 @@
           combustible: 1.15,              // gasta un 15 % más (va rápido)
           efecto: { pinchazo: 1.1, sinImpagos: true },
           sinergias: [{ objeto: 'chicles', efecto: { importe: 1.2 } }, { objeto: 'colines', efecto: { cansancio: 0.6 } }]
+        },
+        // Iván, 26-11-2026 (docs/propuesta-novedades.md, 4). Equilibrio.
+        daniela: {
+          nombre: 'Daniela', categoriaBase: 'L', imagen: 'imagenes/unico-daniela.webp',
+          descripcion: 'Seis años y las cosas muy claras. Su padre, Daniel, es su representante; lleva las cuentas de casa, negocia su propia paga y tiene tarjetas de visita. Le tiene manía a Paconi.',
+          frases: [
+            '¡Paconi, a trabajar!',
+            'Aquí no se escaquea nadie.',
+            'Las cuentas claras y el chocolate espeso.',
+            'Mi papá dice que soy dura negociando.',
+            '¿Esto es una flota o una guardería?'
+          ],
+          soloTurno: 'dia',
+          sinIncognito: true,
+          noConduce: true,
+          dirige: {
+            efecto: { espera: 0.94, baja: 0.7 },
+            porcentaje: 0.03,
+            sobre: { paconi: { baja: 0.5, ajuste: 0.5 } }
+          },
+          paga: 25,
+          // Cuida de su hermano Álvaro: ese día no viene y no dirige.
+          baja: { prob: 0.08, jornadasMin: 1, jornadasMax: 1, texto: 'Hoy no puedo, cuido de Álvaro.' }
         }
       }
     },
@@ -1149,6 +1181,7 @@
        * por él). El juego se para hasta que eliges una de las tres opciones.
        *   momento   'dia' o 'noche' (turno de la hora); sin él, cualquiera
        *   unico     trae a ese ÚNICO (solo si no está en tu flota ni en tu agenda)
+       *   requiereSociedad  solo si ya has montado la SL
        *   opciones  [{ texto, resultados: [{ prob, texto, ...efectos }] }]
        * Efectos de un resultado (todos opcionales):
        *   dinero    € que entran (la carrera y lo que dejen); [min, max] al azar
@@ -1269,6 +1302,19 @@
                 { texto: '25 € y ningún lío.', dinero: 25 }] },
               { texto: '«Llevo a cuatro y vuelvo a por el quinto»', resultados: [
                 { texto: 'Dos viajes: 45 € y 40 minutos.', dinero: 45, parado: 40 }] }
+            ] },
+          // Daniela (Iván, 26-11-2026): solo a partir de la SL (requiereSociedad).
+          // Unos 550 km: 700 € y 6 horas fuera (aprobado por Iván).
+          { id: 'daniela', titulo: 'De Parla a Almería', imagen: 'imagenes/evento-daniela.webp', momento: 'dia', unico: 'daniela',
+            requiereSociedad: true,
+            texto: 'En Parla sube una familia con maletas para todo el verano: el padre, Daniel; la madre, Sonia; Álvaro, un bebé de un año en su sillita, y Daniela, una niña de seis con una carpeta bajo el brazo. Van a Almería. Son más de 500 km: Daniel, que además es su representante, cuenta que Daniela lleva las cuentas de casa, negocia su propia paga y ya tiene tarjetas de visita. Daniela mira por el retrovisor: «¿Y tu flota qué tal va?».',
+            opciones: [
+              { texto: '«Es muy pequeña para trabajar»', resultados: [
+                { texto: '700 € y seis horas de viaje. Daniela se cruza de brazos: «Tú te lo pierdes». Quizá vuelvas a verla.', dinero: 700, parado: 360 }] },
+              { texto: '«Te doy mi tarjeta, Daniel»', resultados: [
+                { texto: '700 € y seis horas de viaje. Daniela queda en tu agenda: la tienes la primera entre los candidatos hasta que la contrates.', dinero: 700, parado: 360, unico: 'agenda' }] },
+              { texto: '«¿Cuándo empiezas, jefa?»', resultados: [
+                { texto: '700 € y seis horas de viaje. Daniela trabajaría contigo gratis si la contratas hoy: la tienes la primera entre los candidatos. Si no, queda en tu agenda a precio normal.', dinero: 700, parado: 360, unico: 'oferta' }] }
             ] },
           // Cinco más (Iván, 26-11-2026; docs/propuesta-novedades.md, 5). Sin
           // ilustración todavía: la hoja sale con el fondo provisional.

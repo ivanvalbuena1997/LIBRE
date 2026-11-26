@@ -313,6 +313,18 @@
     if (u.plusKm) hab.push('<strong>Plus de kilómetros:</strong> ' + ui.euros(u.plusKm) + ' por cada km de su jornada, al cerrar la caja.');
     if (u.efecto && u.efecto.sinImpagos) hab.push('<strong>Nadie se le va sin pagar.</strong>');
     if (u.baja && !u.baja.prob) hab.push('<strong>Nunca se pone malo.</strong>');
+    if (u.dirige) {
+      const d = u.dirige;
+      if (d.efecto && d.efecto.espera) hab.push('<strong>Segunda jefa:</strong> los demás conductores esperan un ' + pct(1 - d.efecto.espera) + ' menos entre carreras.');
+      if (d.porcentaje) hab.push('<strong>Las cuentas claras:</strong> los conductores se quedan ' + Math.round(d.porcentaje * 100) + ' puntos menos de cada carrera.');
+      if (d.efecto && d.efecto.baja) hab.push('<strong>Aquí no se escaquea nadie:</strong> un ' + pct(1 - d.efecto.baja) + ' menos de bajas en la flota.');
+      Object.keys(d.sobre || {}).forEach(function (id) {
+        const v = Libre.sim.buscarUnico(id);
+        const s = d.sobre[id];
+        hab.push('<strong>«¡' + ui.esc(v ? v.nombre : id) + ', a trabajar!»:</strong> si está en la flota, se pone malo la mitad' +
+          (s.ajuste ? '… pero le revisa las cuentas: su ajuste de periodos anteriores, también a la mitad.' : '.'));
+      });
+    }
     (u.sinergias || []).forEach(function (s) {
       const o = Libre.sim.buscarObjeto(s.objeto);
       const activa = (t.objetos || []).indexOf(s.objeto) !== -1;
@@ -331,11 +343,14 @@
     }
     hab.push('<strong>Sin topes</strong> en sus estadísticas.');
     const deb = [];
+    if (u.noConduce) deb.push('No conduce: ocupa un turno y ese turno el coche se queda parado.');
+    if (u.paga) deb.push('Paga y chuches: ' + ui.euros(u.paga) + ' al cerrar cada jornada.');
     if (u.soloTurno) deb.push('Solo trabaja en el turno de ' + NOMBRE_TURNO(u.soloTurno) + '.');
     if (u.combustible > 1) deb.push('Gasta un ' + pct(u.combustible - 1) + ' más de combustible: le gusta ir rápido.');
     if (u.kmExtra) deb.push('Hace un ' + pct(u.kmExtra) + ' más de km: vuelve en vacío de los viajes largos y usa el coche para lo suyo.');
     if (u.efecto && u.efecto.pinchazo > 1) deb.push('Sufre un ' + pct(u.efecto.pinchazo - 1) + ' más de pinchazos.');
-    if (u.baja && u.baja.prob) deb.push('Se pone malo en el ' + pct(u.baja.prob) + ' de sus turnos (bajas de ' + u.baja.jornadasMin + '–' + u.baja.jornadasMax + ' jornadas).');
+    if (u.baja && u.baja.prob && u.baja.texto) deb.push('El ' + pct(u.baja.prob) + ' de las jornadas no viene («' + ui.esc(u.baja.texto) + '») y ese día no dirige.');
+    else if (u.baja && u.baja.prob) deb.push('Se pone malo en el ' + pct(u.baja.prob) + ' de sus turnos (bajas de ' + u.baja.jornadasMin + '–' + u.baja.jornadasMax + ' jornadas).');
     if (u.sinIncognito) deb.push('Nunca trabaja de incógnito.');
     (u.incompatibles || []).forEach(function (i) {
       const v = Libre.sim.buscarUnico(i.id || i);

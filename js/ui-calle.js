@@ -250,7 +250,7 @@
   }
 
   const MOTIVO_PARADA = { pinchazo: 'Pinchazo', vomito: 'Limpieza', lluvia: 'Lluvia', pesetas: 'Multa', descanso: 'Descansando', evento: 'Con un cliente' };
-  const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor' };
+  const TEXTO_SITUACION = { libranza: 'Libranza', averia: 'Avería', baja: 'De baja', vacio: 'Sin conductor', dirigiendo: 'Dirigiendo' };
 
   /*
    * Todos los taxis con coche, de más a menos facturado en la jornada:
@@ -264,8 +264,10 @@
     const jornada = Libre.sim.jornadaDe(ahora);
     const pausa = Libre.sim.enPausa(estado);
     return estado.licencias.filter(function (l) { return l.vehiculo; }).map(function (lic) {
-      // El Pelado, solo en su coche, también sale en el turno vacío.
-      const t = Libre.sim.enTurno(lic, turno);
+      // El Pelado, solo en su coche, también sale en el turno vacío. Quien
+      // no conduce (Daniela) sale con su chip «Dirigiendo» y el coche parado.
+      const jefa = Libre.sim.noConduce(lic.turnos[turno]) ? lic.turnos[turno] : null;
+      const t = jefa || Libre.sim.enTurno(lic, turno);
       const carrera = !t ? null : t.quien === 'jugador' ? estado.jugador.carrera : t.carrera;
       const enCurso = Libre.sim.importeDeCarrera(estado, carrera);
       let icono = null;
@@ -275,6 +277,7 @@
       else if (lic.averia && jornada < lic.averia.hasta) icono = 'averia';
       else if (!t) icono = 'vacio';
       else if (t.quien === 'conductor' && t.baja && jornada < t.baja.hasta) icono = 'baja';
+      else if (jefa) icono = 'dirigiendo';
       else if ((t.quien === 'jugador' ? estado.jugador.paradoHasta : t.paradoHasta) > ahora) icono = 'fin';
       const motivoParada = t ? (t.quien === 'jugador' ? estado.jugador.motivoParada : t.motivoParada) : null;
       return {
@@ -332,6 +335,7 @@
     if (t.situacion !== 'parado') return 'ui-chip ui-chip--' + t.situacion;
     if (t.icono === 'libranza') return 'ui-chip ui-chip--libranza';
     if (t.icono === 'baja') return 'ui-chip ui-chip--baja';
+    if (t.icono === 'dirigiendo') return 'ui-chip ui-chip--incognito';
     return 'ui-chip ui-chip--parado';
   }
 

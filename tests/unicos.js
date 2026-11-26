@@ -38,6 +38,7 @@ const ESCENARIOS = {
 const LEG = { categoria: 'L', cualidad: 'simpatico', cualidad2: 'conoceCiudad' };
 const PAC = { categoria: 'L', unico: 'paconi' };
 const PEL = { categoria: 'L', unico: 'pelado' };
+const DAN = { categoria: 'L', unico: 'daniela' };
 // `t`: el que se mide, en el día de la 2.ª licencia. Con `noche`, el de la
 // noche (y `t` en el día; null = día vacío: El Pelado lo dobla).
 const PRUEBAS = [
@@ -51,8 +52,15 @@ const PRUEBAS = [
   { id: 'pel', nombre: 'El Pelado de día, con un B de noche', t: PEL },
   { id: 'pelChicles', nombre: 'El Pelado de día + chicles, con un B de noche', t: PEL, objetos: ['chicles'] },
   { id: 'pelDoble', nombre: 'El Pelado solo en su coche (doble turno), sin el B de noche', t: null, noche: PEL },
-  { id: 'pelDobleChicles', nombre: 'El Pelado solo (doble turno) + chicles, sin el B de noche', t: null, noche: PEL, objetos: ['chicles'] }
+  { id: 'pelDobleChicles', nombre: 'El Pelado solo (doble turno) + chicles, sin el B de noche', t: null, noche: PEL, objetos: ['chicles'] },
+  // Daniela (26-11-2026): no conduce; el coche de su licencia se queda parado de día.
+  { id: 'dan', nombre: 'Daniela (3 licencias)', t: DAN },
+  { id: 'leg6', nombre: 'LEGENDARIO (6 licencias)', t: LEG, licencias: 6 },
+  { id: 'dan6', nombre: 'Daniela (6 licencias)', t: DAN, licencias: 6 },
+  { id: 'dan6Pac', nombre: 'Daniela (6 licencias) con Paconi de día en la 3.ª', t: DAN, licencias: 6, paconi: true }
 ];
+// SOLO=dan,dan6 node tests/unicos.js: solo esas (y su referencia).
+const SOLO = process.env.SOLO ? process.env.SOLO.split(',') : null;
 
 function partida(semilla, escenario, prueba) {
   const rng = generador(semilla * 31 + 7);
@@ -60,7 +68,10 @@ function partida(semilla, escenario, prueba) {
   e.azar = semilla * 7919 + 1;
   sim.terminarIntro(e);
   e.dinero = 1e7;
-  sim.comprarLicencia(e); sim.comprarLicencia(e);
+  for (let n = 1; n < (prueba.licencias || 3); n++) {
+    if (e.licencias.length >= c.sociedad.licenciasSinSociedad && !e.empresa) sim.montarSociedad(e, 'Bot');
+    sim.comprarLicencia(e);
+  }
   e.licencias.forEach(function (l) {
     if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
     ['dia', 'noche'].forEach(function (t) { if (!l.turnos[t]) sim.contratarConductor(e, l.id, t, 0); });
@@ -79,6 +90,7 @@ function partida(semilla, escenario, prueba) {
       if (sujeto && datos === null) { l.turnos[tn] = null; return; }
       if (sujeto) Object.assign(t, datos, { objetos: (prueba.objetos || []).slice(), nombre: datos.unico ? c.conductores.unicos[datos.unico].nombre : 'Laura' });
       else if (pacos > 0) { t.nombre = 'Paco'; pacos--; }
+      else if (prueba.paconi && i === 2 && tn === 'dia') Object.assign(t, { categoria: 'L', unico: 'paconi', nombre: 'Paconi' });
       conductores.push(t);
     });
   });
@@ -111,12 +123,25 @@ const f = function (n) { return (n >= 0 ? '+' : '') + n.toFixed(1).replace('.', 
 const res = {};
 Object.keys(ESCENARIOS).forEach(function (esc) {
   res[esc] = {};
-  const base = [];
-  for (let s = 1; s <= SEMILLAS; s++) base.push(partida(s, esc, PRUEBAS[0]));
-  res[esc].netoBase = media(base);
+  // Referencia (un B en ese hueco) para cada tamaño de flota.
+  const bases = {};
+  function base(n) {
+    if (!bases[n]) {
+      bases[n] = [];
+      for (let s = 1; s <= SEMILLAS; s++) bases[n].push(partida(s, esc, Object.assign({}, PRUEBAS[0], { licencias: n })));
+    }
+    return bases[n];
+  }
+  res[esc].netoBase = media(base(3));
   PRUEBAS.slice(1).forEach(function (p) {
+    if (SOLO && SOLO.indexOf(p.id) === -1) return;
     const v = [];
-    for (let s = 1; s <= SEMILLAS; s++) v.push(partida(s, esc, p) - base[s - 1]);
+    const b = p.paconi ? null : base(p.licencias || 3);
+    for (let s = 1; s <= SEMILLAS; s++) {
+      // Con Paconi, la referencia es la misma flota con un B en el hueco.
+      const ref = b ? b[s - 1] : partida(s, esc, Object.assign({}, PRUEBAS[0], { licencias: p.licencias, paconi: true }));
+      v.push(partida(s, esc, p) - ref);
+    }
     res[esc][p.id] = v;
   });
 });
@@ -124,6 +149,7 @@ console.log('Neto de la flota con un B: pronto ' + res.pronto.netoBase.toFixed(0
 console.log('| En el turno de día | Pronto: € por jornada frente a un B (±) | Tarde (±) |');
 console.log('| --- | --- | --- |');
 PRUEBAS.slice(1).forEach(function (p) {
+  if (!res.pronto[p.id]) return;
   console.log('| ' + p.nombre + ' | ' + f(media(res.pronto[p.id])) + ' (' + de(res.pronto[p.id]).toFixed(1).replace('.', ',') + ') | ' +
     f(media(res.tarde[p.id])) + ' (' + de(res.tarde[p.id]).toFixed(1).replace('.', ',') + ') |');
 });

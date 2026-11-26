@@ -692,6 +692,20 @@ nombra sin decir en qué archivo están: búscalas con grep.
   envuelven `crearEstadoInicial()` para darla por vista (y el bot llama a
   `terminarIntro()`). Siguen los conductores ÚNICOS y los eventos de
   clientes (DISENO.md, 5.10).
+- Daniela (ÚNICA #03, Iván 26-11-2026): `noConduce`, `dirige`
+  (`efecto`, `porcentaje`, `sobre`), `paga` y `baja.texto` en su config.
+  `noConduce(t)`; `enTurno()` da null en su turno, así que nada la cuenta
+  como coche que trabaja (reparto, zonas, inicio de turno, eventos) y el
+  coche se queda parado. `quienesDirigen(estado, minutos)`: las que tienen
+  turno en una licencia y no están de baja; `aportesConductor(t, estado)`
+  (con `estado`) añade su `efecto` a los demás (tipo 'unico', también en
+  `statsConductor()`) y lo de `sobre` a Paconi (baja);
+  `porcentajeConductor()` resta `porcentaje`; `ajustesUnicos()` recorta el
+  ajuste de Paconi y cobra `paga` (incidencia 'paga'). Su baja (cuidar de
+  Álvaro) se sortea aparte al empezar su turno en
+  `sortearInicioDeTurnos()`, sin factores. En «Tus taxis hoy»,
+  `taxisDeLaFlota()` la enseña con `icono` 'dirigiendo'. Su evento lleva
+  `requiereSociedad` (`eventoPosible()`). Sin experiencia: no hace carreras.
 - Conductores ÚNICOS (fase 2; versión 37 del guardado): `config.conductores.unicos`
   (id → nombre, `categoriaBase`, imagen, frases, soloTurno, sinIncognito,
   incompatibles, baja, ajuste, tocayos, sinergias). Un único es un conductor

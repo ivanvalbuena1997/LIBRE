@@ -2965,5 +2965,59 @@ prueba('Saco de colines: solo no hace nada; con Paconi o El Pelado, un 40 % meno
   });
 });
 
+prueba('Daniela: no conduce, dirige (espera, porcentaje, bajas, Paconi), cobra su paga y su evento pide la SL', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 11;
+  e.dinero = 1e7;
+  const lic = e.licencias[0];
+  function contratarUnico(id, turno) {
+    sim.ofrecerUnico(e, id);
+    const i = e.candidatos.findIndex(function (c) { return c.unico === id; });
+    const r = sim.contratarConductor(e, lic.id, turno, i);
+    assert.ok(r.ok, r.mensaje);
+    return lic.turnos[turno];
+  }
+  // Tú dejas el volante para que quepan los dos turnos.
+  lic.turnos.dia = null;
+  e.jugador.ubicacion = null;
+  const paconi = contratarUnico('paconi', 'dia');
+  const sinElla = sim.factoresConductor(e, paconi);
+  assert.strictEqual(sim.porcentajeConductor(e), config.conductores.porcentaje);
+  // Paconi pasa a la reserva y entra Daniela de día.
+  lic.turnos.dia = null;
+  e.reserva.push(paconi);
+  const daniela = contratarUnico('daniela', 'dia');
+  assert.ok(sim.noConduce(daniela));
+  assert.strictEqual(sim.enTurno(lic, 'dia'), null, 'el coche se queda parado');
+  assert.ok(Math.abs(sim.porcentajeConductor(e) - (config.conductores.porcentaje - 0.03)) < 1e-9);
+  // Paconi (en la reserva) ya nota que manda: −6 % de espera y bajas ×0,7 × 0,5.
+  const conElla = sim.factoresConductor(e, paconi);
+  assert.ok(Math.abs(conElla.espera / sinElla.espera - 0.94) < 1e-9);
+  assert.ok(Math.abs(conElla.baja / sinElla.baja - 0.35) < 1e-9);
+  assert.ok(Math.abs(sim.factoresConductor(e, Object.assign({}, daniela, { id: 'otra' })).espera / sim.factoresConductor(e, daniela).espera - 0.94) < 1e-9,
+    'a sí misma no se dirige');
+  // Cuidando de Álvaro no dirige.
+  daniela.baja = { hasta: sim.jornadaDe(e.reloj.minutos) + 1 };
+  assert.strictEqual(sim.porcentajeConductor(e), config.conductores.porcentaje);
+  daniela.baja = null;
+  // Una jornada entera: no hace carreras y cobra su paga al cierre.
+  e.ajustes.pararAlCierre = false;
+  const antes = daniela.carreras || 0;
+  sim.avanzar(e, config.reloj.segundosPorDia + 1);
+  assert.strictEqual(daniela.carreras || 0, antes, 'Daniela no hace carreras');
+  const ultimo = e.historial[e.historial.length - 1];
+  assert.ok(ultimo);
+  const paga = e.caja.ayer.incidencias.paga;
+  assert.ok(paga, 'paga y chuches en el ticket');
+  assert.strictEqual(paga.importe, -config.conductores.unicos.daniela.paga);
+  // Su evento, solo con la SL.
+  const ev = config.historia.eventos.lista.find(function (x) { return x.id === 'daniela'; });
+  e.reserva = [];
+  lic.turnos.dia = null;
+  assert.ok(!sim.eventoPosible(e, ev, 'dia'));
+  e.empresa = { nombre: 'Prueba', jornada: 0 };
+  assert.ok(sim.eventoPosible(e, ev, 'dia'));
+});
+
 console.log(pasadas + ' pruebas correctas');
 

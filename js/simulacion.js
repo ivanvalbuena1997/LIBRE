@@ -336,7 +336,8 @@
 
   /* Parte de cada carrera que se queda el conductor (la Oficina la rebaja). */
   function porcentajeConductor(estado) {
-    return cfg().conductores.porcentaje * modificadores(estado).porcentajeConductor;
+    const menos = quienesDirigen(estado).reduce(function (s, x) { return s + (x.u.dirige.porcentaje || 0); }, 0);
+    return Math.max(0, cfg().conductores.porcentaje * modificadores(estado).porcentajeConductor - menos);
   }
 
   /* Nivel comprado de una mejora: 0 si no la tienes (las de un nivel valen 1). */
@@ -874,6 +875,7 @@
   /* ¿Puede salir este evento ahora? Por el momento del día y, si trae un ÚNICO, si no lo tienes ya. */
   function eventoPosible(estado, e, turno) {
     if (e.momento && e.momento !== turno) return false;
+    if (e.requiereSociedad && !estado.empresa) return false;
     if (e.unico) {
       const h = estado.historia;
       if (unicoEnFlota(estado, e.unico) || (h.agenda || []).indexOf(e.unico) !== -1) return false;
@@ -1519,6 +1521,29 @@
   function unicoDe(t) {
     return t && t.unico ? buscarUnico(t.unico) : null;
   }
+  /* ¿Ocupa un turno sin conducir? (Daniela: dirige.) */
+  function noConduce(t) {
+    const u = unicoDe(t);
+    return !!(u && u.noConduce);
+  }
+  /*
+   * Los ÚNICOS que dirigen ahora (Daniela, Iván 26-11-2026): con turno en
+   * una licencia (no en la reserva) y sin baja esta jornada. Lista de
+   * { t, u }. Dirigen toda la jornada, también de noche, aunque solo
+   * ocupen el turno de día.
+   */
+  function quienesDirigen(estado, minutos) {
+    const jornada = jornadaDe(minutos === undefined ? estado.reloj.minutos : minutos);
+    const lista = [];
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const t = l.turnos[tn];
+        const u = unicoDe(t);
+        if (u && u.dirige && !(t.baja && jornada < t.baja.hasta)) lista.push({ t, u });
+      });
+    });
+    return lista;
+  }
   /* ¿Ya está en tu flota (con turno o en la reserva)? */
   function unicoEnFlota(estado, id) {
     return todosLosConductores(estado).some(function (x) { return x.t.unico === id; });
@@ -1591,7 +1616,8 @@
    */
   function enTurno(lic, turno) {
     const t = lic && lic.turnos[turno];
-    if (t) return t;
+    // Quien no conduce (Daniela) ocupa el turno, pero el coche se queda parado.
+    if (t) return noConduce(t) ? null : t;
     const otro = lic && lic.turnos[turno === 'dia' ? 'noche' : 'dia'];
     const u = unicoDe(otro);
     return u && u.dobleTurno ? otro : null;
@@ -1616,13 +1642,21 @@
         if (!u) return;
         const facturado = porConductor[t.id];
         if (u.ajuste && facturado > 0) {
-          const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max);
+          // Daniela le revisa las cuentas a Paconi: el ajuste, a la mitad.
+          // (La jornada que se cierra: el minuto de antes de las 7:00.)
+          const recorte = quienesDirigen(estado, estado.reloj.minutos - 1).reduce(function (f, x) {
+            const s = x.u.dirige.sobre && x.u.dirige.sobre[t.unico];
+            return f * (s && s.ajuste ? s.ajuste : 1);
+          }, 1);
+          const extra = facturado * entre(estado, u.ajuste.min, u.ajuste.max) * recorte;
           incidencia(estado, resumen, 'ajuste', u.nombre + ' aplica un «ajuste de periodos anteriores»: ' +
             Libre.ui_euros(extra) + ' más en la caja. ' + fraseUnico(estado, t), extra, 'extras', t);
           sumarAFacturado(estado, t, extra);
         }
         // Después del ajuste, para que el ajuste no cuente el plus.
         if (u.plusKm) plusKmUnico(estado, resumen, l, t, u);
+        // Paga y chuches (Daniela): cada jornada en que tiene turno.
+        if (u.paga) incidencia(estado, resumen, 'paga', u.nombre + ' cobra su paga y sus chuches.', -u.paga, 'otros', t);
       });
     });
   }
@@ -2368,7 +2402,7 @@
    * refuerza las cualidades y suaviza los defectos); el nivel acorta la
    * espera (cada nivel por encima del 1, un poco).
    */
-  function aportesConductor(t) {
+  function aportesConductor(t, estado) {
     const lista = [];
     if (!t || t.quien !== 'conductor') return lista;
     const cat = buscarCategoria(t.categoria) || cfg().categorias[0];
@@ -2401,6 +2435,15 @@
     });
     // Lo suyo de serie (El Pelado: más pinchazos y nadie se le va sin pagar).
     if (u && u.efecto) lista.push({ tipo: 'unico', id: t.unico, nombre: u.nombre, efecto: u.efecto });
+    // Quien dirige la flota (Daniela) a los demás; con `estado` (sin él, no se sabe).
+    if (estado) {
+      quienesDirigen(estado).forEach(function (x) {
+        if (x.t === t) return;
+        lista.push({ tipo: 'unico', id: x.t.unico, nombre: x.u.nombre + ' dirige', efecto: x.u.dirige.efecto });
+        const sobre = t.unico && x.u.dirige.sobre && x.u.dirige.sobre[t.unico];
+        if (sobre && sobre.baja) lista.push({ tipo: 'unico', id: x.t.unico, nombre: x.u.nombre + ' le vigila', efecto: { baja: sobre.baja } });
+      });
+    }
     const nivel = nivelConductor(t);
     lista.push({ tipo: 'nivel', id: 'nivel', nombre: 'Nivel ' + nivel,
       efecto: { espera: 1 - cfg().conductores.niveles.esperaPorNivel * (nivel - 1) } });
@@ -2431,7 +2474,7 @@
     VALORES_CONDUCTOR.forEach(function (k) { f[k] = 1; });
     if (!t || t.quien !== 'conductor') return f;
     const turno = turnoDeHora(infoReloj(estado.reloj.minutos).hora);
-    aportesConductor(t).forEach(function (a) {
+    aportesConductor(t, estado).forEach(function (a) {
       Object.keys(a.efecto || {}).forEach(function (k) {
         const v = a.efecto[k];
         if (k === 'esperaDia') { if (turno === 'dia') f.espera *= v; }
@@ -2462,7 +2505,7 @@
   function statsConductor(estado, t, turno) {
     const ev = cfg().eventos;
     const m = modificadores(estado);
-    const aportes = aportesConductor(t);
+    const aportes = aportesConductor(t, estado);
     const mejoras = cfg().mejoras.filter(function (x) { return nivelMejora(estado, x.id) > 0; }).map(function (x) {
       const n = nivelMejora(estado, x.id);
       return { nombre: x.nombre, efecto: x.niveles ? x.niveles[n - 1].efecto : x.efecto };
@@ -3412,6 +3455,17 @@
     const fin = finDeTurno(ahora, turnoActual);
 
     estado.licencias.forEach(function (lic) {
+      // Quien no conduce (Daniela) solo sortea su baja (cuidar de Álvaro).
+      const jefa = lic.turnos[turnoActual];
+      if (noConduce(jefa) && jefa.sorteado !== clave) {
+        jefa.sorteado = clave;
+        const b = unicoDe(jefa).baja;
+        if (b && !(jefa.baja && jornada < jefa.baja.hasta) && azar(estado) < b.prob) {
+          const jornadas = enteroEntre(estado, b.jornadasMin, b.jornadasMax);
+          jefa.baja = { hasta: jornada + jornadas };
+          incidencia(estado, resumen, 'baja', jefa.nombre + ': «' + (b.texto || 'Hoy no puedo.') + '»', 0, null, jefa);
+        }
+      }
       const t = enTurno(lic, turnoActual);
       if (!lic.vehiculo || !t || t.sorteado === clave) return;
       t.sorteado = clave;
@@ -3959,6 +4013,7 @@
     factoresCansancio,
     costesFijosDiarios,
     porcentajeConductor,
+    eventoPosible,
     demandaZona,
     factorDeJornada,
     turnoDeHora,
@@ -3996,6 +4051,8 @@
     aplicarArranque,
     buscarUnico,
     unicoDe,
+    noConduce,
+    quienesDirigen,
     unicoEnFlota,
     ofrecerUnico,
     faltaParaTurnoUnico,

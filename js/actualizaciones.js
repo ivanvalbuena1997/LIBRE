@@ -661,6 +661,10 @@
         {
           "n": 146,
           "texto": "Cinco eventos de clientes nuevos: una novia a la fuga, un turista en Barajas, un parto en el asiento de atrás, un maletín olvidado y una noche de final de Champions. De momento salen sin dibujo; las ilustraciones llegarán pronto."
+        },
+        {
+          "n": 147,
+          "texto": "Nueva conductora ÚNICA: Daniela, seis años, con las cosas muy claras. No conduce: ocupa el turno de día de un taxi y dirige la flota (los demás esperan menos, se quedan menos de cada carrera y cogen menos bajas; a Paconi lo tiene vigilado). Cobra su paga y sus chuches y algún día se queda cuidando de su hermano Álvaro. Llega con el evento «De Parla a Almería», cuando ya tienes tu SL. Su retrato y su ilustración llegarán pronto."
         }
       ]
     }

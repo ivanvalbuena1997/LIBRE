@@ -10,7 +10,8 @@ la tapa el texto.
   falta una, el juego enseña un fondo azul provisional con «Ilustración N».
 - `unico-<id>.webp`: retrato de cada conductor ÚNICO
   (`config.conductores.unicos.<id>.imagen`), cuadrado, 256 × 256 (se ve en
-  círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado.
+  círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado;
+  `unico-daniela.webp`: Daniela (pendiente: mientras falte, sale solo el marco).
 - `caras/`: retratos ilustrados de los conductores normales (256 × 256),
   recortados de hojas de 3 × 3 que genera Iván: `h01`… hombres, `m01`…
   mujeres (`config.conductores.caras`). Para añadir más: recortarlas y
@@ -57,7 +58,8 @@ la tapa el texto.
   `evento-maletero.webp`: cinco en un coche de cuatro.
   Pendientes (26-11-2026; prompts en `docs/propuesta-novedades.md`, 5):
   `evento-novia.webp`, `evento-turista.webp`, `evento-parto.webp`,
-  `evento-maletin.webp` y `evento-final.webp`. Mientras falten, la hoja
+  `evento-maletin.webp`, `evento-final.webp` y `evento-daniela.webp`
+  (De Parla a Almería, prompt en el apartado 4). Mientras falten, la hoja
   del evento sale con el fondo provisional.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,
