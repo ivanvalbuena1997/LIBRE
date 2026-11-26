@@ -114,7 +114,9 @@ nombra sin decir en qué archivo están: búscalas con grep.
 - Iconos de objetos: dibujos SVG en `iconos/` (del paquete de
   diseño, con sus propios colores), con `<img>` desde `icono()`. Se llaman
   como el objeto salvo los de `ARCHIVO_ICONO` (escaner → radio, paconi →
-  planta, alfombrillas → alfombrilla, bolsaVomito → bolsa). Los
+  planta, alfombrillas → alfombrilla, bolsaVomito → bolsa; con extensión,
+  una imagen: colines → `colines.webp`, hecho con IA y recortado del verde,
+  192 px). Los
   de turnos y rasgos siguen siendo trazos en `ICONOS`.
 - Experiencia (`turno.xp`): cada carrera terminada de un conductor da
   `config.conductores.niveles.porCarrera`; `nivelConductor()` sale de la

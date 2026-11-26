@@ -701,6 +701,10 @@
         {
           "n": 156,
           "texto": "La ficha de los conductores ÚNICOS ya no enseña una de sus frases bajo la descripción; sus frases siguen saliendo en sus avisos y en el grupo de la flota."
+        },
+        {
+          "n": 157,
+          "texto": "El Saco de 10 kg de colines estrena dibujo: un saco con los colines asomando, más claro en las casillas."
         }
       ]
     }

@@ -193,3 +193,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 154. Estadísticas con cuatro contadores nuevos de toda la flota: vómitos, euros perdidos con los que se van sin pagar, objetos encontrados y objetos devueltos. Las caras del grupo de la flota llevan un borde y una sombra para que se distingan del fondo, y la introducción ya no enseña un fondo azul antes de cada ilustración.
 155. El botón del grupo de la flota tiene un icono nuevo: dos bocadillos de conversación.
 156. La ficha de los conductores ÚNICOS ya no enseña una de sus frases bajo la descripción; sus frases siguen saliendo en sus avisos y en el grupo de la flota.
+157. El Saco de 10 kg de colines estrena dibujo: un saco con los colines asomando, más claro en las casillas.

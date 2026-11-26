@@ -200,7 +200,8 @@
    * Iconos de objetos (iconos/*.svg, del paquete de diseño): se
    * llaman como el objeto salvo estos. Los dibujos traen sus propios colores.
    */
-  const ARCHIVO_ICONO = { escaner: 'radio', paconi: 'planta', alfombrillas: 'alfombrilla', bolsaVomito: 'bolsa' };
+  // Con extensión, una imagen (el saco de colines, hecho con IA; Iván, 26-11-2026).
+  const ARCHIVO_ICONO = { escaner: 'radio', paconi: 'planta', alfombrillas: 'alfombrilla', bolsaVomito: 'bolsa', colines: 'colines.webp' };
   function archivoIcono(nombre) {
     if (ARCHIVO_ICONO[nombre]) return ARCHIVO_ICONO[nombre];
     return Libre.sim.buscarObjeto(nombre) ? nombre : null;
@@ -209,7 +210,7 @@
   function icono(nombre, clase) {
     const archivo = archivoIcono(nombre);
     if (archivo) {
-      return '<img class="icono icono-dibujo ' + (clase || '') + '" src="iconos/' + archivo + '.svg" alt="" width="48" height="48" draggable="false">';
+      return '<img class="icono icono-dibujo ' + (clase || '') + '" src="iconos/' + archivo + (archivo.indexOf('.') === -1 ? '.svg' : '') + '" alt="" width="48" height="48" draggable="false">';
     }
     return '<svg class="icono ' + (clase || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONOS[nombre] || '') + '</svg>';
   }
