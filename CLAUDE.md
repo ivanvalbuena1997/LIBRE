@@ -557,8 +557,8 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en
   sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
   autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
-  un taxi que pasa (berlina con las formas de un Corolla, colores
-  `--coche-*`; Iván, 20-11-2026; de noche, `.esc-brillo`: haz del faro
+  un taxi que pasa (desde el 26-11-2026, ilustración con IA,
+  `imagenes/taxi.webp`, `.esc-taxi-img`, sin ruedas que giren; de noche, `.esc-brillo`: haz del faro
   con degradado lineal que sale del dibujo, `.esc-taxi` con
   `overflow: visible`) y lluvia. Carriles (se circula por la
   derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;

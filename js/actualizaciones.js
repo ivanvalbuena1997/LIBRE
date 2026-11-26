@@ -601,6 +601,10 @@
         {
           "n": 131,
           "texto": "La calle de arriba se renueva: los edificios son ahora una ilustración de Madrid, con el Metrópolis y Cibeles, de día y de noche con las ventanas encendidas. El cielo, la calle y todo lo que se mueve siguen igual, con los colores del resto de ilustraciones."
+        },
+        {
+          "n": 132,
+          "texto": "El taxi que cruza la calle de arriba es ahora una ilustración, como los edificios: el Corolla blanco con su franja roja y la luz verde."
         }
       ]
     }
