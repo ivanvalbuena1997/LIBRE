@@ -637,6 +637,10 @@
         {
           "n": 140,
           "texto": "Los repartidores en bici de la calle de arriba también son ilustraciones, con los radios girando y Uber Eats y Just Eat en sus mochilas. El autobús es ahora algo más grande."
+        },
+        {
+          "n": 141,
+          "texto": "La gente que pasea por la acera también está ilustrada: una abuela, un chaval con cascos, una mujer con su perro, una chica con coleta, un abuelo con bastón y un chico con sudadera, que van cambiando de paso al andar. Y los radios de las bicis ya giran por detrás del neumático."
         }
       ]
     }

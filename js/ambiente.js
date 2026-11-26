@@ -213,48 +213,30 @@
   }
 
   /*
-   * Gente que pasea por la acera (Iván, 20-11-2026): tres personas en
-   * dibujos aparte que cruzan despacio; las piernas y los brazos se mueven.
-   * Colores de los retratos (piel, ropa, pelo). Una va con su perro.
+   * Gente que pasea por la acera (Iván, 26-11-2026): ilustraciones hechas con
+   * IA, cada persona en dos posturas (piernas abiertas y juntas) que se
+   * alternan al andar (imagenes/gente-<id>-1.webp y -2.webp, 3x de 28 px de
+   * alto, alineadas por la cabeza y los pies). vuelve = hacia la izquierda,
+   * en espejo. Antes, dibujos de trazos con piernas que giraban.
    */
-  // Iván, 20-11-2026: más gente, en los dos sentidos (vuelve = hacia la izquierda).
+  const ALTO_PERSONA = 28;
   const PERSONAS = [
-    { piel: 2, ropa: 2, pelo: 'castano', pantalon: 6, bolso: true },
-    { piel: 4, ropa: 1, pelo: 'negro', pantalon: 4, perro: true, vuelve: true },
-    { piel: 1, ropa: 5, pelo: 'rubio', pantalon: 1 },
-    { piel: 3, ropa: 3, pelo: 'gris', pantalon: 6, vuelve: true },
-    { piel: 2, ropa: 4, pelo: 'pelirrojo', pantalon: 1, bolso: true, vuelve: true },
-    { piel: 1, ropa: 6, pelo: 'castano', pantalon: 2 }
+    { id: 'abuela', ancho: 19 },
+    { id: 'perro', ancho: 30.67, vuelve: true },
+    { id: 'coleta', ancho: 20.33 },
+    { id: 'abuelo', ancho: 16.33, vuelve: true, despacio: true },
+    { id: 'chaval', ancho: 18.67, vuelve: true },
+    { id: 'sudadera', ancho: 18.33 }
   ];
   function personas() {
     return PERSONAS.map(function (p, i) {
-      // Iván, 21-11-2026: el perro, con más detalle (cuatro patas que giran
-      // desde la cadera y pisan el suelo, orejas, cola que se mueve, collar
-      // y pelaje). Antes las patas giraban desde la esquina del dibujo y
-      // flotaban. Las de cada diagonal van a la vez, como al andar.
-      // La correa va antes que el perro: la tapa la cabeza y llega al collar.
-      const perro = p.perro ? '<path class="esc-correa" d="M12.6 14.6Q19 17.6 25.2 19.9"/><g class="esc-perro">' +
-        '<path class="pata pata-lejos pata-atras an-pata" d="M19.2 23.4v3.6"/><path class="pata pata-lejos pata-delante an-pata2" d="M23.9 23.4v3.6"/>' +
-        '<path class="esc-perro-cola an-cola" d="M17.8 21.6q-1.8-.6-2-3"/>' +
-        '<path class="esc-perro-cuerpo" d="M17.4 22.2c0-1.6 1.2-2.2 3.2-2.2h3.6c1.2 0 1.8.8 1.8 2 0 1.4-.8 2.2-2.2 2.2h-4.6c-1.2 0-1.8-.8-1.8-2z"/>' +
-        '<path class="esc-perro-claro" d="M19.4 24.1c1.2.4 3 .4 4.4 0"/>' +
-        '<path class="esc-perro-pelo" d="M19 20.6l.5-.6M20.4 20.4l.5-.6M21.8 20.4l.5-.6M18 23.4l-.6.5"/>' +
-        '<path class="pata pata-atras an-pata2" d="M18.4 23.4v3.6"/><path class="pata pata-delante an-pata" d="M24.8 23.4v3.6"/>' +
-        '<circle class="esc-perro-cuerpo" cx="26.4" cy="19.4" r="2"/>' +
-        '<ellipse class="esc-perro-claro" cx="28.3" cy="20.2" rx="1.4" ry="0.95"/>' +
-        '<circle class="esc-perro-nariz" cx="29.5" cy="19.9" r="0.5"/>' +
-        '<circle class="esc-perro-nariz" cx="26.9" cy="18.8" r="0.35"/>' +
-        '<path class="esc-perro-oreja" d="M25.2 17.9c-.9.2-1.3 1.4-1 2.8.5.2 1 0 1.3-.6.2-.8.1-1.6-.3-2.2z"/>' +
-        '<path class="esc-perro-collar" d="M24.6 19.6q.3 1.6 1 2.2"/></g>' : '';
-      return '<svg class="esc-persona esc-persona-' + (i + 1) + (p.vuelve ? ' vuelve' : '') + ' an-persona" width="' + (p.perro ? 32 : 20) + '" height="30" viewBox="0 0 ' +
-        (p.perro ? 32 : 20) + ' 30" aria-hidden="true" focusable="false">' +
-        '<g class="r-ropa-' + p.pantalon + '"><path class="an-pierna" d="M9 18.5l-2 9h2.2l1.4-9z"/><path class="an-pierna2" d="M11 18.5l2 9h-2.2l-1.4-9z"/></g>' +
-        '<path class="r-ropa-' + p.ropa + '" d="M6.6 19.5c0-4.6.6-9 3.4-9s3.4 4.4 3.4 9z"/>' +
-        '<path class="r-ropa-' + p.ropa + ' an-brazo" d="M8 11.8l-1.6 6.6h1.6l1.4-6z"/>' +
-        '<circle class="r-piel-' + p.piel + '" cx="10" cy="7.2" r="2.8"/>' +
-        '<path class="r-pelo-' + p.pelo + '" d="M7.2 6.8c0-2.4 1.4-3.6 2.8-3.6s2.8 1.2 2.8 3.6c-1-.9-4.6-.9-5.6 0z"/>' +
-        (p.bolso ? '<rect class="r-ropa-6" x="12.4" y="14" width="3" height="3.4" rx="0.8"/>' : '') +
-        perro + '</svg>';
+      const pose = function (k) {
+        return '<image class="esc-pose esc-pose-' + k + '" href="imagenes/gente-' + p.id + '-' + k + '.webp" x="0" y="0" width="' +
+          p.ancho + '" height="' + ALTO_PERSONA + '"/>';
+      };
+      return '<svg class="esc-persona esc-persona-' + (i + 1) + (p.vuelve ? ' vuelve' : '') + (p.despacio ? ' despacio' : '') +
+        ' an-persona" width="' + p.ancho + '" height="' + ALTO_PERSONA + '" viewBox="0 0 ' + p.ancho + ' ' + ALTO_PERSONA +
+        '" aria-hidden="true" focusable="false">' + pose(1) + pose(2) + '</svg>';
     }).join('');
   }
 

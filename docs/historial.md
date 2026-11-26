@@ -177,3 +177,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 138. Arreglo: las ruedas del Tesla y del Mercedes ya giran centradas, sin bailar. Ahora gira solo la llanta, centrada en su eje, y el neumático se queda quieto.
 139. El autobús de la EMT de la calle de arriba también es una ilustración, con sus ruedas girando y su letrero de la línea 34 «Las Águilas».
 140. Los repartidores en bici de la calle de arriba también son ilustraciones, con los radios girando y Uber Eats y Just Eat en sus mochilas. El autobús es ahora algo más grande.
+141. La gente que pasea por la acera también está ilustrada: una abuela, un chaval con cascos, una mujer con su perro, una chica con coleta, un abuelo con bastón y un chico con sudadera, que van cambiando de paso al andar. Y los radios de las bicis ya giran por detrás del neumático.

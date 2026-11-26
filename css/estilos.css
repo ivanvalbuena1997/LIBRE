@@ -92,12 +92,6 @@
   --esc-copa: #5e9a6a;
   --esc-copa-oscura: #4a8257;     /* sombra de la copa */
   --esc-copa-clara: #7db585;      /* brillo de la copa */
-  --esc-perro: #8a5a3c;
-  --esc-perro-oscuro: #5e3a24;     /* orejas, pelaje y patas de atrás */
-  --esc-perro-claro: #d9b48c;      /* hocico y barriga */
-  --esc-perro-nariz: #24180f;
-  --esc-perro-collar: #d8463a;
-  --esc-correa: #3a2a20;
   --esc-mochila: #2fb24c;          /* mochila de reparto */
   --esc-mochila-franja: #1f7a33;
   --esc-mochila-naranja: #ff8000;   /* Just Eat */
@@ -578,27 +572,12 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-copa { fill: var(--esc-copa); }
 .esc-copa-oscura { fill: var(--esc-copa-oscura); }
 .esc-copa-clara { fill: var(--esc-copa-clara); }
-/* Gente paseando por la acera: dibujos aparte que cruzan despacio. */
-.esc-persona { position: absolute; bottom: 45px; left: 30%; }
+/* Gente paseando por la acera (ilustraciones, dos posturas que se alternan). */
+.esc-persona { position: absolute; bottom: 47px; left: 30%; }
 .esc-persona-2 { left: 62%; } .esc-persona-3 { left: 12%; }
 .esc-persona-4 { left: 82%; } .esc-persona-5 { left: 40%; } .esc-persona-6 { left: 92%; }
-.esc-persona .an-pierna, .esc-persona .an-pierna2 { transform-origin: 10px 18.5px; }
-.esc-persona .an-brazo { transform-origin: 9px 12px; }
-.esc-perro .esc-perro-cuerpo { fill: var(--esc-perro); }
-.esc-perro .esc-perro-claro { fill: var(--esc-perro-claro); }
-.esc-perro path.esc-perro-claro { fill: none; stroke: var(--esc-perro-claro); stroke-width: 0.7; stroke-linecap: round; }
-.esc-perro .esc-perro-nariz { fill: var(--esc-perro-nariz); }
-.esc-perro .esc-perro-oreja { fill: var(--esc-perro-oscuro); }
-.esc-perro .esc-perro-pelo { fill: none; stroke: var(--esc-perro-oscuro); stroke-width: 0.45; stroke-linecap: round; }
-.esc-perro .esc-perro-collar { fill: none; stroke: var(--esc-perro-collar); stroke-width: 0.8; stroke-linecap: round; }
-.esc-perro .esc-perro-cola { fill: none; stroke: var(--esc-perro); stroke-width: 1.1; stroke-linecap: round; transform-origin: 17.8px 21.6px; }
-/* Patas: giran desde la cadera (arriba), así el pie barre el suelo. */
-.esc-perro .pata { fill: none; stroke: var(--esc-perro); stroke-width: 1.1; stroke-linecap: round; transform-box: view-box; }
-.esc-perro .pata-lejos { stroke: var(--esc-perro-oscuro); }   /* las del otro lado, más oscuras */
-.esc-perro .pata-atras { transform-origin: 18.8px 23.4px; }
-.esc-perro .pata-delante { transform-origin: 24.3px 23.4px; }
-.esc-correa { fill: none; stroke: var(--esc-correa); stroke-width: 0.6; }
-.noche .esc-persona { filter: brightness(0.55); }
+.esc-pose-2 { visibility: hidden; }
+.noche .esc-persona { filter: brightness(0.72); }
 /* Repartidor en bici: por la calzada, junto a la acera. */
 /* Uber Eats, carril de delante junto al borde; Just Eat, carril de detrás junto a la acera. */
 .esc-bici { position: absolute; bottom: 6px; left: 45%; }
@@ -762,7 +741,9 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 /* Gente paseando: cruzan despacio (a un paso, ~25 px/s) y mueven piernas y brazos. */
 @keyframes persona-pasa { from { left: -40px; } to { left: 100%; } }
 @keyframes persona-vuelve { from { left: 100%; transform: scaleX(-1); } to { left: -40px; transform: scaleX(-1); } }
-@keyframes paso { from { transform: rotate(-16deg); } to { transform: rotate(16deg); } }
+/* Andar: las dos posturas se turnan (steps: sin fundido). */
+@keyframes pose-a { 0% { visibility: visible; } 50% { visibility: hidden; } }
+@keyframes pose-b { 0% { visibility: hidden; } 50% { visibility: visible; } }
 .an-persona { animation: persona-pasa 30s linear infinite; }
 .vuelve.an-persona { animation-name: persona-vuelve; }
 .esc-persona-2.an-persona { animation-duration: 38s; animation-delay: -12s; }
@@ -770,13 +751,9 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 .esc-persona-4.an-persona { animation-duration: 42s; animation-delay: -30s; }
 .esc-persona-5.an-persona { animation-duration: 36s; animation-delay: -5s; }
 .esc-persona-6.an-persona { animation-duration: 33s; animation-delay: -17s; }
-.an-persona .an-pierna { animation: paso 0.45s ease-in-out infinite alternate; }
-@keyframes pata { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
-@keyframes cola { from { transform: rotate(-14deg); } to { transform: rotate(18deg); } }
-.an-persona .an-pata { animation: pata 0.3s ease-in-out infinite alternate; }
-.an-persona .an-pata2 { animation: pata 0.3s ease-in-out infinite alternate-reverse; }
-.an-persona .an-cola { animation: cola 0.25s ease-in-out infinite alternate; }
-.an-persona .an-pierna2, .an-persona .an-brazo { animation: paso 0.45s ease-in-out infinite alternate-reverse; }
+.an-persona .esc-pose-1 { animation: pose-a 0.7s steps(1, end) infinite; }
+.an-persona .esc-pose-2 { animation: pose-b 0.7s steps(1, end) infinite; }
+.despacio.an-persona .esc-pose-1, .despacio.an-persona .esc-pose-2 { animation-duration: 0.95s; }
 /* El repartidor: más rápido que la gente y los pedales girando. */
 @keyframes bici-pasa { from { left: -50px; } to { left: 100%; } }
 @keyframes pedalear { to { transform: rotate(360deg); } }

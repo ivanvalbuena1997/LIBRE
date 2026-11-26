@@ -552,9 +552,11 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   dibujadas con `tramo()`, `tramoCentro()` y `arbol()`, ya borradas),
   grano por encima (`.cabecera-escena::after`, ruido SVG), farolas en la acera de detrás (`farolas()`,
   cada `SEP_FAROLA`; de noche `.esc-farolas-luz` con halo y luz en el
-  suelo, `--esc-farola-*`; Iván, 22-11-2026), gente paseando (`personas()`, colores de
-  los retratos; Iván, 20-11-2026; una con perro, `--esc-perro-*`, con
-  patas que giran desde la cadera: `transform-origin` propio de cada par), repartidores en bici (`REPARTIDORES`,
+  suelo, `--esc-farola-*`; Iván, 22-11-2026), gente paseando (`personas()`, `PERSONAS`: desde
+  el 26-11-2026, ilustraciones con IA, `imagenes/gente-<id>-1.webp` y
+  `-2.webp`, dos posturas por persona que se turnan con `pose-a`/`pose-b`
+  en `steps(1)`; con `prefers-reduced-motion`, quieta en la primera; una
+  va con su perro), repartidores en bici (`REPARTIDORES`,
   `repartidor()`, `BICI`: desde el 26-11-2026, ilustración con IA, la misma
   bici con mochila naranja o verde recoloreada, `imagenes/bici-*.webp`, sin
   radios: los dibuja `repartidor()` detrás, girando, `RADIOS_BICI`; el

@@ -35,6 +35,9 @@ la tapa el texto.
   cabecera, recortado de una ilustración de Iván. La verde es la misma con
   la mochila recoloreada; a las dos se les quitaron los radios, que dibuja
   `js/ambiente.js` detrás, girando (el neumático se queda). El nombre de la mochila lo pone `js/ambiente.js`.
+- `gente-<id>-1.webp` y `-2.webp` (3x de 28 px de alto): la gente que
+  pasea por la cabecera, en dos posturas (piernas abiertas y juntas),
+  recortadas de dos hojas de Iván y alineadas por la cabeza y los pies.
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
   Estadísticas.
