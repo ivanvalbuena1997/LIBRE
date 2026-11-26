@@ -166,6 +166,13 @@ nombra sin decir en qué archivo están: búscalas con grep.
   (`config.conductores.finiquito`). Sin dinero no se puede; va a la caja
   como incidencia «Finiquitos» y sus objetos vuelven al almacén (o a la
   bandeja si no caben). La interfaz siempre pide confirmación.
+- Filtros del Almacén (Iván, 26-11-2026; `ui-almacen.js`): `ui.filtroCategoria`
+  y `ui.filtroStat`, guardados en `localStorage` (`libre-filtro-almacen`),
+  aparte de la partida. `statsQueMejora(o)` traduce los efectos a la stat
+  que mejoran (`STAT_DE_EFECTO`: espera de día/noche → espera, `sinImpagos`,
+  `rueda` y `bolsa` → la suya) con `ui.MAS_ES_MEJOR`; `TEXTO_FILTRO` da el
+  texto y el orden del desplegable (solo las que mejora algún objeto).
+  Chips `data-filtro-categoria`, desplegable `data-filtro-stat`.
 - Pestañas Almacén y Conductores (antes, juntas en Flota). Almacén
   (`seccionAlmacen`, maqueta almacen.html): título con lo que vale
   (`valorAlmacen()`: venta de almacén y bandeja) y «Objetos N de M»;

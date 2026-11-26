@@ -1482,6 +1482,12 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .almacen-consumible .ui-chip-compra { padding: 5px var(--esp-4); font-size: var(--t-mini); white-space: nowrap; }
 .almacen-lleno { flex: none; font-size: var(--t-mini); font-weight: 800; color: var(--dinero); }
 
+.almacen-filtros { display: flex; flex-direction: column; gap: var(--esp-2); margin-bottom: var(--esp-3); }
+.almacen-categorias { display: flex; gap: var(--esp-2); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.almacen-categorias::-webkit-scrollbar { display: none; }
+.almacen-filtro { flex: none; min-height: 44px; border: 0; font-weight: 800; cursor: pointer; }
+.almacen-filtro.activo { background: var(--marca); border-color: var(--marca); color: var(--sobre-color); }
+.almacen-stat { min-height: 44px; padding: 0 var(--esp-3); border: 1px solid var(--linea); border-radius: var(--r-placa); background: var(--blanco); color: var(--tinta); font: inherit; font-weight: 700; }
 .almacen-objetos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3); margin-bottom: var(--esp-4); }
 .almacen-objeto {
   position: relative;

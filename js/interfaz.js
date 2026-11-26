@@ -830,6 +830,13 @@
         opciones.redibujar();
         return;
       }
+      const filtroCat = ev.target.closest('[data-filtro-categoria]');
+      if (filtroCat) {
+        ui.filtroCategoria = filtroCat.dataset.filtroCategoria;
+        ui.guardarFiltro();
+        opciones.redibujar();
+        return;
+      }
       const fichaInv = ev.target.closest('[data-ficha-inventario]');
       if (fichaInv) {
         const id = fichaInv.dataset.fichaInventario;
@@ -906,6 +913,15 @@
       opciones.redibujar();
     }
     iniciarArrastre({ redibujar: opciones.redibujar, alComparar: abrirComparar });
+
+    // Filtro del almacén por lo que mejora (ui-almacen.js).
+    main.addEventListener('change', function (ev) {
+      const el = ev.target.closest('[data-filtro-stat]');
+      if (!el) return;
+      ui.filtroStat = el.value;
+      ui.guardarFiltro();
+      opciones.redibujar();
+    });
 
     main.addEventListener('change', function (ev) {
       const el = ev.target.closest('[data-comparar-candidato]');

@@ -645,6 +645,10 @@
         {
           "n": 142,
           "texto": "Arreglos: la lluvia cae por delante de todo (antes los coches, el autobús, las bicis y la gente pasaban por encima de las gotas); el nombre de tu empresa va debajo de «Libre», con su misma letra; mientras se ve un aviso puedes bajar hasta lo que tapa, como «Ver los N restantes»; y hay nombres nuevos de conductores: Fátima, Ionuț, Mamadou y Mei (Daniela se reserva para alguien especial)."
+        },
+        {
+          "n": 143,
+          "texto": "El Almacén tiene filtros: chips por categoría (B, A, S, S+, LEGENDARIO) y un desplegable con lo que mejora cada objeto (menos espera, más propinas, menos bajas…). Se pueden juntar y se recuerdan al volver."
         }
       ]
     }

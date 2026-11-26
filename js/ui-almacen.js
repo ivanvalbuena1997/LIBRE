@@ -152,21 +152,90 @@
       '<p>O vende algo del almacén y entrará solo:</p>' + htmlListaVenta(estado) + '</div>';
   }
 
+  /*
+   * Filtros (Iván, 26-11-2026): por categoría (chips) y por la estadística
+   * que mejora (desplegable); se pueden juntar. Se recuerdan en el navegador
+   * (libre-filtro-almacen), aparte de la partida, como la pestaña elegida.
+   * Los efectos sí/no cuentan para la estadística que protegen; la espera de
+   * día o de noche, para la espera.
+   */
+  const CLAVE_FILTRO = 'libre-filtro-almacen';
+  const TEXTO_FILTRO = {
+    espera: 'Menos espera', propina: 'Más propinas', sinPagar: 'Menos impagos', objeto: 'Devuelve más olvidos',
+    hallazgo: 'Encuentra más objetos', suerte: 'Encuentra objetos mejores', baja: 'Menos bajas', pinchazo: 'Menos pinchazos',
+    averia: 'Menos averías', limpieza: 'Vómitos más baratos', importeLluvia: 'Cobra más con lluvia',
+    cansancio: 'Se cansa menos', descanso: 'Descansa menos rato'
+  };
+  const STAT_DE_EFECTO = { esperaDia: 'espera', esperaNoche: 'espera', sinImpagos: 'sinPagar', rueda: 'pinchazo', bolsa: 'limpieza' };
+  ui.filtroCategoria = '';
+  ui.filtroStat = '';
+  try {
+    const f = JSON.parse(raiz.localStorage.getItem(CLAVE_FILTRO) || '{}');
+    if (f && typeof f.categoria === 'string') ui.filtroCategoria = f.categoria;
+    if (f && typeof f.stat === 'string') ui.filtroStat = f.stat;
+  } catch (e) { /* sin almacenamiento o estropeado: sin filtros */ }
+
+  function guardarFiltro() {
+    try { raiz.localStorage.setItem(CLAVE_FILTRO, JSON.stringify({ categoria: ui.filtroCategoria, stat: ui.filtroStat })); } catch (e) { /* da igual */ }
+  }
+
+  /* Las estadísticas que mejora un objeto (sin repetir). */
+  function statsQueMejora(o) {
+    const lista = [];
+    Object.keys(o.efecto || {}).forEach(function (k) {
+      const v = o.efecto[k];
+      let stat = STAT_DE_EFECTO[k] || k;
+      let mejora;
+      if (v === true) mejora = true;
+      else if (typeof v === 'number') mejora = ui.MAS_ES_MEJOR[stat] ? v > 1 : v < 1;
+      if (mejora && TEXTO_FILTRO[stat] && lista.indexOf(stat) === -1) lista.push(stat);
+    });
+    return lista;
+  }
+
+  function pasaFiltro(o) {
+    if (ui.filtroCategoria && o.categoria !== ui.filtroCategoria) return false;
+    if (ui.filtroStat && statsQueMejora(o).indexOf(ui.filtroStat) === -1) return false;
+    return true;
+  }
+
+  function htmlFiltros(estado) {
+    const chips = [{ id: '', nombre: 'Todos' }].concat(Libre.config.categorias.map(function (c) { return { id: c.id, nombre: c.nombre }; }))
+      .map(function (c) {
+        const activo = ui.filtroCategoria === c.id;
+        return '<button type="button" class="ui-chip almacen-filtro' + (activo ? ' activo' : '') + '" data-filtro-categoria="' + c.id +
+          '" aria-pressed="' + activo + '">' + ui.esc(c.nombre) + '</button>';
+      }).join('');
+    // En el desplegable, solo las estadísticas que mejora algún objeto del juego.
+    const stats = [];
+    Libre.config.objetos.lista.forEach(function (o) {
+      statsQueMejora(o).forEach(function (s) { if (stats.indexOf(s) === -1) stats.push(s); });
+    });
+    const orden = Object.keys(TEXTO_FILTRO);
+    stats.sort(function (a, b) { return orden.indexOf(a) - orden.indexOf(b); });
+    const opciones = '<option value="">Cualquier efecto</option>' + stats.map(function (s) {
+      return '<option value="' + s + '"' + (ui.filtroStat === s ? ' selected' : '') + '>' + ui.esc(TEXTO_FILTRO[s]) + '</option>';
+    }).join('');
+    return '<div class="almacen-filtros"><div class="almacen-categorias" role="group" aria-label="Filtrar por categoría">' + chips + '</div>' +
+      '<select class="almacen-stat" data-filtro-stat aria-label="Filtrar por lo que mejora">' + opciones + '</select></div>';
+  }
+
   function htmlInventario(estado) {
-    // Solo los objetos que tienes sin equipar, de mejor a peor.
-    const objetos = objetosDelAlmacen(estado).map(function (o) { return htmlCasillaObjeto(estado, o); }).join('');
-    return htmlBandeja(estado) +
-      (objetos
-        ? '<div class="almacen-objetos">' + objetos + '</div>'
-        : '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>') +
-      htmlPanelInventario(estado);
+    // Solo los objetos que tienes sin equipar, de mejor a peor, con los filtros.
+    const todos = objetosDelAlmacen(estado);
+    const objetos = todos.filter(pasaFiltro).map(function (o) { return htmlCasillaObjeto(estado, o); }).join('');
+    let cuerpo;
+    if (objetos) cuerpo = '<div class="almacen-objetos">' + objetos + '</div>';
+    else if (todos.length) cuerpo = '<p class="ayuda">Ningún objeto de tu almacén cumple estos filtros.</p>';
+    else cuerpo = '<p class="ayuda">Tus conductores encuentran objetos al hacer carreras. Se equipan desde su ficha.</p>';
+    return htmlBandeja(estado) + (todos.length ? htmlFiltros(estado) : '') + cuerpo + htmlPanelInventario(estado);
   }
 
   /* «Libra los lunes · fin de semana: días impares» (según letra y paridad). */
 
   const seccionAlmacen = {
     id: 'sec-almacen',
-    firma: ui.firmaFlota,
+    firma: function (estado) { return ui.firmaFlota(estado) + '|' + ui.filtroCategoria + '|' + ui.filtroStat; },
     html: function (estado) {
       return '<div class="pantalla-titulo"><h2 class="ui-titulo ui-titulo--pantalla">Almacén</h2>' +
         // Lo que vale todo lo guardado (venta de almacén y bandeja).
@@ -178,5 +247,5 @@
 
   /* Pestaña Conductores: reserva, licencias con sus turnos y la ficha. */
 
-  Object.assign(ui, { htmlListaVenta, objetosDelAlmacen, seccionAlmacen });
+  Object.assign(ui, { htmlListaVenta, objetosDelAlmacen, seccionAlmacen, guardarFiltro });
 })(globalThis);

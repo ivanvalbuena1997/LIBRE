@@ -1040,5 +1040,5 @@
    * Estados: comprada, disponible, sin dinero y bloqueada.
    */
 
-  Object.assign(ui, { botonCerrarHoja, claseRareza, conductorDe, firmaFlota, htmlCirculos, seccionConductores });
+  Object.assign(ui, { botonCerrarHoja, claseRareza, conductorDe, firmaFlota, htmlCirculos, seccionConductores, MAS_ES_MEJOR });
 })(globalThis);

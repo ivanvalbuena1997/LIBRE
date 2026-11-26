@@ -130,6 +130,7 @@ Con 5 taxis, Calle cabe sin desplazar en 390 × 844 y en 375 × 800. El **ticket
 
 - **Título:** «Almacén», al lado lo que **vale** todo lo guardado (lo que te darían vendiendo el almacén y la bandeja, en verde; Iván, 20-11-2026) y, a la derecha, «Objetos N de M».
 - **Objetos sin equipar:** casillas de 3 columnas, de mejor a peor, **sin nombre a la vista** (decisión de Iván): rareza, cantidad y el dibujo sobre el color de su categoría. Al tocar una se abre debajo su panel con el nombre, qué hace, cuántos hay equipados, «Combinar» y «Vender».
+- **Filtros** (Iván, 26-11-2026): encima de las casillas, una fila de chips por categoría («Todos», B, A, S, S+, LEGENDARIO) y un desplegable con lo que mejora el objeto (menos espera, más propinas, menos impagos, menos bajas, menos pinchazos, menos averías, se cansa menos…). Se pueden juntar y el navegador los recuerda, aparte de la partida. Los efectos de sí o no cuentan para lo que protegen (la Cámara, para los impagos; la Rueda, para los pinchazos; la Bolsa, para los vómitos).
 - **Bandeja:** si un conductor encuentra algo con el almacén lleno, arriba aparece en amarillo «Almacén lleno · N por guardar», con lo que espera y la lista para vender.
 
 ### Mejoras
