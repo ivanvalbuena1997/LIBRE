@@ -165,3 +165,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 126. En el ordenador, la introducción y los eventos se ven en una columna en el centro, con la ilustración entera, en vez de estirarse a todo el ancho y recortarse.
 127. Vender un objeto LEGENDARIO da ahora 25 puntos de experiencia a tu personaje (antes, 1). En la hoja de tu personaje solo sale cuántos puntos de prestigio te dan si empiezas de cero. Y el ajuste de Paconi y el plus por km de El Pelado cuentan ya como lo que facturan en Estadísticas.
 128. Tu taxista tiene cara propia: un retrato ilustrado, el mismo protagonista de la introducción y de los eventos. Ya no se compone por piezas; tu nombre sí se sigue pudiendo cambiar.
+129. Las mejoras de tu taxista se explican mejor: cada nivel dice qué mejora (por ejemplo, Veterano: «Tu taxista gana un 25 % más de experiencia»), y el Tesla y el Mercedes cuentan lo que hacen.

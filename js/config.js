@@ -492,15 +492,15 @@
           // Cada nivel pide un nivel más de Fondo físico (Iván, 25-11-2026):
           // sin aguantar más carreras seguidas, el tope más alto no se alcanza.
           niveles: [
-            { coste: 6, descripcion: 'Hasta +15 %.', efecto: { rachaMaximo: 0.05 }, requiere: { fondoFisico: 1 } },
-            { coste: 12, descripcion: 'Hasta +20 %.', efecto: { rachaMaximo: 0.10 }, requiere: { fondoFisico: 2 } },
-            { coste: 18, descripcion: 'Hasta +25 %.', efecto: { rachaMaximo: 0.15 }, requiere: { fondoFisico: 3 } }
+            { coste: 6, descripcion: 'La racha llega hasta +15 % (de serie, +10 %).', efecto: { rachaMaximo: 0.05 }, requiere: { fondoFisico: 1 } },
+            { coste: 12, descripcion: 'La racha llega hasta +20 %.', efecto: { rachaMaximo: 0.10 }, requiere: { fondoFisico: 2 } },
+            { coste: 18, descripcion: 'La racha llega hasta +25 %.', efecto: { rachaMaximo: 0.15 }, requiere: { fondoFisico: 3 } }
           ] },
         { id: 'reflejos', nombre: 'Reflejos de taxista', grupo: 'volante', requiere: ['racha', 'fondoFisico'],
           descripcion: 'Más tiempo para encadenar la siguiente carrera.',
           niveles: [
-            { coste: 9, descripcion: '0,15 s más.', efecto: { rachaReaccion: 0.15 } },
-            { coste: 15, descripcion: '0,3 s más.', efecto: { rachaReaccion: 0.3 } }
+            { coste: 9, descripcion: '0,15 s más para encadenar la siguiente carrera.', efecto: { rachaReaccion: 0.15 } },
+            { coste: 15, descripcion: '0,3 s más para encadenar la siguiente carrera.', efecto: { rachaReaccion: 0.3 } }
           ] },
         { id: 'incognitoTu', nombre: 'Incógnito al volante', grupo: 'volante',
           descripcion: 'Puedes conducir también los días que libra tu licencia. Ojo con los pesetas: si uno te está mirando y cargas, 2.000 € de multa.',
@@ -508,24 +508,24 @@
         { id: 'fondoFisico', nombre: 'Fondo físico', grupo: 'volante',
           descripcion: 'Te cansas menos.',
           niveles: [
-            { coste: 6, descripcion: 'Un 15 % menos.', efecto: { cansancio: 0.85 } },
-            { coste: 12, descripcion: 'Un 30 % menos.', efecto: { cansancio: 0.7 } },
-            { coste: 18, descripcion: 'Un 50 % menos.', efecto: { cansancio: 0.5 } },
-            { coste: 24, descripcion: 'Un 75 % menos.', efecto: { cansancio: 0.25 } },
+            { coste: 6, descripcion: 'Te cansas un 15 % menos.', efecto: { cansancio: 0.85 } },
+            { coste: 12, descripcion: 'Te cansas un 30 % menos.', efecto: { cansancio: 0.7 } },
+            { coste: 18, descripcion: 'Te cansas un 50 % menos.', efecto: { cansancio: 0.5 } },
+            { coste: 24, descripcion: 'Te cansas un 75 % menos.', efecto: { cansancio: 0.25 } },
             { coste: 30, descripcion: 'Incansable: nunca necesitas descansar.', efecto: { cansancio: 0 } }
           ] },
         { id: 'callejero', nombre: 'Callejero de memoria', grupo: 'volante',
           descripcion: 'Encuentras cliente antes.',
           niveles: [
-            { coste: 9, descripcion: 'Un 10 % antes.', efecto: { espera: 0.9 } },
-            { coste: 15, descripcion: 'Un 20 % antes.', efecto: { espera: 0.8 } }
+            { coste: 9, descripcion: 'Encuentras cliente un 10 % antes.', efecto: { espera: 0.9 } },
+            { coste: 15, descripcion: 'Encuentras cliente un 20 % antes.', efecto: { espera: 0.8 } }
           ] },
         { id: 'ahorros', nombre: 'Ahorros', grupo: 'arranque',
           descripcion: 'Empiezas cada partida con dinero de más.',
           niveles: [
-            { coste: 3, descripcion: '1.000 € más.', efecto: { dineroInicial: 1000 } },
-            { coste: 9, descripcion: '3.000 € más.', efecto: { dineroInicial: 3000 } },
-            { coste: 15, descripcion: '6.000 € más.', efecto: { dineroInicial: 6000 } }
+            { coste: 3, descripcion: 'Empiezas con 1.000 € más.', efecto: { dineroInicial: 1000 } },
+            { coste: 9, descripcion: 'Empiezas con 3.000 € más.', efecto: { dineroInicial: 3000 } },
+            { coste: 15, descripcion: 'Empiezas con 6.000 € más.', efecto: { dineroInicial: 6000 } }
           ] },
         { id: 'cocheNuevo', nombre: 'Coche a estrenar', grupo: 'arranque',
           descripcion: 'Tu primer coche sale de fábrica, a 0 km, en vez de usado.',
@@ -536,14 +536,14 @@
         { id: 'veterano', nombre: 'Veterano', grupo: 'arranque',
           descripcion: 'Ganas más experiencia y llegas antes al siguiente reinicio.',
           niveles: [
-            { coste: 12, descripcion: 'Un 25 % más.', efecto: { experiencia: 1.25 } },
-            { coste: 18, descripcion: 'Un 50 % más.', efecto: { experiencia: 1.5 } }
+            { coste: 12, descripcion: 'Tu taxista gana un 25 % más de experiencia.', efecto: { experiencia: 1.25 } },
+            { coste: 18, descripcion: 'Tu taxista gana un 50 % más de experiencia.', efecto: { experiencia: 1.5 } }
           ] },
         { id: 'tesla', nombre: 'Tesla Model 3', grupo: 'gamas',
-          descripcion: 'Eléctrico: podrás comprarlo para tus licencias. Llegará con las gamas de coche.',
+          descripcion: 'Podrás comprar Teslas (3.500 €) para tus licencias: eléctricos, la carga cuesta mucho menos que la gasolina, un 60 % menos de averías y un 20 % menos de cansancio.',
           niveles: [{ coste: 15, efecto: { gama: 'tesla' } }] },
         { id: 'mercedes', nombre: 'Mercedes Clase S', grupo: 'gamas', requiere: 'tesla',
-          descripcion: 'La gama más alta: podrás comprarlo para tus licencias. Llegará con las gamas de coche.',
+          descripcion: 'Podrás comprar Mercedes Clase S (5.000 €): más del doble de propinas y más generosas, un 55 % menos de clientes sin pagar y más carreras en Centro y Aeropuerto; gasta un 30 % más y sus reparaciones cuestan un 50 % más.',
           niveles: [{ coste: 24, efecto: { gama: 'mercedes' } }] }
       ]
     },

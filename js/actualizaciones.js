@@ -589,6 +589,10 @@
         {
           "n": 128,
           "texto": "Tu taxista tiene cara propia: un retrato ilustrado, el mismo protagonista de la introducción y de los eventos. Ya no se compone por piezas; tu nombre sí se sigue pudiendo cambiar."
+        },
+        {
+          "n": 129,
+          "texto": "Las mejoras de tu taxista se explican mejor: cada nivel dice qué mejora (por ejemplo, Veterano: «Tu taxista gana un 25 % más de experiencia»), y el Tesla y el Mercedes cuentan lo que hacen."
         }
       ]
     }
