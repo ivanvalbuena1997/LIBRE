@@ -196,3 +196,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 157. El Saco de 10 kg de colines estrena dibujo: un saco con los colines asomando, más claro en las casillas.
 158. Los 41 objetos estrenan dibujo: ilustraciones nuevas, más grandes y con color, en el Almacén, en las fichas y en los avisos.
 159. El aviso del «ajuste de periodos anteriores» de Paconi ya no lleva una de sus frases: solo dice cuánto entra en la caja.
+160. Estadísticas: debajo de los vómitos sale lo gastado en limpiezas y debajo de los objetos devueltos, lo ganado en recompensas. Y las cifras de arriba ya no se borran al empezar de cero: son de toda tu carrera.

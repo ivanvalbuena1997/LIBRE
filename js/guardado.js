@@ -257,6 +257,12 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 42 → 43: lo gastado en limpiezas y lo ganado con objetos devueltos (desde 0).
+    42: function (estado) {
+      const t = estado.totales = estado.totales || {};
+      if (t.vomitosEuros === undefined) t.vomitosEuros = 0;
+      if (t.devueltosEuros === undefined) t.devueltosEuros = 0;
+    },
     // 41 → 42: contadores nuevos de Estadísticas (Iván, 26-11-2026): desde 0.
     41: function (estado) {
       const t = estado.totales = estado.totales || { carreras: 0, ingresos: 0, km: 0 };

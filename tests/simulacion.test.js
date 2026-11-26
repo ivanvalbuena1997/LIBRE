@@ -2497,6 +2497,8 @@ prueba('prestigio: desde el nivel 3, empezar de cero gasta los puntos y solo con
   assert.strictEqual(n.licencias[0].km, 0);
   assert.deepStrictEqual(n.mejoras, {});
   assert.strictEqual(n.ajustes.pararAlCierre, false, 'los ajustes se quedan');
+  assert.deepStrictEqual(n.totales, e.totales, 'las cifras de Estadísticas se quedan');
+  assert.deepStrictEqual(n.mejorDia, e.mejorDia);
   // La partida vieja no se toca.
   assert.strictEqual(e.dinero, 99999);
   // Dos niveles de la misma mejora en un reinicio.
@@ -3080,12 +3082,14 @@ prueba('Estadísticas: cuentan vómitos, lo perdido sin pagar, objetos encontrad
   assert.strictEqual(e.totales.devueltos - (antes.devueltos || 0), 1);
   assert.strictEqual(e.totales.vomitos - (antes.vomitos || 0), 1);
   assert.ok(e.totales.sinPagar - (antes.sinPagar || 0) > 0, 'euros perdidos');
+  assert.ok(e.totales.vomitosEuros - (antes.vomitosEuros || 0) > 0, 'limpieza');
+  assert.ok(e.totales.devueltosEuros - (antes.devueltosEuros || 0) > 0, 'recompensa');
   require('../js/guardado.js');
   const viejo = JSON.parse(JSON.stringify(e));
   viejo.totales = { carreras: 1, ingresos: 2, km: 3 };
   viejo.version = 41;
   assert.deepStrictEqual(globalThis.Libre.guardado.migrar(viejo).totales,
-    { carreras: 1, ingresos: 2, km: 3, vomitos: 0, sinPagar: 0, hallazgos: 0, devueltos: 0 });
+    { carreras: 1, ingresos: 2, km: 3, vomitos: 0, sinPagar: 0, hallazgos: 0, devueltos: 0, vomitosEuros: 0, devueltosEuros: 0 });
 });
 
 console.log(pasadas + ' pruebas correctas');

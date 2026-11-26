@@ -425,7 +425,9 @@ nombra sin decir en qué archivo están: búscalas con grep.
 - Estadísticas (`seccionEstadisticas`, Iván 18-11-2026): ocho cifras
   (`estado.totales`, con `totales.km`, y `estado.mejorDia`; desde el
   26-11-2026, versión 42, también `vomitos`, `sinPagar`, `hallazgos` y
-  `devueltos`, que suma `incidencia()` según su tipo y `hallazgo()`), facturación por día (barras en
+  `devueltos`, que suma `incidencia()` según su tipo y `hallazgo()`; versión
+  43, `vomitosEuros` y `devueltosEuros`; `empezarDeCero()` conserva
+  `totales` y `mejorDia`), facturación por día (barras en
   HTML, raya del neto; tocar una la elige: `diaEstadistica`), media diaria
   (`Libre.sim.mediasDiarias()`: tú y los conductores con turno, entre las
   jornadas que estuvieron en la flota; las de libranza de su licencia no se

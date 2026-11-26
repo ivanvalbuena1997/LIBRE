@@ -85,7 +85,8 @@
       caja: { hoy: cajaVacia(0), ayer: null },
       // Contadores de la partida (Estadísticas). vomitos, sinPagar (€ perdidos),
       // hallazgos y devueltos: Iván, 26-11-2026 (versión 42 del guardado).
-      totales: { carreras: 0, ingresos: 0, km: 0, vomitos: 0, sinPagar: 0, hallazgos: 0, devueltos: 0 },
+      // vomitosEuros (limpiezas) y devueltosEuros (recompensas): versión 43.
+      totales: { carreras: 0, ingresos: 0, km: 0, vomitos: 0, vomitosEuros: 0, sinPagar: 0, hallazgos: 0, devueltos: 0, devueltosEuros: 0 },
       // Tu sociedad limitada: { nombre, jornada } desde que la montas (idea 1).
       empresa: null,
       // Lo que te ha hecho ganar o ahorrar cada mejora (idea 16): { id: euros }.
@@ -2163,6 +2164,10 @@
     };
     // La introducción solo sale al principio de la primera partida.
     nuevo.historia = Object.assign({}, estado.historia, { introVista: true });
+    // Las cifras de arriba de Estadísticas se conservan (Iván, 26-11-2026):
+    // son de toda tu carrera, no de una partida.
+    nuevo.totales = JSON.parse(JSON.stringify(estado.totales || nuevo.totales));
+    nuevo.mejorDia = estado.mejorDia ? Object.assign({}, estado.mejorDia) : null;
     aplicarArranque(nuevo);
     const r = exito('Empiezas de cero' + (nuevo.personaje.puntos ? '; te guardas ' + nuevo.personaje.puntos +
       ' punto' + (nuevo.personaje.puntos === 1 ? '' : 's') + ' para el próximo reinicio.' : '.'));
@@ -3450,8 +3455,9 @@
     // la bolsa), lo perdido con los que se van sin pagar y objetos devueltos.
     const tot = estado.totales;
     if (tipo === 'vomito' || tipo === 'bolsa') tot.vomitos = (tot.vomitos || 0) + 1;
+    if (tipo === 'vomito') tot.vomitosEuros = (tot.vomitosEuros || 0) - importe;
     if (tipo === 'sinPagar') tot.sinPagar = (tot.sinPagar || 0) - importe;
-    if (tipo === 'objeto') tot.devueltos = (tot.devueltos || 0) + 1;
+    if (tipo === 'objeto') { tot.devueltos = (tot.devueltos || 0) + 1; tot.devueltosEuros = (tot.devueltosEuros || 0) + importe; }
     if (turno && turno.quien === 'conductor') { ev.conductor = turno.nombre; ev.retrato = caraDe(turno); }
     resumen.eventos.push(ev);
     pistaChat(estado, tipo === 'lluvia' && estado.lluvia && estado.lluvia.tipo === 'tormenta' ? 'tormenta' : tipo, turno);

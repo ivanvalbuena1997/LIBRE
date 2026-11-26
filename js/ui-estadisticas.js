@@ -31,15 +31,15 @@
         (pie ? '<small>' + ui.esc(pie) + '</small>' : '') + '</div>';
     };
     return '<div class="estad-cifras">' +
-      cifra('Facturado', ui.eurosCorto(estado.totales.ingresos), 'en la partida') +
-      cifra('Carreras', ui.numero(Math.floor(estado.totales.carreras)), 'en la partida') +
+      cifra('Facturado', ui.eurosCorto(estado.totales.ingresos), 'desde el principio') +
+      cifra('Carreras', ui.numero(Math.floor(estado.totales.carreras)), 'desde el principio') +
       cifra('Mejor día', mejor ? ui.eurosCorto(mejor.ingresos) : '—', mejor ? nombreDia(mejor.dia) : 'sin cerrar') +
       cifra('Km recorridos', ui.numero(Math.floor(estado.totales.km || 0)) + ' km', 'por tu flota') +
       // Iván, 26-11-2026: lo que ha pasado en los taxis de toda la flota.
-      cifra('Vómitos', ui.numero(t.vomitos || 0), 'en toda la flota', 'estad-cifra--cuenta') +
+      cifra('Vómitos', ui.numero(t.vomitos || 0), ui.euros(t.vomitosEuros || 0) + ' en limpiezas', 'estad-cifra--cuenta') +
       cifra('Sin pagar', ui.eurosCorto(t.sinPagar || 0), 'perdidos con los que se van', 'estad-cifra--perdido') +
       cifra('Objetos encontrados', ui.numero(t.hallazgos || 0), 'por tus conductores', 'estad-cifra--cuenta') +
-      cifra('Objetos devueltos', ui.numero(t.devueltos || 0), 'olvidos de clientes', 'estad-cifra--cuenta') +
+      cifra('Objetos devueltos', ui.numero(t.devueltos || 0), ui.euros(t.devueltosEuros || 0) + ' de recompensas', 'estad-cifra--cuenta') +
       '</div>';
   }
 
@@ -139,6 +139,7 @@
       return JSON.stringify([h.length, h.length ? h[h.length - 1].dia : -1, ui.diaEstadistica,
         Math.floor(estado.totales.ingresos / 20), Math.floor((estado.totales.km || 0) / 100), (estado.exConductores || []).length,
         estado.totales.vomitos, estado.totales.sinPagar, estado.totales.hallazgos, estado.totales.devueltos,
+        estado.totales.vomitosEuros, estado.totales.devueltosEuros,
         Libre.sim.todosLosConductores(estado).map(function (x) { return x.t.id + '@' + x.licenciaId + x.turno; })]);
     },
     html: function (estado) {
