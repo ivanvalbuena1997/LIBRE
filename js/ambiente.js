@@ -37,100 +37,28 @@
   const ANCHO = TRAMO * TRAMOS;
   const CENTRO = TRAMO * 2;     // x donde empieza el tramo del centro
 
-  // Ventanas del perfil (x, y), de la maqueta.
-  const VENTANAS = [
-    [10, 150], [10, 166], [26, 150], [26, 182], [40, 150], [40, 166],
-    [308, 150], [308, 182], [322, 150], [322, 166], [336, 166], [336, 182],
-    [352, 150], [352, 166], [368, 150], [368, 182]
-  ];
   // Estrellas de un tramo (x, y), de la maqueta.
   const ESTRELLAS = [[30, 30], [74, 58], [126, 24], [170, 66], [214, 28], [262, 70], [352, 98], [58, 96], [246, 100]];
 
   /*
-   * Un árbol con más detalle (Iván, 20-11-2026): tronco con una rama, copa
-   * de tres bolas, una sombra por debajo y un brillo arriba. (x, suelo, r).
+   * Los edificios (Iván, 26-11-2026): una ilustración hecha con IA, como el
+   * resto del juego (imagenes/calle-dia.webp y calle-noche.webp, 1950 × 130
+   * a doble densidad; el centro, con el Metrópolis y Cibeles). Va pegada a la
+   * acera; la de noche aparece encima con un fundido.
    */
-  function arbol(x, suelo, r) {
-    const cy = suelo - r * 1.45;
-    return '<path class="esc-tronco" d="M' + (x - 2.2) + ' ' + suelo + 'L' + (x - 1.4) + ' ' + (cy + 2) + 'h2.8L' + (x + 2.2) + ' ' + suelo +
-      'zM' + x + ' ' + (cy + r * 0.7) + 'l' + (r * 0.45) + ' ' + (-r * 0.45) + 'l1 1z"/>' +
-      '<circle class="esc-copa-oscura" cx="' + (x + r * 0.35) + '" cy="' + (cy + r * 0.25) + '" r="' + (r * 0.8) + '"/>' +
-      '<circle class="esc-copa" cx="' + (x - r * 0.35) + '" cy="' + (cy + r * 0.15) + '" r="' + (r * 0.78) + '"/>' +
-      '<circle class="esc-copa" cx="' + x + '" cy="' + (cy - r * 0.35) + '" r="' + (r * 0.8) + '"/>' +
-      '<circle class="esc-copa-clara" cx="' + (x - r * 0.25) + '" cy="' + (cy - r * 0.55) + '" r="' + (r * 0.32) + '"/>';
-  }
-
-  /* Un tramo del perfil: edificios, ventanas y árboles. */
-  function tramo() {
-    return '<path class="esc-lejos" d="M0 150V120h28v-18h22v30h26v-24h30v34h24v-14h34v28h30v-22h28v30h30v-20h34v22h40v50H0z"/>' +
-      '<path class="esc-medio" d="M0 170V132h36v-20h30v44h28v-30h38v54h30v-26h34v34h30v-40h36v36h28v-18h34V200H0z"/>' +
-      '<path class="esc-cerca" d="M0 200V160h52v-12h34v52zM300 200v-52h42v-14h48v66z"/>' +
-      VENTANAS.map(function (v, i) {
-        return '<rect class="esc-ventana ' + (i % 3 === 1 ? 'an-v2' : 'an-v1') + '" x="' + v[0] + '" y="' + v[1] +
-          '" width="8" height="9" rx="1.5"/>';
-      }).join('') +
-      arbol(98, 198, 13) + arbol(264, 198, 13);
-  }
-
-  /*
-   * El tramo del centro, el que se ve en el móvil (Iván, 20-11-2026): Madrid
-   * reconocible, en siluetas planas con los colores de la escena. Al fondo,
-   * las Cuatro Torres (izquierda), Torrespaña («el Pirulí») y las Torres KIO
-   * (derecha); en medio, el edificio Metrópolis con su cúpula y la Victoria,
-   * y Telefónica; delante, la Puerta de Alcalá, árboles y casas con ventanas.
-   */
-  function tramoCentro() {
-    let v = '';
-    const ventana = function (x, y, i) {
-      return '<rect class="esc-ventana ' + (i % 3 === 1 ? 'an-v2' : 'an-v1') + '" x="' + x + '" y="' + y + '" width="6" height="7" rx="1"/>';
+  const ALTO_EDIFICIOS = 130;
+  function edificios() {
+    const y = 198 - ALTO_EDIFICIOS;
+    const imagen = function (momento) {
+      return '<image class="esc-edificios-' + momento + '" href="imagenes/calle-' + momento + '.webp" x="0" y="' + y +
+        '" width="' + ANCHO + '" height="' + ALTO_EDIFICIOS + '" preserveAspectRatio="none"/>';
     };
-    // Fondo: perfil bajo de la ciudad.
-    v += '<path class="esc-lejos" d="M0 160V136h20v-10h18v18h22v-8h40v12h30v-16h26v20h40v-10h34v14h30v-12h36v8h34v-14h30v18h30V200H0z"/>';
-    // Cuatro Torres: Cepsa (con su arco arriba), PwC, Cristal y Espacio.
-    v += '<path class="esc-lejos" fill-rule="evenodd" d="M6 136V64h16v72zM9 68v8h10v-8z"/>' +
-      '<path class="esc-lejos" d="M27 136V58c0-4 3-6 7-6s7 2 7 6v78z"/>' +
-      '<path class="esc-lejos" d="M46 136V50l16-6v92z"/>' +
-      '<path class="esc-lejos" d="M67 136V70c4-6 10-8 14-10v76z"/>';
-    // Torrespaña: el mástil con su cabeza.
-    v += '<path class="esc-lejos" d="M282 140V96h3V70h1V52h1v18h1v26h3v44z"/>' +
-      '<rect class="esc-lejos" x="278" y="92" width="17" height="8" rx="3"/>';
-    // Torres KIO: inclinadas la una hacia la otra.
-    v += '<path class="esc-lejos" d="M332 150l10-62h14l-10 62z"/><path class="esc-lejos" d="M372 150l-10-62h-14l10 62z"/>';
-    // En medio: casas, Telefónica (escalonada) y el Metrópolis.
-    v += '<path class="esc-medio" d="M0 170V146h30v-8h26v32h28v-20h34v20h22V200H0z"/>' +
-      '<path class="esc-medio" d="M232 200V130h6v-10h6v-12h4v12h6v10h6v70z"/>' +
-      '<path class="esc-medio" d="M262 200V150h30v-8h28v58z"/>';
-    // Metrópolis: torre redonda, cúpula oscura, linterna y la Victoria dorada.
-    v += '<path class="esc-medio" d="M156 200V132c0-6 4-10 10-10h16c6 0 10 4 10 10v68z"/>' +
-      '<path class="esc-cerca" d="M158 124c0-12 8-20 16-20s16 8 16 20z"/>' +
-      '<rect class="esc-cerca" x="171" y="96" width="6" height="9" rx="1"/>' +
-      '<path class="esc-ventana" d="M172 96l2-8 2 8zM169 90l5-2 5 2-5 1z"/>' +
-      '<path class="esc-cerca" d="M156 140h36v1.2h-36zM156 152h36v1.2h-36zM156 164h36v1.2h-36z"/>';
-    for (let y = 144, i = 0; y < 196; y += 12) {
-      v += ventana(160, y, i++) + ventana(171, y, i++) + ventana(182, y, i++);
-    }
-    // Telefónica: ventanas en columna.
-    for (let y = 134, i = 1; y < 196; y += 11) v += ventana(239, y, i++) + ventana(247, y, i++);
-    // Delante: la Puerta de Alcalá (cinco vanos, frontón y remate).
-    v += '<g class="esc-puerta">' +
-      '<path class="esc-acera" d="M88 198v-30h-4v-4h78v4h-4v30z"/>' +
-      '<path class="esc-acera" d="M100 164v-4h46v4zM112 160l11-8 11 8z"/>' +
-      '<path class="esc-cerca" d="M93 198v-14h7v14zM104 198v-18a4 4 0 0 1 8 0v18zM119 198v-20a4 4 0 0 1 8 0v20zM134 198v-18a4 4 0 0 1 8 0v18zM146 198v-14h7v14z"/>' +
-      '</g>';
-    // Casas de delante con ventanas, a los lados.
-    v += '<path class="esc-cerca" d="M0 200V162h44v-10h30v48zM300 200v-46h40v-12h50v58z"/>';
-    [[8, 168], [8, 182], [22, 168], [36, 182], [50, 160], [62, 174], [306, 162], [306, 178], [320, 170], [346, 150],
-      [346, 166], [360, 150], [360, 182], [374, 166]].forEach(function (p, i) { v += ventana(p[0], p[1], i); });
-    // Árboles.
-    v += arbol(78, 198, 10) + arbol(208, 198, 13) + arbol(290, 198, 9);
-    return v;
+    return '<g class="esc-edificios">' + imagen('dia') + imagen('noche') + '</g>';
   }
 
   function escena() {
-    let tramos = '';
     let estrellas = '';
     for (let i = 0; i < TRAMOS; i++) {
-      tramos += '<g transform="translate(' + (i * TRAMO) + ' 0)">' + (i === 2 ? tramoCentro() : tramo()) + '</g>';
       ESTRELLAS.forEach(function (e) {
         estrellas += '<circle class="esc-estrella an-v1" cx="' + (i * TRAMO + e[0]) + '" cy="' + e[1] + '" r="1.3"/>';
       });
@@ -159,7 +87,7 @@
       '<circle class="esc-sol" cx="' + (CENTRO + 250) + '" cy="86" r="28"/></g>' +
       '<g class="esc-noche"><g class="esc-estrellas">' + estrellas + '</g>' +
       '<circle class="esc-luna" cx="' + (CENTRO + 250) + '" cy="74" r="24" mask="url(#esc-creciente)"/></g>' +
-      tramos +
+      edificios() +
       '<rect class="esc-acera" x="0" y="198" width="' + ANCHO + '" height="8"/>' +
       '<rect class="esc-asfalto" x="0" y="206" width="' + ANCHO + '" height="44"/>' +
       '<path class="esc-raya" d="' + rayas() + '"/>' +

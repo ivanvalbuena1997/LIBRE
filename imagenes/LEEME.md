@@ -15,6 +15,10 @@ la tapa el texto.
   recortados de hojas de 3 × 3 que genera Iván: `h01`… hombres, `m01`…
   mujeres (`config.conductores.caras`). Para añadir más: recortarlas y
   apuntar su id en el banco de su sexo.
+- `calle-dia.webp`, `calle-noche.webp`: los edificios de la cabecera
+  (3900 × 260, se ven a 1950 × 130), recortados de dos ilustraciones de
+  Iván con el cielo verde (se quita el verde) y alargados a los lados
+  repitiendo sus casas; el Metrópolis y Cibeles, en el centro.
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
   Estadísticas.

@@ -71,22 +71,23 @@
 
   /* Escena de la cabecera (js/ambiente.js). El cielo va en hex: ambiente.js
      lo lee y mezcla los cuatro momentos. Día y noche, de la maqueta. */
-  --cielo-noche-alto: #0f1b3d;
-  --cielo-noche-bajo: #2a3e7a;
-  --cielo-alba-alto: #6f7fb8;
-  --cielo-alba-bajo: #f6b07a;
-  --cielo-dia-alto: #7db4ee;
-  --cielo-dia-bajo: #dceeff;
-  --cielo-ocaso-alto: #5a4f93;
-  --cielo-ocaso-bajo: #f08a5d;
-  --esc-nube: #ffffff;
+  /* Cielo y calle con la paleta de las ilustraciones (Iván, 26-11-2026). */
+  --cielo-noche-alto: #101a36;
+  --cielo-noche-bajo: #27365e;
+  --cielo-alba-alto: #6c8a99;
+  --cielo-alba-bajo: #f0b47c;
+  --cielo-dia-alto: #8fc2c4;
+  --cielo-dia-bajo: #f1ead6;
+  --cielo-ocaso-alto: #4f5a78;
+  --cielo-ocaso-bajo: #e0894f;
+  --esc-nube: #fbf4e4;
   --esc-lejos: #b7cde8;
   --esc-medio: #d9a07a;
   --esc-cerca: #a9654f;
   --esc-ventana: #fff3d0;
-  --esc-acera: #cfc6b4;
-  --esc-asfalto: #3c4258;
-  --esc-raya: #f2e9d2;
+  --esc-acera: #d8c6a2;
+  --esc-asfalto: #3b3836;
+  --esc-raya: #f3e6c8;
   --esc-tronco: #6b4a3a;
   --esc-copa: #5e9a6a;
   --esc-copa-oscura: #4a8257;     /* sombra de la copa */
@@ -100,7 +101,7 @@
   --esc-mochila: #2fb24c;          /* mochila de reparto */
   --esc-mochila-franja: #1f7a33;
   --esc-mochila-naranja: #ff8000;   /* Just Eat */
-  --bus-azul: #2f9ae0;              /* autobús de la EMT: azul claro */
+  --bus-azul: #3a86ad;              /* autobús de la EMT: azul, apagado como las ilustraciones */
   --bus-gris: #b9bec5;              /* faldón */
   --bus-negro: #15181d;             /* banda de ventanillas */
   --bus-techo: #f4f6f8;
@@ -119,8 +120,8 @@
   --esc-medio-noche: #2e3b72;
   --esc-cerca-noche: #1c2550;
   --esc-ventana-noche: #ffd27a;
-  --esc-acera-noche: #2a3566;
-  --esc-asfalto-noche: #1a2038;
+  --esc-acera-noche: #2c2f45;
+  --esc-asfalto-noche: #1b1c26;
   --esc-raya-noche: #9aa7d6;
   --esc-tronco-noche: #141b3a;
   --esc-copa-noche: #1f3a4a;
@@ -131,12 +132,12 @@
   --coche-carroceria: #ffffff;
   --coche-perfil: #c9bfb0;
   --coche-cristal: #9fc4de;
-  --coche-franja: #d0382a;
+  --coche-franja: #c4473a;
   --coche-faro: #ffe9a8;
   --coche-llanta: #d9dde3;
   --coche-radios: #8f959e;
   --esc-reflectante: #ff9a1f;      /* reflectante de los radios de la bici */
-  --esc-farola: #4a5163;           /* farolas: poste y cabeza */
+  --esc-farola: #3b2c26;           /* farolas: poste y cabeza */
   --esc-farola-noche: #10162e;
   --esc-farola-apagada: #c9ced8;   /* la lámpara de día */
   --esc-farola-encendida: #ffe2a0; /* de noche: la lámpara, el halo y el suelo */
@@ -309,6 +310,12 @@ body:not([data-vista="calle"]) .cabecera {
 }
 
 .cabecera-escena { position: absolute; inset: 0; overflow: hidden; }
+/* Grano como el de las ilustraciones, sobre toda la escena (sin color propio:
+   ruido en grises que oscurece un poco). */
+.cabecera-escena::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.16; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
 .cabecera-contenido { position: relative; max-width: 560px; height: 100%; margin: 0 auto; }
 
 /* Logo y, al lado, la placa con el nombre de tu SL (Iván, 20-11-2026). */
@@ -545,6 +552,9 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 
 /* Escena: dibujo a escala 1, pegado abajo y centrado (js/ambiente.js). */
 .esc-calle { position: absolute; left: 50%; bottom: 0; margin-left: -975px; display: block; }
+/* Edificios ilustrados (Iván, 26-11-2026): la versión de noche, encima, con fundido. */
+.esc-edificios-noche { opacity: 0; transition: opacity 1.5s ease; }
+.noche .esc-edificios-noche { opacity: 1; }
 .esc-lejos { fill: var(--esc-lejos); }
 .esc-medio { fill: var(--esc-medio); }
 .esc-cerca { fill: var(--esc-cerca); }

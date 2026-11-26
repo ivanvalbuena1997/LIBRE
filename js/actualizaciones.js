@@ -597,6 +597,10 @@
         {
           "n": 130,
           "texto": "Tus conductores tienen caras nuevas: retratos ilustrados como el resto del juego, 55 distintos y de todo tipo. Cada candidato saca una al azar, así que la misma Mari Carmen no sale siempre con la misma cara, y nunca hay dos iguales en tu flota. Los conductores que ya tenías también estrenan cara."
+        },
+        {
+          "n": 131,
+          "texto": "La calle de arriba se renueva: los edificios son ahora una ilustración de Madrid, con el Metrópolis y Cibeles, de día y de noche con las ventanas encendidas. El cielo, la calle y todo lo que se mueve siguen igual, con los colores del resto de ilustraciones."
         }
       ]
     }

@@ -543,9 +543,13 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   al tocar el display en modo flota o el total de «Tus taxis hoy»
   (`cajaAbierta`), y se cierra con su ×.
 - Escena de la cabecera (`js/ambiente.js`): cielo según la hora, sol o
-  luna y estrellas, edificios con ventanas que se encienden de noche (el
-  tramo del centro, `tramoCentro()`, con monumentos de Madrid; los demás,
-  `tramo()`), árboles (`arbol()`), farolas en la acera de detrás (`farolas()`,
+  luna y estrellas, edificios ilustrados con IA (Iván, 26-11-2026:
+  `edificios()`, dos `<image>`, `imagenes/calle-dia.webp` y
+  `calle-noche.webp`, 1950 × 130 a doble densidad, recortadas del cielo
+  verde de las imágenes de Iván y alargadas a los lados con sus casas; la
+  de noche, `.esc-edificios-noche`, entra con un fundido; antes, siluetas
+  dibujadas con `tramo()`, `tramoCentro()` y `arbol()`, ya borradas),
+  grano por encima (`.cabecera-escena::after`, ruido SVG), farolas en la acera de detrás (`farolas()`,
   cada `SEP_FAROLA`; de noche `.esc-farolas-luz` con halo y luz en el
   suelo, `--esc-farola-*`; Iván, 22-11-2026), gente paseando (`personas()`, colores de
   los retratos; Iván, 20-11-2026; una con perro, `--esc-perro-*`, con
