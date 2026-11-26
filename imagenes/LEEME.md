@@ -11,6 +11,9 @@ la tapa el texto.
 - `unico-<id>.webp`: retrato de cada conductor ÚNICO
   (`config.conductores.unicos.<id>.imagen`), cuadrado, 256 × 256 (se ve en
   círculos de 36 a 88 px). `unico-paconi.webp`: Paconi; `unico-pelado.webp`: El Pelado.
+- `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
+  `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
+  Estadísticas.
 - `evento-base.webp`: imagen base de los eventos de clientes (848 × 1264):
   el interior del Corolla visto desde el salpicadero, el protagonista al
   volante a la derecha y el copiloto vacío a la izquierda. Cada evento se

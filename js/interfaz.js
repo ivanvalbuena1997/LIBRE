@@ -387,12 +387,16 @@
         Libre.retratos.svg(t.retrato) + '</span>' + (t.conductor ? htmlCirculos(t.conductor) : '') + '</span>';
     }
     // Tú, con tu cara; o un turno sin conductor.
-    if (t.tu) return '<span class="retrato tu">' + Libre.retratos.svg(t.aspecto) + '</span>';
+    if (t.tu) return '<span class="retrato tu">' + htmlImgTu() + '</span>';
     return '<span class="retrato retrato-texto"></span>';
   }
   /* Tu cara (el retrato que eliges en la hoja del personaje). */
   function htmlCaraTu(estado) {
-    return '<span class="retrato tu">' + Libre.retratos.svg(Libre.sim.aspectoPersonaje(estado)) + '</span>';
+    return '<span class="retrato tu">' + htmlImgTu() + '</span>';
+  }
+  /* Tu retrato (imagen hecha con IA; Iván, 26-11-2026). */
+  function htmlImgTu() {
+    return '<img class="retrato-svg retrato-tu-img" src="' + esc(Libre.config.personaje.imagen) + '" alt="">';
   }
 
   /* Chip de estado de un taxi: Libre, Ocupado, Libranza, De baja o parado (ámbar). */
@@ -2741,7 +2745,7 @@
     const n = Libre.sim.nivelPersonaje(estado);
     const reinicios = estado.personaje.reinicios || 0;
     return '<div class="pj-cabecera">' +
-      '<button type="button" class="pj-cara" data-pj-editar aria-label="Cambiar tu cara y tu nombre">' + htmlCaraTu(estado) +
+      '<button type="button" class="pj-cara" data-pj-editar aria-label="Cambiar tu nombre">' + htmlCaraTu(estado) +
       '<span class="pj-lapiz" aria-hidden="true"><svg class="icono" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span></button>' +
       '<div class="pj-quien"><h2 id="personaje-titulo">' + esc(Libre.sim.nombrePersonaje(estado)) + '</h2>' +
       '<p>Taxista de nivel <strong>' + n.nivel + '</strong>' + (reinicios ? ' · ' + reinicios + (reinicios === 1 ? ' reinicio' : ' reinicios') : '') + '</p>' +
@@ -2756,34 +2760,15 @@
    * nombre; debajo, una fila por pieza con cada opción dibujada sobre tu
    * cara (tocarla la elige).
    */
-  const PIEZAS_ASPECTO = [
-    { campo: 'piel', nombre: 'Piel' }, { campo: 'cara', nombre: 'Cara' }, { campo: 'edad', nombre: 'Edad' },
-    { campo: 'pelo', nombre: 'Pelo' }, { campo: 'colorPelo', nombre: 'Color del pelo' }, { campo: 'barba', nombre: 'Barba' },
-    { campo: 'gafas', nombre: 'Gafas' }, { campo: 'ropa', nombre: 'Ropa' }, { campo: 'cuello', nombre: 'Cuello' },
-    { campo: 'gorra', nombre: 'Gorra' }, { campo: 'pendientes', nombre: 'Pendientes' }
-  ];
+  /* Hoja para cambiar tu nombre (la cara es ya un retrato fijo: Iván, 26-11-2026). */
   function htmlHojaAspecto(estado) {
-    const a = Libre.sim.aspectoPersonaje(estado);
-    const ops = Libre.config.personaje.aspecto.opciones;
-    const filas = PIEZAS_ASPECTO.map(function (p) {
-      return '<div class="pj-pieza"><span class="pj-pieza-nombre">' + p.nombre + '</span><div class="pj-opciones">' +
-        ops[p.campo].map(function (v) {
-          const prueba = Object.assign({}, a);
-          prueba[p.campo] = v;
-          const elegida = a[p.campo] === v;
-          return '<button type="button" class="pj-opcion' + (elegida ? ' elegida' : '') + '" aria-pressed="' + elegida +
-            '" aria-label="' + p.nombre + ': ' + (v === null || v === false ? 'sin' : String(v)) + '" data-pj-aspecto="' +
-            p.campo + '|' + String(v) + '"><span class="retrato">' + Libre.retratos.svg(prueba) + '</span></button>';
-        }).join('') + '</div></div>';
-    }).join('');
     return '<div class="hoja-fondo" data-pj-cerrar-aspecto></div>' +
       '<div class="hoja hoja-personaje hoja-aspecto" role="dialog" aria-modal="true" aria-labelledby="aspecto-titulo">' +
       '<button type="button" class="hoja-cerrar" data-pj-cerrar-aspecto aria-label="Volver">×</button>' +
-      '<h2 id="aspecto-titulo">Tu taxista</h2>' +
+      '<h2 id="aspecto-titulo">Tu nombre</h2>' +
       '<div class="pj-aspecto-arriba"><span class="pj-cara pj-cara--grande">' + htmlCaraTu(estado) + '</span>' +
       '<label class="pj-nombre">Nombre<input type="text" id="pj-nombre" maxlength="' + Libre.config.personaje.aspecto.nombreMax +
       '" autocomplete="off" placeholder="Tú" value="' + esc(nombreEditado) + '" data-pj-nombre></label></div>' +
-      filas +
       '<div class="pj-prestigio-pie"><button type="button" class="ui-boton ui-boton--principal" data-pj-cerrar-aspecto>Listo</button></div></div>';
   }
 
@@ -3533,12 +3518,6 @@
         return;
       }
       if (ev.target.closest('[data-pj-cerrar-aspecto]')) { cerrarAspecto(); return; }
-      const pjPieza = ev.target.closest('[data-pj-aspecto]');
-      if (pjPieza) {
-        const partes = pjPieza.dataset.pjAspecto.split('|');
-        ejecutar('cambiarAspecto', [partes[0], partes[1]]);
-        return;
-      }
       // Prestigio: elegir mejoras, confirmar y empezar de cero.
       if (ev.target.closest('[data-pj-prestigio]')) {
         prestigio = { compras: [], confirmar: false };
@@ -3987,9 +3966,9 @@
     const empresa = estado.empresa ? estado.empresa.nombre : '';
     if ($('empresa').textContent !== empresa) { $('empresa').textContent = empresa; $('empresa').hidden = !empresa; }
     // Tu cara en el botón de la cabecera (solo si ha cambiado).
-    const claveCara = JSON.stringify(estado.personaje.aspecto);
+    const claveCara = Libre.config.personaje.imagen;
     if ($('cara-personaje').dataset.clave !== claveCara) {
-      $('cara-personaje').innerHTML = Libre.retratos.svg(Libre.sim.aspectoPersonaje(estado));
+      $('cara-personaje').innerHTML = htmlImgTu();
       $('cara-personaje').dataset.clave = claveCara;
     }
     // Nivel de tu personaje en la insignia de su botón.

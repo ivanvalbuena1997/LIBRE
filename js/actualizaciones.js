@@ -585,6 +585,10 @@
         {
           "n": 127,
           "texto": "Vender un objeto LEGENDARIO da ahora 25 puntos de experiencia a tu personaje (antes, 1). En la hoja de tu personaje solo sale cuántos puntos de prestigio te dan si empiezas de cero. Y el ajuste de Paconi y el plus por km de El Pelado cuentan ya como lo que facturan en Estadísticas."
+        },
+        {
+          "n": 128,
+          "texto": "Tu taxista tiene cara propia: un retrato ilustrado, el mismo protagonista de la introducción y de los eventos. Ya no se compone por piezas; tu nombre sí se sigue pudiendo cambiar."
         }
       ]
     }

@@ -671,7 +671,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   `nombre` (null = «Tú»); `cambiarAspecto(estado, campo, valor)`,
   `renombrarPersonaje()`, `aspectoPersonaje()` y `nombrePersonaje()`; se
   conservan en `empezarDeCero()`. `Libre.retratos.svg()` acepta también un
-  objeto de rasgos. En pantalla: `htmlCaraTu()` en la cabecera
+  objeto de rasgos. Desde el 26-11-2026 (Iván) tu cara es un retrato fijo
+  hecho con IA (`config.personaje.imagen`, `htmlImgTu()`): el editor
+  (`htmlHojaAspecto()`) solo cambia el nombre; `aspecto` y
+  `cambiarAspecto()` siguen en la simulación, sin uso. En pantalla: `htmlCaraTu()` en la cabecera
   (`#cara-personaje`), «Tus taxis hoy» (`tu`, `aspecto` en
   `taxisDeLaFlota()`), Conductores y Estadísticas. Hoja:
   `htmlCabeceraPersonaje()`, pestañas (`pjGrupo`, `data-pj-grupo`) y

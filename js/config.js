@@ -443,6 +443,9 @@
        * opciones: lo que se puede elegir en cada pieza. nombreMax: letras
        * del nombre. Se conservan al empezar de cero.
        */
+      // Tu retrato (Iván, 26-11-2026, hecho con IA): sustituye a la cara por
+      // piezas, que ya no se edita. El aspecto queda guardado, sin usar.
+      imagen: 'imagenes/personaje.webp',
       aspecto: {
         inicial: { edad: 'media', piel: 2, cara: 'redonda', pelo: 'corto', colorPelo: 'castano', gafas: null,
           barba: null, ropa: 6, gorra: null, cuello: null, pendientes: false },
