@@ -609,6 +609,10 @@
         {
           "n": 133,
           "texto": "Los coches tienen dibujo: el Corolla y el Tesla salen ilustrados al elegir coche y en miniatura junto a los kilómetros de cada licencia, y el taxi que cruza la calle de arriba es, en cada pasada, uno de los coches de tu flota."
+        },
+        {
+          "n": 134,
+          "texto": "El Mercedes Clase S también tiene su dibujo: al elegir coche, junto a los kilómetros y cruzando la calle de arriba si tienes uno."
         }
       ]
     }

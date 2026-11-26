@@ -1745,6 +1745,10 @@ button.licencia-km .icono { width: 16px; height: 16px; }
 /* El coche de la licencia en miniatura (Iván, 26-11-2026). */
 .coche-mini { flex: none; width: 34px; height: 13px; object-fit: contain; object-position: center bottom; }
 .gama-imagen { display: block; width: 100%; max-width: 280px; height: auto; margin: 0 auto var(--esp-2); }
+/* Tarjetas de la hoja de elegir coche: con aire por dentro y separadas. */
+.hoja-gamas .gama { padding: var(--esp-4); margin-bottom: var(--esp-3); }
+.hoja-gamas .gama p { margin: 0 0 var(--esp-2); }
+.hoja-gamas .gama-titulo { display: flex; align-items: center; gap: var(--esp-2); margin-bottom: var(--esp-2); }
 .licencia-km-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .licencia-km-flecha { margin-left: auto; font-size: var(--t-normal); line-height: 1; color: var(--marca); }
 button.licencia-km.coche--gastado { background: var(--tinte-ambar); color: var(--aviso); }

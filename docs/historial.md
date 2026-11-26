@@ -170,3 +170,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 131. La calle de arriba se renueva: los edificios son ahora una ilustración de Madrid, con el Metrópolis y Cibeles, de día y de noche con las ventanas encendidas. El cielo, la calle y todo lo que se mueve siguen igual, con los colores del resto de ilustraciones.
 132. El taxi que cruza la calle de arriba es ahora una ilustración, como los edificios: el Corolla blanco con su franja roja y la luz verde.
 133. Los coches tienen dibujo: el Corolla y el Tesla salen ilustrados al elegir coche y en miniatura junto a los kilómetros de cada licencia, y el taxi que cruza la calle de arriba es, en cada pasada, uno de los coches de tu flota.
+134. El Mercedes Clase S también tiene su dibujo: al elegir coche, junto a los kilómetros y cruzando la calle de arriba si tienes uno.

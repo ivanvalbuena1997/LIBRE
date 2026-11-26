@@ -938,6 +938,7 @@
           efecto: { averia: 0.4, cansancio: 0.8 }
         },
         mercedes: {
+          imagen: 'imagenes/coche-mercedes.webp',
           nombre: 'Mercedes Clase S', descripcion: 'La gama más alta: muchas más propinas, clientes que pagan y más carreras en el Centro y el Aeropuerto; gasta más y sus reparaciones son más caras.',
           precio: 5000,
           consumoLitros100Km: 7.8,   // un 30 % más que el Corolla (Equilibrio)
