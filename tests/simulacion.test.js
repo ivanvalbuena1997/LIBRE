@@ -806,7 +806,7 @@ prueba('subir de nivel avisa; darExperiencia lo prueba desde la consola', functi
   assert.strictEqual(sim.nivelConductor(t), 4);
   assert.strictEqual(r.eventos.length, 1);
   assert.strictEqual(r.eventos[0].tipo, 'nivel');
-  assert.strictEqual(r.eventos[0].retrato, t.retrato);
+  assert.strictEqual(r.eventos[0].retrato, sim.caraDe(t), 'avisa con su cara');
   assert.ok(!sim.darExperiencia(e, 'Nadie', 10).ok);
 });
 
@@ -2869,6 +2869,38 @@ prueba('Eventos de clientes: Paconi gratis hasta el cierre y luego en tu agenda'
   } finally {
     ce.activos = false;
   }
+});
+
+prueba('Caras ilustradas: del sexo de su nombre, sin repetir en la flota; las partidas de antes las reciben', function () {
+  const c = config.conductores;
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 77;
+  e.dinero = 1e6;
+  sim.sortearCandidatos(e);
+  const vistas = {};
+  e.candidatos.forEach(function (x) {
+    assert.ok(x.cara, 'tiene cara');
+    assert.ok(c.caras[c.personajes[x.retrato].sexo].indexOf(x.cara) !== -1, x.nombre + ' con cara de su sexo');
+    assert.ok(!vistas[x.cara], 'sin repetir');
+    vistas[x.cara] = true;
+  });
+  assert.ok(sim.contratarConductor(e, e.licencias[0].id, 'noche', 0).ok);
+  const t = e.licencias[0].turnos.noche;
+  assert.ok(t.cara);
+  assert.strictEqual(sim.caraDe(t), t.cara);
+  // Ningún candidato nuevo repite la cara del contratado.
+  sim.sortearCandidatos(e);
+  assert.ok(e.candidatos.every(function (x) { return x.cara !== t.cara; }));
+  // Migración 38 → 39: un conductor sin cara recibe una de su sexo.
+  require('../js/guardado.js');
+  const viejo = JSON.parse(JSON.stringify(e));
+  delete viejo.licencias[0].turnos.noche.cara;
+  viejo.version = 38;
+  const nuevo = globalThis.Libre.guardado.migrar(viejo);
+  const t2 = nuevo.licencias[0].turnos.noche;
+  assert.ok(c.caras[c.personajes[t2.retrato].sexo].indexOf(t2.cara) !== -1);
+  // Un ÚNICO sigue con su retrato.
+  assert.strictEqual(sim.caraDe({ unico: 'paconi', retrato: 'paconi', cara: 'h01' }), 'paconi');
 });
 
 console.log(pasadas + ' pruebas correctas');

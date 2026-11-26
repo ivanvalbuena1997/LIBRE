@@ -71,6 +71,11 @@
     if (typeof indice === 'string' && unicos[indice]) {
       return '<img class="retrato-svg retrato-unico ' + (clase || '') + '" src="' + unicos[indice].imagen + '" alt="">';
     }
+    // Una cara ilustrada del banco (Iván, 26-11-2026): 'h05', 'm12'…
+    const caras = Libre.config.conductores.caras;
+    if (typeof indice === 'string' && caras && (caras.h.indexOf(indice) !== -1 || caras.m.indexOf(indice) !== -1)) {
+      return '<img class="retrato-svg retrato-cara ' + (clase || '') + '" src="' + caras.carpeta + indice + '.webp" alt="">';
+    }
     const p = (indice && typeof indice === 'object' ? indice : null) || Libre.config.conductores.personajes[indice] ||
       { piel: 2, cara: 'redonda', pelo: 'corto', colorPelo: 'gris', gafas: null, barba: null, ropa: 6, edad: 'media' };
     const pelo = 'r-pelo-' + p.colorPelo;

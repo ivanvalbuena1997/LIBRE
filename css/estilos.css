@@ -2155,7 +2155,7 @@ button.ficha-objeto:focus-visible { outline: 3px solid var(--marca); outline-off
 .retrato { display: inline-flex; width: 36px; height: 36px; flex: none; }
 .retrato-svg { width: 100%; height: 100%; border-radius: 50%; }
 /* Tu retrato (imagen): recortado al círculo como los demás. */
-.retrato-tu-img { display: block; object-fit: cover; }
+.retrato-tu-img, .retrato-cara { display: block; object-fit: cover; }
 .retrato.atenuado { opacity: 0.4; filter: grayscale(1); }
 .r-fondo { fill: var(--retrato-fondo); }
 .r-piel-1 { fill: var(--piel-1); } .r-piel-2 { fill: var(--piel-2); }

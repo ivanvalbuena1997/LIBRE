@@ -179,6 +179,16 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   sobre su color (`--rareza-*` en `:root`; gris, verde, azul, morado y
   amarillo). Las casillas de objeto llevan además el dibujo sobre un tinte
   de su categoría (`claseFondo()`).
+- Caras ilustradas (Iván, 26-11-2026; versión 39 del guardado):
+  `config.conductores.caras` (`carpeta`, bancos `h` y `m` de ids; archivos
+  en `imagenes/caras/<id>.webp`, recortados de hojas de 3 × 3) y `sexo` en
+  cada personaje. Cada candidato lleva `cara` (`sortearCara()`: de su sexo,
+  sin repetir las de la flota, la reserva ni los otros candidatos) y
+  `nuevoConductor()` la copia. Para dibujar, siempre `Libre.sim.caraDe(t)`
+  (la cara; en un ÚNICO, su retrato; sin cara, el personaje por piezas) con
+  `Libre.retratos.svg()`, que da `<img class="retrato-cara">`. Los avisos
+  llevan `retrato: caraDe(t)`. La migración 38 → 39 da cara
+  (`asignarCara()`) a conductores, candidatos y despedidos.
 - Personajes (`config.conductores.personajes`, 32 desde el 20-11-2026): el
   índice es el retrato que guarda cada conductor, así que los nuevos van
   siempre al final. Piezas en `js/retratos.js`: además de cara, pelo, gafas

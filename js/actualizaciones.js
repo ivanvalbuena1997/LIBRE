@@ -593,6 +593,10 @@
         {
           "n": 129,
           "texto": "Las mejoras de tu taxista se explican mejor: cada nivel dice qué mejora (por ejemplo, Veterano: «Tu taxista gana un 25 % más de experiencia»), y el Tesla y el Mercedes cuentan lo que hacen."
+        },
+        {
+          "n": 130,
+          "texto": "Tus conductores tienen caras nuevas: retratos ilustrados como el resto del juego, 55 distintos y de todo tipo. Cada candidato saca una al azar, así que la misma Mari Carmen no sale siempre con la misma cara, y nunca hay dos iguales en tu flota. Los conductores que ya tenías también estrenan cara."
         }
       ]
     }

@@ -356,7 +356,7 @@
         tu: !!t && t.quien === 'jugador',
         aspecto: t && t.quien === 'jugador' ? Libre.sim.aspectoPersonaje(estado) : null,
         conductor: t && t.quien === 'conductor' ? t : null,
-        retrato: t && t.quien === 'conductor' ? t.retrato : null,
+        retrato: t && t.quien === 'conductor' ? Libre.sim.caraDe(t) : null,
         zona: t ? t.zona : null,
         facturado: (lic.facturadoJornada || 0) + (enCurso || 0),
         enCarrera: enCurso !== null && !pausa,
@@ -384,7 +384,7 @@
     if (t.retrato !== null && t.retrato !== undefined) {
       // Con su rareza y su nivel, como la cara de Conductores.
       return '<span class="cara-foto"><span class="retrato' + (t.icono === 'baja' ? ' atenuado' : '') + '">' +
-        Libre.retratos.svg(t.retrato) + '</span>' + (t.conductor ? htmlCirculos(t.conductor) : '') + '</span>';
+        Libre.retratos.svg(Libre.sim.caraDe(t)) + '</span>' + (t.conductor ? htmlCirculos(t.conductor) : '') + '</span>';
     }
     // Tú, con tu cara; o un turno sin conductor.
     if (t.tu) return '<span class="retrato tu">' + htmlImgTu() + '</span>';
@@ -1088,7 +1088,7 @@
 
   function htmlCabezaComparar(x) {
     const cat = rarezaDe(x.t);
-    return '<div class="comp-quien"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.t.retrato) + '</span>' +
+    return '<div class="comp-quien"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(Libre.sim.caraDe(x.t)) + '</span>' +
       htmlCirculos(x.t) + '</span><strong>' + esc(x.t.nombre) + '</strong>' +
       '<span class="comp-categoria">' + (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') +
       ' Nivel ' + Libre.sim.nivelConductor(x.t) + '</span><small>' + esc(x.donde) + '</small></div>';
@@ -1205,7 +1205,7 @@
       const cat = rarezaDe(x);
       if (estado.dinero < precio) falta = true;
       return '<div class="candidato ui-tarjeta">' +
-        '<div class="candidato-cabecera"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.retrato) + '</span>' +
+        '<div class="candidato-cabecera"><span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(Libre.sim.caraDe(x)) + '</span>' +
         (cat ? '<span class="cara-categoria ' + claseRareza(cat.id) + '" aria-hidden="true">' + esc(cat.letra) + '</span>' : '') +
         '</span><div><strong>' + esc(x.nombre) + '</strong>' +
         (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') + '</div></div>' +
@@ -1364,7 +1364,7 @@
       ' title="' + esc(t.nombre + (aviso ? ' · ' + aviso : '')) + '"' +
       ' aria-label="' + esc(t.nombre + ', categoría ' + (cat ? cat.nombre : '') + ', nivel ' + Libre.sim.nivelConductor(t) +
         (aviso ? ', ' + aviso : '') + '. Ver su ficha') + '">' +
-      '<span class="cara-foto"><span class="retrato' + (aviso ? ' atenuado' : '') + '">' + Libre.retratos.svg(t.retrato) + '</span>' +
+      '<span class="cara-foto"><span class="retrato' + (aviso ? ' atenuado' : '') + '">' + Libre.retratos.svg(Libre.sim.caraDe(t)) + '</span>' +
       htmlCirculos(t) + (aviso ? '<span class="cara-aviso" aria-hidden="true">!</span>' : '') + '</span>' +
       '<span class="cara-nombre">' + esc(t.nombre) + '</span></button>';
   }
@@ -1446,7 +1446,7 @@
     m.conductores.forEach(function (x) {
       filas.push({
         nombre: x.t.nombre, media: x.media, dias: x.dias, clave: x.licenciaId + '|' + x.turno,
-        retrato: '<span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(x.t.retrato) + '</span>' + htmlCirculos(x.t) + '</span>'
+        retrato: '<span class="cara-foto"><span class="retrato">' + Libre.retratos.svg(Libre.sim.caraDe(x.t)) + '</span>' + htmlCirculos(x.t) + '</span>'
       });
     });
     if (filas.length === 0 || (estado.historial || []).length === 0) {
@@ -1476,7 +1476,7 @@
     return '<ol class="estad-lista">' + top.map(function (x, i) {
       const contenido = '<span class="estad-puesto' + (i < 3 ? ' medalla-' + (i + 1) : '') + '">' + (i + 1) + '</span>' +
         '<span class="estad-retrato"><span class="cara-foto"><span class="retrato' + (x.despedido ? ' atenuado' : '') + '">' +
-        Libre.retratos.svg(x.retrato) + '</span>' + htmlCirculos(x) + '</span></span>' +
+        Libre.retratos.svg(Libre.sim.caraDe(x)) + '</span>' + htmlCirculos(x) + '</span></span>' +
         '<span class="estad-quien"><strong>' + esc(x.nombre) + '</strong><small>' +
         (x.despedido ? '<span class="ui-chip ui-chip--libranza">Despedido</span> ' : '') +
         numero(Math.floor(x.carreras)) + ' carreras</small></span>' +
@@ -1534,7 +1534,7 @@
         ' aria-label="Turno de ' + esc(c.turnos[turno].nombre.toLowerCase()) + ' libre' +
         (dobla ? ' (lo dobla ' + esc(dobla.nombre) + ')' : '') + ': contratar">' +
         (dobla
-          ? '<span class="cara-foto"><span class="retrato atenuado">' + Libre.retratos.svg(dobla.retrato) + '</span></span><span class="cara-nombre">Doble</span></button>'
+          ? '<span class="cara-foto"><span class="retrato atenuado">' + Libre.retratos.svg(Libre.sim.caraDe(dobla)) + '</span></span><span class="cara-nombre">Doble</span></button>'
           : '<span class="cara-foto"><span class="retrato retrato-texto">' + ICONO_MAS + '</span></span><span class="cara-nombre">Libre</span></button>');
     } else if (t.quien === 'jugador') {
       cara = '<button type="button" class="cara" data-panel-tu="' + clave + '" aria-expanded="' + (panelTu === clave) + '"' +
@@ -1689,7 +1689,7 @@
     return '<div class="hoja-fondo" data-cerrar-ficha></div>' +
       '<div class="hoja hoja-ficha" role="dialog" aria-modal="true" aria-labelledby="ficha-nombre">' +
       '<span class="hoja-asa" aria-hidden="true"></span>' +
-      '<div class="ficha-cabecera"><span class="cara-foto grande"><span class="retrato">' + Libre.retratos.svg(t.retrato) + '</span>' +
+      '<div class="ficha-cabecera"><span class="cara-foto grande"><span class="retrato">' + Libre.retratos.svg(Libre.sim.caraDe(t)) + '</span>' +
       htmlCirculos(t) + '</span><div class="ficha-quien">' +
       '<h3 id="ficha-nombre">' + esc(t.nombre) + '</h3>' +
       '<p>' + (cat ? '<span class="' + claseRareza(cat.id) + '">' + esc(cat.nombre) + '</span>' : '') +

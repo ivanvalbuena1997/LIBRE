@@ -764,7 +764,7 @@
   /* Ficha resumida de un conductor para la clasificación. */
   function resumenConductor(t) {
     return {
-      id: t.id || null, nombre: t.nombre, retrato: t.retrato, categoria: t.categoria, xp: t.xp || 0,
+      id: t.id || null, nombre: t.nombre, retrato: t.retrato, cara: t.cara || null, categoria: t.categoria, xp: t.xp || 0,
       carreras: t.carreras || 0, facturado: t.facturado || 0
     };
   }
@@ -1308,7 +1308,7 @@
     }
     return {
       id: estado.ultimoIdConductor,
-      quien: 'conductor', nombre: candidato.nombre, retrato: candidato.retrato, zona,
+      quien: 'conductor', nombre: candidato.nombre, retrato: candidato.retrato, cara: candidato.cara || null, zona,
       categoria: candidato.categoria, cualidad: candidato.cualidad, cualidad2: candidato.cualidad2 || null,
       cualidad3: null, defecto: candidato.defecto, defecto2: candidato.defecto2 || null,
       // Experiencia (da el nivel) y lo que lleva hecho desde que lo contrataste.
@@ -1437,6 +1437,32 @@
     for (let i = 0; i < total; i++) if (!usados[i]) libres.push(i);
     const lista = libres.length ? libres : Array.from({ length: total }, function (_, i) { return i; });
     return lista[Math.floor(azar(estado) * lista.length)];
+  }
+
+  /*
+   * Caras ilustradas (Iván, 26-11-2026): una al azar del sexo del personaje,
+   * sin repetir las de tu flota, la reserva ni las `apartadas`. null si el
+   * banco está vacío (se ve la cara por piezas del personaje).
+   */
+  function sortearCara(estado, sexo, apartadas) {
+    const banco = (cfg().conductores.caras || {})[sexo] || [];
+    if (!banco.length) return null;
+    const usadas = Object.assign({}, apartadas);
+    todosLosConductores(estado).forEach(function (x) { if (x.t.cara) usadas[x.t.cara] = true; });
+    const libres = banco.filter(function (id) { return !usadas[id]; });
+    const lista = libres.length ? libres : banco;
+    return lista[Math.floor(azar(estado) * lista.length)];
+  }
+  /* Lo que se dibuja de un conductor o candidato: su cara ilustrada, el retrato de su ÚNICO o su personaje. */
+  function caraDe(t) {
+    if (!t) return null;
+    return t.unico ? t.retrato : (t.cara || t.retrato);
+  }
+  /* Da cara a un conductor que no la tiene (partidas de antes). */
+  function asignarCara(estado, t) {
+    if (!t || t.unico || t.cara) return;
+    const p = cfg().conductores.personajes[t.retrato];
+    t.cara = sortearCara(estado, p ? p.sexo : 'h', {});
   }
 
   // ----------------------------------------------- Rasgos de los conductores
@@ -1658,16 +1684,18 @@
       const orden = cfg().categorias.map(function (x) { return x.id; });
       orden.slice(0, orden.indexOf(minimo)).forEach(function (id) { pesos[id] = 0; });
     }
-    const apartados = {}, cualidades = {};
+    const apartados = {}, cualidades = {}, carasApartadas = {};
     estado.candidatos = [];
     for (let i = 0; i < c.candidatos; i++) {
       const retrato = sortearPersonaje(estado, apartados);
       apartados[retrato] = true;
+      const cara = sortearCara(estado, c.personajes[retrato].sexo, carasApartadas);
+      if (cara) carasApartadas[cara] = true;
       const categoria = sortearCategoria(estado, pesos);
       const r = sortearRasgos(estado, cualidades, categoria);
       cualidades[r.cualidad] = true;
       estado.candidatos.push({
-        retrato, nombre: c.personajes[retrato].nombre, categoria,
+        retrato, cara, nombre: c.personajes[retrato].nombre, categoria,
         cualidad: r.cualidad, cualidad2: r.cualidad2, defecto: r.defecto, defecto2: r.defecto2
       });
     }
@@ -1750,7 +1778,7 @@
       const huecos = cfg().conductores.niveles.huecos;
       const hueco = huecos[despues - 1] > huecos[antes - 1];
       resumen.eventos.push({
-        tipo: 'nivel', conductor: t.nombre, retrato: t.retrato, nivel: despues,
+        tipo: 'nivel', conductor: t.nombre, retrato: caraDe(t), nivel: despues,
         texto: t.nombre + ' sube a nivel ' + despues + ': espera menos entre carreras' +
           (hueco ? ' y tiene un hueco más para objetos' : '') + (premio ? '; además, ' + premio : '') + '.'
       });
@@ -2105,7 +2133,7 @@
     }
     const lleno = guardarObjeto(estado, objeto, t.nombre);
     resumen.eventos.push({
-      tipo: 'hallazgo', conductor: t.nombre, retrato: t.retrato, objeto: objeto.id, categoria: objeto.categoria,
+      tipo: 'hallazgo', conductor: t.nombre, retrato: caraDe(t), objeto: objeto.id, categoria: objeto.categoria,
       // La interfaz añade la etiqueta de su categoría.
       texto: t.nombre + ' encuentra ' + objeto.nombre + (lleno ? '. El almacén está lleno: vende algo para guardarlo.' : '')
     });
@@ -3112,7 +3140,7 @@
     if (cuenta === 'extras') { estado.dinero += importe; caja.extras += importe; }
     if (cuenta === 'otros') { estado.dinero += importe; caja.otros -= importe; }
     const ev = { tipo, texto, importe };
-    if (turno && turno.quien === 'conductor') { ev.conductor = turno.nombre; ev.retrato = turno.retrato; }
+    if (turno && turno.quien === 'conductor') { ev.conductor = turno.nombre; ev.retrato = caraDe(turno); }
     resumen.eventos.push(ev);
   }
 
@@ -3147,7 +3175,7 @@
     const frena = conEfecto(quien, 'sinImpagos');
     // El Pelado: el que lo intenta no se va (ni vestido). Solo un aviso.
     if (frena && frena.tipo === 'unico' && toca(estado, 'sinPagar', ev.sinPagar.probCarrera)) {
-      resumen.eventos.push({ tipo: 'unicoFrena', conductor: quien.nombre, retrato: quien.retrato,
+      resumen.eventos.push({ tipo: 'unicoFrena', conductor: quien.nombre, retrato: caraDe(quien),
         texto: 'Un cliente intenta irse sin pagar a ' + quien.nombre + '. Paga. «' + fraseUnico(estado, quien) + '»' });
     }
     if (!frena && toca(estado, 'sinPagar', ev.sinPagar.probCarrera * topeConductor('sinPagar', f.sinPagar, quien) * (coche.sinPagar || 1))) {
@@ -3898,6 +3926,9 @@
     bonoTocayos,
     factorImporteUnico,
     enTurno,
+    caraDe,
+    asignarCara,
+    sortearCara,
     eventoPendiente,
     buscarEventoCliente,
     elegirOpcionEvento,

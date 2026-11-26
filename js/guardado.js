@@ -257,6 +257,14 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 38 → 39: caras ilustradas (Iván, 26-11-2026): cada conductor (y los
+    // candidatos y despedidos) recibe una cara de su sexo, sin repetir.
+    38: function (estado) {
+      const sim = Libre.sim;
+      sim.todosLosConductores(estado).forEach(function (x) { sim.asignarCara(estado, x.t); });
+      (estado.candidatos || []).forEach(function (t) { sim.asignarCara(estado, t); });
+      (estado.exConductores || []).forEach(function (t) { sim.asignarCara(estado, t); });
+    },
     // 37 → 38: eventos de clientes (Iván, 25-11-2026): su estado y tu agenda
     // de ÚNICOS. El primero se programa al correr el reloj.
     37: function (estado) {
