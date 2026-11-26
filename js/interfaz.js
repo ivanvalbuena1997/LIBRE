@@ -34,7 +34,7 @@
 
   const secciones = [ui.seccionTaximetro, ui.seccionTicket, ui.seccionCaja, ui.seccionZonas, ui.seccionObjetivo, ui.seccionTaxis,
     ui.seccionConductores, ui.seccionAlmacen, ui.seccionMejoras, ui.seccionEstadisticas, ui.seccionPartida, ui.seccionPersonaje, ui.seccionIntro,
-    ui.seccionEvento];
+    ui.seccionEvento, ui.seccionChat];
 
   // ---------------------------------------------------------- Ciclo
 
@@ -209,7 +209,7 @@
     'sec-taximetro': 'calle', 'sec-ticket': 'calle',
     'sec-objetivo': 'calle', 'sec-taxis': 'calle', 'sec-zonas': 'calle', 'sec-caja': 'calle',
     'sec-conductores': 'conductores', 'sec-almacen': 'almacen', 'sec-mejoras': 'mejoras',
-    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre', 'sec-intro': 'siempre', 'sec-evento': 'siempre'
+    'sec-estadisticas': 'estadisticas', 'sec-partida': 'siempre', 'sec-personaje': 'siempre', 'sec-intro': 'siempre', 'sec-evento': 'siempre', 'sec-chat': 'siempre'
   };
   // Pestañas de antes del rework: Flota se partió y Partida es ahora una hoja.
   const VISTA_ANTIGUA = { flota: 'conductores', partida: 'calle' };
@@ -570,6 +570,21 @@
     }
     ui.$('abrir-personaje').addEventListener('click', function () { abrirPersonaje(true); });
 
+    // El grupo de la flota (ui-chat.js).
+    function abrirChat(abrir) {
+      ui.chatAbierto = abrir;
+      ui.chatAlFinal = abrir;
+      if (abrir) ui.ejecutar('leerChat', []);
+      else { opciones.redibujar(); ui.$('abrir-chat').focus({ preventScroll: true }); }
+    }
+    ui.$('abrir-chat').addEventListener('click', function () { abrirChat(true); });
+    document.addEventListener('input', function (ev) {
+      if (ev.target.id === 'chat-borrador') ui.borradorChat = ev.target.value;
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && ui.chatAbierto) abrirChat(false);
+    });
+
     main.addEventListener('click', function (ev) {
       if (ev.target.closest('[data-cerrar-ajustes]')) {
         abrirAjustes(false);
@@ -577,6 +592,12 @@
       }
       if (ev.target.closest('[data-cerrar-personaje]')) {
         abrirPersonaje(false);
+        return;
+      }
+      if (ev.target.closest('[data-cerrar-chat]')) { abrirChat(false); return; }
+      if (ev.target.closest('[data-chat-enviar]')) {
+        const r = ui.ejecutar('enviarPrimerMensaje', [ui.borradorChat || '']);
+        if (r && r.ok) { ui.borradorChat = null; ui.chatAlFinal = true; opciones.redibujar(); }
         return;
       }
       if (ev.target.closest('[data-intro-siguiente]')) { ui.introPaso++; opciones.redibujar(); return; }
@@ -1073,6 +1094,7 @@
     // Nivel de tu personaje en la insignia de su botón.
     const nivelP = String(Libre.sim.nivelPersonaje(estado).nivel);
     if (ui.$('nivel-personaje').textContent !== nivelP) ui.$('nivel-personaje').textContent = nivelP;
+    ui.dibujarBotonChat(estado);
     dibujarEscena(estado);
 
     secciones.forEach(function (s) {

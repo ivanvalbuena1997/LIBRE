@@ -665,6 +665,10 @@
         {
           "n": 147,
           "texto": "Nueva conductora ÚNICA: Daniela, seis años, con las cosas muy claras. No conduce: ocupa el turno de día de un taxi y dirige la flota (los demás esperan menos, se quedan menos de cada carrera y cogen menos bajas; a Paconi lo tiene vigilado). Cobra su paga y sus chuches y algún día se queda cuidando de su hermano Álvaro. Llega con el evento «De Parla a Almería», cuando ya tienes tu SL. Su retrato y su ilustración llegarán pronto."
+        },
+        {
+          "n": 148,
+          "texto": "El grupo de la flota: al montar tu SL aparece un chat en la cabecera con tus conductores. Estrénalo con tu primer mensaje (ya escrito, pero lo puedes cambiar) y, cada vez que cierras la caja, comentan lo que ha pasado: pinchazos, impagos, propinas, la lluvia… Paconi, El Pelado y Daniela también escriben si trabajan para ti."
         }
       ]
     }

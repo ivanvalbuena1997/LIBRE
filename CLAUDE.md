@@ -113,8 +113,8 @@ orden solo importa para que `interfaz.js` vaya el último.
 - `ui-almacen.js`: almacén, combinar y vender.
 - `ui-estadisticas.js`, `ui-mejoras.js` (árbol y hoja de mejora),
   `ui-ajustes.js` (Ajustes y partida), `ui-personaje.js` (hoja del
-  personaje, prestigio y nombre) y `ui-historia.js` (intro y eventos de
-  clientes).
+  personaje, prestigio y nombre), `ui-historia.js` (intro y eventos de
+  clientes) y `ui-chat.js` (el grupo de la flota).
 - `interfaz.js`: estado común, `dibujar()`, `actualizar()`, el bucle, los
   clics (un solo `addEventListener` por tipo, que reparte por `data-*`),
   `iniciar()`, `reiniciar()` y `mostrarMensaje()`.
@@ -142,6 +142,8 @@ de tocar un sistema y cambia su apartado si lo cambias.
   bandeja), se combinan, se venden y se equipan.
 - Eventos: por carrera, al empezar el turno, lluvia, y eventos de clientes
   con decisiones (`config.historia.eventos`).
+- El grupo de la flota (chat, desde la SL): `estado.chat`, conversaciones
+  de `config.chat` al cerrar la caja según lo que ha pasado (`pistaChat()`).
 - Mejoras en ramas en cadena (`requiere`), con niveles; mejoras de tu
   personaje con puntos y prestigio (`empezarDeCero()`).
 - Azar de la flota y de tu turno solo con `Libre.sim.azar(estado)` /

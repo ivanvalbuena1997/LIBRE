@@ -178,6 +178,8 @@
   --tinte-ambar: #fbebc8;
   --tinte-rojo: #f9dedb;
   --tinte-neutro: #ece9e1;
+  --fondo-chat: #efe9dc;        /* fondo del grupo de la flota */
+  --burbuja-tuya: #d8f0dc;      /* tus mensajes en el grupo */
   --tinte-morado: #eadff7;
 
   /* Rarezas (relleno de la insignia) */
@@ -2635,3 +2637,56 @@ button.estad-fila:focus-visible { outline: 3px solid var(--marca); outline-offse
 .estad-sin { font-size: var(--t-mini); color: var(--tinta-suave); }
 .estad-barra-fila { grid-column: -3 / -1; display: block; }
 .estad-barra-fila > span { display: block; }
+
+/* =====================================================================
+ * El grupo de la flota (chat; Iván, 26-11-2026). Botón entre tu cara y el
+ * engranaje, solo con la SL (la cabecera lleva .con-chat y la marca deja
+ * sitio a tres botones), y hoja a pantalla completa con las burbujas.
+ * ===================================================================== */
+.cabecera-chat { right: 68px; }
+.cabecera.con-chat .cabecera-personaje { right: 122px; }
+.cabecera.con-chat .cabecera-marca { right: 178px; }
+.cabecera-chat[hidden] { display: none; }
+.cabecera-punto {
+  position: absolute; top: 4px; right: 4px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--peligro); box-shadow: 0 0 0 2px var(--blanco);
+}
+.cabecera-punto[hidden] { display: none; }
+.hoja-chat {
+  top: 0; max-height: none; border-radius: 0;
+  display: flex; flex-direction: column;
+  padding: 0 0 calc(var(--esp-4) + env(safe-area-inset-bottom));
+  background: var(--fondo-chat);
+}
+.chat-cabecera {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; min-height: 60px;
+  padding: var(--esp-2) 64px var(--esp-2) var(--esp-4);
+  background: var(--tarjeta); border-bottom: 1px solid var(--linea);
+}
+.chat-cabecera h2 { margin: 0; font-size: var(--t-seccion); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-cabecera .hoja-cerrar { top: 8px; }
+.chat-lista { list-style: none; margin: 0; padding: var(--esp-3) var(--esp-3) 0; display: flex; flex-direction: column; gap: 4px; }
+.chat-dia { align-self: center; margin: var(--esp-3) 0 var(--esp-1); }
+.chat-dia span { padding: 3px 12px; border-radius: var(--r-pastilla); background: var(--tarjeta); color: var(--tinta-suave); font-size: var(--t-mini); font-weight: 800; }
+.chat-mensaje { display: flex; align-items: flex-end; gap: var(--esp-2); max-width: 86%; margin-top: 6px; }
+.chat-mensaje--seguido { margin-top: 0; }
+.chat-mensaje--tuyo { align-self: flex-end; }
+.chat-cara { flex: none; width: 32px; height: 32px; }
+.chat-burbuja {
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  padding: 7px 11px; border-radius: 14px 14px 14px 4px;
+  background: var(--tarjeta); box-shadow: 0 1px 2px var(--sombra-placa-baja);
+  font-size: var(--t-normal); line-height: 1.35;
+}
+.chat-mensaje--tuyo .chat-burbuja { border-radius: 14px 14px 4px 14px; background: var(--burbuja-tuya); }
+.chat-nombre { font-size: var(--t-mini); font-weight: 800; color: var(--marca); }
+.chat-texto { overflow-wrap: anywhere; }
+.chat-foto { display: block; width: 220px; max-width: 100%; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--tinte-neutro); }
+.chat-foto img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.chat-foto--falta { display: flex; align-items: center; justify-content: center; }
+.chat-foto--falta::after { content: 'Foto'; color: var(--tinta-suave); font-weight: 800; }
+.chat-vacio { padding: var(--esp-4); color: var(--tinta-suave); }
+.chat-escribir { display: flex; flex-direction: column; gap: var(--esp-2); margin-top: auto; padding: var(--esp-3) var(--esp-4); background: var(--tarjeta); border-top: 1px solid var(--linea); }
+.chat-escribir textarea { width: 100%; padding: var(--esp-2) var(--esp-3); border: 1px solid var(--linea); border-radius: var(--r-placa); font: inherit; resize: vertical; }

@@ -764,3 +764,21 @@ nombra sin decir en qué archivo están: búscalas con grep.
   generador; `Math.random` solo queda para la semilla inicial y la
   migración 24 (km del coche de partidas antiguas).
 
+- El grupo de la flota (chat; Iván, 26-11-2026; versión 41 del guardado):
+  `estado.chat` (null hasta `montarSociedad()`, que lo crea con
+  `chatNuevo()`: `{ iniciado, mensajes, noLeidos, recientes }`). Cada
+  mensaje: `{ dia, de ('tu', un ÚNICO o el id del conductor), nombre, cara,
+  texto, foto }`; como mucho `config.chat.maxMensajes`. `pistaChat(estado,
+  tipo, t)` apunta en `caja.hoy.chat` lo que pasa (lo llama `incidencia()`
+  con su tipo, 'tormenta' si la lluvia lo es, y además el nivel, un
+  LEGENDARIO encontrado, coche y licencia nuevos y conductor nuevo); al
+  cerrar la caja, `chatAlCierre()` (tras `registrarDia()`, con 'record' y
+  'negativo') escribe de `porCierre.min` a `max` conversaciones
+  (`escribirConversacion()`: c1 es quien lo vivió; los ÚNICOS solo si
+  tienen turno, `cumpleRequisitos()`; sin repetir las `recientes`).
+  `enviarPrimerMensaje()` (el texto propuesto, `primerMensajeChat()`) lo
+  estrena; antes no se escribe nada. `leerChat()`. Daniela no hace de c1
+  ni c2 (`conductoresDelChat()`): habla con sus frases. Pantalla:
+  `ui-chat.js` (`seccionChat`, `chatAbierto`, `borradorChat`,
+  `dibujarBotonChat()`); botón `#abrir-chat` con `#chat-sin-leer`, y la
+  cabecera `.con-chat` deja sitio a tres botones.

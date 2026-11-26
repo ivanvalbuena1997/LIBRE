@@ -95,6 +95,7 @@
       // mejor día de la partida y los despedidos que entran en el top.
       historial: [],
       mejorDia: null,
+      chat: null,         // el grupo de la flota: se crea al montar la SL
       exConductores: [],
       // Cada conductor contratado lleva un id fijo (para el historial).
       ultimoIdConductor: 0,
@@ -636,6 +637,7 @@
     if (estado.dinero < s.coste) return fallo('No te llega el dinero.');
     incidencia(estado, resumenVacio(), 'sociedad', 'Constitución de ' + n.nombre + '.', -s.coste, 'otros');
     estado.empresa = { nombre: n.nombre, jornada: jornadaDe(estado.reloj.minutos) };
+    estado.chat = chatNuevo();
     return exito('¡Enhorabuena! ' + n.nombre + ' ya es una sociedad limitada. Ya puedes comprar más licencias.');
   }
 
@@ -675,6 +677,7 @@
     const cerrada = estado.caja.hoy;
     devolverAlquilados(estado, resumen, cerrada.dia + 1);
     registrarDia(estado, cerrada);
+    chatAlCierre(estado, cerrada);
     estado.caja.ayer = cerrada;
     estado.caja.hoy = cajaVacia(cerrada.dia + 1);
     estado.licencias.forEach(function (l) { l.facturadoJornada = 0; });
@@ -686,6 +689,181 @@
   }
 
   // ------------------------------------------------------- Estadísticas
+
+  // ------------------------------------------------- El grupo de la flota
+
+  /*
+   * El grupo de la flota (Iván, 26-11-2026; versión 41 del guardado):
+   * estado.chat = { iniciado, mensajes, noLeidos, recientes } desde que
+   * montas la SL (null antes). Cada mensaje: { dia, de ('tu', un ÚNICO o
+   * el id del conductor), nombre, cara, texto, foto }. Durante la jornada
+   * se apuntan pistas (pistaChat(): qué ha pasado y a quién) en la caja de
+   * hoy; al cerrarla, chatAlCierre() escribe 1–3 conversaciones de
+   * config.chat, primero las de esas pistas. Hasta tu primer mensaje
+   * (enviarPrimerMensaje()) no se escribe nada.
+   */
+  function chatNuevo() {
+    return { iniciado: false, mensajes: [], noLeidos: 0, recientes: [] };
+  }
+
+  /* Apunta lo que ha pasado en la jornada (`t`, el conductor; null si nadie). */
+  function pistaChat(estado, tipo, t) {
+    if (!estado.chat || !estado.caja || !estado.caja.hoy) return;
+    const lista = estado.caja.hoy.chat = estado.caja.hoy.chat || [];
+    if (lista.length >= 30) return;
+    // Quien no conduce (Daniela) no cuenta sus pinchazos ni sus fiebres.
+    const quien = t && t.quien === 'conductor' && !noConduce(t) ? t.id : null;
+    lista.push({ tipo, quien });
+  }
+
+  /* Conductores con turno que pueden escribir (no Daniela: ella tiene sus frases). */
+  function conductoresDelChat(estado) {
+    const lista = [];
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) {
+        const t = l.turnos[tn];
+        if (t && t.quien === 'conductor' && !noConduce(t) && lista.indexOf(t) === -1) lista.push(t);
+      });
+    });
+    return lista;
+  }
+
+  /* Quién escribe una línea: { de, nombre, cara } o null si no puede. */
+  function autorChat(estado, quien, papeles) {
+    if (quien === 'tu') return { de: 'tu', nombre: nombrePersonaje(estado), cara: null };
+    if (quien === 'c1' || quien === 'c2') {
+      const t = papeles[quien];
+      return t ? { de: t.id, nombre: t.nombre, cara: caraDe(t) } : null;
+    }
+    let u = null;
+    estado.licencias.forEach(function (l) {
+      TURNOS.forEach(function (tn) { const t = l.turnos[tn]; if (t && t.unico === quien) u = t; });
+    });
+    return u ? { de: quien, nombre: u.nombre, cara: caraDe(u) } : null;
+  }
+
+  function textoChat(estado, texto, papeles) {
+    const zonas = zonasDisponibles(estado);
+    const zona = (papeles.c1 && papeles.c1.zona && cfg().zonas[papeles.c1.zona]) ? cfg().zonas[papeles.c1.zona].nombre
+      : (zonas.length ? cfg().zonas[zonas[0]].nombre : 'el Centro');
+    return texto.replace(/\{c1\}/g, papeles.c1 ? papeles.c1.nombre : '')
+      .replace(/\{c2\}/g, papeles.c2 ? papeles.c2.nombre : '')
+      .replace(/\{tu\}/g, nombrePersonaje(estado))
+      .replace(/\{zona\}/g, zona)
+      .replace(/\{empresa\}/g, estado.empresa ? estado.empresa.nombre : '');
+  }
+
+  /*
+   * Escribe una conversación en el grupo. `c1` puede venir dado (el que lo
+   * vivió); si no, al azar. Devuelve false si no se puede (faltan quienes
+   * hablan): entonces no escribe nada.
+   */
+  function escribirConversacion(estado, conv, dia, c1) {
+    const flota = conductoresDelChat(estado);
+    const hace = function (q) { return conv.lineas.some(function (l) { return l[0] === q; }) || conv.lineas.some(function (l) { return l[1].indexOf('{' + q + '}') !== -1; }); };
+    const papeles = {};
+    if (hace('c1')) {
+      papeles.c1 = c1 || (flota.length ? flota[Math.floor(azar(estado) * flota.length)] : null);
+      if (!papeles.c1) return false;
+    }
+    if (hace('c2')) {
+      const otros = flota.filter(function (t) { return t !== papeles.c1; });
+      if (!otros.length) return false;
+      papeles.c2 = otros[Math.floor(azar(estado) * otros.length)];
+    }
+    // Un ÚNICO no hace de c1 o c2 en una conversación en la que habla él.
+    const unicos = conv.lineas.map(function (l) { return l[0]; }).filter(function (q) { return q !== 'c1' && q !== 'c2' && q !== 'tu'; });
+    if ((papeles.c1 && unicos.indexOf(papeles.c1.unico) !== -1) || (papeles.c2 && unicos.indexOf(papeles.c2.unico) !== -1)) return false;
+    const autores = conv.lineas.map(function (l) { return autorChat(estado, l[0], papeles); });
+    if (autores.some(function (a) { return !a; })) return false;
+    const chat = estado.chat;
+    conv.lineas.forEach(function (l, i) {
+      const m = Object.assign({ dia, texto: textoChat(estado, l[1], papeles) }, autores[i]);
+      // La foto va con el primer mensaje.
+      if (i === 0 && conv.foto) m.foto = conv.foto;
+      chat.mensajes.push(m);
+      if (autores[i].de !== 'tu') chat.noLeidos++;
+    });
+    const sobran = chat.mensajes.length - cfg().chat.maxMensajes;
+    if (sobran > 0) chat.mensajes.splice(0, sobran);
+    if (conv.id) {
+      chat.recientes.push(conv.id);
+      if (chat.recientes.length > cfg().chat.sinRepetir) chat.recientes.shift();
+    }
+    return true;
+  }
+
+  /* ¿Se cumple lo que pide una conversación (ÚNICOS con turno, un tocayo de Paconi)? */
+  function cumpleRequisitos(estado, conv) {
+    return (conv.requiere || []).every(function (r) {
+      if (r === 'tocayo') {
+        return conductoresDelChat(estado).some(function (t) { return !t.unico && /^(Paco|Francisco)$/.test(t.nombre); });
+      }
+      return estado.licencias.some(function (l) { return TURNOS.some(function (tn) { return l.turnos[tn] && l.turnos[tn].unico === r; }); });
+    });
+  }
+
+  /* Al cerrar la caja: 1–3 conversaciones, primero las de lo que ha pasado. */
+  function chatAlCierre(estado, caja) {
+    const chat = estado.chat;
+    if (!chat || !chat.iniciado) return;
+    const c = cfg().chat;
+    const pistas = (caja.chat || []).slice();
+    if (estado.mejorDia && estado.mejorDia.dia === caja.dia && (estado.historial || []).length >= 3) pistas.push({ tipo: 'record', quien: null });
+    if (netoCaja(caja) < 0) pistas.push({ tipo: 'negativo', quien: null });
+    const cuantas = enteroEntre(estado, c.porCierre.min, c.porCierre.max);
+    const usadas = [];
+    const valida = function (conv) {
+      return chat.recientes.indexOf(conv.id) === -1 && usadas.indexOf(conv.id) === -1 && cumpleRequisitos(estado, conv);
+    };
+    let escritas = 0;
+    // Primero lo que ha pasado (en orden al azar, sin repetir tipo).
+    const tipos = [];
+    pistas.forEach(function (p) { if (tipos.indexOf(p.tipo) === -1) tipos.push(p.tipo); });
+    while (tipos.length && escritas < cuantas) {
+      const tipo = tipos.splice(Math.floor(azar(estado) * tipos.length), 1)[0];
+      const posibles = c.conversaciones.filter(function (x) { return x.cuando === tipo && valida(x); });
+      if (!posibles.length) continue;
+      const conv = posibles[Math.floor(azar(estado) * posibles.length)];
+      const pista = pistas.find(function (p) { return p.tipo === tipo && p.quien; });
+      const c1 = pista ? conductoresDelChat(estado).find(function (t) { return t.id === pista.quien; }) : null;
+      if (escribirConversacion(estado, conv, caja.dia, c1 || null)) { usadas.push(conv.id); escritas++; }
+    }
+    // Y, si faltan, charla (las de los ÚNICOS, solo si están).
+    let intentos = 0;
+    while (escritas < cuantas && intentos++ < 10) {
+      const posibles = c.conversaciones.filter(function (x) { return !x.cuando && valida(x); });
+      if (!posibles.length) break;
+      const conv = posibles[Math.floor(azar(estado) * posibles.length)];
+      usadas.push(conv.id);
+      if (escribirConversacion(estado, conv, caja.dia, null)) escritas++;
+    }
+  }
+
+  /* Tu primer mensaje en el grupo (ya escrito en la config; lo puedes cambiar). */
+  function enviarPrimerMensaje(estado, texto) {
+    const chat = estado.chat;
+    if (!chat) return fallo('El grupo se abre al montar tu SL.');
+    if (chat.iniciado) return fallo('Ya has escrito en el grupo.');
+    const limpio = String(texto === undefined || texto === null ? '' : texto).replace(/\s+/g, ' ').trim().slice(0, 300);
+    if (!limpio) return fallo('Escribe algo antes de enviarlo.');
+    const dia = jornadaDe(estado.reloj.minutos);
+    chat.iniciado = true;
+    chat.mensajes.push({ dia, de: 'tu', nombre: nombrePersonaje(estado), cara: null, texto: limpio });
+    escribirConversacion(estado, { lineas: cfg().chat.primero.lineas }, dia, null);
+    return exito();
+  }
+
+  /* El texto que se propone para tu primer mensaje. */
+  function primerMensajeChat(estado) {
+    return textoChat(estado, cfg().chat.primero.texto, {});
+  }
+
+  /* Al abrir el grupo: todo leído. */
+  function leerChat(estado) {
+    if (estado.chat) estado.chat.noLeidos = 0;
+    return exito();
+  }
 
   /*
    * Al cerrar la caja se guarda un resumen de la jornada en el historial
@@ -1155,6 +1333,7 @@
     const licencia = { id, numero, vehiculo: null, turnos: { dia: null, noche: null } };
     estado.licencias.push(licencia);
     estado.placasEnVenta = null;
+    pistaChat(estado, 'licencia', null);
     return exito('Licencia ' + textoLicencia(licencia) + ' comprada. Ahora necesita un coche.');
   }
 
@@ -1200,6 +1379,7 @@
     lic.averia = null;
     lic.vehiculo = id;
     lic.km = 0;   // los coches que compras salen nuevos
+    pistaChat(estado, 'cocheNuevo', lic.turnos.dia && lic.turnos.dia.quien === 'conductor' ? lic.turnos.dia : lic.turnos.noche);
     return exito(modelo.nombre + ' listo en la licencia ' + textoLicencia(lic) + '. ' +
       (devuelto ? 'Devuelves el de alquiler.' : 'Contrata conductores para sus turnos.'));
   }
@@ -1292,6 +1472,7 @@
     estado.dinero -= precio;
     estado.conductoresContratados++;
     lic.turnos[turno] = nuevoConductor(estado, candidato, otro ? otro.zona : c.zonaInicial);
+    pistaChat(estado, 'nuevo', lic.turnos[turno]);
     sortearCandidatos(estado);
 
     if (primero) {
@@ -1814,6 +1995,7 @@
     if (despues > antes) {
       const huecos = cfg().conductores.niveles.huecos;
       const hueco = huecos[despues - 1] > huecos[antes - 1];
+      pistaChat(estado, 'nivel', t);
       resumen.eventos.push({
         tipo: 'nivel', conductor: t.nombre, retrato: caraDe(t), nivel: despues,
         texto: t.nombre + ' sube a nivel ' + despues + ': espera menos entre carreras' +
@@ -2169,6 +2351,7 @@
       objeto = posibles[Math.floor(azar(estado) * posibles.length)];
     }
     const lleno = guardarObjeto(estado, objeto, t.nombre);
+    if (objeto.categoria === cfg().categorias[cfg().categorias.length - 1].id) pistaChat(estado, 'legendario', t);
     resumen.eventos.push({
       tipo: 'hallazgo', conductor: t.nombre, retrato: caraDe(t), objeto: objeto.id, categoria: objeto.categoria,
       // La interfaz añade la etiqueta de su categoría.
@@ -3261,6 +3444,7 @@
     const ev = { tipo, texto, importe };
     if (turno && turno.quien === 'conductor') { ev.conductor = turno.nombre; ev.retrato = caraDe(turno); }
     resumen.eventos.push(ev);
+    pistaChat(estado, tipo === 'lluvia' && estado.lluvia && estado.lluvia.tipo === 'tormenta' ? 'tormenta' : tipo, turno);
   }
 
   /* ¿Toca el evento? Si se forzó desde la consola, sí (y se consume después). */
@@ -4051,6 +4235,11 @@
     aplicarArranque,
     buscarUnico,
     unicoDe,
+    enviarPrimerMensaje,
+    primerMensajeChat,
+    leerChat,
+    chatAlCierre,
+    pistaChat,
     noConduce,
     quienesDirigen,
     unicoEnFlota,

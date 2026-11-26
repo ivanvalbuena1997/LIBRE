@@ -257,6 +257,11 @@
     23: function (estado) {
       if (estado.lluvia && !estado.lluvia.tipo) estado.lluvia.tipo = 'chubasco';
     },
+    // 40 → 41: el grupo de la flota (Iván, 26-11-2026): con la SL ya
+    // montada, el grupo existe y espera tu primer mensaje.
+    40: function (estado) {
+      if (estado.chat === undefined) estado.chat = estado.empresa ? { iniciado: false, mensajes: [], noLeidos: 0, recientes: [] } : null;
+    },
     // 39 → 40: combinar automáticamente (Iván, 26-11-2026): apagado.
     39: function (estado) {
       estado.ajustes = estado.ajustes || { pararAlCierre: true };

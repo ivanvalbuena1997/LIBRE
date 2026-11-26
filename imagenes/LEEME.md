@@ -59,7 +59,11 @@ la tapa el texto.
   Pendientes (26-11-2026; prompts en `docs/propuesta-novedades.md`, 5):
   `evento-novia.webp`, `evento-turista.webp`, `evento-parto.webp`,
   `evento-maletin.webp`, `evento-final.webp` y `evento-daniela.webp`
-  (De Parla a Almería, prompt en el apartado 4). Mientras falten, la hoja
+  (De Parla a Almería, prompt en el apartado 4).
+- `chat-<foto>.webp`: fotos del grupo de la flota, cuadradas (pendientes;
+  prompts en `docs/propuesta-novedades.md`, 6): `chat-rueda.webp`,
+  `chat-amanecer.webp`, `chat-planta.webp`, `chat-bocadillo.webp` y
+  `chat-dibujo.webp`. Mientras falten, la burbuja enseña un hueco «Foto». Mientras falten, la hoja
   del evento sale con el fondo provisional.
 - Protagonista de referencia (para que salga igual en todas): hombre de
   unos 30 años, pelo castaño oscuro corto con tupé, mejillas sonrosadas,

@@ -3019,5 +3019,54 @@ prueba('Daniela: no conduce, dirige (espera, porcentaje, bajas, Paconi), cobra s
   assert.ok(sim.eventoPosible(e, ev, 'dia'));
 });
 
+prueba('El grupo de la flota: se abre con la SL, tu primer mensaje y 1–3 conversaciones por cierre', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.azar = 21;
+  e.dinero = 1e7;
+  assert.strictEqual(e.chat, null);
+  assert.ok(!sim.enviarPrimerMensaje(e, 'Hola').ok, 'sin SL no hay grupo');
+  sim.comprarLicencia(e); sim.comprarLicencia(e);
+  e.licencias.forEach(function (l) {
+    if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
+    ['dia', 'noche'].forEach(function (tn) { if (!l.turnos[tn]) sim.contratarConductor(e, l.id, tn, 0); });
+  });
+  assert.ok(sim.montarSociedad(e, 'Taxis Prueba').ok);
+  assert.ok(e.chat && !e.chat.iniciado);
+  assert.ok(sim.primerMensajeChat(e).indexOf('Taxis Prueba') !== -1);
+  // Antes de tu primer mensaje no se escribe nada.
+  e.ajustes.pararAlCierre = false;
+  sim.avanzar(e, config.reloj.segundosPorDia + 1);
+  assert.strictEqual(e.chat.mensajes.length, 0);
+  assert.ok(!sim.enviarPrimerMensaje(e, '   ').ok);
+  assert.ok(sim.enviarPrimerMensaje(e, 'Hola, equipo').ok);
+  assert.strictEqual(e.chat.mensajes[0].texto, 'Hola, equipo');
+  assert.strictEqual(e.chat.mensajes[0].de, 'tu');
+  assert.strictEqual(e.chat.mensajes.length, 3, 'contestan dos');
+  assert.strictEqual(e.chat.noLeidos, 2);
+  assert.ok(!sim.enviarPrimerMensaje(e, 'Otra vez').ok);
+  sim.leerChat(e);
+  assert.strictEqual(e.chat.noLeidos, 0);
+  // Varias jornadas: cada cierre escribe algo, nunca más de maxMensajes,
+  // y sin {c1} ni {zona} sin rellenar.
+  const antes = e.chat.mensajes.length;
+  sim.avanzar(e, config.reloj.segundosPorDia + 1);
+  assert.ok(e.chat.mensajes.length > antes, 'el cierre escribe en el grupo');
+  for (let i = 0; i < 40; i++) sim.avanzar(e, config.reloj.segundosPorDia);
+  assert.ok(e.chat.mensajes.length <= config.chat.maxMensajes);
+  e.chat.mensajes.forEach(function (m) {
+    assert.ok(!/[{}]/.test(m.texto), m.texto);
+    assert.ok(m.nombre, 'cada mensaje con su autor');
+  });
+  // Sin ÚNICOS, ellos no hablan.
+  assert.ok(e.chat.mensajes.every(function (m) { return ['paconi', 'pelado', 'daniela'].indexOf(m.de) === -1; }));
+  // Migración 40 → 41.
+  require('../js/guardado.js');
+  const viejo = JSON.parse(JSON.stringify(e));
+  delete viejo.chat;
+  viejo.version = 40;
+  const nuevo = globalThis.Libre.guardado.migrar(viejo);
+  assert.ok(nuevo.chat && nuevo.chat.iniciado === false);
+});
+
 console.log(pasadas + ' pruebas correctas');
 
