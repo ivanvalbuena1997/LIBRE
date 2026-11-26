@@ -67,11 +67,6 @@
       '<defs>' +
       '<linearGradient id="esc-cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" data-cielo="alto"/><stop offset="1" data-cielo="bajo"/></linearGradient>' +
       '<mask id="esc-creciente"><circle cx="' + (CENTRO + 250) + '" cy="74" r="24" class="esc-mascara-si"/><circle cx="' + (CENTRO + 261) + '" cy="68" r="21" class="esc-mascara-no"/></mask>' +
-      '<pattern id="esc-gotas" width="40" height="40" patternUnits="userSpaceOnUse">' +
-      '<path class="esc-gota" d="M8 4l-2 6M28 14l-2 6M18 26l-2 6M36 32l-2 6"/></pattern>' +
-      // Tormenta: más gotas y más largas, inclinadas por el viento.
-      '<pattern id="esc-gotas-fuerte" width="24" height="24" patternUnits="userSpaceOnUse">' +
-      '<path class="esc-gota esc-gota-fuerte" d="M8 1l-4 9M20 7l-4 9M14 15l-4 9M3 17l-3 6"/></pattern>' +
       '</defs>' +
       '<rect x="0" y="0" width="' + ANCHO + '" height="250" fill="url(#esc-cielo)"/>' +
       // Tormenta, detrás de los edificios: cielo oscuro, el destello que lo
@@ -92,6 +87,23 @@
       '<rect class="esc-asfalto" x="0" y="206" width="' + ANCHO + '" height="44"/>' +
       '<path class="esc-raya" d="' + rayas() + '"/>' +
       farolas() +
+      '</svg>';
+  }
+
+  /*
+   * Lluvia y viento, en una capa aparte encima de todo (Iván, 26-11-2026:
+   * dentro de la calle, los coches, el autobús, las bicis y la gente pasaban
+   * por delante). Mismo tamaño y sitio que la calle (.esc-calle).
+   */
+  function lluvia() {
+    return '<svg class="esc-calle esc-capa-lluvia" width="' + ANCHO + '" height="220" viewBox="0 30 ' + ANCHO + ' 220" aria-hidden="true" focusable="false">' +
+      '<defs>' +
+      '<pattern id="esc-gotas" width="40" height="40" patternUnits="userSpaceOnUse">' +
+      '<path class="esc-gota" d="M8 4l-2 6M28 14l-2 6M18 26l-2 6M36 32l-2 6"/></pattern>' +
+      // Tormenta: más gotas y más largas, inclinadas por el viento.
+      '<pattern id="esc-gotas-fuerte" width="24" height="24" patternUnits="userSpaceOnUse">' +
+      '<path class="esc-gota esc-gota-fuerte" d="M8 1l-4 9M20 7l-4 9M14 15l-4 9M3 17l-3 6"/></pattern>' +
+      '</defs>' +
       '<g class="esc-lluvia"><rect class="an-lluvia" x="0" y="-10" width="' + ANCHO + '" height="260" fill="url(#esc-gotas)"/></g>' +
       '<g class="esc-tormenta">' +
       '<rect class="an-lluvia-fuerte" x="0" y="-48" width="' + (ANCHO + 48) + '" height="300" fill="url(#esc-gotas-fuerte)"/>' +
@@ -384,7 +396,7 @@
     // (hacia la izquierda): la bici de Just Eat y el autobús; de delante (hacia
     // la derecha): el taxi y la bici de Uber Eats.
     contenedor.innerHTML = escena() + nubes() + personas() + repartidor(REPARTIDORES[1], 1) + autobus() + taxi() +
-      repartidor(REPARTIDORES[0], 0) + hojas();
+      repartidor(REPARTIDORES[0], 0) + hojas() + lluvia();
   }
 
   /*
@@ -404,7 +416,7 @@
 
   /* Cielo según la hora; de noche, luna, estrellas, ventanas encendidas y faros. */
   function dibujar(contenedor, estado) {
-    const dibujo = contenedor.querySelector('svg.esc-calle');
+    const dibujo = contenedor.querySelector('svg.esc-calle:not(.esc-capa-lluvia)');
     if (!dibujo) return;
     const modelos = Libre.config.vehiculos.modelos;
     const lista = estado.licencias.filter(function (l) { return l.vehiculo && modelos[l.vehiculo] && modelos[l.vehiculo].imagen; })

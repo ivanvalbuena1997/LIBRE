@@ -767,9 +767,15 @@
         { nombre: 'Sonia', sexo: 'm', edad: 'media', piel: 4, cara: 'redonda', pelo: 'rizado', colorPelo: 'negro', gafas: null, barba: null, ropa: 5, pendientes: true },
         { nombre: 'Rubén', sexo: 'h', edad: 'joven', piel: 2, cara: 'alargada', pelo: 'corto', colorPelo: 'pelirrojo', gafas: null, barba: null, ropa: 6, gorra: 3 },
         { nombre: 'Lola', sexo: 'm', edad: 'mayor', piel: 2, cara: 'redonda', pelo: 'moño', colorPelo: 'gris', gafas: 'redondas', barba: null, ropa: 4, pendientes: true },
-        { nombre: 'Daniela', sexo: 'm', edad: 'joven', piel: 1, cara: 'alargada', pelo: 'largo', colorPelo: 'castano', gafas: 'sol', barba: null, ropa: 3, pendientes: true },
+        { nombre: 'Fátima', sexo: 'm', edad: 'joven', piel: 1, cara: 'alargada', pelo: 'largo', colorPelo: 'castano', gafas: 'sol', barba: null, ropa: 3, pendientes: true },
         { nombre: 'Álvaro', sexo: 'h', edad: 'media', piel: 3, cara: 'cuadrada', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: 'barba', ropa: 6, cuello: 'corbata' },
-        { nombre: 'Daniel', sexo: 'h', edad: 'joven', piel: 4, cara: 'redonda', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: null, ropa: 2, gorra: 1 }
+        { nombre: 'Daniel', sexo: 'h', edad: 'joven', piel: 4, cara: 'redonda', pelo: 'corto', colorPelo: 'negro', gafas: null, barba: null, ropa: 2, gorra: 1 },
+        // Iván, 26-11-2026: Daniela pasa a ser solo la ÚNICA (en su sitio,
+        // Fátima; las que ya se llamaban Daniela lo conservan) y entran
+        // nombres de fuera, como en el taxi de verdad.
+        { nombre: 'Ionuț', sexo: 'h', edad: 'media', piel: 1, cara: 'cuadrada', pelo: 'corto', colorPelo: 'castano', gafas: null, barba: 'barba', ropa: 4 },
+        { nombre: 'Mamadou', sexo: 'h', edad: 'joven', piel: 4, cara: 'alargada', pelo: 'rizado', colorPelo: 'negro', gafas: null, barba: 'perilla', ropa: 5 },
+        { nombre: 'Mei', sexo: 'm', edad: 'media', piel: 2, cara: 'redonda', pelo: 'largo', colorPelo: 'negro', gafas: 'redondas', barba: null, ropa: 3, pendientes: true }
       ],
       /*
        * Conductores ÚNICOS (fase 2 de la historia, Iván 25-11-2026): un

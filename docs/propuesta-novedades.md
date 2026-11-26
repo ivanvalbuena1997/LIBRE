@@ -92,7 +92,7 @@ por pantalla en el navegador. Es un commit sin cambios para el jugador.
 ## 3. Objeto nuevo: Saco de 10 kg de colines
 
 - **Categoría S.** Solo no hace nada.
-- **Sinergia con Paconi y con Marcelo** (ver pregunta 1): **−40 % de
+- **Sinergia con Paconi y con El Pelado** (Marcelo es su nombre real; Iván, 26-11-2026): **−40 % de
   cansancio**. Es fuerte a propósito porque solo sirve a dos.
   Con Paconi y su Planta (−20 %), juntos: −52 %.
 - Frase (propuesta): «Diez kilos. Por si acaso. Nadie sabe de qué caso.»
@@ -110,7 +110,7 @@ eventos de inicio de turno (no pincha ni se avería), «Tus taxis hoy» y su
 ficha (sus estadísticas son las de la flota).
 
 **Quién es:** 6 años, las cosas muy claras. Su padre, Daniel, es su
-representante. Tiene un hermano de 1 año. Le tiene manía a Paconi. Frase
+representante; su madre se llama Sonia. Tiene un hermano de 1 año, Álvaro. Le tiene manía a Paconi. Frase
 favorita: «¡Paconi, a trabajar!».
 
 ### Habilidades (propuesta)
@@ -136,7 +136,7 @@ favorita: «¡Paconi, a trabajar!».
    el ticket).
 4. **Hermana mayor:** el **8 %** de las jornadas se queda cuidando de su
    hermano: ese día sus habilidades no cuentan («Hoy no puedo, cuido de
-   Hugo»; el nombre del hermano lo pones tú).
+   Álvaro»).
 5. Nunca de incógnito.
 
 Con pocos conductores rinde poco (manda sobre nadie); con una flota grande,
@@ -145,15 +145,16 @@ Propongo que su evento solo salga **a partir de la SL** (3 licencias).
 
 ### Su evento: «De Parla a Almería» (de día)
 
-> En Parla suben un padre con maletas para todo el verano, un bebé de un
-> año en su sillita y una niña de seis con una carpeta bajo el brazo. Van a
+> En Parla suben una familia con maletas para todo el verano: el padre,
+> Daniel; la madre, Sonia; Álvaro, un bebé de un año en su sillita, y
+> Daniela, una niña de seis con una carpeta bajo el brazo. Van a
 > Almería. Son más de 500 km y da para mucha conversación: el padre, Daniel,
 > que además es su representante, te cuenta que Daniela lleva las cuentas
 > de casa, negocia su propia paga y ya tiene tarjetas de visita. Daniela te
 > mira por el retrovisor: «¿Y tu flota qué tal va?».
 
 Viaje: unos 550 km (aproximado) → por taxímetro saldrían unos 770 €.
-Propongo **700 €** y **6 horas de juego parado** (el taxi está fuera todo
+**700 €** y **6 horas de juego parado** (aprobado por Iván, 26-11-2026) (el taxi está fuera todo
 ese tiempo).
 
 | Decisión | Resultado |
@@ -185,7 +186,9 @@ ese tiempo).
 > - In the **back seat**, a **6-year-old girl** in a booster seat with a high
 >   ponytail and a small navy blazer, holding a clipboard, looking very
 >   seriously at the driver through the rear-view mirror. Next to her, a
->   **1-year-old baby** in a rear-facing car seat with a pacifier.
+>   **1-year-old baby boy** in a rear-facing car seat with a pacifier, and
+>   on the other side the **mother**, in her thirties, long dark hair,
+>   smiling and holding a bag of snacks.
 > - Suitcases and a beach bag piled behind the back seat.
 >
 > Same lower cream area, kept simple. **Absolutely no text, no letters, no
@@ -314,8 +317,8 @@ Prompt:
   chat con un punto rojo si hay mensajes sin leer. Cabe porque el nombre de
   la SL baja debajo de «Libre» (arreglo 2).
 - **Se desbloquea al montar la SL.** El primer mensaje es tuyo: te lo
-  propongo ya escrito y lo puedes cambiar antes de enviarlo (ver pregunta
-  4):
+  propongo ya escrito y lo puedes cambiar antes de enviarlo (Iván,
+  26-11-2026):
   > «Equipo: hoy hemos montado {empresa} S.L. El negocio va bien gracias a
   > vosotros. ¡A por más carreras!»
 
@@ -428,7 +431,7 @@ Fotos tipo móvil, mismo estilo, formato cuadrado:
 
 ## 7. Orden de los commits
 
-1. (Si dices que sí) **Ordenar el código:** partir `interfaz.js` y resumir
+1. **Ordenar el código** (hecho, 26-11-2026): partir `interfaz.js` y resumir
    `CLAUDE.md`. Sin cambios para el jugador.
 2. **Arreglos:** lluvia encima, nombre de la flota, hueco bajo los avisos y
    nombres nuevos.

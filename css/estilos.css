@@ -212,6 +212,8 @@
   /* Iván, 20-11-2026: más transparente (antes 0,93 y 0,90) para que se vea la calle. */
   --velo-dia: rgba(255, 255, 255, 0.72);
   --velo-noche: rgba(16, 25, 54, 0.70);
+  --velo-empresa-dia: rgba(255, 250, 240, 0.55);   /* recuadro del nombre de tu SL */
+  --velo-empresa-noche: rgba(16, 25, 54, 0.55);
   --velo-hoja: rgba(23, 32, 51, 0.52);
 
   /* Tipografía */
@@ -292,6 +294,7 @@ body {
 }
 @media (max-height: 829px) {
   :root { --alto-cabecera: 180px; --placa-arriba: 64px; }
+  body[data-vista="calle"] .cabecera-marca { top: 10px; }
   /* La escena baja 6 px (se recorta el borde de la calzada); el sol y la
      luna están 12 px más abajo que en la maqueta para no cortarse arriba. */
   /* Antes -20 px: con el taxi en el carril de delante (20-11-2026) le cortaba
@@ -312,18 +315,35 @@ body:not([data-vista="calle"]) .cabecera {
 }
 .cabecera-contenido { position: relative; max-width: 560px; height: 100%; margin: 0 auto; }
 
-/* Logo y, al lado, la placa con el nombre de tu SL (Iván, 20-11-2026). */
+/* Logo y, debajo, el nombre de tu SL con la misma letra en un recuadro
+   translúcido (Iván, 26-11-2026; antes, una placa al lado que quitaba sitio a
+   los botones). En las pestañas con la cabecera compacta no cabe debajo: va
+   al lado, con el mismo aspecto. */
 .cabecera-marca {
   position: absolute;
   left: 20px;
   top: 16px;
   right: 124px;                 /* deja sitio al personaje y al engranaje */
   display: flex;
-  align-items: center;
-  gap: var(--esp-3);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   min-width: 0;
 }
-.cabecera-empresa { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; box-shadow: 0 2px 8px var(--sombra-placa); }
+body:not([data-vista="calle"]) .cabecera-marca { flex-direction: row; align-items: center; gap: var(--esp-2); }
+.cabecera-empresa {
+  min-width: 0; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 1px 8px;
+  border-radius: var(--r-pastilla);
+  background: var(--velo-empresa-dia);
+  color: var(--marca);
+  font-family: var(--letra-titulo);
+  font-weight: 800;
+  font-size: var(--t-normal);
+  line-height: 18px;
+}
+.cabecera.noche .cabecera-empresa { background: var(--velo-empresa-noche); color: var(--noche-texto); }
 .cabecera-empresa[hidden] { display: none; }
 .cabecera-logo {
   flex: none;
@@ -331,7 +351,7 @@ body:not([data-vista="calle"]) .cabecera {
   font-family: var(--letra-titulo);
   font-weight: 800;
   font-size: var(--t-logo);
-  line-height: 1.2;
+  line-height: 1.1;
   letter-spacing: -0.4px;
 }
 
@@ -546,6 +566,7 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 
 /* Escena: dibujo a escala 1, pegado abajo y centrado (js/ambiente.js). */
 .esc-calle { position: absolute; left: 50%; bottom: 0; margin-left: -975px; display: block; }
+.esc-capa-lluvia { pointer-events: none; }
 /* Edificios ilustrados (Iván, 26-11-2026): la versión de noche, encima, con fundido. */
 .esc-edificios-noche { opacity: 0; transition: opacity 1.5s ease; }
 .noche .esc-edificios-noche { opacity: 1; }
@@ -797,8 +818,9 @@ main {
   max-width: 560px;
   margin: 0 auto;
   /* abajo deja sitio para el menú inferior (su alto más el borde de 1 px)
-     y 4 px de aire; la última sección ya trae su margen (--esp-3). */
-  padding: 10px 16px calc(var(--alto-menu) + 1px + 4px - var(--esp-3) + env(safe-area-inset-bottom));
+     y 4 px de aire; la última sección ya trae su margen (--esp-3). Con un
+     aviso a la vista, además su alto (--hueco-aviso, lo pone mostrarMensaje). */
+  padding: 10px 16px calc(var(--alto-menu) + 1px + 4px - var(--esp-3) + env(safe-area-inset-bottom) + var(--hueco-aviso, 0px));
 }
 
 .fuera-de-vista { display: none !important; }

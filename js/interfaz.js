@@ -1116,8 +1116,14 @@
       el.classList.remove('con-retrato');
     }
     el.classList.remove('oculto');
+    // Mientras se ve, la página tiene debajo un hueco de su alto: así se puede
+    // bajar hasta lo que tapa, como «Ver los N restantes» (Iván, 26-11-2026).
+    document.body.style.setProperty('--hueco-aviso', (el.offsetHeight + 12) + 'px');
     clearTimeout(ui.temporizadorMensaje);
-    ui.temporizadorMensaje = setTimeout(function () { el.classList.add('oculto'); }, 3500);
+    ui.temporizadorMensaje = setTimeout(function () {
+      el.classList.add('oculto');
+      document.body.style.removeProperty('--hueco-aviso');
+    }, 3500);
   }
 
   // Lo que usan los otros archivos de la interfaz y main.js.

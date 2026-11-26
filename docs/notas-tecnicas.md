@@ -105,7 +105,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
   `Libre.retratos.svg()`, que da `<img class="retrato-cara">`. Los avisos
   llevan `retrato: caraDe(t)`. La migración 38 → 39 da cara
   (`asignarCara()`) a conductores, candidatos y despedidos.
-- Personajes (`config.conductores.personajes`, 32 desde el 20-11-2026): el
+- Personajes (`config.conductores.personajes`, 35 desde el 26-11-2026: Daniela pasó a ser Fátima y entraron Ionuț, Mamadou y Mei): el
   índice es el retrato que guarda cada conductor, así que los nuevos van
   siempre al final. Piezas en `js/retratos.js`: además de cara, pelo, gafas
   y barba, `gafas: 'sol'`, `gorra` (color de ropa 1–6), `cuello`
@@ -380,7 +380,8 @@ nombra sin decir en qué archivo están: búscalas con grep.
   Ajustes. En pantalla: la casilla «Montar una SL» (`data-montar-sl`) abre
   `htmlHojaSociedad()` (`montandoSL`, el nombre escrito en `nombreSL`; la hoja
   baja desde arriba, `.hoja-sociedad`, para que el teclado no la tape) y el
-  nombre va en la placa `#empresa` junto al logo (`.cabecera-marca`).
+  nombre va en `#empresa`, debajo del logo (`.cabecera-marca`, en columna en
+  Calle y en fila en las demás pestañas, con la cabecera compacta).
 - Saltar al cierre (Iván, 17-11-2026): `puedeSaltarDia()` es cierto si libra
   tu licencia, ningún conductor puede trabajar esa jornada (`puedeTrabajar()`)
   y no tienes otra licencia a la que pasarte (con coche, que no libre y con
@@ -425,7 +426,9 @@ nombra sin decir en qué archivo están: búscalas con grep.
   como lluvia o la avería de tu coche) solo salen en `VISTAS_AVISOS_EVENTOS`
   (Calle; Iván, 20-11-2026): `avisoVisible()` los descarta en las demás,
   también si cambias de pestaña con uno en la cola. Lo que responde a una
-  acción tuya (`mostrarMensaje()` directo) sale siempre.
+  acción tuya (`mostrarMensaje()` directo) sale siempre. Mientras se ve,
+  `mostrarMensaje()` pone `--hueco-aviso` (su alto + 12 px) en el `body` y
+  `main` lo suma a su relleno de abajo, para llegar a lo que tapa.
 - Ajustes y partida no es una pestaña: el engranaje de la cabecera abre una
   hoja (`seccionPartida`, vista 'siempre'; se cierra con ×, el fondo o
   Escape). Exportar copia el texto (portapapeles o, si no hay, selección y
@@ -492,7 +495,9 @@ nombra sin decir en qué archivo están: búscalas con grep.
   con su `caja` en fracciones del dibujo y el `aspecto` del modelo) dentro
   de `.an-rueda`, para que giren; de noche, `.esc-brillo`: haz del faro
   con degradado lineal que sale del dibujo, `.esc-taxi` con
-  `overflow: visible`) y lluvia. Carriles (se circula por la
+  `overflow: visible`) y lluvia (`lluvia()`: otra capa `svg.esc-capa-lluvia`,
+  la última de `montar()`, para que caiga por delante de todo; Iván,
+  26-11-2026). Carriles (se circula por la
   derecha): taxi y bici de Uber Eats, hacia la derecha, por el de delante;
   autobús y bici de Just Eat, hacia la izquierda, por el de detrás. El orden
   en `montar()` decide quién tapa a quién; con tormenta (clase `.tormenta`, Iván
