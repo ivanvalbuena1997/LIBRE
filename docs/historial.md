@@ -158,3 +158,7 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 122. Paconi cuadra mejor las cuentas: su «ajuste de periodos anteriores» deja ahora un 12–18 % de lo que factura (antes, un 8–12 %).
 123. Llega el segundo ÚNICO: El Pelado. Solo en su coche hace el día y la noche del tirón, cobra un plus por cada kilómetro, nadie se le va sin pagar, nunca se pone malo y con los chicles de menta cobra un 20 % más. A cambio gasta más combustible, hace más kilómetros de la cuenta, pincha más y no comparte coche con Paconi.
 124. Llegan los eventos de clientes: cada 5–8 jornadas se sube alguien especial a tu taxi o al de uno de tus conductores, el juego se para y tú decides entre tres opciones. Nueve historias, casi todas reales y con su ilustración, y dos de ellas te traen a Paconi y a El Pelado.
+
+## 26 de noviembre de 2026 · Eventos de clientes
+
+125. Si le dices a Paconi o a El Pelado «Vente a trabajar conmigo», ahora te sale gratis contratarlo ese mismo día. El Pelado ya no deja chicles.

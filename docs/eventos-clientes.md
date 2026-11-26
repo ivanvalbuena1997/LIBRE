@@ -40,7 +40,7 @@ Viaje: unos 20 km y 5 min parado → **33 €**.
 | --- | --- |
 | «Lo siento, tengo la flota llena» | Cobras 33 €. Se despide con un «Engañoso.» No entra en tu flota; puede volver a salir en otro evento más adelante. |
 | «Toma mi número» | Cobras 33 €. Queda **en tu agenda**: sale el primero entre los candidatos y no desaparece al cerrar la caja hasta que lo contrates. Precio normal. |
-| «Vente a trabajar conmigo» | Cobras 33 €. Se ofrece **ya, a mitad de precio**, pero solo hasta el cierre de hoy: si no lo contratas, vuelve a tu agenda a precio normal. |
+| «Vente a trabajar conmigo» | Cobras 33 €. Se ofrece **gratis** (Iván, 26-11-2026), pero solo hasta el cierre de hoy: si no lo contratas, vuelve a tu agenda a precio normal. |
 
 ### A2. «De Alcorcón a La Montaña» (trae a El Pelado)
 
@@ -55,7 +55,7 @@ Viaje: unos 55 km y 5 min parado → **82 €**.
 | --- | --- |
 | «Lo siento, tengo la flota llena» | Cobras 82 €. «Mucha lechuga suelta, jefe.» Sigue en Uber; puede volver a salir en otro evento. |
 | «Toma mi número» | Cobras 82 €. Queda en tu agenda, como Paconi. |
-| «Vente a trabajar conmigo» | Cobras 82 €. Se ofrece ya a mitad de precio hasta el cierre de hoy y, para celebrarlo, te deja un **Paquete de chicles de menta** (su objeto de sinergia, categoría A). |
+| «Vente a trabajar conmigo» | Cobras 82 €. Se ofrece **gratis** hasta el cierre de hoy, como Paconi (sin chicles: Iván, 26-11-2026). |
 
 ---
 

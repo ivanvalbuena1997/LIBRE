@@ -2950,7 +2950,7 @@
         if (r.unico) {
           const u = Libre.sim.buscarUnico(e.unico);
           chips.push('<span class="ui-chip evento-unico">' + esc(u ? u.nombre : e.unico) +
-            (r.unico === 'oferta' ? ': hoy, a mitad de precio' : ': en tu agenda') + '</span>');
+            (r.unico === 'oferta' ? (Libre.config.historia.eventos.descuentoOferta >= 1 ? ': gratis si lo contratas hoy' : ': hoy, más barato') : ': en tu agenda') + '</span>');
         }
         abajo = '<p class="evento-resultado"><strong>' + esc(e.opciones[r.opcion].texto) + '.</strong> ' + esc(r.texto) + '</p>' +
           (chips.length ? '<div class="evento-chips">' + chips.join('') + '</div>' : '') +

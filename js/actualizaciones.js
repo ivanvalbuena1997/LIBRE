@@ -569,6 +569,16 @@
           "texto": "Llegan los eventos de clientes: cada 5–8 jornadas se sube alguien especial a tu taxi o al de uno de tus conductores, el juego se para y tú decides entre tres opciones. Nueve historias, casi todas reales y con su ilustración, y dos de ellas te traen a Paconi y a El Pelado."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-26",
+      "titulo": "Eventos de clientes",
+      "cambios": [
+        {
+          "n": 125,
+          "texto": "Si le dices a Paconi o a El Pelado «Vente a trabajar conmigo», ahora te sale gratis contratarlo ese mismo día. El Pelado ya no deja chicles."
+        }
+      ]
     }
   ];
 })(globalThis);

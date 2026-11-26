@@ -2830,7 +2830,7 @@ prueba('Eventos de clientes: cada 5–8 jornadas, paran el reloj y aplican lo qu
   }
 });
 
-prueba('Eventos de clientes: Paconi a mitad de precio hasta el cierre y luego en tu agenda', function () {
+prueba('Eventos de clientes: Paconi gratis hasta el cierre y luego en tu agenda', function () {
   const ce = config.historia.eventos;
   ce.activos = true;
   try {
@@ -2846,7 +2846,8 @@ prueba('Eventos de clientes: Paconi a mitad de precio hasta el cierre y luego en
     const cand = e.candidatos[0];
     assert.strictEqual(cand.unico, 'paconi');
     const precio = config.categorias.find(function (c) { return c.id === 'L'; }).contratar;
-    cerca(sim.precioCandidato(cand), precio * ce.descuentoOferta, 1e-9);
+    cerca(sim.precioCandidato(cand), precio * (1 - ce.descuentoOferta), 1e-9);
+    assert.strictEqual(sim.precioCandidato(cand), 0, 'gratis');
     assert.deepStrictEqual(e.historia.agenda, ['paconi']);
     // Al cerrar la caja se sortean otros candidatos: sigue, a precio normal.
     e.historia.eventos.proximo = 1e9;

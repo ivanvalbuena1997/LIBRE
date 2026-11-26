@@ -1113,7 +1113,7 @@
        *   xp        experiencia de tu personaje; a un conductor, × xpConductor
        *   objeto    id de un objeto o { categoria } (uno al azar): al almacén
        *   unico     'agenda' (en tu agenda: siempre entre los candidatos hasta
-       *             contratarlo) u 'oferta' (además, a `descuentoOferta` hasta el cierre)
+       *             contratarlo) u 'oferta' (además, con `descuentoOferta` hasta el cierre: gratis)
        * Los importes son fijos (Iván: los viajes, siempre lo mismo): Pinto
        * 33 € y Aranjuez 82 €, tarifa 1 con km aproximados (Iván los da por buenos).
        */
@@ -1124,7 +1124,7 @@
         minutoDesde: 60, minutoHasta: 1380,
         reintentoMinutos: 60,        // si en ese momento no trabaja nadie
         xpConductor: 0.25,           // tus carreras dan 4 puntos y las suyas 1
-        descuentoOferta: 0.5,
+        descuentoOferta: 1,               // «Vente a trabajar conmigo»: gratis (Iván, 26-11-2026)
         lista: [
           { id: 'paconi', titulo: 'Del 12 de Octubre a Pinto', imagen: 'imagenes/evento-paconi.webp', momento: 'dia', unico: 'paconi',
             texto: 'En la puerta del Hospital 12 de Octubre suben un señor de 67 años con acento venezolano y su hija, enfermera, que acaba el turno. Van a Pinto, donde vive él. Por el camino cuenta que en su país fue taxista, que ahora está en paro y que le van a desahuciar. «Es una trampa, muchachos.»',
@@ -1134,7 +1134,7 @@
               { texto: '«Toma mi número»', resultados: [
                 { texto: 'Carrera cobrada. Paconi queda en tu agenda: lo tienes el primero entre los candidatos hasta que lo contrates.', dinero: 33, unico: 'agenda' }] },
               { texto: '«Vente a trabajar conmigo»', resultados: [
-                { texto: 'Carrera cobrada. Paconi se ofrece hoy a mitad de precio: lo tienes el primero entre los candidatos. Si no lo contratas antes del cierre, queda en tu agenda.', dinero: 33, unico: 'oferta' }] }
+                { texto: 'Carrera cobrada. Paconi trabajaría contigo gratis si lo contratas hoy: lo tienes el primero entre los candidatos. Si no lo contratas antes del cierre, queda en tu agenda a precio normal.', dinero: 33, unico: 'oferta' }] }
             ] },
           { id: 'pelado', titulo: 'De Alcorcón a La Montaña', imagen: 'imagenes/evento-pelado.webp', momento: 'dia', unico: 'pelado',
             texto: 'En Alcorcón sube un argentino enorme y calvo que va a La Montaña, el barrio residencial de Aranjuez. Trabaja para la competencia, en Uber, pero no le dejan echar horas extra y con siete hijos no llega a fin de mes. «Siete pibes en casa, hermano: hay que laburar.»',
@@ -1144,7 +1144,7 @@
               { texto: '«Toma mi número»', resultados: [
                 { texto: 'Carrera cobrada. El Pelado queda en tu agenda: lo tienes el primero entre los candidatos hasta que lo contrates.', dinero: 82, unico: 'agenda' }] },
               { texto: '«Vente a trabajar conmigo»', resultados: [
-                { texto: 'Carrera cobrada. El Pelado se ofrece hoy a mitad de precio y, para celebrarlo, deja un paquete de chicles de menta en el almacén. Si no lo contratas antes del cierre, queda en tu agenda.', dinero: 82, unico: 'oferta', objeto: 'chicles' }] }
+                { texto: 'Carrera cobrada. El Pelado trabajaría contigo gratis si lo contratas hoy: lo tienes el primero entre los candidatos. Si no lo contratas antes del cierre, queda en tu agenda a precio normal.', dinero: 82, unico: 'oferta' }] }
             ] },
           { id: 'cena', titulo: 'Las tres de la cena de empresa', imagen: 'imagenes/evento-cena.webp', momento: 'noche',
             texto: 'Tres mujeres de unos cincuenta, con más copas de la cuenta tras una celebración del trabajo. Hay que dejar a cada una en su casa: Pozuelo, Boadilla y Las Rozas. 100 € de carrera. La que va delante está cada vez más pálida.',
