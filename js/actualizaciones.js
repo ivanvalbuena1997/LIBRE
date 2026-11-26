@@ -577,6 +577,10 @@
         {
           "n": 125,
           "texto": "Si le dices a Paconi o a El Pelado «Vente a trabajar conmigo», ahora te sale gratis contratarlo ese mismo día. El Pelado ya no deja chicles."
+        },
+        {
+          "n": 126,
+          "texto": "En el ordenador, la introducción y los eventos se ven en una columna en el centro, con la ilustración entera, en vez de estirarse a todo el ancho y recortarse."
         }
       ]
     }

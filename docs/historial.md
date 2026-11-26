@@ -162,3 +162,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 ## 26 de noviembre de 2026 · Eventos de clientes
 
 125. Si le dices a Paconi o a El Pelado «Vente a trabajar conmigo», ahora te sale gratis contratarlo ese mismo día. El Pelado ya no deja chicles.
+126. En el ordenador, la introducción y los eventos se ven en una columna en el centro, con la ilustración entera, en vez de estirarse a todo el ancho y recortarse.
