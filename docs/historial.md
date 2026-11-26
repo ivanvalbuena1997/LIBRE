@@ -175,3 +175,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 136. Las ruedas del taxi que cruza la calle de arriba vuelven a girar, ahora con las llantas de cada coche: Corolla, Tesla y Mercedes.
 137. Arreglo: el taxi de la calle de arriba ya no cambia de modelo a mitad de camino. Cada pasada es entera con el mismo coche y, si tienes varios modelos, la siguiente es otro distinto.
 138. Arreglo: las ruedas del Tesla y del Mercedes ya giran centradas, sin bailar. Ahora gira solo la llanta, centrada en su eje, y el neumático se queda quieto.
+139. El autobús de la EMT de la calle de arriba también es una ilustración, con sus ruedas girando y su letrero de la línea 34 «Las Águilas».

@@ -629,6 +629,10 @@
         {
           "n": 138,
           "texto": "Arreglo: las ruedas del Tesla y del Mercedes ya giran centradas, sin bailar. Ahora gira solo la llanta, centrada en su eje, y el neumático se queda quieto."
+        },
+        {
+          "n": 139,
+          "texto": "El autobús de la EMT de la calle de arriba también es una ilustración, con sus ruedas girando y su letrero de la línea 34 «Las Águilas»."
         }
       ]
     }

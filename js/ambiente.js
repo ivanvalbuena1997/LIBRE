@@ -326,78 +326,34 @@
    * contrario al taxi y por el carril de detrás (en España se circula por la
    * derecha). De noche se encienden las ventanillas.
    */
+  /*
+   * El autobús articulado de la EMT (Iván, 26-11-2026): ilustración hecha con
+   * IA (imagenes/autobus.webp, 800 × 189), con sus tres llantas recortadas
+   * encima para que giren y los letreros LED de la línea 34 dibujados aquí
+   * (la imagen no lleva texto). Medidas en las unidades del svg de antes.
+   */
+  const BUS = { x: 0, ancho: 246, suelo: 65.5, aspecto: 800 / 189 };
+  const RUEDAS_BUS = [[0.15025, 0.73122, 0.05125, 0.21693], [0.42975, 0.73122, 0.05125, 0.21693], [0.78912, 0.73122, 0.05125, 0.21693]];
   function autobus() {
-    // Huecos de cristal de la banda negra (Iván, 20-11-2026: que se vea un poco
-    // lo de detrás): la banda se dibuja con agujeros y los cristales encima,
-    // semitransparentes.
-    const huecosBanda = [];
-    const ventanas = function (desde, hasta, huecos) {
-      let v = '';
-      for (let x = desde; x + 19 <= hasta - 2; x += 21) {
-        if (huecos.some(function (h) { return x + 19 > h[0] && x < h[1]; })) continue;
-        v += '<rect class="esc-bus-ventana" x="' + x + '" y="14" width="19" height="20" rx="1.4"/>';
-        huecosBanda.push('M' + x + ' 14h19v20h-19z');
-      }
-      return v;
-    };
-    const puerta = function (x) {
-      return '<g class="esc-bus-puerta"><rect x="' + x + '" y="13.4" width="13" height="42" rx="1"/>' +
-        '<path class="esc-bus-hojas" d="M' + (x + 6.5) + ' 13.4V55.4"/>' +
-        '<path class="esc-bus-pasamanos" d="M' + (x + 3) + ' 18V52M' + (x + 10) + ' 18V52"/></g>';
-    };
-    const ruedaBus = function (x) {
-      // Cinco tuercas alrededor del buje: son lo que se ve girar (Iván,
-      // 21-11-2026). El círculo invisible (esc-eje) centra el giro.
-      let tuercas = '<circle class="esc-eje" cx="' + x + '" cy="57" r="5.2"/>';
-      for (let k = 0; k < 5; k++) {
-        const a = -Math.PI / 2 + k * 2 * Math.PI / 5;
-        tuercas += '<circle cx="' + (x + 3.2 * Math.cos(a)).toFixed(2) + '" cy="' + (57 + 3.2 * Math.sin(a)).toFixed(2) + '" r="1"/>';
-      }
-      return '<circle class="esc-rueda" cx="' + x + '" cy="57" r="8.4"/><circle class="esc-bus-llanta" cx="' + x + '" cy="57" r="5.2"/>' +
-        '<g class="esc-bus-tuercas an-rueda">' + tuercas + '</g>' +
-        '<circle class="esc-buje" cx="' + x + '" cy="57" r="1.6"/>';
-    };
-    const ventanasHtml = ventanas(36, 118, [[60, 74]]) + ventanas(130, 246, [[150, 164]]);
-    // Agujeros de la banda: ventanillas, parabrisas y la parte alta de las puertas.
-    const bandaHuecos = huecosBanda.join('') + 'M5.6 17H20V35H5.6z' +
-      [22, 61, 151].map(function (x) { return 'M' + x + ' 13.4h13v22.6h-13z'; }).join('');
-    let fuelle = '';
-    for (let x = 119.6; x < 127; x += 1.8) fuelle += 'M' + x + ' 9V55';
+    const alto = BUS.ancho / BUS.aspecto;
+    const y0 = BUS.suelo - alto;
+    // De la imagen (800 px de ancho) al svg.
+    const px = function (v) { return (v * BUS.ancho / 800).toFixed(2); };
+    const py = function (v) { return (y0 + v * BUS.ancho / 800).toFixed(2); };
+    const ruedas = RUEDAS_BUS.map(function (c, i) {
+      return '<g class="an-rueda"><image href="imagenes/autobus-rueda-' + (i + 1) + '.webp" x="' + (BUS.x + c[0] * BUS.ancho).toFixed(2) +
+        '" y="' + (y0 + c[1] * alto).toFixed(2) + '" width="' + (c[2] * BUS.ancho).toFixed(2) + '" height="' + (c[3] * alto).toFixed(2) + '"/></g>';
+    }).join('');
     return '<svg class="esc-bus an-bus" width="232" height="60" viewBox="-4 0 254 66" aria-hidden="true" focusable="false">' +
       '<ellipse class="esc-sombra-coche" cx="122" cy="65" rx="124" ry="1.8"/>' +
-      // Techo blanco y equipos de aire acondicionado.
-      '<rect class="esc-bus-techo" x="30" y="1.6" width="44" height="6" rx="2.6"/>' +
-      '<rect class="esc-bus-techo" x="150" y="1.6" width="52" height="6" rx="2.6"/>' +
-      // Las dos secciones: cuerpo azul (con el techo blanco) y banda negra.
-      '<path class="esc-bus-cuerpo" d="M4 50V15Q4 6 12 6H118V50Z"/>' +
-      '<path class="esc-bus-cuerpo" d="M128 6H239Q246 6 246 13V50H128Z"/>' +
-      '<path class="esc-bus-techo" d="M10 6H118V10H5.4Q6.4 6 10 6ZM128 6H239Q245.6 6 246 10H128Z"/>' +
-      '<path class="esc-bus-banda" fill-rule="evenodd" d="M4 11.6h114v24.4H4zM128 11.6h118v24.4H128z' + bandaHuecos + '"/>' +
-      // Parabrisas con el letrero de la línea encima.
-      '<path class="esc-bus-cristal" d="M5.6 35V18Q5.6 13 10 13H20V35Z"/>' +
-      '<rect class="esc-bus-letrero" x="5.6" y="12.6" width="14.4" height="4.6" rx="0.6"/>' +
-      '<text class="esc-bus-linea" x="12.8" y="16.2" text-anchor="middle">34</text>' +
-      // Ventanillas (sin las puertas) y letrero lateral.
-      ventanasHtml +
-      '<rect class="esc-bus-letrero" x="36" y="13.6" width="22" height="3.6" rx="0.5"/>' +
-      '<text class="esc-bus-linea esc-bus-linea-chica" x="47" y="16.4" text-anchor="middle">34 LAS ÁGUILAS</text>' +
-      // Faldón gris con los pasos de rueda.
-      '<path class="esc-bus-falda" d="M4 50H118V58.4H110.4A10.4 10.4 0 0 0 89.6 58.4H48.4A10.4 10.4 0 0 0 27.6 58.4H7Q4 58.4 4 55.4Z"/>' +
-      '<path class="esc-bus-falda" d="M128 50H246V55.4Q246 58.4 243 58.4H222.4A10.4 10.4 0 0 0 201.6 58.4H128Z"/>' +
-      // Fuelle de la articulación.
-      '<rect class="esc-bus-fuelle" x="118" y="8" width="10" height="48" rx="1"/>' +
-      '<path class="esc-bus-pliegues" d="' + fuelle + '"/>' +
-      // Puertas: delantera, la del medio y la de la sección trasera.
-      puerta(22) + puerta(61) + puerta(151) +
-      // Rótulos, retrovisor de brazo, faro, matrícula y piloto trasero.
-      '<text class="esc-bus-rotulo" x="88" y="44" text-anchor="middle">EMT 573</text>' +
-      '<text class="esc-bus-rotulo esc-bus-rotulo-chico" x="12" y="44" text-anchor="middle">573</text>' +
-      '<path class="esc-bus-retrovisor" d="M6.4 11.6C2 11 -1.6 12.6 -1.6 16.4V23.4H1V17C1 15.2 3 14.2 6.4 14.8Z"/>' +
-      '<path class="esc-bus-faro" d="M4 46.6L10.6 47.4V50.6L4 50.4Z"/>' +
-      '<rect class="esc-bus-matricula" x="6" y="52.4" width="9" height="2.6" rx="0.4"/>' +
-      '<rect class="esc-trasero" x="244" y="38" width="2.4" height="10" rx="1"/>' +
-      ruedaBus(38) + ruedaBus(100) + ruedaBus(212) +
-      '</svg>';
+      '<image class="esc-bus-img" href="imagenes/autobus.webp" x="' + BUS.x + '" y="' + y0.toFixed(2) + '" width="' + BUS.ancho +
+      '" height="' + alto.toFixed(2) + '"/>' +
+      // Letreros LED: el de delante, encima del parabrisas, y el lateral.
+      '<rect class="esc-bus-letrero" x="' + px(14) + '" y="' + py(25) + '" width="' + px(46) + '" height="' + px(14) + '" rx="0.5"/>' +
+      '<text class="esc-bus-linea" x="' + px(37) + '" y="' + py(35.6) + '" text-anchor="middle">34</text>' +
+      '<rect class="esc-bus-letrero" x="' + px(108) + '" y="' + py(26) + '" width="' + px(122) + '" height="' + px(12) + '" rx="0.5"/>' +
+      '<text class="esc-bus-linea esc-bus-linea-chica" x="' + px(169) + '" y="' + py(35) + '" text-anchor="middle">34 LAS ÁGUILAS</text>' +
+      ruedas + '</svg>';
   }
 
   /* Dos nubes que cruzan despacio (solo de día). */

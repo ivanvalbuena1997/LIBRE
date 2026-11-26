@@ -28,6 +28,9 @@ la tapa el texto.
   `-2.webp`: sus llantas trasera y delantera (solo la llanta, con el centro
   buscado por la simetría de los radios) recortadas en círculo, para que
   giren encima en la cabecera (`ruedas` y `aspecto` en la config).
+- `autobus.webp` (800 × 189) y `autobus-rueda-1..3.webp`: el autobús
+  articulado de la EMT de la cabecera, recortado del fondo verde, y sus
+  tres llantas para que giren. Los letreros los pone `js/ambiente.js`.
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
   Estadísticas.

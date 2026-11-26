@@ -557,7 +557,10 @@ aleatorios desde el 16 de noviembre de 2026, y la libranza desde el 17 (Iván).
   patas que giran desde la cadera: `transform-origin` propio de cada par), repartidores en bici (`REPARTIDORES`,
   `repartidor()`, `rueda()`: Uber Eats verde y Just Eat naranja, en
   sentidos contrarios; el que vuelve va en espejo salvo la mochila), un
-  autobús articulado de la EMT (`autobus()`, `--bus-*`), nubes,
+  autobús articulado de la EMT (`autobus()`: desde el 26-11-2026, ilustración
+  con IA, `imagenes/autobus.webp`, `BUS`, con sus tres llantas recortadas
+  girando, `RUEDAS_BUS`, y los letreros LED de la línea 34 dibujados encima,
+  `--bus-letrero`/`--bus-led`), nubes,
   un taxi que pasa (desde el 26-11-2026, ilustración con IA,
   `.esc-taxi-img`; en cada pasada, uno de los modelos de tu flota:
   `ponerModeloTaxi()` en `animationiteration` del propio taxi (`ev.target`:

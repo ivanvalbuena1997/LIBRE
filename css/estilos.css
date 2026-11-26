@@ -701,8 +701,8 @@ body:not([data-vista="calle"]) .placa-caja-dinero { justify-self: end; font-size
 /* El taxi va a la altura de la acera (y = 196 de la maqueta). */
 /* Carril de delante, hacia la derecha (Iván, 20-11-2026: el autobús va por el otro). */
 .esc-taxi { position: absolute; left: 16px; bottom: 7px; overflow: visible; }
-/* El taxi ilustrado, algo más apagado de noche (sin color propio). */
-.noche .esc-taxi-img { filter: brightness(0.78); }
+/* El taxi y el autobús ilustrados, algo más apagados de noche (sin color propio). */
+.noche .esc-taxi-img, .noche .esc-bus-img, .noche .esc-bus image { filter: brightness(0.78); }
 .esc-carroceria { fill: var(--coche-carroceria); stroke: var(--coche-perfil); stroke-width: 1.5; }
 .esc-cristal { fill: var(--coche-cristal); }
 .esc-piloto { fill: var(--taxi-piloto); }
