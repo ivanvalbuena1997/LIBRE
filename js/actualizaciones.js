@@ -693,6 +693,10 @@
         {
           "n": 154,
           "texto": "Estadísticas con cuatro contadores nuevos de toda la flota: vómitos, euros perdidos con los que se van sin pagar, objetos encontrados y objetos devueltos. Las caras del grupo de la flota llevan un borde y una sombra para que se distingan del fondo, y la introducción ya no enseña un fondo azul antes de cada ilustración."
+        },
+        {
+          "n": 155,
+          "texto": "El botón del grupo de la flota tiene un icono nuevo: dos bocadillos de conversación."
         }
       ]
     }

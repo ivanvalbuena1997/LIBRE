@@ -191,3 +191,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 152. Más fotos en el grupo de la flota: la planta de Paconi, el bocadillo de El Pelado y el dibujo de Daniela. Ya están todas.
 153. La última escena de la introducción ya enseña el Corolla, como dice el texto (antes salía un coche antiguo).
 154. Estadísticas con cuatro contadores nuevos de toda la flota: vómitos, euros perdidos con los que se van sin pagar, objetos encontrados y objetos devueltos. Las caras del grupo de la flota llevan un borde y una sombra para que se distingan del fondo, y la introducción ya no enseña un fondo azul antes de cada ilustración.
+155. El botón del grupo de la flota tiene un icono nuevo: dos bocadillos de conversación.
