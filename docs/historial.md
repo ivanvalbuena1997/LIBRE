@@ -174,3 +174,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 135. El Corolla y el Tesla estrenan llantas de aleación, con más detalle (el Tesla, con la pinza de freno roja).
 136. Las ruedas del taxi que cruza la calle de arriba vuelven a girar, ahora con las llantas de cada coche: Corolla, Tesla y Mercedes.
 137. Arreglo: el taxi de la calle de arriba ya no cambia de modelo a mitad de camino. Cada pasada es entera con el mismo coche y, si tienes varios modelos, la siguiente es otro distinto.
+138. Arreglo: las ruedas del Tesla y del Mercedes ya giran centradas, sin bailar. Ahora gira solo la llanta, centrada en su eje, y el neumático se queda quieto.

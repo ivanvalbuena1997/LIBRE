@@ -625,6 +625,10 @@
         {
           "n": 137,
           "texto": "Arreglo: el taxi de la calle de arriba ya no cambia de modelo a mitad de camino. Cada pasada es entera con el mismo coche y, si tienes varios modelos, la siguiente es otro distinto."
+        },
+        {
+          "n": 138,
+          "texto": "Arreglo: las ruedas del Tesla y del Mercedes ya giran centradas, sin bailar. Ahora gira solo la llanta, centrada en su eje, y el neumático se queda quieto."
         }
       ]
     }

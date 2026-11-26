@@ -25,7 +25,8 @@ la tapa el texto.
   Tesla, volteado: su imagen miraba a la izquierda). Los
   usan la cabecera, la miniatura de los km y la hoja de elegir coche
   (`config.vehiculos.modelos.<id>.imagen`). `coche-<id>-rueda-1.webp` y
-  `-2.webp`: sus ruedas trasera y delantera recortadas en círculo, para que
+  `-2.webp`: sus llantas trasera y delantera (solo la llanta, con el centro
+  buscado por la simetría de los radios) recortadas en círculo, para que
   giren encima en la cabecera (`ruedas` y `aspecto` en la config).
 - `personaje.webp`: tu retrato (256 × 256), el protagonista; lo usa
   `config.personaje.imagen` en la cabecera, «Tus taxis hoy», Conductores y
