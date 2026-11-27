@@ -767,6 +767,10 @@
         {
           "n": 171,
           "texto": "En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, es un despido disciplinario: se va sin que pagues nada y le mandas la carta de despido en PDF por el grupo."
+        },
+        {
+          "n": 172,
+          "texto": "Tu retrato se ve más cerca, a la misma escala que las caras de tus conductores (antes parecía más pequeño)."
         }
       ]
     }

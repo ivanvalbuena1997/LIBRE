@@ -211,3 +211,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 169. El grupo de la flota estrena cinco fotos: el asiento después de un vómito, la tormenta en Gran Vía, las flores olvidadas, las llaves del coche nuevo y el billete de propina.
 170. Las dos últimas fotos del grupo de la flota: la cola de taxis de Barajas y El Pelado en la reserva.
 171. En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, es un despido disciplinario: se va sin que pagues nada y le mandas la carta de despido en PDF por el grupo.
+172. Tu retrato se ve más cerca, a la misma escala que las caras de tus conductores (antes parecía más pequeño).
