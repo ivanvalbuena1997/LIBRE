@@ -751,6 +751,10 @@
         {
           "n": 167,
           "texto": "Paconi avisa en el grupo cuando se pone de baja, a primera hora y con sus excusas (un tirón cargando maletas, su chamo con un pie torcido, un virus «engañoso»…), y se queja de quien le deja el carro sin gasolina."
+        },
+        {
+          "n": 168,
+          "texto": "Siete conversaciones nuevas con foto en el grupo de la flota: el asiento después de un vómito, la tormenta, unas flores olvidadas, las llaves de un coche nuevo, un billete de propina, la cola de Barajas y El Pelado en la reserva. Las fotos llegarán pronto."
         }
       ]
     }

@@ -1440,7 +1440,11 @@
       },
       fotos: {
         rueda: 'imagenes/chat-rueda.webp', arbol: 'imagenes/chat-arbol.webp', amanecer: 'imagenes/chat-amanecer.webp', planta: 'imagenes/chat-planta.webp',
-        bocadillo: 'imagenes/chat-bocadillo.webp', dibujo: 'imagenes/chat-dibujo.webp'
+        bocadillo: 'imagenes/chat-bocadillo.webp', dibujo: 'imagenes/chat-dibujo.webp',
+        // Iván, 27-11-2026.
+        vomito: 'imagenes/chat-vomito.webp', tormenta: 'imagenes/chat-tormenta.webp', flores: 'imagenes/chat-flores.webp',
+        llaves: 'imagenes/chat-llaves.webp', billete: 'imagenes/chat-billete.webp', barajas: 'imagenes/chat-barajas.webp',
+        reserva: 'imagenes/chat-reserva.webp'
       },
       conversaciones: [
         // Lo que ha pasado en la jornada.
@@ -1465,7 +1469,14 @@
         { id: 'rotura', cuando: 'rotura', lineas: [['c1', 'El coche ha muerto. Descanse en paz. 🪦'], ['c2', 'Ha sido un buen coche. Cuántos kilómetros de servicio.']] },
         { id: 'licencia', cuando: 'licencia', lineas: [['c1', '¿Licencia nueva? ¡Esto crece!'], ['c2', 'Que contraten a alguien majo.']] },
         { id: 'nuevo', cuando: 'nuevo', lineas: [['c2', 'Bienvenido al grupo, {c1}.'], ['c1', '¡Gracias! ¿Dónde se aparca para comer?'], ['c2', 'Esa es la pregunta del millón.']] },
+        // Con foto (Iván, 27-11-2026).
+        { id: 'vomitoFoto', cuando: 'vomito', foto: 'vomito', lineas: [['c1', 'Sin comentarios.'], ['c2', 'Te acompaño en el sentimiento.']] },
+        { id: 'tormentaFoto', cuando: 'tormenta', foto: 'tormenta', lineas: [['c1', 'Hoy no se ve ni el taxímetro.'], ['c2', 'Pues es cuando más se factura.']] },
+        { id: 'flores', cuando: 'objeto', foto: 'flores', lineas: [['c1', 'Alguien se ha quedado sin cita esta noche.'], ['c2', 'O sin perdón 😬']] },
+        { id: 'llaves', cuando: 'cocheNuevo', foto: 'llaves', lineas: [['c1', '¡Estreno!'], ['c2', 'Huele a nuevo hasta por foto.']] },
+        { id: 'billete', cuando: 'propina', foto: 'billete', lineas: [['c1', 'Hay gente buena en el mundo.'], ['c2', '¿Y dónde estaba esa gente cuando la llevaba yo?']] },
         // Charla normal.
+        { id: 'barajasFoto', foto: 'barajas', lineas: [['c1', 'Hora y media y sigo aquí.'], ['c2', 'Saluda a los de la fila de mi parte.']] },
         { id: 'obras', lineas: [['c1', 'Buenos días, grupo. Hoy hay obras en Gran Vía, ojo.']] },
         { id: 'gasolinera', lineas: [['c1', '¿Alguien sabe a qué hora cierra la gasolinera de Méndez Álvaro?'], ['c2', 'A las 23:00.']] },
         { id: 'barcelona', lineas: [['c1', 'Hoy he visto un taxi de Barcelona en Atocha. Perdidísimo.'], ['c2', 'Pobre hombre.']] },
@@ -1505,6 +1516,7 @@
         { id: 'peladoKm', requiere: ['pelado'], lineas: [['pelado', 'Un kilometrito más no le hace mal a nadie.'], ['c1', 'Pelado, el coche tiene {km} km.'], ['pelado', 'Está joven.']] },
         { id: 'peladoCalzoncillos', cuando: 'sinPagar', requiere: ['pelado'], lineas: [['pelado', 'El que se intente ir sin pagar conmigo se va en calzoncillos, ya saben.']] },
         { id: 'peladoEfectivo', requiere: ['pelado'], lineas: [['pelado', 'Che, cómo está tirando el efectivo, no se lo digan al jefe.'], ['c1', 'El jefe está en el grupo.'], ['c2', '¡Estás fenicio, Pelado!']] },
+        { id: 'peladoReserva', requiere: ['pelado'], foto: 'reserva', lineas: [['pelado', 'Un kilometrito más y paro, lo juro.'], ['c1', 'Mentira.']] },
         { id: 'peladoBocadillo', requiere: ['pelado'], foto: 'bocadillo', lineas: [['pelado', 'Desayuno de campeones.']] },
         // Daniela.
         { id: 'danielaFiniquito', requiere: ['daniela', 'paconi'], lineas: [['daniela', 'Paconi, tengo el finiquito listo. No me hagas mandártelo.'], ['paconi', 'Sí, jefa, descuide, este mes voy loco.']] },

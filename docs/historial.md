@@ -207,3 +207,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 165. El grupo de la flota: El Pelado y sus compañeros hablan de los kilómetros reales de su coche, Daniela solo cuenta que ha cuidado de Álvaro los días que de verdad no ha venido, y algunas respuestas llevan emoji.
 166. El grupo de la flota tiene cuatro conversaciones nuevas: los cucarachos, los autobuses de la EMT, El Pelado y el efectivo, y Paconi con la espuma del asiento.
 167. Paconi avisa en el grupo cuando se pone de baja, a primera hora y con sus excusas (un tirón cargando maletas, su chamo con un pie torcido, un virus «engañoso»…), y se queja de quien le deja el carro sin gasolina.
+168. Siete conversaciones nuevas con foto en el grupo de la flota: el asiento después de un vómito, la tormenta, unas flores olvidadas, las llaves de un coche nuevo, un billete de propina, la cola de Barajas y El Pelado en la reserva. Las fotos llegarán pronto.

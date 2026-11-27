@@ -65,7 +65,10 @@ la tapa el texto.
   `chat-rueda.webp` (pinchazo, un Corolla), `chat-arbol.webp` (Paconi
   contra un árbol, un Mercedes), `chat-amanecer.webp`, `chat-planta.webp`
   (la de Paconi, desde su asiento), `chat-bocadillo.webp` (El Pelado) y
-  `chat-dibujo.webp` (el de Daniela). Prompts en
+  `chat-dibujo.webp` (el de Daniela). Pendientes (27-11-2026):
+  `chat-vomito.webp`, `chat-tormenta.webp`, `chat-flores.webp`,
+  `chat-llaves.webp`, `chat-billete.webp`, `chat-barajas.webp` y
+  `chat-reserva.webp`. Prompts en
   `docs/propuesta-novedades.md`, 6. Si falta una, la burbuja enseña un
   hueco «Foto».
 - `nube-1.webp`, `nube-2.webp` y `nube-3.webp`: las nubes de la calle de
