@@ -755,6 +755,10 @@
         {
           "n": 168,
           "texto": "Siete conversaciones nuevas con foto en el grupo de la flota: el asiento después de un vómito, la tormenta, unas flores olvidadas, las llaves de un coche nuevo, un billete de propina, la cola de Barajas y El Pelado en la reserva. Las fotos llegarán pronto."
+        },
+        {
+          "n": 169,
+          "texto": "El grupo de la flota estrena cinco fotos: el asiento después de un vómito, la tormenta en Gran Vía, las flores olvidadas, las llaves del coche nuevo y el billete de propina."
         }
       ]
     }
