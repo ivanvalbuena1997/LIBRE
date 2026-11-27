@@ -40,7 +40,7 @@
     const x = Libre.sim.todosLosConductores(estado).find(function (y) { return y.t.id === m.despedir.id; });
     if (!x) return '';
     if (ui.chatConfirmarDespido === m.despedir.id) {
-      return '<span class="chat-despedir"><span class="chat-despedir-pregunta">¿Despedir a ' + ui.esc(x.t.nombre) + ' sin finiquito?</span>' +
+      return '<span class="chat-despedir"><span class="chat-despedir-pregunta">¿Despido disciplinario para ' + ui.esc(x.t.nombre) + '? No te costará nada.</span>' +
         '<button type="button" class="ui-boton ui-boton--peligro" data-chat-despedir-si="' + m.despedir.id + '">Sí, despedir</button>' +
         '<button type="button" class="ui-boton ui-boton--secundario" data-chat-despedir-no>Cancelar</button></span>';
     }

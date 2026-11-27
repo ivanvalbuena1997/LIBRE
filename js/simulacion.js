@@ -879,7 +879,7 @@
 
   /*
    * Despedir gratis a quien te ha faltado al respeto en el grupo (Iván,
-   * 27-11-2026): sin finiquito, y en el grupo sale tu mensaje con el PDF
+   * 27-11-2026): despido disciplinario, sin nada que pagar; en el grupo sale tu mensaje con la carta de despido en PDF
    * del finiquito adjunto y que se ha ido. Solo desde su mensaje (`despedir`).
    */
   function despedirPorBarbaridad(estado, conductorId) {
@@ -894,8 +894,8 @@
     if (!r.ok) return r;
     m.despedir.hecho = true;
     const dia = jornadaDe(estado.reloj.minutos);
-    chat.mensajes.push({ dia, de: 'tu', nombre: nombrePersonaje(estado), cara: null, texto: 'Aquí tienes tu finiquito, ' + nombre + '. Suerte.',
-      pdf: 'Finiquito_' + nombre.replace(/\s+/g, '_') + '.pdf' });
+    chat.mensajes.push({ dia, de: 'tu', nombre: nombrePersonaje(estado), cara: null, texto: 'Te adjunto tu carta de despido, ' + nombre + '. Suerte.',
+      pdf: 'Carta_de_despido_' + nombre.replace(/\s+/g, '_') + '.pdf' });
     chat.mensajes.push({ dia, de: 'sistema', nombre: '', cara: null, texto: nombre + ' ha salido del grupo.' });
     const sobran = chat.mensajes.length - cfg().chat.maxMensajes;
     if (sobran > 0) chat.mensajes.splice(0, sobran);
@@ -3020,7 +3020,7 @@
     // Si estaba en una carrera, se pierde: se va con el cliente.
     if (licenciaId === 'reserva') estado.reserva.splice(Number(turno), 1);
     else buscarLicencia(estado, licenciaId).turnos[turno] = null;
-    return exito(t.nombre + ' ya no trabaja para ti: ' + (gratis ? 'despido procedente, sin finiquito que pagar' : 'finiquito de ' + Libre.ui_euros(coste)) +
+    return exito(t.nombre + ' ya no trabaja para ti: ' + (gratis ? 'despido disciplinario, sin nada que pagar' : 'finiquito de ' + Libre.ui_euros(coste)) +
       ((t.objetos || []).length ? '. Sus objetos vuelven al almacén.' : '.'));
   }
 

@@ -3195,7 +3195,7 @@ prueba('Grupo: los km del coche de El Pelado y Daniela solo cuando de verdad cui
   assert.strictEqual(e.caja.hoy.chat.length, 0);
 });
 
-prueba('Grupo: un enfado deja despedir gratis desde el mensaje, con el PDF del finiquito', function () {
+prueba('Grupo: un enfado deja despedir gratis desde el mensaje, con la carta de despido en PDF', function () {
   const e = sim.crearEstadoInicial(0);
   e.dinero = 1e7;
   sim.comprarLicencia(e); sim.comprarLicencia(e);
@@ -3218,7 +3218,7 @@ prueba('Grupo: un enfado deja despedir gratis desde el mensaje, con el PDF del f
   assert.strictEqual(e.dinero, antes, 'sin finiquito');
   assert.strictEqual(sim.todosLosConductores(e).length, conductores - 1);
   assert.ok(m.despedir.hecho);
-  assert.ok(e.chat.mensajes.some(function (x) { return x.de === 'tu' && /^Finiquito_.+\.pdf$/.test(x.pdf); }));
+  assert.ok(e.chat.mensajes.some(function (x) { return x.de === 'tu' && /^Carta_de_despido_.+\.pdf$/.test(x.pdf); }));
   assert.ok(!sim.despedirPorBarbaridad(e, m.despedir.id).ok, 'una sola vez');
   assert.ok(!sim.despedirPorBarbaridad(e, 12345).ok, 'solo desde un enfado');
 });

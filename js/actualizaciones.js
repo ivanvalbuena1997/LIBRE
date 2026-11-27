@@ -766,7 +766,7 @@
         },
         {
           "n": 171,
-          "texto": "En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, se va sin finiquito y le mandas el finiquito en PDF por el grupo."
+          "texto": "En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, es un despido disciplinario: se va sin que pagues nada y le mandas la carta de despido en PDF por el grupo."
         }
       ]
     }

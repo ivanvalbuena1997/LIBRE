@@ -802,7 +802,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
   `pistaChat()` no apunta nada de quien no conduce. Enfados (27-11-2026):
   conversaciones con `enfado` (c1 no puede ser un ÚNICO) y `prob`; su primer
   mensaje lleva `despedir: { id, hecho }`. `despedirPorBarbaridad(estado,
-  id)` despide sin finiquito (`despedir(…, gratis)`, que también usa
+  id)` despide sin pagar (despido disciplinario) (`despedir(…, gratis)`, que también usa
   `despedirConductor()`) y añade tu mensaje con `pdf` y uno `de: 'sistema'`.
   En pantalla, `htmlDespedir()` (confirmación con `ui.chatConfirmarDespido`)
   y `htmlPdf()`. `chatAlInstante(estado,
