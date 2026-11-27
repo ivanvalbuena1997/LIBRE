@@ -768,7 +768,9 @@
    * hablan): entonces no escribe nada.
    */
   function escribirConversacion(estado, conv, dia, c1) {
-    const flota = conductoresDelChat(estado);
+    // Un ÚNICO que habla en la conversación no hace además de c1 o c2.
+    const hablan = conv.lineas.map(function (l) { return l[0]; });
+    const flota = conductoresDelChat(estado).filter(function (t) { return !t.unico || hablan.indexOf(t.unico) === -1; });
     const hace = function (q) { return conv.lineas.some(function (l) { return l[0] === q; }) || conv.lineas.some(function (l) { return l[1].indexOf('{' + q + '}') !== -1; }); };
     const papeles = {};
     if (hace('c1')) {
@@ -848,8 +850,8 @@
       const posibles = c.conversaciones.filter(function (x) { return !x.cuando && valida(x); });
       if (!posibles.length) break;
       const conv = posibles[Math.floor(azar(estado) * posibles.length)];
-      usadas.push(conv.id);
-      if (escribirConversacion(estado, conv, caja.dia, null)) escritas++;
+      // Si no se puede (le ha tocado de c1 al mismo ÚNICO que habla), se reintenta.
+      if (escribirConversacion(estado, conv, caja.dia, null)) { usadas.push(conv.id); escritas++; }
     }
   }
 

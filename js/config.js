@@ -1479,6 +1479,9 @@
         { id: 'amanecer', foto: 'amanecer', lineas: [['c1', 'Esto no lo ve un oficinista.']] },
         { id: 'videojuego', lineas: [['c1', 'Un niño me ha preguntado si el taxímetro es un videojuego.'], ['c2', 'Lo es si llevas racha.']] },
         { id: 'sospechoso', lineas: [['c1', 'Hoy no ha llovido, no ha pinchado nadie y no me ha vomitado nadie.'], ['c2', 'Sospechoso. 🤔']] },
+        // Iván, 27-11-2026.
+        { id: 'cucarachos', lineas: [['c1', 'Cada vez más cucarachos 🤮…'], ['c2', 'Últimamente contratan a cualquiera.']] },
+        { id: 'emt', lineas: [['c1', 'Los de la EMT me la tienen jurada, ¡casi me da!'], ['c2', 'Putos rectángulos, siempre jodiendo.']] },
         // Paconi.
         { id: 'paconiM30', requiere: ['paconi'], lineas: [['paconi', 'Buenos días, mis tigres. Recuerden que hoy cortan la M-30 por obras.'], ['paconi', 'No pasen por allá, es una trampa.'], ['c1', 'Ok.'], ['c2', '¡Gracias, Paconi!']] },
         { id: 'paconiAnfibio', requiere: ['paconi'], lineas: [['paconi', 'Buen día, grupo. ¿Saben si el coche es anfibio?… Tuve un pequeño problema, jefe.']] },
@@ -1487,12 +1490,14 @@
         { id: 'paconiPlanta', requiere: ['paconi'], foto: 'planta', lineas: [['paconi', 'Espero que me la rieguen, muchachos, no me hagan enfadar. 🌱']] },
         { id: 'paconiShit', requiere: ['paconi'], foto: 'arbol', lineas: [['paconi', 'Como dirían los yankees: sheet happens.'], ['c2', '¿Qué ha pasado?'], ['paconi', 'El árbol lo colocaron bien engañoso.']] },
         { id: 'paconiTocayo', requiere: ['paconi', 'tocayo'], lineas: [['paconi', 'Jefe, creo que debería adelantarnos el sueldo de este mes… vamos bien jodidos.'], ['c1', '¡Ese es nuestro Paconi!'], ['c2', '¡Paconi boss!']] },
+        { id: 'paconiEspuma', requiere: ['paconi'], lineas: [['paconi', 'Jefe, la espuma del asiento está jodida…'], ['tu', '??'], ['paconi', 'Nada, jefe, olvídelo.']] },
         { id: 'paconiBailongo', requiere: ['paconi'], lineas: [['paconi', 'Noto el coche algo bailongo, ¿ustedes también?'], ['c1', 'No sé de qué hablas…']] },
         // El Pelado.
         { id: 'peladoLechuga', requiere: ['pelado'], lineas: [['pelado', 'Che, jefe, mucha lechuga suelta hoy. Me fui un poco antes a casa.']] },
         { id: 'peladoPibes', requiere: ['pelado'], lineas: [['pelado', 'Siete pibes en casa, hermano. Hoy hice el doble turno y cené a las cuatro.']] },
         { id: 'peladoKm', requiere: ['pelado'], lineas: [['pelado', 'Un kilometrito más no le hace mal a nadie.'], ['c1', 'Pelado, el coche tiene {km} km.'], ['pelado', 'Está joven.']] },
         { id: 'peladoCalzoncillos', cuando: 'sinPagar', requiere: ['pelado'], lineas: [['pelado', 'El que se intente ir sin pagar conmigo se va en calzoncillos, ya saben.']] },
+        { id: 'peladoEfectivo', requiere: ['pelado'], lineas: [['pelado', 'Che, cómo está tirando el efectivo, no se lo digan al jefe.'], ['c1', 'El jefe está en el grupo.'], ['c2', '¡Estás fenicio, Pelado!']] },
         { id: 'peladoBocadillo', requiere: ['pelado'], foto: 'bocadillo', lineas: [['pelado', 'Desayuno de campeones.']] },
         // Daniela.
         { id: 'danielaFiniquito', requiere: ['daniela', 'paconi'], lineas: [['daniela', 'Paconi, tengo el finiquito listo. No me hagas mandártelo.'], ['paconi', 'Sí, jefa, descuide, este mes voy loco.']] },

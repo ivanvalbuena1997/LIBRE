@@ -743,6 +743,10 @@
         {
           "n": 165,
           "texto": "El grupo de la flota: El Pelado y sus compañeros hablan de los kilómetros reales de su coche, Daniela solo cuenta que ha cuidado de Álvaro los días que de verdad no ha venido, y algunas respuestas llevan emoji."
+        },
+        {
+          "n": 166,
+          "texto": "El grupo de la flota tiene cuatro conversaciones nuevas: los cucarachos, los autobuses de la EMT, El Pelado y el efectivo, y Paconi con la espuma del asiento."
         }
       ]
     }
