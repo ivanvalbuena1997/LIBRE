@@ -1508,7 +1508,8 @@ button.zona-tarjeta:disabled { opacity: 0.6; cursor: default; }
 .almacen-filtro { flex: none; min-height: 44px; border: 0; font-weight: 800; cursor: pointer; }
 .almacen-filtro.activo { background: var(--marca); border-color: var(--marca); color: var(--sobre-color); }
 .almacen-stat { min-height: 44px; padding: 0 var(--esp-3); border: 1px solid var(--linea); border-radius: var(--r-placa); background: var(--blanco); color: var(--tinta); font: inherit; font-weight: 700; }
-.almacen-objetos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3); margin-bottom: var(--esp-4); }
+/* Cuatro por fila (Iván, 27-11-2026; antes, tres). */
+.almacen-objetos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--esp-2); margin-bottom: var(--esp-4); }
 .almacen-objeto {
   position: relative;
   display: flex;

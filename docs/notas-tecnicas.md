@@ -189,7 +189,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
 - Pestañas Almacén y Conductores (antes, juntas en Flota). Almacén
   (`seccionAlmacen`, maqueta almacen.html): título con lo que vale
   (`valorAlmacen()`: venta de almacén y bandeja) y «Objetos N de M»;
-  los objetos sin equipar en casillas de 3 columnas, de
+  los objetos sin equipar en casillas de 4 columnas (3 hasta el 27-11-2026), de
   mejor a peor, sin nombre a la vista (Iván: rareza, ×cantidad y dibujo; el
   nombre va en el título y en el panel). Al tocar una se abre debajo su
   panel (nombre, rareza, descripción, combinar y vender). Con la bandeja llena, arriba
