@@ -67,8 +67,8 @@ la tapa el texto.
   (la de Paconi, desde su asiento), `chat-bocadillo.webp` (El Pelado) y
   `chat-dibujo.webp` (el de Daniela). Del 27-11-2026:
   `chat-vomito.webp`, `chat-tormenta.webp`, `chat-flores.webp`,
-  `chat-llaves.webp` y `chat-billete.webp` (sin su marco crema).
-  Pendientes: `chat-barajas.webp` y `chat-reserva.webp`. Prompts en
+  `chat-llaves.webp`, `chat-billete.webp`, `chat-barajas.webp` (estas dos,
+  sin su marco crema) y `chat-reserva.webp`. Prompts en
   `docs/propuesta-novedades.md`, 6. Si falta una, la burbuja enseña un
   hueco «Foto».
 - `nube-1.webp`, `nube-2.webp` y `nube-3.webp`: las nubes de la calle de

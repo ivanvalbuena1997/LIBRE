@@ -759,6 +759,10 @@
         {
           "n": 169,
           "texto": "El grupo de la flota estrena cinco fotos: el asiento después de un vómito, la tormenta en Gran Vía, las flores olvidadas, las llaves del coche nuevo y el billete de propina."
+        },
+        {
+          "n": 170,
+          "texto": "Las dos últimas fotos del grupo de la flota: la cola de taxis de Barajas y El Pelado en la reserva."
         }
       ]
     }
