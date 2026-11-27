@@ -1423,6 +1423,9 @@
      *   requiere ÚNICOS que tienen que estar en la flota (con turno), o
      *            'tocayo' (un Paco o un Francisco con turno)
      *   foto     clave de `fotos` (imagenes/; sin ella, un hueco «Foto»)
+     *   enfado   c1 te falta al respeto: su mensaje lleva «Despedir gratis»
+     *            (despedirPorBarbaridad(); nunca un ÚNICO)
+     *   prob     probabilidad de que salga cuando le toca (para las raras)
      *   lineas   [quién, texto]: 'c1' y 'c2' (conductores de tu flota; en
      *            las de `cuando`, c1 es el que lo vivió), 'tu' o un ÚNICO.
      *            En el texto, {c1}, {c2}, {tu}, {zona}, {empresa} y {km} (los
@@ -1475,6 +1478,11 @@
         { id: 'flores', cuando: 'objeto', foto: 'flores', lineas: [['c1', 'Alguien se ha quedado sin cita esta noche.'], ['c2', 'O sin perdón 😬']] },
         { id: 'llaves', cuando: 'cocheNuevo', foto: 'llaves', lineas: [['c1', '¡Estreno!'], ['c2', 'Huele a nuevo hasta por foto.']] },
         { id: 'billete', cuando: 'propina', foto: 'billete', lineas: [['c1', 'Hay gente buena en el mundo.'], ['c2', '¿Y dónde estaba esa gente cuando la llevaba yo?']] },
+        // Enfados (Iván, 27-11-2026): te dicen una barbaridad y puedes
+        // despedirle gratis. Raras: un 30 % de las veces que les toca.
+        { id: 'enfadoRata', enfado: true, prob: 0.3, lineas: [['c1', 'Jefe, con lo que pagas no me da ni para el gasoil. Eres un rata.'], ['c2', 'Uff… 😬']] },
+        { id: 'enfadoFlota', enfado: true, prob: 0.3, lineas: [['c1', 'Mira, el día que me vaya de esta flota de mierda lo voy a celebrar.'], ['c2', 'Que lo está leyendo el jefe…']] },
+        { id: 'enfadoInutil', enfado: true, prob: 0.3, lineas: [['c1', 'Otro pinchazo y otro día sin propinas. El que monta una flota con estos coches es un inútil.'], ['c2', 'Tío, que el jefe está en el grupo.'], ['c1', 'Pues que lo lea.']] },
         // Charla normal.
         { id: 'barajasFoto', foto: 'barajas', lineas: [['c1', 'Hora y media y sigo aquí.'], ['c2', 'Saluda a los de la fila de mi parte.']] },
         { id: 'obras', lineas: [['c1', 'Buenos días, grupo. Hoy hay obras en Gran Vía, ojo.']] },

@@ -779,6 +779,7 @@
     if (hace('c1')) {
       papeles.c1 = c1 || (flota.length ? flota[Math.floor(azar(estado) * flota.length)] : null);
       if (!papeles.c1) return false;
+      if (conv.enfado && papeles.c1.unico) return false;   // un ÚNICO no te falta al respeto
     }
     if (hace('c2')) {
       const otros = flota.filter(function (t) { return t !== papeles.c1; });
@@ -799,6 +800,8 @@
       const m = { dia, texto: textoChat(estado, l[1], papeles), de: a.de, nombre: a.nombre, cara: a.cara };
       // La foto va con el primer mensaje.
       if (i === 0 && conv.foto) m.foto = conv.foto;
+      // Enfado: el primer mensaje de c1 lleva el botón de despedirle gratis.
+      if (i === 0 && conv.enfado) m.despedir = { id: papeles.c1.id, hecho: false };
       chat.mensajes.push(m);
       if (autores[i].de !== 'tu') chat.noLeidos++;
     });
@@ -853,6 +856,7 @@
       const posibles = c.conversaciones.filter(function (x) { return !x.cuando && valida(x); });
       if (!posibles.length) break;
       const conv = posibles[Math.floor(azar(estado) * posibles.length)];
+      if (conv.prob !== undefined && azar(estado) >= conv.prob) continue;
       // Si no se puede (le ha tocado de c1 al mismo ÚNICO que habla), se reintenta.
       if (escribirConversacion(estado, conv, caja.dia, null)) { usadas.push(conv.id); escritas++; }
     }
@@ -871,6 +875,31 @@
     if (!posibles.length) return false;
     const conv = posibles[Math.floor(azar(estado) * posibles.length)];
     return escribirConversacion(estado, conv, jornadaDe(estado.reloj.minutos), null);
+  }
+
+  /*
+   * Despedir gratis a quien te ha faltado al respeto en el grupo (Iván,
+   * 27-11-2026): sin finiquito, y en el grupo sale tu mensaje con el PDF
+   * del finiquito adjunto y que se ha ido. Solo desde su mensaje (`despedir`).
+   */
+  function despedirPorBarbaridad(estado, conductorId) {
+    const id = Number(conductorId);
+    const chat = estado.chat;
+    const m = chat && chat.mensajes.find(function (x) { return x.despedir && x.despedir.id === id && !x.despedir.hecho; });
+    if (!m) return fallo('Eso ya no se puede hacer.');
+    const x = todosLosConductores(estado).find(function (y) { return y.t.id === id; });
+    if (!x) { m.despedir.hecho = true; return fallo('Ya no trabaja para ti.'); }
+    const nombre = x.t.nombre;
+    const r = despedir(estado, x.licenciaId, x.turno, true);
+    if (!r.ok) return r;
+    m.despedir.hecho = true;
+    const dia = jornadaDe(estado.reloj.minutos);
+    chat.mensajes.push({ dia, de: 'tu', nombre: nombrePersonaje(estado), cara: null, texto: 'Aquí tienes tu finiquito, ' + nombre + '. Suerte.',
+      pdf: 'Finiquito_' + nombre.replace(/\s+/g, '_') + '.pdf' });
+    chat.mensajes.push({ dia, de: 'sistema', nombre: '', cara: null, texto: nombre + ' ha salido del grupo.' });
+    const sobran = chat.mensajes.length - cfg().chat.maxMensajes;
+    if (sobran > 0) chat.mensajes.splice(0, sobran);
+    return r;
   }
 
   /* Tu primer mensaje en el grupo (ya escrito en la config; lo puedes cambiar). */
@@ -2972,9 +3001,13 @@
    * como incidencia. Los objetos que llevaba vuelven al almacén.
    */
   function despedirConductor(estado, licenciaId, turno) {
+    return despedir(estado, licenciaId, turno, false);
+  }
+  /* Con `gratis` (despedirPorBarbaridad()), sin finiquito que pagar. */
+  function despedir(estado, licenciaId, turno, gratis) {
     const t = turnoConductor(estado, licenciaId, turno);
     if (!t) return fallo('Ahí no hay ningún conductor.');
-    const coste = costeDespido(t);
+    const coste = gratis ? 0 : costeDespido(t);
     if (estado.dinero < coste) return fallo('No te llega para el finiquito de ' + t.nombre + ': ' + Libre.ui_euros(coste) + '.');
     estado.objetos = estado.objetos || {};
     estado.bandeja = estado.bandeja || [];
@@ -2982,12 +3015,12 @@
       if (objetosEnAlmacen(estado) < capacidadAlmacen(estado)) estado.objetos[id] = (estado.objetos[id] || 0) + 1;
       else estado.bandeja.push({ id, conductor: t.nombre });
     });
-    incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
+    if (coste > 0) incidencia(estado, resumenVacio(), 'finiquito', 'Finiquito de ' + t.nombre + '.', -coste, 'otros');
     recordarDespedido(estado, t);
     // Si estaba en una carrera, se pierde: se va con el cliente.
     if (licenciaId === 'reserva') estado.reserva.splice(Number(turno), 1);
     else buscarLicencia(estado, licenciaId).turnos[turno] = null;
-    return exito(t.nombre + ' ya no trabaja para ti: finiquito de ' + Libre.ui_euros(coste) +
+    return exito(t.nombre + ' ya no trabaja para ti: ' + (gratis ? 'despido procedente, sin finiquito que pagar' : 'finiquito de ' + Libre.ui_euros(coste)) +
       ((t.objetos || []).length ? '. Sus objetos vuelven al almacén.' : '.'));
   }
 
@@ -4356,6 +4389,7 @@
     aplicarArranque,
     buscarUnico,
     unicoDe,
+    despedirPorBarbaridad,
     chatAlInstante,
     precioOtrasPlacas,
     cambiarPlacas,

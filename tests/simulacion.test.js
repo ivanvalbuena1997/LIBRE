@@ -3195,5 +3195,33 @@ prueba('Grupo: los km del coche de El Pelado y Daniela solo cuando de verdad cui
   assert.strictEqual(e.caja.hoy.chat.length, 0);
 });
 
+prueba('Grupo: un enfado deja despedir gratis desde el mensaje, con el PDF del finiquito', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e7;
+  sim.comprarLicencia(e); sim.comprarLicencia(e);
+  e.licencias.forEach(function (l) {
+    if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
+    ['dia', 'noche'].forEach(function (tn) { if (!l.turnos[tn]) sim.contratarConductor(e, l.id, tn, 0); });
+  });
+  assert.ok(sim.montarSociedad(e, 'Prueba').ok);
+  assert.ok(sim.enviarPrimerMensaje(e, 'Hola').ok);
+  const todas = config.chat.conversaciones.map(function (c) { return c.id; });
+  e.chat.recientes = todas.filter(function (x) { return x !== 'enfadoRata'; });
+  const caja = { dia: 3, chat: [], carreras: 0, ingresos: 0, extras: 0, combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {} };
+  for (let i = 0; i < 30 && !e.chat.mensajes.some(function (m) { return m.despedir; }); i++) sim.chatAlCierre(e, caja);
+  const m = e.chat.mensajes.find(function (x) { return x.despedir; });
+  assert.ok(m, 'sale el enfado');
+  const antes = e.dinero;
+  const conductores = sim.todosLosConductores(e).length;
+  const r = sim.despedirPorBarbaridad(e, m.despedir.id);
+  assert.ok(r.ok, r.mensaje);
+  assert.strictEqual(e.dinero, antes, 'sin finiquito');
+  assert.strictEqual(sim.todosLosConductores(e).length, conductores - 1);
+  assert.ok(m.despedir.hecho);
+  assert.ok(e.chat.mensajes.some(function (x) { return x.de === 'tu' && /^Finiquito_.+\.pdf$/.test(x.pdf); }));
+  assert.ok(!sim.despedirPorBarbaridad(e, m.despedir.id).ok, 'una sola vez');
+  assert.ok(!sim.despedirPorBarbaridad(e, 12345).ok, 'solo desde un enfado');
+});
+
 console.log(pasadas + ' pruebas correctas');
 

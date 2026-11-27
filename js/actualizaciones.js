@@ -763,6 +763,10 @@
         {
           "n": 170,
           "texto": "Las dos últimas fotos del grupo de la flota: la cola de taxis de Barajas y El Pelado en la reserva."
+        },
+        {
+          "n": 171,
+          "texto": "En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, se va sin finiquito y le mandas el finiquito en PDF por el grupo."
         }
       ]
     }

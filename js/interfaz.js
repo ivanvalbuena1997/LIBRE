@@ -595,6 +595,17 @@
         return;
       }
       if (ev.target.closest('[data-cerrar-chat]')) { abrirChat(false); return; }
+      // Despedir gratis desde el grupo (ui-chat.js): primero se confirma.
+      const despedirChat = ev.target.closest('[data-chat-despedir]');
+      if (despedirChat) { ui.chatConfirmarDespido = Number(despedirChat.dataset.chatDespedir); opciones.redibujar(); return; }
+      if (ev.target.closest('[data-chat-despedir-no]')) { ui.chatConfirmarDespido = null; opciones.redibujar(); return; }
+      const despedirSi = ev.target.closest('[data-chat-despedir-si]');
+      if (despedirSi) {
+        ui.chatConfirmarDespido = null;
+        ui.chatAlFinal = true;
+        ui.ejecutar('despedirPorBarbaridad', [despedirSi.dataset.chatDespedirSi]);
+        return;
+      }
       if (ev.target.closest('[data-chat-enviar]')) {
         const r = ui.ejecutar('enviarPrimerMensaje', [ui.borradorChat || '']);
         if (r && r.ok) { ui.borradorChat = null; ui.chatAlFinal = true; opciones.redibujar(); }

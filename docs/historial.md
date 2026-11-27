@@ -210,3 +210,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 168. Siete conversaciones nuevas con foto en el grupo de la flota: el asiento después de un vómito, la tormenta, unas flores olvidadas, las llaves de un coche nuevo, un billete de propina, la cola de Barajas y El Pelado en la reserva. Las fotos llegarán pronto.
 169. El grupo de la flota estrena cinco fotos: el asiento después de un vómito, la tormenta en Gran Vía, las flores olvidadas, las llaves del coche nuevo y el billete de propina.
 170. Las dos últimas fotos del grupo de la flota: la cola de taxis de Barajas y El Pelado en la reserva.
+171. En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, se va sin finiquito y le mandas el finiquito en PDF por el grupo.

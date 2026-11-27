@@ -25,14 +25,39 @@
       ' onerror="this.parentNode.classList.add(\'chat-foto--falta\'); this.remove();"></span>';
   }
 
-  function htmlMensaje(m, anterior) {
+  ui.chatConfirmarDespido = null;   // id del conductor cuyo despido se está confirmando
+
+  /* Un PDF adjunto: solo el icono y el nombre del archivo (sin abrirlo). */
+  function htmlPdf(nombre) {
+    return '<span class="chat-pdf"><svg viewBox="0 0 32 40" aria-hidden="true"><path class="chat-pdf-hoja" d="M3 1h18l8 8v28a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z"/>' +
+      '<path class="chat-pdf-doblez" d="M21 1v8h8"/><rect class="chat-pdf-banda" x="1" y="22" width="22" height="10" rx="1.5"/></svg>' +
+      '<span><strong>' + ui.esc(nombre) + '</strong><small>PDF</small></span></span>';
+  }
+
+  /* «Despedir gratis» bajo el mensaje de quien te ha faltado al respeto. */
+  function htmlDespedir(estado, m) {
+    if (!m.despedir || m.despedir.hecho) return '';
+    const x = Libre.sim.todosLosConductores(estado).find(function (y) { return y.t.id === m.despedir.id; });
+    if (!x) return '';
+    if (ui.chatConfirmarDespido === m.despedir.id) {
+      return '<span class="chat-despedir"><span class="chat-despedir-pregunta">¿Despedir a ' + ui.esc(x.t.nombre) + ' sin finiquito?</span>' +
+        '<button type="button" class="ui-boton ui-boton--peligro" data-chat-despedir-si="' + m.despedir.id + '">Sí, despedir</button>' +
+        '<button type="button" class="ui-boton ui-boton--secundario" data-chat-despedir-no>Cancelar</button></span>';
+    }
+    return '<span class="chat-despedir"><button type="button" class="ui-boton ui-boton--peligro" data-chat-despedir="' + m.despedir.id + '">' +
+      'Despedir gratis</button></span>';
+  }
+
+  function htmlMensaje(estado, m, anterior) {
+    if (m.de === 'sistema') return '<li class="chat-sistema"><span>' + ui.esc(m.texto) + '</span></li>';
     const tuyo = m.de === 'tu';
     // Seguidos del mismo, sin repetir cara ni nombre.
     const seguido = anterior && anterior.de === m.de && anterior.dia === m.dia;
     const cara = tuyo ? '' : '<span class="chat-cara retrato">' + (seguido ? '' : Libre.retratos.svg(m.cara)) + '</span>';
     return '<li class="chat-mensaje' + (tuyo ? ' chat-mensaje--tuyo' : '') + (seguido ? ' chat-mensaje--seguido' : '') + '">' + cara +
       '<span class="chat-burbuja">' + (!tuyo && !seguido ? '<span class="chat-nombre">' + ui.esc(m.nombre) + '</span>' : '') +
-      (m.foto ? htmlFoto(m.foto) : '') + '<span class="chat-texto">' + ui.esc(m.texto) + '</span></span></li>';
+      (m.foto ? htmlFoto(m.foto) : '') + (m.pdf ? htmlPdf(m.pdf) : '') + '<span class="chat-texto">' + ui.esc(m.texto) + '</span>' +
+      htmlDespedir(estado, m) + '</span></li>';
   }
 
   function htmlMensajes(estado) {
@@ -44,7 +69,7 @@
         dia = m.dia;
         html += '<li class="chat-dia"><span>Día ' + (m.dia + 1) + '</span></li>';
       }
-      html += htmlMensaje(m, i > 0 && lista[i - 1].dia === m.dia ? lista[i - 1] : null);
+      html += htmlMensaje(estado, m, i > 0 && lista[i - 1].dia === m.dia ? lista[i - 1] : null);
     });
     return '<ol class="chat-lista" id="chat-lista">' + html + '</ol>';
   }
@@ -62,7 +87,8 @@
     firma: function (estado) {
       const c = estado.chat;
       return 'chat:' + ui.chatAbierto + ':' + (c ? c.iniciado + ':' + c.mensajes.length + ':' + (c.mensajes.length ? c.mensajes[c.mensajes.length - 1].texto : '') : '') +
-        ':' + (estado.empresa ? estado.empresa.nombre : '') + ':' + estado.personaje.nombre;
+        ':' + (estado.empresa ? estado.empresa.nombre : '') + ':' + estado.personaje.nombre + ':' + ui.chatConfirmarDespido + ':' +
+        Libre.sim.todosLosConductores(estado).length;
     },
     html: function (estado) {
       if (!ui.chatAbierto || !estado.chat) return '';

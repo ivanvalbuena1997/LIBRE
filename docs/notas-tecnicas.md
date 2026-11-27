@@ -799,6 +799,12 @@ nombra sin decir en qué archivo están: búscalas con grep.
   cabecera `.con-chat` deja sitio a tres botones. `{km}` en un texto: los
   del coche de quien abre la conversación. La de Daniela cuidando de Álvaro
   sale con la pista 'danielaCuida' (su baja, en `sortearInicioDeTurnos()`);
-  `pistaChat()` no apunta nada de quien no conduce. `chatAlInstante(estado,
+  `pistaChat()` no apunta nada de quien no conduce. Enfados (27-11-2026):
+  conversaciones con `enfado` (c1 no puede ser un ÚNICO) y `prob`; su primer
+  mensaje lleva `despedir: { id, hecho }`. `despedirPorBarbaridad(estado,
+  id)` despide sin finiquito (`despedir(…, gratis)`, que también usa
+  `despedirConductor()`) y añade tu mensaje con `pdf` y uno `de: 'sistema'`.
+  En pantalla, `htmlDespedir()` (confirmación con `ui.chatConfirmarDespido`)
+  y `htmlPdf()`. `chatAlInstante(estado,
   tipo)` escribe al momento: las de 'baja:paconi', desde la baja de
   `sortearInicioDeTurnos()` (y su baja no deja la pista 'baja').
