@@ -799,4 +799,6 @@ nombra sin decir en qué archivo están: búscalas con grep.
   cabecera `.con-chat` deja sitio a tres botones. `{km}` en un texto: los
   del coche de quien abre la conversación. La de Daniela cuidando de Álvaro
   sale con la pista 'danielaCuida' (su baja, en `sortearInicioDeTurnos()`);
-  `pistaChat()` no apunta nada de quien no conduce.
+  `pistaChat()` no apunta nada de quien no conduce. `chatAlInstante(estado,
+  tipo)` escribe al momento: las de 'baja:paconi', desde la baja de
+  `sortearInicioDeTurnos()` (y su baja no deja la pista 'baja').

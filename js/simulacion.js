@@ -717,6 +717,9 @@
     if (!estado.chat || !estado.caja || !estado.caja.hoy) return;
     // Lo de quien no conduce (Daniela) va con su propia pista (danielaCuida).
     if (noConduce(t)) return;
+    // Un ÚNICO con conversaciones de baja propias (Paconi) las escribe al
+    // momento (chatAlInstante()); la de la fiebre no es para él.
+    if (tipo === 'baja' && t && t.unico && cfg().chat.conversaciones.some(function (c) { return c.cuando === 'baja:' + t.unico; })) return;
     const lista = estado.caja.hoy.chat = estado.caja.hoy.chat || [];
     if (lista.length >= 30) return;
     // Quien no conduce (Daniela) no cuenta sus pinchazos ni sus fiebres.
@@ -853,6 +856,21 @@
       // Si no se puede (le ha tocado de c1 al mismo ÚNICO que habla), se reintenta.
       if (escribirConversacion(estado, conv, caja.dia, null)) { usadas.push(conv.id); escritas++; }
     }
+  }
+
+  /*
+   * Una conversación al momento, sin esperar al cierre (Iván, 27-11-2026):
+   * las de la baja de Paconi salen cuando se pone de baja, a primera hora.
+   */
+  function chatAlInstante(estado, tipo) {
+    const chat = estado.chat;
+    if (!chat || !chat.iniciado) return false;
+    const posibles = cfg().chat.conversaciones.filter(function (x) {
+      return x.cuando === tipo && chat.recientes.indexOf(x.id) === -1 && cumpleRequisitos(estado, x);
+    });
+    if (!posibles.length) return false;
+    const conv = posibles[Math.floor(azar(estado) * posibles.length)];
+    return escribirConversacion(estado, conv, jornadaDe(estado.reloj.minutos), null);
   }
 
   /* Tu primer mensaje en el grupo (ya escrito en la config; lo puedes cambiar). */
@@ -3739,6 +3757,7 @@
         const jornadas = enteroEntre(estado, baja.jornadasMin, baja.jornadasMax);
         t.baja = { hasta: jornada + jornadas };
         const frase = fraseUnico(estado, t);
+        if (t.unico) chatAlInstante(estado, 'baja:' + t.unico);
         incidencia(estado, resumen, 'baja', t.nombre + ' está de baja por enfermedad: ' + jornadas +
           (jornadas === 1 ? ' jornada' : ' jornadas') + ' sin trabajar.' + (frase ? ' «' + frase + '»' : ''), 0, null, t);
         return;
@@ -4337,6 +4356,7 @@
     aplicarArranque,
     buscarUnico,
     unicoDe,
+    chatAlInstante,
     precioOtrasPlacas,
     cambiarPlacas,
     rangoEstadistica,

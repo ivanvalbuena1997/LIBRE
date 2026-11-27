@@ -747,6 +747,10 @@
         {
           "n": 166,
           "texto": "El grupo de la flota tiene cuatro conversaciones nuevas: los cucarachos, los autobuses de la EMT, El Pelado y el efectivo, y Paconi con la espuma del asiento."
+        },
+        {
+          "n": 167,
+          "texto": "Paconi avisa en el grupo cuando se pone de baja, a primera hora y con sus excusas (un tirón cargando maletas, su chamo con un pie torcido, un virus «engañoso»…), y se queja de quien le deja el carro sin gasolina."
         }
       ]
     }

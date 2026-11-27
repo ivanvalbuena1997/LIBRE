@@ -3182,6 +3182,17 @@ prueba('Grupo: los km del coche de El Pelado y Daniela solo cuando de verdad cui
   caja.chat = [{ tipo: 'danielaCuida', quien: null }];
   sim.chatAlCierre(e, caja);
   assert.ok(e.chat.mensajes.some(function (m) { return /Álvaro/.test(m.texto); }));
+  // Paconi: su baja escribe al momento y no deja la pista de la fiebre.
+  meter('paconi', e.licencias[0], 'dia');
+  const paconi = e.licencias[0].turnos.dia;
+  e.chat.recientes = [];
+  const n1 = e.chat.mensajes.length;
+  assert.ok(sim.chatAlInstante(e, 'baja:paconi'));
+  const suyos = e.chat.mensajes.slice(n1);
+  assert.ok(suyos.length && suyos.every(function (m) { return m.de === 'paconi'; }));
+  e.caja.hoy.chat = [];
+  sim.pistaChat(e, 'baja', paconi);
+  assert.strictEqual(e.caja.hoy.chat.length, 0);
 });
 
 console.log(pasadas + ' pruebas correctas');

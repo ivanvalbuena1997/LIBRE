@@ -1491,6 +1491,13 @@
         { id: 'paconiShit', requiere: ['paconi'], foto: 'arbol', lineas: [['paconi', 'Como dirían los yankees: sheet happens.'], ['c2', '¿Qué ha pasado?'], ['paconi', 'El árbol lo colocaron bien engañoso.']] },
         { id: 'paconiTocayo', requiere: ['paconi', 'tocayo'], lineas: [['paconi', 'Jefe, creo que debería adelantarnos el sueldo de este mes… vamos bien jodidos.'], ['c1', '¡Ese es nuestro Paconi!'], ['c2', '¡Paconi boss!']] },
         { id: 'paconiEspuma', requiere: ['paconi'], lineas: [['paconi', 'Jefe, la espuma del asiento está jodida…'], ['tu', '??'], ['paconi', 'Nada, jefe, olvídelo.']] },
+        // Iván, 27-11-2026. Las de su baja salen en el momento en que se pone
+        // de baja, a primera hora (cuando 'baja:paconi'; ver chatAlInstante()).
+        { id: 'paconiBaja1', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Jefe, ayer terminé el turno a duras penas, estoy burda de jodido.'], ['paconi', 'Hoy me quedo en la cama, ¡qué vaina!']] },
+        { id: 'paconiBaja2', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Jefe, mi chamo se torció un pie y tengo que llevarlo al médico. Hoy no puedo ir a trabajar, ya sabe.']] },
+        { id: 'paconiBaja3', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Ayer me dio un tirón en la lumbar cargando unas maletas, pana… No voy a poder trabajar, hermano.']] },
+        { id: 'paconiBaja4', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Tengo un virus agarrado en el pecho… Es engañoso, vale: yo pensé que ya estaba bueno.']] },
+        { id: 'paconiGasolina', requiere: ['paconi'], lineas: [['paconi', 'Buen día, grupo, que tengan un buen servicio hoy.'], ['paconi', '¿Quién cojoneh dejó el carro sin gasolina? ¡NO ME JODAN, SIEMPRE LO ANDO LLENANDO YO!']] },
         { id: 'paconiBailongo', requiere: ['paconi'], lineas: [['paconi', 'Noto el coche algo bailongo, ¿ustedes también?'], ['c1', 'No sé de qué hablas…']] },
         // El Pelado.
         { id: 'peladoLechuga', requiere: ['pelado'], lineas: [['pelado', 'Che, jefe, mucha lechuga suelta hoy. Me fui un poco antes a casa.']] },

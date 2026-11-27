@@ -206,3 +206,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 164. Objeto nuevo de categoría S: Spotify Premium. Música para los clientes y para el conductor: un 20 % más de propinas y un 12 % menos de cansancio.
 165. El grupo de la flota: El Pelado y sus compañeros hablan de los kilómetros reales de su coche, Daniela solo cuenta que ha cuidado de Álvaro los días que de verdad no ha venido, y algunas respuestas llevan emoji.
 166. El grupo de la flota tiene cuatro conversaciones nuevas: los cucarachos, los autobuses de la EMT, El Pelado y el efectivo, y Paconi con la espuma del asiento.
+167. Paconi avisa en el grupo cuando se pone de baja, a primera hora y con sus excusas (un tirón cargando maletas, su chamo con un pie torcido, un virus «engañoso»…), y se queja de quien le deja el carro sin gasolina.
