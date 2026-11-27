@@ -304,6 +304,11 @@
         { id: 'colines', nombre: 'Saco de 10 kg de colines', categoria: 'S', efecto: {},
           descripcion: 'No hace nada… salvo para quien sabe apreciarlos: con Paconi o El Pelado, un 40 % menos de cansancio.',
           frase: 'Diez kilos. Por si acaso. Nadie sabe de qué caso.' },
+        // Iván, 27-11-2026: música para los clientes (propinas) y para el
+        // conductor (cansancio). Equilibrio: entre el Ventilador y los S+.
+        { id: 'spotify', nombre: 'Spotify Premium', categoria: 'S', efecto: { propina: 1.2, cansancio: 0.88 },
+          descripcion: 'Música sin anuncios para los clientes y para el conductor: un 20 % más de propinas y un 12 % menos de cansancio.',
+          frase: '«¿Puedo poner una canción?» Claro. Una. Y luego otra. Y luego el disco entero.' },
         { id: 'datafono', nombre: 'Datáfono portátil', categoria: 'S', efecto: { sinPagar: 0.5 },
           descripcion: 'Nadie se escapa con la excusa de la tarjeta: la mitad de clientes sin pagar.',
           frase: '«¿Aceptas tarjeta?» Siempre. Se acabaron las excusas.' },

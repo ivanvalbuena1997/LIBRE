@@ -203,3 +203,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 ## 27 de noviembre de 2026 · Almacén más compacto
 
 163. En el Almacén caben 4 objetos por fila (antes, 3): se ven más de un vistazo sin bajar.
+164. Objeto nuevo de categoría S: Spotify Premium. Música para los clientes y para el conductor: un 20 % más de propinas y un 12 % menos de cansancio.

@@ -735,6 +735,10 @@
         {
           "n": 163,
           "texto": "En el Almacén caben 4 objetos por fila (antes, 3): se ven más de un vistazo sin bajar."
+        },
+        {
+          "n": 164,
+          "texto": "Objeto nuevo de categoría S: Spotify Premium. Música para los clientes y para el conductor: un 20 % más de propinas y un 12 % menos de cansancio."
         }
       ]
     }
