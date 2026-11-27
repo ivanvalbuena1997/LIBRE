@@ -3148,5 +3148,41 @@ prueba('Otras placas: pagar para que salgan otras, cada vez el doble, y a cero a
   assert.ok(sim.clasificacionConductores(e).some(function (x) { return x.unico === 'paconi'; }));
 });
 
+prueba('Grupo: los km del coche de El Pelado y Daniela solo cuando de verdad cuida de Álvaro', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e7;
+  sim.comprarLicencia(e); sim.comprarLicencia(e);
+  e.licencias.forEach(function (l) { if (!l.vehiculo) sim.comprarVehiculo(e, l.id); });
+  assert.ok(sim.montarSociedad(e, 'Prueba').ok);
+  assert.ok(sim.enviarPrimerMensaje(e, 'Hola').ok);
+  function meter(id, lic, turno) {
+    sim.ofrecerUnico(e, id);
+    lic.turnos[turno] = null;
+    const r = sim.contratarConductor(e, lic.id, turno, e.candidatos.findIndex(function (c) { return c.unico === id; }));
+    assert.ok(r.ok, r.mensaje);
+  }
+  meter('pelado', e.licencias[1], 'noche');
+  e.licencias[1].km = 123456.7;
+  ['dia', 'noche'].forEach(function (tn) { if (!e.licencias[2].turnos[tn]) sim.contratarConductor(e, e.licencias[2].id, tn, 0); });
+  const todas = config.chat.conversaciones.map(function (c) { return c.id; });
+  const solo = function (id) { e.chat.recientes = todas.filter(function (x) { return x !== id; }); };
+  solo('peladoKm');
+  const antes = e.chat.mensajes.length;
+  sim.chatAlCierre(e, { dia: 5, chat: [], carreras: 0, ingresos: 0, extras: 0, combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {} });
+  const textos = e.chat.mensajes.slice(antes).map(function (m) { return m.texto; }).join(' | ');
+  assert.ok(/123\.457 km/.test(textos), textos);
+  // Daniela: sin la pista no sale; con ella, sí.
+  meter('daniela', e.licencias[2], 'dia');
+  solo('danielaAlvaro');
+  const n0 = e.chat.mensajes.length;
+  const caja = { dia: 6, chat: [], carreras: 0, ingresos: 0, extras: 0, combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {} };
+  sim.chatAlCierre(e, caja);
+  assert.ok(!e.chat.mensajes.slice(n0).some(function (m) { return /Álvaro/.test(m.texto); }));
+  solo('danielaAlvaro');
+  caja.chat = [{ tipo: 'danielaCuida', quien: null }];
+  sim.chatAlCierre(e, caja);
+  assert.ok(e.chat.mensajes.some(function (m) { return /Álvaro/.test(m.texto); }));
+});
+
 console.log(pasadas + ' pruebas correctas');
 

@@ -204,3 +204,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 
 163. En el Almacén caben 4 objetos por fila (antes, 3): se ven más de un vistazo sin bajar.
 164. Objeto nuevo de categoría S: Spotify Premium. Música para los clientes y para el conductor: un 20 % más de propinas y un 12 % menos de cansancio.
+165. El grupo de la flota: El Pelado y sus compañeros hablan de los kilómetros reales de su coche, Daniela solo cuenta que ha cuidado de Álvaro los días que de verdad no ha venido, y algunas respuestas llevan emoji.

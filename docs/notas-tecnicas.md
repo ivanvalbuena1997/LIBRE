@@ -796,4 +796,7 @@ nombra sin decir en qué archivo están: búscalas con grep.
   ni c2 (`conductoresDelChat()`): habla con sus frases. Pantalla:
   `ui-chat.js` (`seccionChat`, `chatAbierto`, `borradorChat`,
   `dibujarBotonChat()`); botón `#abrir-chat` con `#chat-sin-leer`, y la
-  cabecera `.con-chat` deja sitio a tres botones.
+  cabecera `.con-chat` deja sitio a tres botones. `{km}` en un texto: los
+  del coche de quien abre la conversación. La de Daniela cuidando de Álvaro
+  sale con la pista 'danielaCuida' (su baja, en `sortearInicioDeTurnos()`);
+  `pistaChat()` no apunta nada de quien no conduce.

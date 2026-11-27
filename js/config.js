@@ -1425,7 +1425,8 @@
      *   foto     clave de `fotos` (imagenes/; sin ella, un hueco «Foto»)
      *   lineas   [quién, texto]: 'c1' y 'c2' (conductores de tu flota; en
      *            las de `cuando`, c1 es el que lo vivió), 'tu' o un ÚNICO.
-     *            En el texto, {c1}, {c2}, {tu}, {zona} y {empresa}.
+     *            En el texto, {c1}, {c2}, {tu}, {zona}, {empresa} y {km} (los
+     *            del coche de quien abre la conversación).
      * Se guardan los últimos `maxMensajes` mensajes; no se repite una
      * conversación de las últimas `sinRepetir`. Equilibrio.
      */
@@ -1445,60 +1446,60 @@
         // Lo que ha pasado en la jornada.
         { id: 'sinPagar1', cuando: 'sinPagar', requiere: ['pelado'], lineas: [['c1', 'Hola grupo, hoy se me fueron sin pagar… ¡Vaya día!'], ['pelado', 'Che, {c1}, mucho ánimo. A mí ya no se me va nadie.']] },
         { id: 'sinPagar2', cuando: 'sinPagar', lineas: [['c1', 'Uno me dijo que iba a sacar dinero al cajero. Sigo esperando.'], ['c2', 'El clásico 😂']] },
-        { id: 'pinchazo1', cuando: 'pinchazo', lineas: [['c1', 'Pinchazo en plena Castellana. Con traje y todo.'], ['c2', 'Foto o no pasó.']] },
+        { id: 'pinchazo1', cuando: 'pinchazo', lineas: [['c1', 'Pinchazo en plena Castellana. Con traje y todo.'], ['c2', 'Foto o no pasó. 📸']] },
         { id: 'pinchazo2', cuando: 'pinchazo', foto: 'rueda', lineas: [['c1', 'Esta es mi tarde.']] },
-        { id: 'averia', cuando: 'averia', lineas: [['c1', 'El coche ha dicho basta. Me voy al taller, jefe.'], ['tu', 'Ánimo, mañana más.']] },
+        { id: 'averia', cuando: 'averia', lineas: [['c1', 'El coche ha dicho basta. Me voy al taller, jefe.'], ['tu', 'Ánimo, mañana más. 🔧']] },
         { id: 'baja', cuando: 'baja', lineas: [['c1', 'Jefe, mañana no voy, tengo 39 de fiebre.'], ['c2', 'Ponte bueno 💪']] },
-        { id: 'vomito', cuando: 'vomito', lineas: [['c1', 'Hoy he limpiado el coche tres veces. No pregunten.'], ['c2', 'Ocio nocturno, ¿verdad?'], ['c1', 'Ocio nocturno.']] },
-        { id: 'lluvia', cuando: 'lluvia', lineas: [['c1', 'Llueve y todo Madrid quiere taxi a la vez.'], ['c2', 'Es el mejor día del año.']] },
+        { id: 'vomito', cuando: 'vomito', lineas: [['c1', 'Hoy he limpiado el coche tres veces. No pregunten.'], ['c2', 'Ocio nocturno, ¿verdad?'], ['c1', 'Ocio nocturno. 🤢']] },
+        { id: 'lluvia', cuando: 'lluvia', lineas: [['c1', 'Llueve y todo Madrid quiere taxi a la vez.'], ['c2', 'Es el mejor día del año. ☔']] },
         { id: 'tormenta', cuando: 'tormenta', requiere: ['paconi'], lineas: [['c1', 'Granizo en {zona}. Me he metido en un túnel a esperar.'], ['paconi', 'Es una trampa, muchachos.']] },
-        { id: 'propina', cuando: 'propina', lineas: [['c1', '¡Un señor me ha dejado una propina de las buenas!'], ['c2', '¿Le has dado tu número?']] },
+        { id: 'propina', cuando: 'propina', lineas: [['c1', '¡Un señor me ha dejado una propina de las buenas!'], ['c2', '¿Le has dado tu número? 😏']] },
         { id: 'nivel', cuando: 'nivel', lineas: [['c1', 'Ya me conozco {zona} mejor que mi casa.'], ['c2', 'Eso es porque no vas por casa.']] },
         { id: 'legendario', cuando: 'legendario', lineas: [['c1', 'Me he encontrado una cosa en el asiento de atrás que no sé ni qué es.'], ['c2', 'Llévala al almacén, que el jefe colecciona.']] },
-        { id: 'objeto', cuando: 'objeto', lineas: [['c1', 'Devuelto un móvil a una señora. Me ha dado un abrazo.'], ['c2', 'Qué bonito. Yo encontré una dentadura.']] },
+        { id: 'objeto', cuando: 'objeto', lineas: [['c1', 'Devuelto un móvil a una señora. Me ha dado un abrazo.'], ['c2', 'Qué bonito. Yo encontré una dentadura. 🦷']] },
         { id: 'cliente', cuando: 'cliente', lineas: [['c1', 'Hoy he llevado a alguien famoso. No puedo decir quién.'], ['c2', '¿Era el de las gafas?'], ['c1', 'No puedo decir nada.']] },
         { id: 'pesetas', cuando: 'pesetas', lineas: [['c1', 'Me ha pillado un pesetas trabajando en libranza. Una multa como un piano.'], ['c2', 'Ay…']] },
-        { id: 'record', cuando: 'record', lineas: [['tu', 'Récord de caja hoy. ¡Sois unos máquinas!'], ['c1', '¿Eso es una subida de sueldo?'], ['tu', 'Es un «sois unos máquinas».']] },
+        { id: 'record', cuando: 'record', lineas: [['tu', 'Récord de caja hoy. ¡Sois unos máquinas! 🏆'], ['c1', '¿Eso es una subida de sueldo?'], ['tu', 'Es un «sois unos máquinas».']] },
         { id: 'negativo', cuando: 'negativo', lineas: [['c1', 'Jefe, ¿todo bien? Te veo serio.'], ['tu', 'Mañana remontamos.']] },
-        { id: 'cocheNuevo', cuando: 'cocheNuevo', lineas: [['c1', 'Huele a nuevo el coche, jefe. ¡Gracias!'], ['c2', 'Yo quiero el Mercedes.']] },
-        { id: 'rotura', cuando: 'rotura', lineas: [['c1', 'El coche ha muerto. Descanse en paz.'], ['c2', 'Ha sido un buen coche. Cuántos kilómetros de servicio.']] },
-        { id: 'licencia', cuando: 'licencia', lineas: [['c1', '¿Licencia nueva? ¡Esto crece!'], ['c2', 'Que contraten a alguien majo.']] },
+        { id: 'cocheNuevo', cuando: 'cocheNuevo', lineas: [['c1', 'Huele a nuevo el coche, jefe. ¡Gracias!'], ['c2', 'Yo quiero el Mercedes. 😎']] },
+        { id: 'rotura', cuando: 'rotura', lineas: [['c1', 'El coche ha muerto. Descanse en paz. 🪦'], ['c2', 'Ha sido un buen coche. Cuántos kilómetros de servicio.']] },
+        { id: 'licencia', cuando: 'licencia', lineas: [['c1', '¿Licencia nueva? ¡Esto crece! 🚕'], ['c2', 'Que contraten a alguien majo.']] },
         { id: 'nuevo', cuando: 'nuevo', lineas: [['c2', 'Bienvenido al grupo, {c1}.'], ['c1', '¡Gracias! ¿Dónde se aparca para comer?'], ['c2', 'Esa es la pregunta del millón.']] },
         // Charla normal.
         { id: 'obras', lineas: [['c1', 'Buenos días, grupo. Hoy hay obras en Gran Vía, ojo.']] },
         { id: 'gasolinera', lineas: [['c1', '¿Alguien sabe a qué hora cierra la gasolinera de Méndez Álvaro?'], ['c2', 'A las 23:00.']] },
         { id: 'barcelona', lineas: [['c1', 'Hoy he visto un taxi de Barcelona en Atocha. Perdidísimo.'], ['c2', 'Pobre hombre.']] },
-        { id: 'taper', lineas: [['c1', '¿Quién se ha dejado un táper en la cochera?'], ['c2', 'Es mío, no lo toquéis.']] },
+        { id: 'taper', lineas: [['c1', '¿Quién se ha dejado un táper en la cochera?'], ['c2', 'Es mío, no lo toquéis. 😠']] },
         { id: 'barajas', lineas: [['c1', 'Cola en Barajas de hora y media. Me he leído medio libro.'], ['c2', '¿Cuál?'], ['c1', 'El del carné de conducir, por si acaso.']] },
         { id: 'vida', lineas: [['c1', 'Hoy un cliente me ha contado su vida entera en 8 minutos.'], ['c2', 'Récord.']] },
         { id: 'agosto', lineas: [['c1', 'Madrid en agosto es otra ciudad.'], ['c2', '¿Es agosto?'], ['c1', 'En mi corazón, siempre.']] },
         { id: 'partido', lineas: [['c1', '¿Partido esta noche?'], ['c2', 'Noche de trabajo, entonces.']] },
         { id: 'arbol', lineas: [['c1', 'Me han pedido ir «a la calle esa que tiene un árbol».'], ['c2', '¿Y?'], ['c1', 'La he encontrado.']] },
-        { id: 'cafe', lineas: [['c1', 'Café en la parada de Atocha a las 10, ¿quién se viene?'], ['c2', 'Voy.']] },
+        { id: 'cafe', lineas: [['c1', 'Café en la parada de Atocha a las 10, ¿quién se viene?'], ['c2', 'Voy. ☕']] },
         { id: 'amanecer', foto: 'amanecer', lineas: [['c1', 'Esto no lo ve un oficinista.']] },
         { id: 'videojuego', lineas: [['c1', 'Un niño me ha preguntado si el taxímetro es un videojuego.'], ['c2', 'Lo es si llevas racha.']] },
-        { id: 'sospechoso', lineas: [['c1', 'Hoy no ha llovido, no ha pinchado nadie y no me ha vomitado nadie.'], ['c2', 'Sospechoso.']] },
+        { id: 'sospechoso', lineas: [['c1', 'Hoy no ha llovido, no ha pinchado nadie y no me ha vomitado nadie.'], ['c2', 'Sospechoso. 🤔']] },
         // Paconi.
         { id: 'paconiM30', requiere: ['paconi'], lineas: [['paconi', 'Buenos días, mis tigres. Recuerden que hoy cortan la M-30 por obras.'], ['paconi', 'No pasen por allá, es una trampa.'], ['c1', 'Ok.'], ['c2', '¡Gracias, Paconi!']] },
         { id: 'paconiAnfibio', requiere: ['paconi'], lineas: [['paconi', 'Buen día, grupo. ¿Saben si el coche es anfibio?… Tuve un pequeño problema, jefe.']] },
         { id: 'paconiFreno', requiere: ['paconi'], lineas: [['paconi', 'El freno está esponjoso, ¿lo notaron?'], ['c1', 'Paconi, es tu pie.']] },
         // Cambiadas por Iván (26-11-2026). «Sheet» mal escrito a propósito.
-        { id: 'paconiPlanta', requiere: ['paconi'], foto: 'planta', lineas: [['paconi', 'Espero que me la rieguen, muchachos, no me hagan enfadar.']] },
+        { id: 'paconiPlanta', requiere: ['paconi'], foto: 'planta', lineas: [['paconi', 'Espero que me la rieguen, muchachos, no me hagan enfadar. 🌱']] },
         { id: 'paconiShit', requiere: ['paconi'], foto: 'arbol', lineas: [['paconi', 'Como dirían los yankees: sheet happens.'], ['c2', '¿Qué ha pasado?'], ['paconi', 'El árbol lo colocaron bien engañoso.']] },
         { id: 'paconiTocayo', requiere: ['paconi', 'tocayo'], lineas: [['paconi', 'Jefe, creo que debería adelantarnos el sueldo de este mes… vamos bien jodidos.'], ['c1', '¡Ese es nuestro Paconi!'], ['c2', '¡Paconi boss!']] },
         { id: 'paconiBailongo', requiere: ['paconi'], lineas: [['paconi', 'Noto el coche algo bailongo, ¿ustedes también?'], ['c1', 'No sé de qué hablas…']] },
         // El Pelado.
         { id: 'peladoLechuga', requiere: ['pelado'], lineas: [['pelado', 'Che, jefe, mucha lechuga suelta hoy. Me fui un poco antes a casa.']] },
         { id: 'peladoPibes', requiere: ['pelado'], lineas: [['pelado', 'Siete pibes en casa, hermano. Hoy hice el doble turno y cené a las cuatro.']] },
-        { id: 'peladoKm', requiere: ['pelado'], lineas: [['pelado', 'Un kilometrito más no le hace mal a nadie.'], ['c1', 'Pelado, el coche tiene 300.000.'], ['pelado', 'Está joven.']] },
+        { id: 'peladoKm', requiere: ['pelado'], lineas: [['pelado', 'Un kilometrito más no le hace mal a nadie.'], ['c1', 'Pelado, el coche tiene {km} km.'], ['pelado', 'Está joven.']] },
         { id: 'peladoCalzoncillos', cuando: 'sinPagar', requiere: ['pelado'], lineas: [['pelado', 'El que se intente ir sin pagar conmigo se va en calzoncillos, ya saben.']] },
-        { id: 'peladoBocadillo', requiere: ['pelado'], foto: 'bocadillo', lineas: [['pelado', 'Desayuno de campeones.']] },
+        { id: 'peladoBocadillo', requiere: ['pelado'], foto: 'bocadillo', lineas: [['pelado', 'Desayuno de campeones. 🥖']] },
         // Daniela.
         { id: 'danielaFiniquito', requiere: ['daniela', 'paconi'], lineas: [['daniela', 'Paconi, tengo el finiquito listo. No me hagas mandártelo.'], ['paconi', 'Sí, jefa, descuide, este mes voy loco.']] },
-        { id: 'danielaATrabajar', requiere: ['daniela', 'paconi'], lineas: [['daniela', '¡Paconi, a trabajar!'], ['paconi', 'Si estoy trabajando, muchacha.'], ['daniela', 'Pues más.']] },
-        { id: 'danielaCafe', requiere: ['daniela'], lineas: [['daniela', 'Revisando las cuentas. {c1}, ¿por qué hay un café de 7 €?'], ['c1', 'Era con tostada…']] },
-        { id: 'danielaAlvaro', requiere: ['daniela'], lineas: [['daniela', 'Mañana no vengo, cuido de Álvaro. Portaos bien.'], ['c1', 'Sí, jefa.']] },
-        { id: 'danielaDibujo', requiere: ['daniela', 'pelado'], foto: 'dibujo', lineas: [['daniela', 'Así vamos este mes.'], ['pelado', 'Che, qué buena pinta.']] }
+        { id: 'danielaATrabajar', requiere: ['daniela', 'paconi'], lineas: [['daniela', '¡Paconi, a trabajar!'], ['paconi', 'Si estoy trabajando, muchacha.'], ['daniela', 'Pues más. 😤']] },
+        { id: 'danielaCafe', requiere: ['daniela'], lineas: [['daniela', 'Revisando las cuentas. {c1}, ¿por qué hay un café de 7 €?'], ['c1', 'Era con tostada… 🥲']] },
+        { id: 'danielaAlvaro', cuando: 'danielaCuida', requiere: ['daniela'], lineas: [['daniela', 'Hoy no he venido, estaba cuidando de Álvaro. ¿Os habéis portado bien?'], ['c1', 'Sí, jefa. 😇']] },
+        { id: 'danielaDibujo', requiere: ['daniela', 'pelado'], foto: 'dibujo', lineas: [['daniela', 'Así vamos este mes.'], ['pelado', 'Che, qué buena pinta. 👏']] }
       ]
     },
     /*

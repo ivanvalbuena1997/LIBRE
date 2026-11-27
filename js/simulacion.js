@@ -715,6 +715,8 @@
   /* Apunta lo que ha pasado en la jornada (`t`, el conductor; null si nadie). */
   function pistaChat(estado, tipo, t) {
     if (!estado.chat || !estado.caja || !estado.caja.hoy) return;
+    // Lo de quien no conduce (Daniela) va con su propia pista (danielaCuida).
+    if (noConduce(t)) return;
     const lista = estado.caja.hoy.chat = estado.caja.hoy.chat || [];
     if (lista.length >= 30) return;
     // Quien no conduce (Daniela) no cuenta sus pinchazos ni sus fiebres.
@@ -756,7 +758,8 @@
       .replace(/\{c2\}/g, papeles.c2 ? papeles.c2.nombre : '')
       .replace(/\{tu\}/g, nombrePersonaje(estado))
       .replace(/\{zona\}/g, zona)
-      .replace(/\{empresa\}/g, estado.empresa ? estado.empresa.nombre : '');
+      .replace(/\{empresa\}/g, estado.empresa ? estado.empresa.nombre : '')
+      .replace(/\{km\}/g, String(Math.round(papeles.km || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
   }
 
   /*
@@ -782,6 +785,9 @@
     if ((papeles.c1 && unicos.indexOf(papeles.c1.unico) !== -1) || (papeles.c2 && unicos.indexOf(papeles.c2.unico) !== -1)) return false;
     const autores = conv.lineas.map(function (l) { return autorChat(estado, l[0], papeles); });
     if (autores.some(function (a) { return !a; })) return false;
+    // {km}: los del coche de quien abre la conversación.
+    const licAutor = autores[0].t && estado.licencias.find(function (l) { return l.turnos.dia === autores[0].t || l.turnos.noche === autores[0].t; });
+    papeles.km = licAutor ? licAutor.km || 0 : 0;
     const chat = estado.chat;
     conv.lineas.forEach(function (l, i) {
       const a = autores[i];
@@ -3696,6 +3702,7 @@
           const jornadas = enteroEntre(estado, b.jornadasMin, b.jornadasMax);
           jefa.baja = { hasta: jornada + jornadas };
           incidencia(estado, resumen, 'baja', jefa.nombre + ': «' + (b.texto || 'Hoy no puedo.') + '»', 0, null, jefa);
+          pistaChat(estado, 'danielaCuida', null);
         }
       }
       const t = enTurno(lic, turnoActual);
