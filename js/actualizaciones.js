@@ -725,7 +725,13 @@
         {
           "n": 162,
           "texto": "Al comprar licencia puedes pagar por «Otras placas» si no te gustan las que salen: 100 € la primera vez del día y el doble cada vez. Y arreglo: Paconi y los demás ÚNICOS salen con su «Ú» en la clasificación de Estadísticas (antes, con la «L» de LEGENDARIO)."
-        },
+        }
+      ]
+    },
+    {
+      "fecha": "2026-11-27",
+      "titulo": "Almacén más compacto",
+      "cambios": [
         {
           "n": 163,
           "texto": "En el Almacén caben 4 objetos por fila (antes, 3): se ven más de un vistazo sin bajar."
