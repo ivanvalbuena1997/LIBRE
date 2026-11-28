@@ -789,6 +789,10 @@
         {
           "n": 175,
           "texto": "Paconi y El Pelado no se soportan: el día que contratas al segundo, se pican en el grupo de la flota al cerrar la caja."
+        },
+        {
+          "n": 176,
+          "texto": "Paconi da un consejo en el grupo de la flota: «No se dejen embelesar por los viajes cortos». No todos se lo toman en serio."
         }
       ]
     }
