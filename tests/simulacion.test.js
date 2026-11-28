@@ -3257,5 +3257,29 @@ prueba('Grupo: con Paconi y 3 Pacos o Franciscos, le corean tres tocayos distint
   assert.ok(nuevos.slice(1, 4).every(function (m) { return /^(Paco|Francisco)$/.test(m.nombre); }));
 });
 
+prueba('Grupo: si llega El Pelado con Paconi en la flota (o al revés), se pican al cierre', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e7;
+  sim.comprarLicencia(e); sim.comprarLicencia(e);
+  e.licencias.forEach(function (l) { if (!l.vehiculo) sim.comprarVehiculo(e, l.id); });
+  assert.ok(sim.montarSociedad(e, 'Prueba').ok);
+  assert.ok(sim.enviarPrimerMensaje(e, 'Hola').ok);
+  const contratar = function (id, lic, tn) {
+    sim.ofrecerUnico(e, id);
+    lic.turnos[tn] = null;
+    assert.ok(sim.contratarConductor(e, lic.id, tn, e.candidatos.findIndex(function (c) { return c.unico === id; })).ok);
+  };
+  contratar('paconi', e.licencias[1], 'dia');
+  assert.ok(!(e.caja.hoy.chat || []).some(function (p) { return /^llega:/.test(p.tipo); }), 'el primero no se pica con nadie');
+  contratar('pelado', e.licencias[2], 'noche');
+  assert.ok(e.caja.hoy.chat.some(function (p) { return p.tipo === 'llega:pelado'; }));
+  const caja = Object.assign({}, e.caja.hoy, { dia: 1 });
+  e.chat.recientes = [];
+  const n = e.chat.mensajes.length;
+  for (let i = 0; i < 10 && !e.chat.mensajes.slice(n).some(function (m) { return m.de === 'pelado'; }); i++) sim.chatAlCierre(e, caja);
+  const suyos = e.chat.mensajes.slice(n).filter(function (m) { return m.de === 'paconi' || m.de === 'pelado'; });
+  assert.ok(suyos.length >= 4, 'el pique, entre los dos');
+});
+
 console.log(pasadas + ' pruebas correctas');
 

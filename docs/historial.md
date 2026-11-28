@@ -217,3 +217,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 
 173. Paconi tiene una conversación nueva en el grupo de la flota: «¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.» / «Paconi, ¿qué ha pasado?»
 174. Si Paconi trabaja para ti y tienes al menos tres Pacos o Franciscos con turno, en el grupo de la flota le corean como a un ídolo: «¡PA-CO-NI! ¡PA-CO-NI!».
+175. Paconi y El Pelado no se soportan: el día que contratas al segundo, se pican en el grupo de la flota al cerrar la caja.

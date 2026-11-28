@@ -785,6 +785,10 @@
         {
           "n": 174,
           "texto": "Si Paconi trabaja para ti y tienes al menos tres Pacos o Franciscos con turno, en el grupo de la flota le corean como a un ídolo: «¡PA-CO-NI! ¡PA-CO-NI!»."
+        },
+        {
+          "n": 175,
+          "texto": "Paconi y El Pelado no se soportan: el día que contratas al segundo, se pican en el grupo de la flota al cerrar la caja."
         }
       ]
     }

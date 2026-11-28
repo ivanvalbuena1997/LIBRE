@@ -1520,6 +1520,10 @@
         { id: 'paconiBaja4', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Tengo un virus agarrado en el pecho… Es engañoso, vale: yo pensé que ya estaba bueno.']] },
         { id: 'paconiGasolina', requiere: ['paconi'], lineas: [['paconi', 'Buen día, grupo, que tengan un buen servicio hoy.'], ['paconi', '¿Quién cojoneh dejó el carro sin gasolina? ¡NO ME JODAN, SIEMPRE LO ANDO LLENANDO YO!']] },
         { id: 'paconiAmbientador', requiere: ['paconi'], lineas: [['paconi', '¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.'], ['c1', 'Paconi, ¿qué ha pasado?']] },
+        // Paconi y El Pelado se llevan mal (Iván, 28-11-2026): el día que
+        // llega el segundo, un pique al cierre (cuando 'llega:<el que llega>').
+        { id: 'llegaPelado', cuando: 'llega:pelado', lineas: [['paconi', '¡No jodah, jefe! ¿Contrató a este pelado? Ahora sí estamos bien jodidos.'], ['pelado', 'Che, venezolano, tranquilo, que yo vengo a laburar, no a robarte el laburo.'], ['paconi', 'Usted lo que viene es a gastarse toda la gasolina, chamo. Ya me contaron.'], ['pelado', 'Mirá vos… Bueno, a ver quién factura más, viejo.']] },
+        { id: 'llegaPaconi', cuando: 'llega:paconi', lineas: [['pelado', 'Jefe, ¿en serio? ¿El señor de la planta? Mamita querida…'], ['paconi', 'Más respeto, argentino, que yo manejaba un taxi cuando usted todavía no sabía ni dónde estaba el volante.'], ['pelado', '¡Pero si vos no sabés ni dónde está la cuarta, boludo!'], ['paconi', 'Engañoso… Ya hablaremos, pana.']] },
         // Con 3 o más Pacos o Franciscos con turno, le corean (Iván, 28-11-2026).
         // p1, p2 y p3: tres de ellos, al azar.
         { id: 'paconiClub', grupo: 'coro', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Mis tocayos, ¿cómo va la familia? Hoy la flota es nuestra, hermanos.'], ['p1', '¡PA-CO-NI! ¡PA-CO-NI! 🙌'], ['p2', '¡El maestro de los tocayos!'], ['p3', 'Cuando sea mayor quiero ser como tú, Paconi.'], ['paconi', 'Engañoso… pero gracias, muchachos.']] },

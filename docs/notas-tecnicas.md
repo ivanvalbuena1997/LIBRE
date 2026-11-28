@@ -799,7 +799,10 @@ nombra sin decir en qué archivo están: búscalas con grep.
   cabecera `.con-chat` deja sitio a tres botones. `{km}` en un texto: los
   del coche de quien abre la conversación. La de Daniela cuidando de Álvaro
   sale con la pista 'danielaCuida' (su baja, en `sortearInicioDeTurnos()`);
-  `pistaChat()` no apunta nada de quien no conduce. Enfados (27-11-2026):
+  `pistaChat()` no apunta nada de quien no conduce. `pistaLlegaUnico()`
+  (al contratar, con turno o a la reserva): si llega un ÚNICO con un
+  `incompatible` ya en la flota, pista 'llega:<id>' (el pique de Paconi y
+  El Pelado); `autorChat()` busca a un ÚNICO también en la reserva. Enfados (27-11-2026):
   conversaciones con `enfado` (c1 no puede ser un ÚNICO) y `prob`; su primer
   mensaje lleva `despedir: { id, hecho }`. `despedirPorBarbaridad(estado,
   id)` despide sin pagar (despido disciplinario) (`despedir(…, gratis)`, que también usa

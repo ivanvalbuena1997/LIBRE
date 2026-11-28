@@ -739,6 +739,18 @@
     return lista;
   }
 
+  /*
+   * Llega un ÚNICO y ya tienes a uno con el que se lleva mal (Paconi y El
+   * Pelado; Iván, 28-11-2026): al cierre, un pique entre los dos en el grupo
+   * (conversaciones con cuando 'llega:<id del que llega>').
+   */
+  function pistaLlegaUnico(estado, t) {
+    const u = unicoDe(t);
+    if (!u || !(u.incompatibles || []).length) return;
+    const hay = (u.incompatibles || []).some(function (i) { return unicoEnFlota(estado, i.id || i); });
+    if (hay) pistaChat(estado, 'llega:' + t.unico, null);
+  }
+
   /* Los Pacos y Franciscos con turno (los tocayos de Paconi). */
   function tocayosDelChat(estado) {
     return conductoresDelChat(estado).filter(function (t) { return !t.unico && /^(Paco|Francisco)$/.test(t.nombre); });
@@ -755,6 +767,8 @@
     estado.licencias.forEach(function (l) {
       TURNOS.forEach(function (tn) { const t = l.turnos[tn]; if (t && t.unico === quien) u = t; });
     });
+    // El pique de su llegada vale también si uno está en la reserva.
+    if (!u) (estado.reserva || []).forEach(function (t) { if (t.unico === quien) u = t; });
     return u ? { de: quien, nombre: u.nombre, cara: caraDe(u), t: u } : null;
   }
 
@@ -1551,6 +1565,7 @@
     estado.conductoresContratados++;
     lic.turnos[turno] = nuevoConductor(estado, candidato, otro ? otro.zona : c.zonaInicial);
     pistaChat(estado, 'nuevo', lic.turnos[turno]);
+    pistaLlegaUnico(estado, lic.turnos[turno]);
     sortearCandidatos(estado);
 
     if (primero) {
@@ -1598,6 +1613,7 @@
     estado.dinero -= precio;
     estado.conductoresContratados++;
     estado.reserva.push(nuevoConductor(estado, candidato, c.zonaInicial));
+    pistaLlegaUnico(estado, estado.reserva[estado.reserva.length - 1]);
     sortearCandidatos(estado);
     return exito(candidato.nombre + ' entra en la reserva. Dale un turno al cerrar el día.');
   }
