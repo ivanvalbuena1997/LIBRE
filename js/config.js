@@ -860,8 +860,7 @@
             'Engañoso.',
             'Como dirían los yankees, hermano: Sssssshit happens!',
             'El coche está bailongo, muchachos.',
-            'Ya sabes, hermano, tuve que parar porque salía líquido.',
-            '¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.'
+            'Ya sabes, hermano, tuve que parar porque salía líquido.'
           ],
           soloTurno: 'dia',
           sinIncognito: true,
@@ -1518,6 +1517,7 @@
         { id: 'paconiBaja3', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Ayer me dio un tirón en la lumbar cargando unas maletas, pana… No voy a poder trabajar, hermano.']] },
         { id: 'paconiBaja4', cuando: 'baja:paconi', requiere: ['paconi'], lineas: [['paconi', 'Tengo un virus agarrado en el pecho… Es engañoso, vale: yo pensé que ya estaba bueno.']] },
         { id: 'paconiGasolina', requiere: ['paconi'], lineas: [['paconi', 'Buen día, grupo, que tengan un buen servicio hoy.'], ['paconi', '¿Quién cojoneh dejó el carro sin gasolina? ¡NO ME JODAN, SIEMPRE LO ANDO LLENANDO YO!']] },
+        { id: 'paconiAmbientador', requiere: ['paconi'], lineas: [['paconi', '¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.'], ['c1', 'Paconi, ¿qué ha pasado?']] },
         { id: 'paconiBailongo', requiere: ['paconi'], lineas: [['paconi', 'Noto el coche algo bailongo, ¿ustedes también?'], ['c1', 'No sé de qué hablas…']] },
         // El Pelado.
         { id: 'peladoLechuga', requiere: ['pelado'], lineas: [['pelado', 'Che, jefe, mucha lechuga suelta hoy. Me fui un poco antes a casa.']] },
