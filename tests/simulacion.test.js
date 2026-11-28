@@ -3223,5 +3223,39 @@ prueba('Grupo: un enfado deja despedir gratis desde el mensaje, con la carta de 
   assert.ok(!sim.despedirPorBarbaridad(e, 12345).ok, 'solo desde un enfado');
 });
 
+prueba('Grupo: con Paconi y 3 Pacos o Franciscos, le corean tres tocayos distintos', function () {
+  const e = sim.crearEstadoInicial(0);
+  e.dinero = 1e7;
+  sim.comprarLicencia(e); sim.comprarLicencia(e);
+  e.licencias.forEach(function (l) {
+    if (!l.vehiculo) sim.comprarVehiculo(e, l.id);
+    ['dia', 'noche'].forEach(function (tn) { if (!l.turnos[tn]) sim.contratarConductor(e, l.id, tn, 0); });
+  });
+  assert.ok(sim.montarSociedad(e, 'Prueba').ok);
+  assert.ok(sim.enviarPrimerMensaje(e, 'Hola').ok);
+  sim.ofrecerUnico(e, 'paconi');
+  e.licencias[0].turnos.dia = null;
+  assert.ok(sim.contratarConductor(e, e.licencias[0].id, 'dia', e.candidatos.findIndex(function (c) { return c.unico === 'paconi'; })).ok);
+  const otros = sim.todosLosConductores(e).filter(function (x) { return !x.t.unico; }).map(function (x) { return x.t; });
+  otros.forEach(function (t) { t.nombre = 'Laura'; });
+  const todas = config.chat.conversaciones.map(function (c) { return c.id; });
+  const caja = { dia: 3, chat: [], carreras: 0, ingresos: 0, extras: 0, combustible: 0, conductores: 0, fijos: 0, otros: 0, incidencias: {} };
+  const coro = ['paconiClub', 'paconiDiscurso', 'paconiBrindis'];
+  const probar = function () {
+    e.chat.recientes = todas.filter(function (x) { return coro.indexOf(x) === -1; });
+    const n = e.chat.mensajes.length;
+    for (let i = 0; i < 20 && e.chat.mensajes.length === n; i++) sim.chatAlCierre(e, caja);
+    return e.chat.mensajes.slice(n);
+  };
+  otros[0].nombre = 'Paco'; otros[1].nombre = 'Francisco';
+  assert.strictEqual(probar().length, 0, 'con dos tocayos no sale');
+  otros[2].nombre = 'Paco';
+  const nuevos = probar();
+  assert.ok(nuevos.length >= 5 && nuevos.length % 5 === 0, 'una o más de las tres, de cinco mensajes');
+  const corean = nuevos.slice(1, 4).map(function (m) { return m.de; });
+  assert.strictEqual(new Set(corean).size, 3, 'tres distintos');
+  assert.ok(nuevos.slice(1, 4).every(function (m) { return /^(Paco|Francisco)$/.test(m.nombre); }));
+});
+
 console.log(pasadas + ' pruebas correctas');
 

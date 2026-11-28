@@ -739,10 +739,15 @@
     return lista;
   }
 
+  /* Los Pacos y Franciscos con turno (los tocayos de Paconi). */
+  function tocayosDelChat(estado) {
+    return conductoresDelChat(estado).filter(function (t) { return !t.unico && /^(Paco|Francisco)$/.test(t.nombre); });
+  }
+
   /* Quién escribe una línea: { de, nombre, cara } o null si no puede. */
   function autorChat(estado, quien, papeles) {
     if (quien === 'tu') return { de: 'tu', nombre: nombrePersonaje(estado), cara: null };
-    if (quien === 'c1' || quien === 'c2') {
+    if (quien === 'c1' || quien === 'c2' || quien === 'p1' || quien === 'p2' || quien === 'p3') {
       const t = papeles[quien];
       return t ? { de: t.id, nombre: t.nombre, cara: caraDe(t), t } : null;
     }
@@ -781,6 +786,15 @@
       if (!papeles.c1) return false;
       if (conv.enfado && papeles.c1.unico) return false;   // un ÚNICO no te falta al respeto
     }
+    // p1, p2 y p3: tres tocayos de Paconi distintos, al azar (Iván, 28-11-2026).
+    if (hace('p1')) {
+      const tocayos = tocayosDelChat(estado).slice();
+      for (const q of ['p1', 'p2', 'p3']) {
+        if (!hace(q)) continue;
+        if (!tocayos.length) return false;
+        papeles[q] = tocayos.splice(Math.floor(azar(estado) * tocayos.length), 1)[0];
+      }
+    }
     if (hace('c2')) {
       const otros = flota.filter(function (t) { return t !== papeles.c1; });
       if (!otros.length) return false;
@@ -817,9 +831,8 @@
   /* ¿Se cumple lo que pide una conversación (ÚNICOS con turno, un tocayo de Paconi)? */
   function cumpleRequisitos(estado, conv) {
     return (conv.requiere || []).every(function (r) {
-      if (r === 'tocayo') {
-        return conductoresDelChat(estado).some(function (t) { return !t.unico && /^(Paco|Francisco)$/.test(t.nombre); });
-      }
+      if (r === 'tocayo') return tocayosDelChat(estado).length >= 1;
+      if (r === 'tocayos3') return tocayosDelChat(estado).length >= 3;
       return estado.licencias.some(function (l) { return TURNOS.some(function (tn) { return l.turnos[tn] && l.turnos[tn].unico === r; }); });
     });
   }
