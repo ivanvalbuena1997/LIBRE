@@ -1426,6 +1426,7 @@
      *   enfado   c1 te falta al respeto: su mensaje lleva «Despedir gratis»
      *            (despedirPorBarbaridad(); nunca un ÚNICO)
      *   prob     probabilidad de que salga cuando le toca (para las raras)
+     *   grupo    como mucho una de cada grupo por cierre (el coro de Paconi)
      *   lineas   [quién, texto]: 'p1', 'p2' y 'p3' (tres tocayos de Paconi),
      *            'c1' y 'c2' (conductores de tu flota; en
      *            las de `cuando`, c1 es el que lo vivió), 'tu' o un ÚNICO.
@@ -1521,9 +1522,9 @@
         { id: 'paconiAmbientador', requiere: ['paconi'], lineas: [['paconi', '¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.'], ['c1', 'Paconi, ¿qué ha pasado?']] },
         // Con 3 o más Pacos o Franciscos con turno, le corean (Iván, 28-11-2026).
         // p1, p2 y p3: tres de ellos, al azar.
-        { id: 'paconiClub', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Mis tocayos, ¿cómo va la familia? Hoy la flota es nuestra, hermanos.'], ['p1', '¡PA-CO-NI! ¡PA-CO-NI! 🙌'], ['p2', '¡El maestro de los tocayos!'], ['p3', 'Cuando sea mayor quiero ser como tú, Paconi.'], ['paconi', 'Engañoso… pero gracias, muchachos.']] },
-        { id: 'paconiDiscurso', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Muchachos, en mi país me decían «el rey del volante». Aquí ustedes son mi gente.'], ['p1', '¡Que hable, que hable!'], ['p2', '¡Paconi presidente! 🇻🇪'], ['p3', 'Yo me llamo Paco por algo, jefe.'], ['paconi', 'No jodah, hermano… me van a hacer llorar.']] },
-        { id: 'paconiBrindis', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Esta noche, cafecito para todos los Pacos de la flota. Invito yo.'], ['p1', '¡Viva Paconi! ☕'], ['p2', '¡Nuestro ídolo!'], ['p3', '¿Seguro que invitas tú?'], ['paconi', 'Es una trampa, muchachos… pero esta vez no.']] },
+        { id: 'paconiClub', grupo: 'coro', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Mis tocayos, ¿cómo va la familia? Hoy la flota es nuestra, hermanos.'], ['p1', '¡PA-CO-NI! ¡PA-CO-NI! 🙌'], ['p2', '¡El maestro de los tocayos!'], ['p3', 'Cuando sea mayor quiero ser como tú, Paconi.'], ['paconi', 'Engañoso… pero gracias, muchachos.']] },
+        { id: 'paconiDiscurso', grupo: 'coro', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Muchachos, en mi país me decían «el rey del volante». Aquí ustedes son mi gente.'], ['p1', '¡Que hable, que hable!'], ['p2', '¡Paconi presidente! 🇻🇪'], ['p3', 'Yo me llamo Paco por algo, jefe.'], ['paconi', 'No jodah, hermano… me van a hacer llorar.']] },
+        { id: 'paconiBrindis', grupo: 'coro', requiere: ['paconi', 'tocayos3'], lineas: [['paconi', 'Esta noche, cafecito para todos los Pacos de la flota. Invito yo.'], ['p1', '¡Viva Paconi! ☕'], ['p2', '¡Nuestro ídolo!'], ['p3', '¿Seguro que invitas tú?'], ['paconi', 'Es una trampa, muchachos… pero esta vez no.']] },
         { id: 'paconiBailongo', requiere: ['paconi'], lineas: [['paconi', 'Noto el coche algo bailongo, ¿ustedes también?'], ['c1', 'No sé de qué hablas…']] },
         // El Pelado.
         { id: 'peladoLechuga', requiere: ['pelado'], lineas: [['pelado', 'Che, jefe, mucha lechuga suelta hoy. Me fui un poco antes a casa.']] },

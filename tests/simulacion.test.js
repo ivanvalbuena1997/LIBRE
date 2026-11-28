@@ -3251,7 +3251,7 @@ prueba('Grupo: con Paconi y 3 Pacos o Franciscos, le corean tres tocayos distint
   assert.strictEqual(probar().length, 0, 'con dos tocayos no sale');
   otros[2].nombre = 'Paco';
   const nuevos = probar();
-  assert.ok(nuevos.length >= 5 && nuevos.length % 5 === 0, 'una o más de las tres, de cinco mensajes');
+  assert.strictEqual(nuevos.length, 5, 'una sola de las tres por cierre');
   const corean = nuevos.slice(1, 4).map(function (m) { return m.de; });
   assert.strictEqual(new Set(corean).size, 3, 'tres distintos');
   assert.ok(nuevos.slice(1, 4).every(function (m) { return /^(Paco|Francisco)$/.test(m.nombre); }));

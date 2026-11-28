@@ -847,8 +847,10 @@
     if (netoCaja(caja) < 0) pistas.push({ tipo: 'negativo', quien: null });
     const cuantas = enteroEntre(estado, c.porCierre.min, c.porCierre.max);
     const usadas = [];
+    const grupos = [];   // como mucho una de cada grupo por cierre
     const valida = function (conv) {
-      return chat.recientes.indexOf(conv.id) === -1 && usadas.indexOf(conv.id) === -1 && cumpleRequisitos(estado, conv);
+      return chat.recientes.indexOf(conv.id) === -1 && usadas.indexOf(conv.id) === -1 &&
+        !(conv.grupo && grupos.indexOf(conv.grupo) !== -1) && cumpleRequisitos(estado, conv);
     };
     let escritas = 0;
     // Primero lo que ha pasado (en orden al azar, sin repetir tipo).
@@ -861,7 +863,7 @@
       const conv = posibles[Math.floor(azar(estado) * posibles.length)];
       const pista = pistas.find(function (p) { return p.tipo === tipo && p.quien; });
       const c1 = pista ? conductoresDelChat(estado).find(function (t) { return t.id === pista.quien; }) : null;
-      if (escribirConversacion(estado, conv, caja.dia, c1 || null)) { usadas.push(conv.id); escritas++; }
+      if (escribirConversacion(estado, conv, caja.dia, c1 || null)) { usadas.push(conv.id); if (conv.grupo) grupos.push(conv.grupo); escritas++; }
     }
     // Y, si faltan, charla (las de los ÚNICOS, solo si están).
     let intentos = 0;
@@ -871,7 +873,7 @@
       const conv = posibles[Math.floor(azar(estado) * posibles.length)];
       if (conv.prob !== undefined && azar(estado) >= conv.prob) continue;
       // Si no se puede (le ha tocado de c1 al mismo ÚNICO que habla), se reintenta.
-      if (escribirConversacion(estado, conv, caja.dia, null)) { usadas.push(conv.id); escritas++; }
+      if (escribirConversacion(estado, conv, caja.dia, null)) { usadas.push(conv.id); if (conv.grupo) grupos.push(conv.grupo); escritas++; }
     }
   }
 
