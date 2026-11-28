@@ -860,7 +860,8 @@
             'Engañoso.',
             'Como dirían los yankees, hermano: Sssssshit happens!',
             'El coche está bailongo, muchachos.',
-            'Ya sabes, hermano, tuve que parar porque salía líquido.'
+            'Ya sabes, hermano, tuve que parar porque salía líquido.',
+            '¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.'
           ],
           soloTurno: 'dia',
           sinIncognito: true,

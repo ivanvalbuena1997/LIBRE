@@ -212,3 +212,7 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 170. Las dos últimas fotos del grupo de la flota: la cola de taxis de Barajas y El Pelado en la reserva.
 171. En el grupo de la flota, a veces un conductor se pasa de la raya. Bajo su mensaje sale «Despedir gratis»: si confirmas, es un despido disciplinario: se va sin que pagues nada y le mandas la carta de despido en PDF por el grupo.
 172. Tu retrato se ve más cerca, a la misma escala que las caras de tus conductores (antes parecía más pequeño).
+
+## 28 de noviembre de 2026 · Paconi
+
+173. Paconi tiene una frase nueva: «¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.»

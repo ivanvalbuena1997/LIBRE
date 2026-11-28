@@ -773,6 +773,16 @@
           "texto": "Tu retrato se ve más cerca, a la misma escala que las caras de tus conductores (antes parecía más pequeño)."
         }
       ]
+    },
+    {
+      "fecha": "2026-11-28",
+      "titulo": "Paconi",
+      "cambios": [
+        {
+          "n": 173,
+          "texto": "Paconi tiene una frase nueva: «¿Dónde pusieron el ambientador, muchachos? No lo encuentro, es urgente.»"
+        }
+      ]
     }
   ];
 })(globalThis);
