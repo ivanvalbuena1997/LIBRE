@@ -201,4 +201,5 @@ En `config.historia.eventos` con lo que Iván aprobó: `perro`, `nochevieja`,
 `dormido`, `inspector` y `bernabeu`. Seis dan un objeto de conductor: Funda
 de asientos (perro), Rosario (abuelo), Spotify Premium (influencer),
 Detector de metales (clon), Antifaz de avión (dormido) y Bufanda mitad y
-mitad (Bernabéu). Ilustraciones pendientes: hasta entonces, fondo provisional.
+mitad (Bernabéu). Ilustraciones hechas: perro, nochevieja y abuelo; el
+resto, pendientes (hasta entonces, fondo provisional).
