@@ -193,3 +193,12 @@ la fuga» (`novia`), «El turista de Barajas» (`turista`, dos opciones),
 (`maletin`) y «Noche de final» (`final`, dos opciones). Sus prompts están
 en ese documento; mientras no estén las ilustraciones, sale el fondo
 provisional.
+
+## E. Doce más (28-11-2026)
+
+En `config.historia.eventos` con lo que Iván aprobó: `perro`, `nochevieja`,
+`abuelo`, `atocha`, `pedida`, `influencer`, `dolares`, `despedida`, `clon`,
+`dormido`, `inspector` y `bernabeu`. Seis dan un objeto de conductor: Funda
+de asientos (perro), Rosario (abuelo), Spotify Premium (influencer),
+Detector de metales (clon), Antifaz de avión (dormido) y Bufanda mitad y
+mitad (Bernabéu). Ilustraciones pendientes: hasta entonces, fondo provisional.

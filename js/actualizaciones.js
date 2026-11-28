@@ -793,6 +793,10 @@
         {
           "n": 176,
           "texto": "Paconi da un consejo en el grupo de la flota: «No se dejen embelesar por los viajes cortos». No todos se lo toman en serio."
+        },
+        {
+          "n": 177,
+          "texto": "Doce eventos de clientes nuevos: un perro gigante, la Nochevieja en Sol, un abuelo perdido, un ejecutivo que pierde el AVE, una pedida de mano, un influencer, un turista con dólares, una despedida de soltera, un taxi clonado, un cliente dormido, un inspector y la salida de un concierto en el Bernabéu. Seis de ellos pueden regalarte un objeto para tus conductores. Sus ilustraciones llegarán pronto."
         }
       ]
     }

@@ -219,3 +219,4 @@ Todas las actualizaciones del juego, numeradas (las pequeñas, agrupadas). Es el
 174. Si Paconi trabaja para ti y tienes al menos tres Pacos o Franciscos con turno, en el grupo de la flota le corean como a un ídolo: «¡PA-CO-NI! ¡PA-CO-NI!».
 175. Paconi y El Pelado no se soportan: el día que contratas al segundo, se pican en el grupo de la flota al cerrar la caja.
 176. Paconi da un consejo en el grupo de la flota: «No se dejen embelesar por los viajes cortos». No todos se lo toman en serio.
+177. Doce eventos de clientes nuevos: un perro gigante, la Nochevieja en Sol, un abuelo perdido, un ejecutivo que pierde el AVE, una pedida de mano, un influencer, un turista con dólares, una despedida de soltera, un taxi clonado, un cliente dormido, un inspector y la salida de un concierto en el Bernabéu. Seis de ellos pueden regalarte un objeto para tus conductores. Sus ilustraciones llegarán pronto.

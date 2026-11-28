@@ -1409,6 +1409,127 @@
                 { prob: 0.4, texto: 'Se ponen a botar y arrancan el retrovisor: 45 €, 120 € de taller y media hora parado.', dinero: 45, coste: 120, parado: 30 }] },
               { texto: '«Hoy me voy a casa»', resultados: [
                 { texto: 'Luz verde apagada. Otro día será.', dinero: 0 }] }
+            ] },
+          // Doce más (Iván, 28-11-2026). Seis dan un objeto de conductor.
+          { id: 'perro', titulo: 'El perro en el asiento de atrás', imagen: 'imagenes/evento-perro.webp', momento: 'dia',
+            texto: 'Una señora sube con un gran danés enorme y empapado: «No suelta pelo, se lo prometo». La carrera son 25 €.',
+            opciones: [
+              { texto: '«Que suba, me encantan los perros»', resultados: [
+                { prob: 0.5, texto: 'Todo lleno de pelo… pero la señora, encantada, regala una funda de asientos. Un objeto de categoría B.', dinero: 25, objeto: 'funda' },
+                { prob: 0.5, texto: 'Todo lleno de pelo: 30 € de limpieza.', dinero: 25, coste: 30 }] },
+              { texto: '«El perro, en el maletero»', resultados: [
+                { texto: 'La señora se ofende. 25 € y ni una palabra más.', dinero: 25 }] },
+              { texto: '«Lo siento, no llevo animales»', resultados: [
+                { texto: 'Se baja indignada. Nada.', dinero: 0 }] }
+            ] },
+          { id: 'nochevieja', titulo: 'La carrera de la Nochevieja', imagen: 'imagenes/evento-nochevieja.webp', momento: 'noche',
+            texto: 'Son las 23:50 en la Puerta del Sol. Sube un cliente con las doce uvas en un vasito: quiere llegar a casa antes de las campanadas. La carrera son 30 €.',
+            opciones: [
+              { texto: '«¡Agárrese!»', resultados: [
+                { prob: 0.6, texto: 'Llega a tiempo: 30 € y 50 € de propina. ¡Feliz año!', dinero: 80 },
+                { prob: 0.4, texto: 'Las campanadas pillan en un semáforo y os coméis las uvas juntos. 30 € y un recuerdo para siempre.', dinero: 30, xp: 100 }] },
+              { texto: '«Con calma, que es peligroso»', resultados: [
+                { texto: 'Llega tarde. 30 € y una cara larga.', dinero: 30 }] }
+            ] },
+          { id: 'abuelo', titulo: 'El abuelo que no recuerda la dirección', imagen: 'imagenes/evento-abuelo.webp', momento: 'dia',
+            texto: 'Sube un señor mayor, desorientado. Solo sabe que vive «al lado de una panadería».',
+            opciones: [
+              { texto: '«Le busco su panadería»', resultados: [
+                { texto: 'Una hora dando vueltas hasta dar con ella. La familia lo agradece con 50 € y un rosario para el retrovisor. Un objeto de categoría B.', dinero: 50, parado: 60, xp: 60, objeto: 'rosario' }] },
+              { texto: '«Le llevo a la comisaría más cercana»', resultados: [
+                { texto: 'Allí se ocupan de él. Un cuarto de hora y 10 €.', dinero: 10, parado: 15, xp: 30 }] },
+              { texto: '«Lo siento, no puedo»', resultados: [
+                { texto: 'Se baja despacito. Nada, y un mal cuerpo…', dinero: 0 }] }
+            ] },
+          { id: 'atocha', titulo: 'El ejecutivo que va tarde a Atocha', imagen: 'imagenes/evento-atocha.webp', momento: 'dia',
+            texto: 'Un ejecutivo con maletín y el móvil en la mano: el AVE sale en diez minutos. «Le doy 100 € si llegamos.» Por taxímetro serían 15 €.',
+            opciones: [
+              { texto: '«Por el carril bus»', resultados: [
+                { prob: 0.6, texto: 'Llega con dos minutos de sobra: 100 €.', dinero: 100 },
+                { prob: 0.4, texto: 'Un agente de movilidad: 200 € de multa. Él paga los 100 € igual.', dinero: 100, coste: 200 }] },
+              { texto: '«Por donde se puede»', resultados: [
+                { texto: 'Pierde el tren. 15 € y pide la hoja de reclamaciones.', dinero: 15 }] }
+            ] },
+          { id: 'pedida', titulo: 'La pedida de mano', imagen: 'imagenes/evento-pedida.webp', momento: 'noche',
+            texto: 'Un chico nervioso con un anillo en el bolsillo: su novia va a subir en la próxima parada y quiere dar vueltas por Madrid hasta que diga que sí.',
+            opciones: [
+              { texto: '«Damos las vueltas que haga falta»', resultados: [
+                { prob: 0.7, texto: '¡Dice que sí! Dos horas de paseo, 120 € y aplausos.', dinero: 120, parado: 120, xp: 60 },
+                { prob: 0.3, texto: 'Dice que no. Dos horas, 60 € y un silencio incómodo.', dinero: 60, parado: 120 }] },
+              { texto: '«Con taxímetro, lo que dure»', resultados: [
+                { texto: 'Una hora de vueltas por el centro: 80 €.', dinero: 80, parado: 60 }] }
+            ] },
+          { id: 'influencer', titulo: 'El influencer', imagen: 'imagenes/evento-influencer.webp', momento: 'dia',
+            texto: 'Sube un chaval con un aro de luz y tres móviles: quiere grabar un vídeo en el taxi «para hacerte famoso». La carrera son 20 €.',
+            opciones: [
+              { texto: '«Grabe lo que quiera»', resultados: [
+                { texto: 'Sale en su vídeo y le regala un año de Spotify Premium. 20 € y un objeto de categoría S.', dinero: 20, xp: 40, objeto: 'spotify' }] },
+              { texto: '«Sin grabarme a mí»', resultados: [
+                { texto: 'Graba el paisaje. 20 € y 10 € de propina.', dinero: 30 }] },
+              { texto: '«Aquí no se graba»', resultados: [
+                { texto: 'Guarda los móviles de mala gana. 20 €.', dinero: 20 }] }
+            ] },
+          { id: 'dolares', titulo: 'El turista que solo paga en dólares', imagen: 'imagenes/evento-dolares.webp', momento: 'noche',
+            texto: 'Un turista con sombrero llega a su hotel y saca un fajo de billetes verdes: no lleva ni un euro. La carrera son 40 €.',
+            opciones: [
+              { texto: '«Vale, en dólares»', resultados: [
+                { prob: 0.5, texto: 'Te da de más: al cambiarlos son 60 €.', dinero: 60 },
+                { prob: 0.5, texto: 'Al cambiarlos pierdes: 25 €.', dinero: 25 }] },
+              { texto: '«Paramos en un cajero»', resultados: [
+                { texto: 'Un cuarto de hora buscando uno que le funcione. 40 €.', dinero: 40, parado: 15 }] },
+              { texto: '«Pues invita la casa»', resultados: [
+                { texto: 'Te abraza dos veces. Ni un euro, pero qué buena obra.', dinero: 0, xp: 100 }] }
+            ] },
+          { id: 'despedida', titulo: 'La despedida de soltera', imagen: 'imagenes/evento-despedida.webp', momento: 'noche',
+            texto: 'Seis chicas con diadema, un megáfono y un muñeco hinchable que no cabe por la puerta. La carrera son 50 €.',
+            opciones: [
+              { texto: '«¡Arriba, chicas!»', resultados: [
+                { prob: 0.7, texto: 'Cantan todo el camino y dejan 40 € de propina.', dinero: 90 },
+                { prob: 0.3, texto: 'Una se marea: 50 € y 40 € de propina, 70 € de limpieza y una hora parado.', dinero: 90, coste: 70, parado: 60 }] },
+              { texto: '«El muñeco, desinflado»', resultados: [
+                { texto: 'Protestan, pero lo desinflan. 50 €.', dinero: 50 }] },
+              { texto: '«Seis no caben»', resultados: [
+                { texto: 'Se van a buscar una furgoneta. Nada.', dinero: 0 }] }
+            ] },
+          { id: 'clon', titulo: 'El clon de tu taxi', imagen: 'imagenes/evento-clon.webp',
+            texto: 'En un semáforo, a tu lado, un taxi idéntico… con tu misma placa. Alguien te la ha copiado.',
+            opciones: [
+              { texto: '«Lo sigo y llamo a la policía»', resultados: [
+                { texto: 'Una hora de persecución, pero lo pillan. La asociación de taxistas te regala un detector de metales, por si las moscas. Un objeto de categoría S+.', dinero: 0, parado: 60, xp: 100, objeto: 'detector' }] },
+              { texto: '«Lo denuncio y sigo»', resultados: [
+                { texto: 'Un cuarto de hora de papeleo.', dinero: 0, parado: 15, xp: 40 }] },
+              { texto: '«No es mi problema»', resultados: [
+                { prob: 0.6, texto: 'No vuelves a verlo.', dinero: 0 },
+                { prob: 0.4, texto: 'Al día siguiente llega una multa suya a tu nombre: 150 €.', dinero: 0, coste: 150 }] }
+            ] },
+          { id: 'dormido', titulo: 'El cliente dormido', imagen: 'imagenes/evento-dormido.webp', momento: 'noche',
+            texto: 'Llegas al destino y el cliente ronca en el asiento de atrás. No hay manera de despertarle. La carrera son 35 €.',
+            opciones: [
+              { texto: '«Le dejo dormir y espero»', resultados: [
+                { texto: 'Media hora después se despierta, agradecido: 35 € y su antifaz de avión. Un objeto de categoría A.', dinero: 35, parado: 30, objeto: 'antifaz' }] },
+              { texto: '«¡Arriba, que hemos llegado!»', resultados: [
+                { texto: 'Se despierta de un brinco y paga. 35 €.', dinero: 35 }] },
+              { texto: '«Le llevo a comisaría»', resultados: [
+                { texto: 'Allí le despiertan. 35 € y una hora perdida.', dinero: 35, parado: 60 }] }
+            ] },
+          { id: 'inspector', titulo: 'El inspector de la Comunidad', imagen: 'imagenes/evento-inspector.webp', momento: 'dia',
+            texto: 'A mitad de carrera el pasajero enseña una placa: inspector de transportes. Quiere ver la licencia, el taxímetro y las tarifas. La carrera son 20 €.',
+            opciones: [
+              { texto: '«Revise lo que quiera»', resultados: [
+                { prob: 0.8, texto: 'Media hora de revisión: todo en regla. 20 €.', dinero: 20, parado: 30, xp: 40 },
+                { prob: 0.2, texto: 'Una tarifa mal puesta: 300 € de multa.', dinero: 20, coste: 300, parado: 30 }] },
+              { texto: '«Le pongo la radio mientras»', resultados: [
+                { prob: 0.5, texto: 'Le cae bien y no revisa nada. 20 €.', dinero: 20 },
+                { prob: 0.5, texto: 'Se lo toma a mal: 100 € de multa.', dinero: 20, coste: 100 }] }
+            ] },
+          { id: 'bernabeu', titulo: 'El concierto en el Bernabéu', imagen: 'imagenes/evento-bernabeu.webp', momento: 'noche',
+            texto: 'Sale el público de un concierto y todos quieren taxi a la vez. El primero de la fila espera; otro ofrece el triple por colarse. La carrera son 20 €.',
+            opciones: [
+              { texto: '«Al que paga el triple»', resultados: [
+                { prob: 0.6, texto: '60 € y a correr.', dinero: 60 },
+                { prob: 0.4, texto: '60 €… pero el de la fila lo graba y sale en redes: 50 € de reclamación.', dinero: 60, coste: 50 }] },
+              { texto: '«Al que estaba primero»', resultados: [
+                { texto: '20 € y se deja olvidada una bufanda mitad y mitad. Un objeto de categoría S.', dinero: 20, xp: 40, objeto: 'bufanda' }] }
             ] }
         ]
       }
